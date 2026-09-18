@@ -1,0 +1,23 @@
+{
+  "_doc": "Each case patches the golden record named in `base` (by id) and must fail schema validation with an error containing `expect`. `patch` keys set top-level fields; `drop` removes them.",
+  "naive_recorded_at": {"base": "fct_00000000000000000000000001", "patch": {"recorded_at": "2026-09-18T10:00:01"}, "expect": "timezone"},
+  "interval_reversed": {"base": "fct_00000000000000000000000002", "patch": {"valid_from": "2025", "valid_until": "2024"}, "expect": "valid_until"},
+  "bad_partial_date": {"base": "fct_00000000000000000000000002", "patch": {"valid_from": "2024-13"}, "expect": "partial date"},
+  "unknown_schema_version": {"base": "fct_00000000000000000000000001", "patch": {"schema_version": 2}, "expect": "migration"},
+  "evidence_without_locator": {"base": "evd_00000000000000000000000001", "patch": {"provenance": {"source_id": "src_00000000000000000000000001", "episode": "eps_sync_0001", "locator": null}}, "expect": "locator"},
+  "missing_trust": {"base": "fct_00000000000000000000000001", "drop": ["trust"], "expect": "trust"},
+  "missing_retention": {"base": "fct_00000000000000000000000001", "drop": ["retention"], "expect": "retention"},
+  "missing_policy_epoch": {"base": "obs_00000000000000000000000001", "drop": ["policy_epoch"], "expect": "policy_epoch"},
+  "observation_not_quarantined": {"base": "obs_00000000000000000000000001", "patch": {"review_status": "accepted"}, "expect": "quarantined"},
+  "candidate_not_quarantined": {"base": "cnd_00000000000000000000000001", "patch": {"review_status": "accepted"}, "expect": "quarantined"},
+  "review_by_model": {"base": "rev_00000000000000000000000001", "patch": {"actor": "host_model"}, "expect": "actor"},
+  "review_bad_digest": {"base": "rev_00000000000000000000000001", "patch": {"action_digest": "sha256:xyz"}, "expect": "action_digest"},
+  "bad_id_charset": {"base": "fct_00000000000000000000000001", "patch": {"id": "fct_hello"}, "expect": "id"},
+  "confidence_out_of_range": {"base": "fct_00000000000000000000000001", "patch": {"confidence": 1.5}, "expect": "confidence"},
+  "fact_without_evidence": {"base": "fct_00000000000000000000000001", "patch": {"evidence_ids": []}, "expect": "evidence"},
+  "supersedes_self": {"base": "fct_00000000000000000000000001", "patch": {"supersedes": ["fct_00000000000000000000000001"]}, "expect": "itself"},
+  "world_change_without_supersedes": {"base": "fct_00000000000000000000000003", "patch": {"supersedes": []}, "expect": "supersedes"},
+  "unknown_field": {"base": "fct_00000000000000000000000001", "patch": {"mastery_score": 0.9}, "expect": "extra"},
+  "unknown_module": {"base": "fct_00000000000000000000000001", "patch": {"module": "finances"}, "expect": "module"},
+  "unknown_signal": {"base": "evd_00000000000000000000000001", "patch": {"signals": ["mastered"]}, "expect": "signals"}
+}

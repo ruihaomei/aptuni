@@ -21,8 +21,9 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 - All review streams are clear (architecture 07, execution 10, security 14 — each approved with
   non-blocking notes, all notes addressed in remediations 07/10/14; relay drills 05 and 11 PASS).
-- Next phase: Gate 0 spikes S01–S04 and S05A. ADRs stay `Proposed` until spike results confirm or
-  revise them.
+- Gate 0 spikes: **S01 PASS** (`spikes/S01-vault.md`; findings F1–F3 → KI-016). S02–S04 and S05A
+  pending. ADRs stay `Proposed` until spike results confirm or revise them; spike conclusions still
+  need an independent evidence review (plan 00 exit checklist).
 
 ## Awaiting maintainer decisions
 
@@ -32,16 +33,16 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-Run S01 (canonical schema + crash-safe/concurrent Vault) with `/opt/homebrew/bin/python3.13` per
-`plans/00-phase-0-spikes.md` §2, recording results in `docs/dev/spikes/S01-vault.md`; then S02–S04 and
-S05A. Spike code is disposable and stays outside the future package.
+Run S02 (installed plugin discovery/isolation) per `plans/00-phase-0-spikes.md` §3, then S03, S04 and
+S05A; batch an independent evidence review of the spike results before ADR acceptance.
 
 ## Latest validation state
 
 - `python3.13 -m unittest tests/dev/test_check_relay.py`: Ran 19 tests in 0.016s OK
 - `python3.13 tools/check_relay.py`: relay check passed (includes the workspace-text check, which
   covers untracked files for trailing whitespace/final newline).
-- `git diff --check`: exit 0 but covers no files — the repository has no commit yet.
+- `git diff --check`: exit 0 against the first commit `9f3d183` (tracked files only).
+- S01: `spikes/s01_vault/run_s01.py` in a pinned-3.13.3 venv → 46 tests OK, exit 0.
 - Markdown link and ADR-index checks run inside `tools/check_relay.py`: 67 Markdown files,
   13 ADRs, all indexed; 8 research notes.
 - No production tests exist because production scaffolding is intentionally gated.

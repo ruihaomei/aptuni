@@ -16,12 +16,13 @@ code exists. Spikes S01–S05A have not run.
 
 ## Next action
 
-Run S01 with the pinned interpreter; record `docs/dev/spikes/S01-vault.md` (measured facts separate
-from interpretation; non-zero exit on failed acceptance). Then S02–S04 and S05A. Spike results decide
-ADR acceptance or revision.
+Run S02 per `plans/00-phase-0-spikes.md` §3 (installed-fixture discovery, duplicate IDs, broken import,
+incompatible contract, closure drift), recording `docs/dev/spikes/S02-plugins.md`. Use a disposable
+venv from `/opt/homebrew/bin/python3.13` outside the repo. Then S03, S04, S05A.
 
 ## This pass changed
 
+- S01 PASS (46 tests, baseline asserted); findings F1–F3 recorded as KI-016 for M1.1.
 - Security stream approved (report 14) after ADR-0013 simplification; its notes addressed in
   remediation 14 (approve service reachable only from the CLI; Codex escalation disclosed).
 - Maintainer decision (2026-09-18): honest host trust boundary + host confinement → ADR-0013; broker
@@ -38,4 +39,4 @@ ADR acceptance or revision.
   gitignored; `docs/product/PRD.md` is canonical.
 - Research Memory must not be initialized without explicit maintainer confirmation.
 - Bare `python3` on the Gate 0 host is Anaconda 3.12.4; use `python3.13`.
-- No initial commit yet; checkpoint only when the maintainer authorizes it.
+- Commits are local only (maintainer authorized the first checkpoint on 2026-09-18); never push.

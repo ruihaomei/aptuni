@@ -1,0 +1,24 @@
+{
+  "baseline": {
+    "executable": "venv/bin/python",
+    "macos": "26.2",
+    "macos_build": "25C56",
+    "pydantic": "2.13.5",
+    "python": "3.13.3",
+    "sqlite": "3.53.2",
+    "tmp_fs": "apfs",
+    "tmp_fs_local": "True"
+  },
+  "baseline_mismatches": {},
+  "errors": 0,
+  "failures": 0,
+  "metrics": {
+    "commit_ms_first50_median": 16.239083546679467,
+    "commit_ms_last50_median": 24.954645487014204,
+    "commit_ms_p95": 25.867833057418466,
+    "read_all_ms_median_316_records": 8.354792022146285
+  },
+  "passed": true,
+  "spike": "S01",
+  "tests_run": 46
+}
