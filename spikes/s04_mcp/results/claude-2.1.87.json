@@ -1,0 +1,16 @@
+{
+  "status": "BLOCKED_EXTERNAL",
+  "date": "2026-09-19",
+  "host": "Claude Code 2.1.87",
+  "model_boundary": "remote_unknown",
+  "duration_ms": 131633,
+  "api_duration_ms": 0,
+  "tool_calls": 0,
+  "cost_usd": 0,
+  "error": "repeated HTTP 400 from host API; run terminated after bounded wait",
+  "limitations": [
+    "This is not an MCP server failure and not a host PASS",
+    "2.1.87 is older than the npm stable tag 2.1.267",
+    "current and preceding stable host journeys remain required"
+  ]
+}

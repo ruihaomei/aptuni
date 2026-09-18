@@ -1,0 +1,22 @@
+{
+  "status": "PASS_INSTALLED_VERSION_ONLY",
+  "date": "2026-09-19",
+  "host": "Codex CLI 0.153.4 bundled in ChatGPT desktop",
+  "model_boundary": "remote_unknown",
+  "session": {"sandbox_mode": "read-only", "approval_policy": "never", "ephemeral": true},
+  "read_probe": {
+    "first_attempt_without_readOnlyHint": "DENIED_HOST_APPROVAL_REQUIRED",
+    "second_attempt_with_readOnlyHint": "PASS",
+    "response": "HOST_OK 61"
+  },
+  "candidate_probe": {
+    "annotation": {"readOnlyHint": false, "destructiveHint": false, "idempotentHint": true},
+    "host_result": "ALLOWED_WITH_APPROVAL_POLICY_NEVER",
+    "core_result": {"review_state": "quarantined", "exposable": false}
+  },
+  "limitations": [
+    "0.153.4 is older than upstream current stable 0.155.0",
+    "protected-path write/read canaries and session binding are not yet exercised",
+    "model/vendor traffic is outside the MCP server network sandbox"
+  ]
+}

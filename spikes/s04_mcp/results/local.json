@@ -1,0 +1,25 @@
+{
+  "status": "PASS_LOCAL_LAYER",
+  "date": "2026-09-19",
+  "python": "3.13.3",
+  "sqlite": "3.53.2",
+  "mcp_sdk": "2.2.0",
+  "protocol_observed": "2026-07-28",
+  "tests": 13,
+  "network_boundary": {
+    "os_profile": "sandbox-exec deny network*",
+    "python_audit": "allow AF_UNIX creation only for asyncio self-pipe; deny AF_INET/AF_INET6 creation and every connect/bind",
+    "unexpected_destinations": []
+  },
+  "covered": [
+    "schema snapshot and annotations",
+    "modern STDIO discovery, tools, errors, budgets, empty resources/prompts, and EOF shutdown",
+    "terminal-only approval and no MCP approval schema",
+    "forged principal, confused deputy, stale epoch, digest/scope mismatch, replay and prefix denial",
+    "eight concurrent confirmers create one durable intent",
+    "hard crashes before and after journal commit",
+    "external effect before receipt update is idempotent on restart",
+    "egress revocation cancels before effect",
+    "candidate remains quarantined and non-exposable"
+  ]
+}

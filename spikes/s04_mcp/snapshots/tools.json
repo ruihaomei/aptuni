@@ -1,0 +1,78 @@
+[
+  {
+    "annotations": {"destructive_hint": false, "idempotent_hint": true, "open_world_hint": false, "read_only_hint": true},
+    "description": "Return a bounded synthetic L0 identity card.",
+    "input_schema": {
+      "properties": {
+        "max_units": {"default": 64, "maximum": 256, "minimum": 32, "title": "Max Units", "type": "integer"}
+      },
+      "title": "get_identity_cardArguments",
+      "type": "object"
+    },
+    "name": "profile_get_identity_card",
+    "output_schema": {"additionalProperties": true, "title": "get_identity_cardDictOutput", "type": "object"}
+  },
+  {
+    "annotations": {"destructive_hint": false, "idempotent_hint": true, "open_world_hint": false, "read_only_hint": true},
+    "description": "Search bounded synthetic L1/L2 context; disabled modules deny.",
+    "input_schema": {
+      "properties": {
+        "max_units": {"default": 128, "maximum": 512, "minimum": 32, "title": "Max Units", "type": "integer"},
+        "module": {"default": "preferences", "enum": ["preferences", "study", "disabled"], "title": "Module", "type": "string"},
+        "query": {"maxLength": 200, "minLength": 1, "title": "Query", "type": "string"}
+      },
+      "required": ["query"],
+      "title": "search_contextArguments",
+      "type": "object"
+    },
+    "name": "profile_search_context",
+    "output_schema": {"additionalProperties": true, "title": "search_contextDictOutput", "type": "object"}
+  },
+  {
+    "annotations": {"destructive_hint": false, "idempotent_hint": true, "open_world_hint": false, "read_only_hint": true},
+    "description": "Return bounded synthetic L4 provenance for one canonical ID.",
+    "input_schema": {
+      "properties": {
+        "fact_id": {"pattern": "^fact-[0-9]{3}$", "title": "Fact Id", "type": "string"},
+        "max_units": {"default": 96, "maximum": 256, "minimum": 32, "title": "Max Units", "type": "integer"}
+      },
+      "required": ["fact_id"],
+      "title": "get_evidenceArguments",
+      "type": "object"
+    },
+    "name": "profile_get_evidence",
+    "output_schema": {"additionalProperties": true, "title": "get_evidenceDictOutput", "type": "object"}
+  },
+  {
+    "annotations": {"destructive_hint": false, "idempotent_hint": true, "open_world_hint": false, "read_only_hint": false},
+    "description": "Submit a synthetic observation; output is quarantined and never auto-promoted.",
+    "input_schema": {
+      "properties": {
+        "idempotency_key": {"maxLength": 64, "minLength": 8, "title": "Idempotency Key", "type": "string"},
+        "provenance_id": {"maxLength": 100, "minLength": 1, "title": "Provenance Id", "type": "string"},
+        "statement": {"maxLength": 500, "minLength": 1, "title": "Statement", "type": "string"}
+      },
+      "required": ["statement", "provenance_id", "idempotency_key"],
+      "title": "observe_candidateArguments",
+      "type": "object"
+    },
+    "name": "profile_observe_candidate",
+    "output_schema": {"additionalProperties": true, "title": "observe_candidateDictOutput", "type": "object"}
+  },
+  {
+    "annotations": {"destructive_hint": false, "idempotent_hint": false, "open_world_hint": false, "read_only_hint": false},
+    "description": "Create a pending synthetic action; only the separate terminal path can approve it.",
+    "input_schema": {
+      "properties": {
+        "action": {"enum": ["purge", "grant_module", "network_export"], "title": "Action", "type": "string"},
+        "principal": {"enum": ["claude", "codex"], "title": "Principal", "type": "string"},
+        "scope": {"pattern": "^module:[a-z_]{1,40}$", "title": "Scope", "type": "string"}
+      },
+      "required": ["principal", "action", "scope"],
+      "title": "request_actionArguments",
+      "type": "object"
+    },
+    "name": "profile_request_action",
+    "output_schema": {"additionalProperties": true, "title": "request_actionDictOutput", "type": "object"}
+  }
+]

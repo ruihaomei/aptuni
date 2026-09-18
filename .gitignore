@@ -28,8 +28,9 @@ credentials.json
 *.db
 
 # --- Host-local agent state (shared project settings may be added deliberately later) ---
-.claude/*.lock
-.claude/settings.local.json
+**/.claude/*.lock
+**/.claude/logs/
+**/.claude/settings.local.json
 
 # --- OS / editors ---
 .DS_Store

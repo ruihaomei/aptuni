@@ -6,7 +6,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 Gate 0. The independent plan-review gate is cleared: architecture, execution and security are each
 APPROVE WITH NON-BLOCKING NOTES (notes addressed), and both cold relay drills passed. No production
-code exists. S01, S02, and S03 passed; S04 and S05A remain before production scaffolding.
+code exists. S01, S02, and S03 passed. S04 has a passing local layer but its required real-host
+matrix is blocked/incomplete; S05A remains before production scaffolding.
 
 ## Read first
 
@@ -16,15 +17,18 @@ code exists. S01, S02, and S03 passed; S04 and S05A remain before production sca
 
 ## Next action
 
-Run S04 per `plans/00-phase-0-spikes.md` §5: pin the MCP SDK in a disposable environment, exercise
-the bounded fake server against Claude Code and Codex, record host-version evidence and confinement
-status honestly, and write `docs/dev/spikes/S04-mcp.md`. Then run S05A.
+Continue `spikes/S04-mcp.md` remaining blockers. The disposable environment is
+`/tmp/pcc-s04-20260919` with MCP SDK 2.2.0. Run current + preceding stable Codex and Claude Code,
+resolve Claude's pre-tool HTTP 400, then complete every ADR-0013 host confinement/status probe and
+the `COMPATIBILITY.md` evidence-source cells. Do not move to S05A while S04 is blocking.
 
 ## This pass changed
 
 - S01 PASS (46 tests); findings F1–F3 → KI-016. S02 PASS (12 tests, offline); bytecode gap → KI-017.
 - S03 PASS (23 tests): frozen synthetic bilingual evidence selected deterministic 2–4-character CJK
   lexemes; holdout passed, while broad short-query noise and real-data generalization remain KI-018.
+- S04 WIP: local STDIO/policy harness 13 tests PASS; Codex 0.153.4 partial host PASS after adding
+  security-relevant tool annotations; Claude Code 2.1.87 BLOCKED_EXTERNAL before any MCP call.
 - Security stream approved (report 14) after ADR-0013 simplification; its notes addressed in
   remediation 14 (approve service reachable only from the CLI; Codex escalation disclosed).
 - Maintainer decision (2026-09-18): honest host trust boundary + host confinement → ADR-0013; broker
