@@ -1,0 +1,40 @@
+# --- Session scratch (never committed) ---
+temp/
+
+# --- Maintainer-private design history (raw chat log with personal details).
+# Distilled, depersonalized rationale lives in docs/product/DESIGN_RATIONALE.md.
+我觉得比较好的设计和历史.txt
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# --- Secrets & local data (see SECURITY rules) ---
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+*.sqlite
+*.db
+
+# --- Host-local agent state (shared project settings may be added deliberately later) ---
+.claude/*.lock
+.claude/settings.local.json
+
+# --- OS / editors ---
+.DS_Store
+.idea/
+.vscode/
+
+# --- Maintainer's original prompt copy of the PRD (canonical copy: docs/product/PRD.md)
+Prompt_PRD.txt

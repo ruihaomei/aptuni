@@ -1,0 +1,66 @@
+# ADR-0001: Make the open-format vault canonical
+
+- **Status:** Proposed
+- **Date:** 2026-09-18
+- **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
+- **PRD refs:** §4–§7, §16, §22–§23, §52
+- **Research refs:** `research/03-graphiti.md`, `research/08-source-identities-and-deltas.md`
+- **Needs maintainer confirmation:** no
+
+## Context
+
+The product must preserve identity, evidence, and history while allowing storage/retrieval backends
+to change. Graph databases and search indexes cannot round-trip every required field.
+
+## Decision drivers
+
+- User ownership and backend portability
+- Bi-temporal history, provenance, review, and conflict handling from Day 1
+- Inspectable, diffable, repairable data
+
+## Options considered
+
+### A — A backend database is authoritative
+
+**+** Simple writes. **−** Provider lock-in; lossy export; poor human repairability.
+
+### B — Open-format canonical vault with rebuildable projections
+
+**+** Portable and auditable. **−** Requires schemas, migrations, and projection ledgers.
+
+## Decision
+
+Choose **B**. Versioned YAML/JSON/JSONL/Markdown records in the Profile Vault are authoritative.
+SQLite, embeddings, Mem0, Graphiti, and caches are projections.
+
+The canonical Fact contract includes stable `id`, `module`, `type`, `statement`, `valid_from`,
+`valid_until`, `observed_at`, `ingested_at`, immutable `recorded_at`, `supersedes`, `change_kind`,
+`source`, `episode`, `confidence`, and `review_status`. Evidence uses stable source locators and discrete signals
+(`exposure`, `studied`, `applied`, `demonstrated`). Corrections append or supersede records; they do
+not silently rewrite history. Schema records carry an explicit version and migrations are tested.
+
+Valid time (`valid_from`/`valid_until`) says when the claim applies in the user's world. System time
+(`recorded_at`) says when this immutable record version entered canonical history; “as known at”
+queries filter append-only versions by it. `ingested_at` is source-pipeline timing, not transaction
+history. Only the forward `supersedes` link is authoritative; `superseded_by` is derived. A
+`world_change` starts a later valid interval, a `correction` replaces what the system believed about
+an earlier interval, and a `retraction` withdraws without asserting a replacement. Same-valid-time
+conflicts remain parallel reviewed claims unless an explicit decision links them.
+
+Every projection must declare field loss. A provider that cannot preserve canonical IDs or
+provenance keeps an adapter-owned mapping ledger. Deleting and rebuilding a projection must not
+alter canonical files.
+
+## Consequences
+
+- **Positive:** Provider changes cannot erase the user's history; files remain inspectable.
+- **Negative / risks:** File transactions and referential integrity require deliberate handling.
+- **Follow-ups:** Specify vault layout, JSON Schemas, atomic write protocol, and migrations before
+  broad ingestion.
+
+## Verification
+
+Golden-record schema tests including out-of-order observation, correction, later world change,
+same-valid-time conflict, and historical “as known at”; append/supersession invariants; crash-safe
+write spike; delete/rebuild projection tests; export/import round-trip equality excluding declared
+derived fields.

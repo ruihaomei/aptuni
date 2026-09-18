@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "streams": {
+    "architecture": {
+      "kind": "review",
+      "current": "07-architecture-rereview.md",
+      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+      "supersedes": ["01-architecture-review.md"]
+    },
+    "execution": {
+      "kind": "review",
+      "current": "10-execution-test-third-rereview.md",
+      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+      "supersedes": ["03-execution-test-review.md", "08-execution-test-rereview.md"]
+    },
+    "relay-claude-code": {
+      "kind": "drill",
+      "current": "11-cold-claude-relay-drill.md",
+      "verdict": "PASS",
+      "supersedes": []
+    },
+    "relay-codex": {
+      "kind": "drill",
+      "current": "05-cold-codex-relay-drill.md",
+      "verdict": "PASS",
+      "supersedes": []
+    },
+    "security": {
+      "kind": "review",
+      "current": "14-security-privacy-sixth-rereview.md",
+      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+      "supersedes": [
+        "02-security-privacy-review.md",
+        "04-security-privacy-rereview.md",
+        "06-security-privacy-second-rereview.md",
+        "09-security-privacy-third-rereview.md",
+        "12-security-privacy-fourth-rereview.md",
+        "13-security-privacy-fifth-rereview.md"
+      ]
+    }
+  }
+}
