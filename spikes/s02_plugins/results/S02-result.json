@@ -1,0 +1,14 @@
+{
+  "baseline": {
+    "executable": "/opt/homebrew/opt/python@3.13/bin/python3.13",
+    "macos": "26.2",
+    "pip": "pip 25.1.1",
+    "python": "3.13.3"
+  },
+  "baseline_mismatches": {},
+  "errors": 0,
+  "failures": 0,
+  "passed": true,
+  "spike": "S02",
+  "tests_run": 12
+}

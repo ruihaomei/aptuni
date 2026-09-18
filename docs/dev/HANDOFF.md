@@ -16,13 +16,13 @@ code exists. Spikes S01–S05A have not run.
 
 ## Next action
 
-Run S02 per `plans/00-phase-0-spikes.md` §3 (installed-fixture discovery, duplicate IDs, broken import,
-incompatible contract, closure drift), recording `docs/dev/spikes/S02-plugins.md`. Use a disposable
-venv from `/opt/homebrew/bin/python3.13` outside the repo. Then S03, S04, S05A.
+Run S03 per `plans/00-phase-0-spikes.md` §4: freeze and checksum the bilingual corpus, judgments,
+metric code, thresholds and holdout *before* comparing the three index variants; record
+`docs/dev/spikes/S03-fts.md`. Then S04, S05A.
 
 ## This pass changed
 
-- S01 PASS (46 tests, baseline asserted); findings F1–F3 recorded as KI-016 for M1.1.
+- S01 PASS (46 tests); findings F1–F3 → KI-016. S02 PASS (12 tests, offline); bytecode gap → KI-017.
 - Security stream approved (report 14) after ADR-0013 simplification; its notes addressed in
   remediation 14 (approve service reachable only from the CLI; Codex escalation disclosed).
 - Maintainer decision (2026-09-18): honest host trust boundary + host confinement → ADR-0013; broker
