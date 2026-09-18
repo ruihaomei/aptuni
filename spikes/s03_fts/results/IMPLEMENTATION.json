@@ -1,0 +1,9 @@
+{
+  "captured_after_first_dev_and_holdout_run": true,
+  "note": "These hashes identify the implementation that produced the recorded evidence; unlike FREEZE.json, they were not precommitted comparison inputs.",
+  "sha256": {
+    "run_s03.py": "96ca7ceebee34d00a73e17f5f7a2b73f0a4e397ddee61eafff7dd380b6cab84e",
+    "s03/evaluate.py": "21c3a7c1ed90a6de414d0a37448270ebb62f2b4265767ab3baeed62084176e88",
+    "s03/retrieval.py": "22eb96d0e230fc8528b92bf8388f3c11266badd2199994f6aa364d0ee0de7d66"
+  }
+}

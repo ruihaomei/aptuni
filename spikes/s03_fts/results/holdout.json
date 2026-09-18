@@ -1,0 +1,113 @@
+{
+  "chosen": "cjk_lexemes",
+  "ranked_results": {
+    "q-en-garch": [
+      "d-volatility-en-0",
+      "d-volatility-en-4",
+      "d-volatility-en-2",
+      "d-volatility-en-1",
+      "d-volatility-en-3"
+    ],
+    "q-en-ml": [
+      "d-machine_learning-en-0",
+      "d-machine_learning-en-4",
+      "d-machine_learning-en-2",
+      "d-machine_learning-en-1",
+      "d-machine_learning-en-3"
+    ],
+    "q-en-rl": [
+      "d-reinforcement_learning-en-0",
+      "d-reinforcement_learning-en-4",
+      "d-reinforcement_learning-en-2",
+      "d-reinforcement_learning-en-1",
+      "d-reinforcement_learning-en-3"
+    ],
+    "q-en-sql": [
+      "d-databases-en-0",
+      "d-databases-en-4",
+      "d-databases-en-2",
+      "d-databases-en-1",
+      "d-databases-en-3"
+    ],
+    "q-neg-zh-topology": [],
+    "q-zh-convex": [
+      "d-convex_optimization-zh-4",
+      "d-convex_optimization-zh-0",
+      "d-convex_optimization-zh-3",
+      "d-convex_optimization-zh-2",
+      "d-convex_optimization-zh-1"
+    ],
+    "q-zh-cox": [
+      "d-cox_model-zh-4",
+      "d-cox_model-zh-0",
+      "d-cox_model-zh-2",
+      "d-cox_model-zh-3",
+      "d-cox_model-zh-1"
+    ],
+    "q-zh-db": [
+      "d-databases-zh-4",
+      "d-databases-zh-0",
+      "d-databases-zh-2",
+      "d-databases-zh-3",
+      "d-databases-zh-1"
+    ],
+    "q-zh-forest": [
+      "d-random_forest-zh-4",
+      "d-random_forest-zh-0",
+      "d-random_forest-zh-2",
+      "d-random_forest-zh-3",
+      "d-random_forest-zh-1"
+    ],
+    "q-zh-hyp": [
+      "d-hypothesis_testing-zh-4",
+      "d-hypothesis_testing-zh-0",
+      "d-hypothesis_testing-zh-2",
+      "d-hypothesis_testing-zh-3",
+      "d-hypothesis_testing-zh-1"
+    ],
+    "q-zh-imaging": [
+      "d-medical_imaging-zh-4",
+      "d-medical_imaging-zh-0",
+      "d-medical_imaging-zh-2",
+      "d-medical_imaging-zh-3",
+      "d-medical_imaging-zh-1"
+    ],
+    "q-zh-portfolio": [
+      "d-portfolio_optimization-zh-4",
+      "d-portfolio_optimization-zh-0",
+      "d-portfolio_optimization-zh-2",
+      "d-portfolio_optimization-zh-3",
+      "d-portfolio_optimization-zh-1"
+    ],
+    "q-zh-survival": [
+      "d-survival_analysis-zh-4",
+      "d-survival_analysis-zh-0",
+      "d-survival_analysis-zh-3",
+      "d-survival_analysis-zh-2",
+      "d-survival_analysis-zh-1"
+    ],
+    "q-zh2-algebra": [
+      "d-linear_algebra-zh-4",
+      "d-linear_algebra-zh-0",
+      "d-linear_algebra-zh-2",
+      "d-linear_algebra-zh-3",
+      "d-linear_algebra-zh-1"
+    ],
+    "q-zh2-infer": [
+      "d-statistical_inference-zh-4",
+      "d-statistical_inference-zh-0",
+      "d-causal_inference-zh-4",
+      "d-statistical_inference-zh-2",
+      "d-statistical_inference-zh-3"
+    ]
+  },
+  "stage": "holdout",
+  "summary": {
+    "false_positive_rate": 0.0,
+    "mrr": 1.0,
+    "queries": 15.0,
+    "recall_at_5": 1.0,
+    "two_char_found_rate": 1.0
+  },
+  "threshold_misses": []
+}

@@ -1,0 +1,11 @@
+{
+  "frozen_at": "2026-09-19T00:00:00+08:00",
+  "note": "Created before any retrieval-variant comparison. A comparison must abort if any digest differs.",
+  "sha256": {
+    "frozen/corpus.jsonl": "8c67428a6b6b0b8ae1d1061376c19fe43e90db2358b601b439464e03cd601e5a",
+    "frozen/queries.jsonl": "66847465bad2dff836663f903a695cbe4e571930f7320a2f5626c6c7f93c97b0",
+    "frozen/thresholds.json": "ae4a02fb3b6504578c7130ba591778c335b068216ec3bd32de71e41e950efc8e",
+    "s03/corpus.py": "195997004ea514756964c827872aae39003713f761d2e93716e9b186015fe6b5",
+    "s03/metrics.py": "277b2fe6f4ba84641bccdf8770502082853a43a3ad1f18a0ad255c7e10972edc"
+  }
+}

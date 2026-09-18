@@ -1,0 +1,926 @@
+{
+  "chosen": "cjk_lexemes",
+  "ranked_results": {
+    "cjk_lexemes": {
+      "q-en-bayes": [
+        "d-bayesian-en-0",
+        "d-bayesian-en-4",
+        "d-bayesian-en-2",
+        "d-bayesian-en-1",
+        "d-bayesian-en-3"
+      ],
+      "q-en-causal": [
+        "d-causal_inference-en-0",
+        "d-causal_inference-en-4",
+        "d-causal_inference-en-2",
+        "d-causal_inference-en-1",
+        "d-causal_inference-en-3"
+      ],
+      "q-en-competing": [
+        "d-competing_risks-en-0",
+        "d-competing_risks-en-4",
+        "d-competing_risks-en-2",
+        "d-competing_risks-en-1",
+        "d-competing_risks-en-3"
+      ],
+      "q-en-concise": [
+        "d-concise_answers-en-0",
+        "d-concise_answers-en-4",
+        "d-concise_answers-en-2",
+        "d-concise_answers-en-1",
+        "d-concise_answers-en-3"
+      ],
+      "q-en-convex": [
+        "d-convex_optimization-en-0",
+        "d-convex_optimization-en-4",
+        "d-convex_optimization-en-2",
+        "d-convex_optimization-en-1",
+        "d-convex_optimization-en-3"
+      ],
+      "q-en-cox": [
+        "d-cox_model-en-0",
+        "d-cox_model-en-4",
+        "d-cox_model-en-2",
+        "d-cox_model-en-1",
+        "d-cox_model-en-3"
+      ],
+      "q-en-dl": [
+        "d-deep_learning-en-0",
+        "d-deep_learning-en-4",
+        "d-deep_learning-en-1",
+        "d-deep_learning-en-2",
+        "d-deep_learning-en-3"
+      ],
+      "q-en-forest": [
+        "d-random_forest-en-0",
+        "d-random_forest-en-4",
+        "d-random_forest-en-2",
+        "d-random_forest-en-1",
+        "d-random_forest-en-3"
+      ],
+      "q-en-hyp": [
+        "d-hypothesis_testing-en-0",
+        "d-hypothesis_testing-en-4",
+        "d-hypothesis_testing-en-2",
+        "d-hypothesis_testing-en-1",
+        "d-hypothesis_testing-en-3"
+      ],
+      "q-en-imaging": [
+        "d-medical_imaging-en-0",
+        "d-medical_imaging-en-4",
+        "d-medical_imaging-en-2",
+        "d-medical_imaging-en-1",
+        "d-medical_imaging-en-3"
+      ],
+      "q-en-inference": [
+        "d-statistical_inference-en-0",
+        "d-statistical_inference-en-4",
+        "d-statistical_inference-en-2",
+        "d-statistical_inference-en-1",
+        "d-statistical_inference-en-3"
+      ],
+      "q-en-linalg": [
+        "d-linear_algebra-en-0",
+        "d-linear_algebra-en-4",
+        "d-linear_algebra-en-2",
+        "d-linear_algebra-en-1",
+        "d-linear_algebra-en-3"
+      ],
+      "q-en-markdown": [
+        "d-markdown_format-en-0",
+        "d-markdown_format-en-4",
+        "d-markdown_format-en-1",
+        "d-markdown_format-en-2",
+        "d-markdown_format-en-3"
+      ],
+      "q-en-optimization": [
+        "d-portfolio_optimization-en-0",
+        "d-portfolio_optimization-en-4",
+        "d-convex_optimization-en-0",
+        "d-convex_optimization-en-4",
+        "d-portfolio_optimization-en-2"
+      ],
+      "q-en-pandas": [
+        "d-python-en-0",
+        "d-python-en-4",
+        "d-python-en-2",
+        "d-python-en-1",
+        "d-python-en-3"
+      ],
+      "q-en-portfolio": [
+        "d-portfolio_optimization-en-0",
+        "d-portfolio_optimization-en-4",
+        "d-portfolio_optimization-en-2",
+        "d-portfolio_optimization-en-1",
+        "d-portfolio_optimization-en-3"
+      ],
+      "q-en-prob": [
+        "d-probability-en-0",
+        "d-probability-en-4",
+        "d-probability-en-2",
+        "d-probability-en-1",
+        "d-probability-en-3"
+      ],
+      "q-en-quant": [
+        "d-quant_finance-en-0",
+        "d-quant_finance-en-4",
+        "d-quant_finance-en-2",
+        "d-quant_finance-en-1",
+        "d-quant_finance-en-3"
+      ],
+      "q-en-survival": [
+        "d-survival_analysis-en-0",
+        "d-survival_analysis-en-4",
+        "d-survival_analysis-en-2",
+        "d-survival_analysis-en-1",
+        "d-survival_analysis-en-3"
+      ],
+      "q-en-ts": [
+        "d-time_series-en-0",
+        "d-time_series-en-4",
+        "d-time_series-en-2",
+        "d-time_series-en-1",
+        "d-time_series-en-3"
+      ],
+      "q-en-xgb": [
+        "d-xgboost-en-0",
+        "d-xgboost-en-4",
+        "d-xgboost-en-2",
+        "d-xgboost-en-1",
+        "d-xgboost-en-3"
+      ],
+      "q-mix-ct": [
+        "d-medical_imaging-zh-4",
+        "d-medical_imaging-zh-0",
+        "d-medical_imaging-zh-2",
+        "d-medical_imaging-zh-3",
+        "d-medical_imaging-zh-1"
+      ],
+      "q-mix-finegray": [
+        "d-competing_risks-en-0",
+        "d-competing_risks-en-4",
+        "d-competing_risks-en-2",
+        "d-competing_risks-en-1",
+        "d-competing_risks-en-3"
+      ],
+      "q-mix-garch": [
+        "d-volatility-zh-4",
+        "d-volatility-zh-0",
+        "d-volatility-zh-2",
+        "d-volatility-zh-3",
+        "d-volatility-zh-1"
+      ],
+      "q-mix-kkt": [
+        "d-convex_optimization-zh-4",
+        "d-convex_optimization-zh-0",
+        "d-convex_optimization-zh-3",
+        "d-convex_optimization-zh-2",
+        "d-convex_optimization-zh-1"
+      ],
+      "q-mix-md": [
+        "d-markdown_format-zh-4",
+        "d-markdown_format-zh-0",
+        "d-markdown_format-zh-3",
+        "d-markdown_format-zh-2",
+        "d-markdown_format-zh-1"
+      ],
+      "q-mix-python": [
+        "d-python-zh-0",
+        "d-python-zh-4",
+        "d-python-zh-3",
+        "d-python-zh-2",
+        "d-python-zh-1"
+      ],
+      "q-mix-xgb": [
+        "d-xgboost-zh-4",
+        "d-xgboost-zh-0",
+        "d-xgboost-zh-2",
+        "d-xgboost-zh-3",
+        "d-xgboost-zh-1"
+      ],
+      "q-neg-blockchain": [],
+      "q-neg-en-hiking": [],
+      "q-neg-quantum": [],
+      "q-neg-zh-bio": [],
+      "q-neg-zh-blockchain": [],
+      "q-neg-zh-game": [],
+      "q-neg-zh-gold": [],
+      "q-zh-bayes": [
+        "d-bayesian-zh-4",
+        "d-bayesian-zh-0",
+        "d-bayesian-zh-2",
+        "d-bayesian-zh-3",
+        "d-bayesian-zh-1"
+      ],
+      "q-zh-causal": [
+        "d-causal_inference-zh-4",
+        "d-causal_inference-zh-0",
+        "d-causal_inference-zh-2",
+        "d-causal_inference-zh-3",
+        "d-causal_inference-zh-1"
+      ],
+      "q-zh-competing": [
+        "d-competing_risks-zh-4",
+        "d-competing_risks-zh-0",
+        "d-competing_risks-zh-2",
+        "d-competing_risks-zh-3",
+        "d-competing_risks-zh-1"
+      ],
+      "q-zh-concise": [
+        "d-concise_answers-zh-4",
+        "d-concise_answers-zh-0",
+        "d-concise_answers-zh-2",
+        "d-concise_answers-zh-3",
+        "d-concise_answers-zh-1"
+      ],
+      "q-zh-dl": [
+        "d-deep_learning-zh-4",
+        "d-deep_learning-zh-0",
+        "d-deep_learning-zh-2",
+        "d-deep_learning-zh-3",
+        "d-deep_learning-zh-1"
+      ],
+      "q-zh-inference": [
+        "d-statistical_inference-zh-4",
+        "d-statistical_inference-zh-0",
+        "d-statistical_inference-zh-2",
+        "d-statistical_inference-zh-3",
+        "d-statistical_inference-zh-1"
+      ],
+      "q-zh-linalg": [
+        "d-linear_algebra-zh-4",
+        "d-linear_algebra-zh-0",
+        "d-linear_algebra-zh-2",
+        "d-linear_algebra-zh-3",
+        "d-linear_algebra-zh-1"
+      ],
+      "q-zh-ml": [
+        "d-machine_learning-zh-4",
+        "d-machine_learning-zh-0",
+        "d-machine_learning-zh-2",
+        "d-machine_learning-zh-3",
+        "d-machine_learning-zh-1"
+      ],
+      "q-zh-prob": [
+        "d-probability-zh-4",
+        "d-probability-zh-0",
+        "d-probability-zh-2",
+        "d-probability-zh-3",
+        "d-probability-zh-1"
+      ],
+      "q-zh-quant": [
+        "d-quant_finance-zh-4",
+        "d-quant_finance-zh-0",
+        "d-quant_finance-zh-2",
+        "d-quant_finance-zh-3",
+        "d-quant_finance-zh-1"
+      ],
+      "q-zh-rl": [
+        "d-reinforcement_learning-zh-4",
+        "d-reinforcement_learning-zh-0",
+        "d-reinforcement_learning-zh-2",
+        "d-reinforcement_learning-zh-3",
+        "d-reinforcement_learning-zh-1"
+      ],
+      "q-zh-ts": [
+        "d-time_series-zh-4",
+        "d-time_series-zh-0",
+        "d-time_series-zh-2",
+        "d-time_series-zh-3",
+        "d-time_series-zh-1"
+      ],
+      "q-zh-vol": [
+        "d-volatility-zh-4",
+        "d-volatility-zh-0",
+        "d-volatility-zh-2",
+        "d-volatility-zh-3",
+        "d-volatility-zh-1"
+      ],
+      "q-zh2-finance": [
+        "d-quant_finance-zh-4",
+        "d-quant_finance-zh-0",
+        "d-quant_finance-zh-2",
+        "d-quant_finance-zh-3",
+        "d-quant_finance-zh-1"
+      ],
+      "q-zh2-forest": [
+        "d-random_forest-zh-4",
+        "d-distractor-3",
+        "d-random_forest-zh-0",
+        "d-random_forest-zh-2",
+        "d-random_forest-zh-3"
+      ],
+      "q-zh2-imaging": [
+        "d-medical_imaging-zh-4",
+        "d-medical_imaging-zh-0",
+        "d-medical_imaging-zh-2",
+        "d-medical_imaging-zh-3",
+        "d-medical_imaging-zh-1"
+      ],
+      "q-zh2-optim": [
+        "d-convex_optimization-zh-4",
+        "d-convex_optimization-zh-0",
+        "d-convex_optimization-zh-3",
+        "d-convex_optimization-zh-2",
+        "d-portfolio_optimization-zh-4"
+      ],
+      "q-zh2-prob": [
+        "d-probability-zh-4",
+        "d-probability-zh-0",
+        "d-probability-zh-2",
+        "d-probability-zh-3",
+        "d-probability-zh-1"
+      ],
+      "q-zh2-reward": [
+        "d-reinforcement_learning-zh-4",
+        "d-reinforcement_learning-zh-0",
+        "d-reinforcement_learning-zh-2",
+        "d-reinforcement_learning-zh-3",
+        "d-reinforcement_learning-zh-1"
+      ],
+      "q-zh2-seq": [
+        "d-time_series-zh-4",
+        "d-time_series-zh-0",
+        "d-time_series-zh-2",
+        "d-time_series-zh-3",
+        "d-time_series-zh-1"
+      ],
+      "q-zh2-survival": [
+        "d-survival_analysis-zh-4",
+        "d-survival_analysis-zh-0",
+        "d-distractor-3",
+        "d-survival_analysis-zh-3",
+        "d-survival_analysis-zh-2"
+      ],
+      "q-zh2-test": [
+        "d-hypothesis_testing-zh-4",
+        "d-hypothesis_testing-zh-0",
+        "d-hypothesis_testing-zh-2",
+        "d-hypothesis_testing-zh-3",
+        "d-hypothesis_testing-zh-1"
+      ],
+      "q-zh2-vol": [
+        "d-volatility-zh-4",
+        "d-volatility-zh-0",
+        "d-volatility-zh-2",
+        "d-volatility-zh-3",
+        "d-volatility-zh-1"
+      ]
+    },
+    "trigram": {
+      "q-en-bayes": [
+        "d-bayesian-en-0",
+        "d-bayesian-en-4",
+        "d-bayesian-en-2",
+        "d-bayesian-en-1",
+        "d-bayesian-en-3"
+      ],
+      "q-en-causal": [
+        "d-causal_inference-en-0",
+        "d-causal_inference-en-4",
+        "d-causal_inference-en-2",
+        "d-causal_inference-en-1",
+        "d-causal_inference-en-3"
+      ],
+      "q-en-competing": [
+        "d-competing_risks-en-0",
+        "d-competing_risks-en-4",
+        "d-competing_risks-en-2",
+        "d-competing_risks-en-1",
+        "d-competing_risks-en-3"
+      ],
+      "q-en-concise": [
+        "d-concise_answers-en-0",
+        "d-concise_answers-en-4",
+        "d-concise_answers-en-2",
+        "d-concise_answers-en-1",
+        "d-concise_answers-en-3"
+      ],
+      "q-en-convex": [
+        "d-convex_optimization-en-0",
+        "d-convex_optimization-en-4",
+        "d-convex_optimization-en-2",
+        "d-convex_optimization-en-1",
+        "d-convex_optimization-en-3"
+      ],
+      "q-en-cox": [
+        "d-cox_model-en-0",
+        "d-cox_model-en-4",
+        "d-cox_model-en-2",
+        "d-cox_model-en-1",
+        "d-cox_model-en-3"
+      ],
+      "q-en-dl": [
+        "d-deep_learning-en-0",
+        "d-deep_learning-en-4",
+        "d-deep_learning-en-2",
+        "d-deep_learning-en-1",
+        "d-deep_learning-en-3"
+      ],
+      "q-en-forest": [
+        "d-random_forest-en-0",
+        "d-random_forest-en-4",
+        "d-random_forest-en-2",
+        "d-random_forest-en-1",
+        "d-random_forest-en-3"
+      ],
+      "q-en-hyp": [
+        "d-hypothesis_testing-en-0",
+        "d-hypothesis_testing-en-4",
+        "d-hypothesis_testing-en-2",
+        "d-hypothesis_testing-en-1",
+        "d-hypothesis_testing-en-3"
+      ],
+      "q-en-imaging": [
+        "d-medical_imaging-en-0",
+        "d-medical_imaging-en-4",
+        "d-medical_imaging-en-2",
+        "d-medical_imaging-en-1",
+        "d-medical_imaging-en-3"
+      ],
+      "q-en-inference": [
+        "d-statistical_inference-en-0",
+        "d-statistical_inference-en-4",
+        "d-statistical_inference-en-2",
+        "d-statistical_inference-en-1",
+        "d-statistical_inference-en-3"
+      ],
+      "q-en-linalg": [
+        "d-linear_algebra-en-0",
+        "d-linear_algebra-en-4",
+        "d-linear_algebra-en-2",
+        "d-linear_algebra-en-1",
+        "d-linear_algebra-en-3"
+      ],
+      "q-en-markdown": [
+        "d-markdown_format-zh-0",
+        "d-markdown_format-zh-4",
+        "d-markdown_format-zh-3",
+        "d-markdown_format-zh-2",
+        "d-markdown_format-zh-1"
+      ],
+      "q-en-optimization": [
+        "d-convex_optimization-en-0",
+        "d-portfolio_optimization-en-0",
+        "d-convex_optimization-en-4",
+        "d-convex_optimization-en-2",
+        "d-portfolio_optimization-en-4"
+      ],
+      "q-en-pandas": [
+        "d-python-zh-0",
+        "d-python-zh-4",
+        "d-python-zh-3",
+        "d-python-zh-2",
+        "d-python-zh-1"
+      ],
+      "q-en-portfolio": [
+        "d-portfolio_optimization-en-0",
+        "d-portfolio_optimization-en-4",
+        "d-portfolio_optimization-en-2",
+        "d-portfolio_optimization-en-1",
+        "d-portfolio_optimization-en-3"
+      ],
+      "q-en-prob": [
+        "d-probability-en-0",
+        "d-probability-en-4",
+        "d-probability-en-2",
+        "d-probability-en-1",
+        "d-probability-en-3"
+      ],
+      "q-en-quant": [
+        "d-quant_finance-en-0",
+        "d-quant_finance-en-4",
+        "d-quant_finance-en-2",
+        "d-quant_finance-en-1",
+        "d-quant_finance-en-3"
+      ],
+      "q-en-survival": [
+        "d-survival_analysis-en-0",
+        "d-survival_analysis-en-4",
+        "d-survival_analysis-en-2",
+        "d-survival_analysis-en-1",
+        "d-survival_analysis-en-3"
+      ],
+      "q-en-ts": [
+        "d-time_series-en-0",
+        "d-time_series-en-4",
+        "d-time_series-en-2",
+        "d-time_series-en-1",
+        "d-time_series-en-3"
+      ],
+      "q-en-xgb": [
+        "d-xgboost-zh-0",
+        "d-xgboost-zh-4",
+        "d-xgboost-zh-3",
+        "d-xgboost-zh-2",
+        "d-xgboost-zh-1"
+      ],
+      "q-mix-ct": [],
+      "q-mix-finegray": [
+        "d-competing_risks-zh-0",
+        "d-competing_risks-zh-4",
+        "d-competing_risks-zh-3",
+        "d-competing_risks-zh-2",
+        "d-competing_risks-zh-1"
+      ],
+      "q-mix-garch": [
+        "d-volatility-zh-0",
+        "d-volatility-zh-4",
+        "d-volatility-zh-3",
+        "d-volatility-zh-2",
+        "d-volatility-zh-1"
+      ],
+      "q-mix-kkt": [
+        "d-convex_optimization-zh-0",
+        "d-convex_optimization-zh-4",
+        "d-convex_optimization-zh-3",
+        "d-convex_optimization-zh-2",
+        "d-convex_optimization-zh-1"
+      ],
+      "q-mix-md": [
+        "d-markdown_format-zh-0",
+        "d-markdown_format-zh-4",
+        "d-markdown_format-zh-3",
+        "d-markdown_format-zh-2",
+        "d-markdown_format-zh-1"
+      ],
+      "q-mix-python": [
+        "d-python-zh-0",
+        "d-python-zh-4",
+        "d-python-zh-3",
+        "d-python-zh-2",
+        "d-python-zh-1"
+      ],
+      "q-mix-xgb": [
+        "d-xgboost-zh-0",
+        "d-xgboost-zh-4",
+        "d-xgboost-zh-3",
+        "d-xgboost-zh-2",
+        "d-xgboost-zh-1"
+      ],
+      "q-neg-blockchain": [],
+      "q-neg-en-hiking": [],
+      "q-neg-quantum": [],
+      "q-neg-zh-bio": [],
+      "q-neg-zh-blockchain": [],
+      "q-neg-zh-game": [],
+      "q-neg-zh-gold": [],
+      "q-zh-bayes": [
+        "d-bayesian-zh-0",
+        "d-bayesian-zh-4",
+        "d-bayesian-zh-3",
+        "d-bayesian-zh-2",
+        "d-bayesian-zh-1"
+      ],
+      "q-zh-causal": [
+        "d-causal_inference-zh-0",
+        "d-causal_inference-zh-4",
+        "d-causal_inference-zh-3",
+        "d-causal_inference-zh-2",
+        "d-causal_inference-zh-1"
+      ],
+      "q-zh-competing": [
+        "d-competing_risks-zh-0",
+        "d-competing_risks-zh-4",
+        "d-competing_risks-zh-3",
+        "d-competing_risks-zh-2",
+        "d-competing_risks-zh-1"
+      ],
+      "q-zh-concise": [
+        "d-concise_answers-zh-0",
+        "d-concise_answers-zh-4",
+        "d-concise_answers-zh-3",
+        "d-concise_answers-zh-2",
+        "d-concise_answers-zh-1"
+      ],
+      "q-zh-dl": [
+        "d-deep_learning-zh-0",
+        "d-deep_learning-zh-4",
+        "d-deep_learning-zh-3",
+        "d-deep_learning-zh-2",
+        "d-deep_learning-zh-1"
+      ],
+      "q-zh-inference": [
+        "d-statistical_inference-zh-0",
+        "d-statistical_inference-zh-4",
+        "d-statistical_inference-zh-3",
+        "d-statistical_inference-zh-2",
+        "d-statistical_inference-zh-1"
+      ],
+      "q-zh-linalg": [
+        "d-linear_algebra-zh-0",
+        "d-linear_algebra-zh-4",
+        "d-linear_algebra-zh-3",
+        "d-linear_algebra-zh-2",
+        "d-linear_algebra-zh-1"
+      ],
+      "q-zh-ml": [
+        "d-machine_learning-zh-0",
+        "d-machine_learning-zh-4",
+        "d-machine_learning-zh-3",
+        "d-machine_learning-zh-2",
+        "d-machine_learning-zh-1"
+      ],
+      "q-zh-prob": [
+        "d-probability-zh-0",
+        "d-probability-zh-4",
+        "d-probability-zh-3",
+        "d-probability-zh-2",
+        "d-probability-zh-1"
+      ],
+      "q-zh-quant": [
+        "d-quant_finance-zh-0",
+        "d-quant_finance-zh-4",
+        "d-quant_finance-zh-3",
+        "d-quant_finance-zh-2",
+        "d-quant_finance-zh-1"
+      ],
+      "q-zh-rl": [
+        "d-reinforcement_learning-zh-0",
+        "d-reinforcement_learning-zh-4",
+        "d-reinforcement_learning-zh-3",
+        "d-reinforcement_learning-zh-2",
+        "d-reinforcement_learning-zh-1"
+      ],
+      "q-zh-ts": [
+        "d-time_series-zh-0",
+        "d-time_series-zh-4",
+        "d-time_series-zh-3",
+        "d-time_series-zh-2",
+        "d-time_series-zh-1"
+      ],
+      "q-zh-vol": [
+        "d-volatility-zh-0",
+        "d-volatility-zh-4",
+        "d-volatility-zh-3",
+        "d-volatility-zh-2",
+        "d-volatility-zh-1"
+      ],
+      "q-zh2-finance": [],
+      "q-zh2-forest": [],
+      "q-zh2-imaging": [],
+      "q-zh2-optim": [],
+      "q-zh2-prob": [],
+      "q-zh2-reward": [],
+      "q-zh2-seq": [],
+      "q-zh2-survival": [],
+      "q-zh2-test": [],
+      "q-zh2-vol": []
+    },
+    "unicode61": {
+      "q-en-bayes": [
+        "d-bayesian-en-0",
+        "d-bayesian-en-4",
+        "d-bayesian-en-2",
+        "d-bayesian-en-1",
+        "d-bayesian-en-3"
+      ],
+      "q-en-causal": [
+        "d-causal_inference-en-0",
+        "d-causal_inference-en-4",
+        "d-causal_inference-en-2",
+        "d-causal_inference-en-1",
+        "d-causal_inference-en-3"
+      ],
+      "q-en-competing": [
+        "d-competing_risks-en-0",
+        "d-competing_risks-en-4",
+        "d-competing_risks-en-2",
+        "d-competing_risks-en-1",
+        "d-competing_risks-en-3"
+      ],
+      "q-en-concise": [
+        "d-concise_answers-en-0",
+        "d-concise_answers-en-4",
+        "d-concise_answers-en-2",
+        "d-concise_answers-en-1",
+        "d-concise_answers-en-3"
+      ],
+      "q-en-convex": [
+        "d-convex_optimization-en-0",
+        "d-convex_optimization-en-4",
+        "d-convex_optimization-en-2",
+        "d-convex_optimization-en-1",
+        "d-convex_optimization-en-3"
+      ],
+      "q-en-cox": [
+        "d-cox_model-en-0",
+        "d-cox_model-en-4",
+        "d-cox_model-en-2",
+        "d-cox_model-en-1",
+        "d-cox_model-en-3"
+      ],
+      "q-en-dl": [
+        "d-deep_learning-en-0",
+        "d-deep_learning-en-4",
+        "d-deep_learning-en-2",
+        "d-deep_learning-en-1",
+        "d-deep_learning-en-3"
+      ],
+      "q-en-forest": [
+        "d-random_forest-en-0",
+        "d-random_forest-en-4",
+        "d-random_forest-en-2",
+        "d-random_forest-en-1",
+        "d-random_forest-en-3"
+      ],
+      "q-en-hyp": [
+        "d-hypothesis_testing-en-0",
+        "d-hypothesis_testing-en-4",
+        "d-hypothesis_testing-en-2",
+        "d-hypothesis_testing-en-1",
+        "d-hypothesis_testing-en-3"
+      ],
+      "q-en-imaging": [
+        "d-medical_imaging-en-0",
+        "d-medical_imaging-en-4",
+        "d-medical_imaging-en-2",
+        "d-medical_imaging-en-1",
+        "d-medical_imaging-en-3"
+      ],
+      "q-en-inference": [
+        "d-statistical_inference-en-0",
+        "d-statistical_inference-en-4",
+        "d-statistical_inference-en-2",
+        "d-statistical_inference-en-1",
+        "d-statistical_inference-en-3"
+      ],
+      "q-en-linalg": [
+        "d-linear_algebra-en-0",
+        "d-linear_algebra-en-4",
+        "d-linear_algebra-en-2",
+        "d-linear_algebra-en-1",
+        "d-linear_algebra-en-3"
+      ],
+      "q-en-markdown": [
+        "d-markdown_format-en-0",
+        "d-markdown_format-en-4",
+        "d-markdown_format-en-2",
+        "d-markdown_format-en-1",
+        "d-markdown_format-en-3"
+      ],
+      "q-en-optimization": [
+        "d-portfolio_optimization-en-0",
+        "d-portfolio_optimization-en-4",
+        "d-convex_optimization-en-0",
+        "d-convex_optimization-en-4",
+        "d-portfolio_optimization-en-2"
+      ],
+      "q-en-pandas": [
+        "d-python-en-0",
+        "d-python-en-4",
+        "d-python-en-2",
+        "d-python-en-1",
+        "d-python-en-3"
+      ],
+      "q-en-portfolio": [
+        "d-portfolio_optimization-en-0",
+        "d-portfolio_optimization-en-4",
+        "d-portfolio_optimization-en-2",
+        "d-portfolio_optimization-en-1",
+        "d-portfolio_optimization-en-3"
+      ],
+      "q-en-prob": [
+        "d-probability-en-0",
+        "d-probability-en-4",
+        "d-probability-en-2",
+        "d-probability-en-1",
+        "d-probability-en-3"
+      ],
+      "q-en-quant": [
+        "d-quant_finance-en-0",
+        "d-quant_finance-en-4",
+        "d-quant_finance-en-2",
+        "d-quant_finance-en-1",
+        "d-quant_finance-en-3"
+      ],
+      "q-en-survival": [
+        "d-survival_analysis-en-0",
+        "d-survival_analysis-en-4",
+        "d-survival_analysis-en-2",
+        "d-survival_analysis-en-1",
+        "d-survival_analysis-en-3"
+      ],
+      "q-en-ts": [
+        "d-time_series-en-0",
+        "d-time_series-en-4",
+        "d-time_series-en-2",
+        "d-time_series-en-1",
+        "d-time_series-en-3"
+      ],
+      "q-en-xgb": [
+        "d-xgboost-en-0",
+        "d-xgboost-en-4",
+        "d-xgboost-en-2",
+        "d-xgboost-en-1",
+        "d-xgboost-en-3"
+      ],
+      "q-mix-ct": [],
+      "q-mix-finegray": [
+        "d-competing_risks-en-0",
+        "d-competing_risks-en-4",
+        "d-competing_risks-en-2",
+        "d-competing_risks-en-1",
+        "d-competing_risks-en-3"
+      ],
+      "q-mix-garch": [],
+      "q-mix-kkt": [],
+      "q-mix-md": [],
+      "q-mix-python": [],
+      "q-mix-xgb": [],
+      "q-neg-blockchain": [],
+      "q-neg-en-hiking": [],
+      "q-neg-quantum": [],
+      "q-neg-zh-bio": [],
+      "q-neg-zh-blockchain": [],
+      "q-neg-zh-game": [],
+      "q-neg-zh-gold": [],
+      "q-zh-bayes": [],
+      "q-zh-causal": [],
+      "q-zh-competing": [],
+      "q-zh-concise": [],
+      "q-zh-dl": [],
+      "q-zh-inference": [],
+      "q-zh-linalg": [],
+      "q-zh-ml": [],
+      "q-zh-prob": [],
+      "q-zh-quant": [],
+      "q-zh-rl": [],
+      "q-zh-ts": [],
+      "q-zh-vol": [],
+      "q-zh2-finance": [],
+      "q-zh2-forest": [],
+      "q-zh2-imaging": [],
+      "q-zh2-optim": [],
+      "q-zh2-prob": [],
+      "q-zh2-reward": [],
+      "q-zh2-seq": [],
+      "q-zh2-survival": [],
+      "q-zh2-test": [],
+      "q-zh2-vol": []
+    }
+  },
+  "runtime": {
+    "python": "3.13.3",
+    "sqlite": "3.53.2"
+  },
+  "scaled": {
+    "cjk_lexemes": {
+      "documents": 25000.0,
+      "index_size_bytes": 12746752.0,
+      "index_size_ratio": 6.846834613525273,
+      "p95_latency_ms": 1.9282919820398092,
+      "source_text_bytes": 1861700.0
+    },
+    "trigram": {
+      "documents": 25000.0,
+      "index_size_bytes": 9846784.0,
+      "index_size_ratio": 5.289135736155127,
+      "p95_latency_ms": 1.846333034336567,
+      "source_text_bytes": 1861700.0
+    },
+    "unicode61": {
+      "documents": 25000.0,
+      "index_size_bytes": 4218880.0,
+      "index_size_ratio": 2.2661438470215396,
+      "p95_latency_ms": 0.5974170053377748,
+      "source_text_bytes": 1861700.0
+    }
+  },
+  "stage": "dev",
+  "summaries": {
+    "cjk_lexemes": {
+      "false_positive_rate": 0.0,
+      "mrr": 1.0,
+      "queries": 58.0,
+      "recall_at_5": 0.9921568627450981,
+      "two_char_found_rate": 1.0
+    },
+    "trigram": {
+      "false_positive_rate": 0.0,
+      "mrr": 0.7843137254901961,
+      "queries": 58.0,
+      "recall_at_5": 0.7843137254901961,
+      "two_char_found_rate": 0.0
+    },
+    "unicode61": {
+      "false_positive_rate": 0.0,
+      "mrr": 0.43137254901960786,
+      "queries": 58.0,
+      "recall_at_5": 0.43137254901960786,
+      "two_char_found_rate": 0.0
+    }
+  },
+  "threshold_misses": {
+    "cjk_lexemes": [],
+    "trigram": [
+      "recall_at_5=0.784 violates >= 0.85",
+      "two_char_found_rate=0.000 violates >= 1.0"
+    ],
+    "unicode61": [
+      "recall_at_5=0.431 violates >= 0.85",
+      "mrr=0.431 violates >= 0.7",
+      "two_char_found_rate=0.000 violates >= 1.0"
+    ]
+  }
+}

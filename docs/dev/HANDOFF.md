@@ -6,7 +6,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 Gate 0. The independent plan-review gate is cleared: architecture, execution and security are each
 APPROVE WITH NON-BLOCKING NOTES (notes addressed), and both cold relay drills passed. No production
-code exists. Spikes S01–S05A have not run.
+code exists. S01, S02, and S03 passed; S04 and S05A remain before production scaffolding.
 
 ## Read first
 
@@ -16,13 +16,15 @@ code exists. Spikes S01–S05A have not run.
 
 ## Next action
 
-Run S03 per `plans/00-phase-0-spikes.md` §4: freeze and checksum the bilingual corpus, judgments,
-metric code, thresholds and holdout *before* comparing the three index variants; record
-`docs/dev/spikes/S03-fts.md`. Then S04, S05A.
+Run S04 per `plans/00-phase-0-spikes.md` §5: pin the MCP SDK in a disposable environment, exercise
+the bounded fake server against Claude Code and Codex, record host-version evidence and confinement
+status honestly, and write `docs/dev/spikes/S04-mcp.md`. Then run S05A.
 
 ## This pass changed
 
 - S01 PASS (46 tests); findings F1–F3 → KI-016. S02 PASS (12 tests, offline); bytecode gap → KI-017.
+- S03 PASS (23 tests): frozen synthetic bilingual evidence selected deterministic 2–4-character CJK
+  lexemes; holdout passed, while broad short-query noise and real-data generalization remain KI-018.
 - Security stream approved (report 14) after ADR-0013 simplification; its notes addressed in
   remediation 14 (approve service reachable only from the CLI; Codex escalation disclosed).
 - Maintainer decision (2026-09-18): honest host trust boundary + host confinement → ADR-0013; broker

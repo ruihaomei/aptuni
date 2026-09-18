@@ -1,0 +1,14 @@
+{
+  "_doc": "Blocking S03 thresholds, precommitted before any variant comparison (EVALUATION_PLAN.md retrieval relevance row + SPIKES.md S03). Apply to dev AND holdout for the chosen variant; latency/size apply to the 24k-document scaled index.",
+  "per_split": {
+    "recall_at_5_min": 0.85,
+    "mrr_min": 0.70,
+    "two_char_found_rate_min": 1.0,
+    "false_positive_rate_max": 0.10
+  },
+  "scaled": {
+    "p95_latency_ms_max": 50.0,
+    "index_size_ratio_max": 10.0
+  },
+  "scaled_corpus_copies": 100
+}

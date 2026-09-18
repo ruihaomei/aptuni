@@ -1,0 +1,250 @@
+{"id": "d-survival_analysis-en-0", "lang": "en", "tags": ["survival_analysis"], "text": "Studied survival analysis with detailed notes on censoring and Kaplan-Meier curves."}
+{"id": "d-survival_analysis-en-1", "lang": "en", "tags": ["survival_analysis"], "text": "Applied survival analysis in a course project; wrote about censoring and Kaplan-Meier curves."}
+{"id": "d-survival_analysis-en-2", "lang": "en", "tags": ["survival_analysis"], "text": "Mind map: survival analysis — key ideas, worked examples, censoring and Kaplan-Meier curves."}
+{"id": "d-survival_analysis-en-3", "lang": "en", "tags": ["survival_analysis"], "text": "Wants to deepen survival analysis next semester, starting from censoring and Kaplan-Meier curves."}
+{"id": "d-survival_analysis-en-4", "lang": "en", "tags": ["survival_analysis"], "text": "Evidence: chapter summary on survival analysis including censoring and Kaplan-Meier curves."}
+{"id": "d-survival_analysis-zh-0", "lang": "zh", "tags": ["survival_analysis"], "text": "学过生存分析，笔记里记录了删失与KM曲线。"}
+{"id": "d-survival_analysis-zh-1", "lang": "zh", "tags": ["survival_analysis"], "text": "在课程项目中应用了生存分析，并写了删失与KM曲线的总结。"}
+{"id": "d-survival_analysis-zh-2", "lang": "zh", "tags": ["survival_analysis"], "text": "思维导图：生存分析的核心概念、例题与删失与KM曲线。"}
+{"id": "d-survival_analysis-zh-3", "lang": "zh", "tags": ["survival_analysis"], "text": "下学期想深入生存分析，先从删失与KM曲线开始。"}
+{"id": "d-survival_analysis-zh-4", "lang": "zh", "tags": ["survival_analysis"], "text": "证据：生存分析章节总结，包含删失与KM曲线。"}
+{"id": "d-cox_model-en-0", "lang": "en", "tags": ["cox_model"], "text": "Studied Cox proportional hazards with detailed notes on hazard ratio estimation."}
+{"id": "d-cox_model-en-1", "lang": "en", "tags": ["cox_model"], "text": "Applied Cox proportional hazards in a course project; wrote about hazard ratio estimation."}
+{"id": "d-cox_model-en-2", "lang": "en", "tags": ["cox_model"], "text": "Mind map: Cox proportional hazards — key ideas, worked examples, hazard ratio estimation."}
+{"id": "d-cox_model-en-3", "lang": "en", "tags": ["cox_model"], "text": "Wants to deepen Cox proportional hazards next semester, starting from hazard ratio estimation."}
+{"id": "d-cox_model-en-4", "lang": "en", "tags": ["cox_model"], "text": "Evidence: chapter summary on Cox proportional hazards including hazard ratio estimation."}
+{"id": "d-cox_model-zh-0", "lang": "zh", "tags": ["cox_model"], "text": "学过比例风险模型，笔记里记录了风险比估计。"}
+{"id": "d-cox_model-zh-1", "lang": "zh", "tags": ["cox_model"], "text": "在课程项目中应用了比例风险模型，并写了风险比估计的总结。"}
+{"id": "d-cox_model-zh-2", "lang": "zh", "tags": ["cox_model"], "text": "思维导图：比例风险模型的核心概念、例题与风险比估计。"}
+{"id": "d-cox_model-zh-3", "lang": "zh", "tags": ["cox_model"], "text": "下学期想深入比例风险模型，先从风险比估计开始。"}
+{"id": "d-cox_model-zh-4", "lang": "zh", "tags": ["cox_model"], "text": "证据：比例风险模型章节总结，包含风险比估计。"}
+{"id": "d-competing_risks-en-0", "lang": "en", "tags": ["competing_risks"], "text": "Studied competing risks with detailed notes on Fine-Gray subdistribution hazard."}
+{"id": "d-competing_risks-en-1", "lang": "en", "tags": ["competing_risks"], "text": "Applied competing risks in a course project; wrote about Fine-Gray subdistribution hazard."}
+{"id": "d-competing_risks-en-2", "lang": "en", "tags": ["competing_risks"], "text": "Mind map: competing risks — key ideas, worked examples, Fine-Gray subdistribution hazard."}
+{"id": "d-competing_risks-en-3", "lang": "en", "tags": ["competing_risks"], "text": "Wants to deepen competing risks next semester, starting from Fine-Gray subdistribution hazard."}
+{"id": "d-competing_risks-en-4", "lang": "en", "tags": ["competing_risks"], "text": "Evidence: chapter summary on competing risks including Fine-Gray subdistribution hazard."}
+{"id": "d-competing_risks-zh-0", "lang": "zh", "tags": ["competing_risks"], "text": "学过竞争风险，笔记里记录了Fine-Gray亚分布风险。"}
+{"id": "d-competing_risks-zh-1", "lang": "zh", "tags": ["competing_risks"], "text": "在课程项目中应用了竞争风险，并写了Fine-Gray亚分布风险的总结。"}
+{"id": "d-competing_risks-zh-2", "lang": "zh", "tags": ["competing_risks"], "text": "思维导图：竞争风险的核心概念、例题与Fine-Gray亚分布风险。"}
+{"id": "d-competing_risks-zh-3", "lang": "zh", "tags": ["competing_risks"], "text": "下学期想深入竞争风险，先从Fine-Gray亚分布风险开始。"}
+{"id": "d-competing_risks-zh-4", "lang": "zh", "tags": ["competing_risks"], "text": "证据：竞争风险章节总结，包含Fine-Gray亚分布风险。"}
+{"id": "d-random_forest-en-0", "lang": "en", "tags": ["random_forest"], "text": "Studied random forest with detailed notes on bagging with decision trees."}
+{"id": "d-random_forest-en-1", "lang": "en", "tags": ["random_forest"], "text": "Applied random forest in a course project; wrote about bagging with decision trees."}
+{"id": "d-random_forest-en-2", "lang": "en", "tags": ["random_forest"], "text": "Mind map: random forest — key ideas, worked examples, bagging with decision trees."}
+{"id": "d-random_forest-en-3", "lang": "en", "tags": ["random_forest"], "text": "Wants to deepen random forest next semester, starting from bagging with decision trees."}
+{"id": "d-random_forest-en-4", "lang": "en", "tags": ["random_forest"], "text": "Evidence: chapter summary on random forest including bagging with decision trees."}
+{"id": "d-random_forest-zh-0", "lang": "zh", "tags": ["random_forest"], "text": "学过随机森林，笔记里记录了决策树装袋。"}
+{"id": "d-random_forest-zh-1", "lang": "zh", "tags": ["random_forest"], "text": "在课程项目中应用了随机森林，并写了决策树装袋的总结。"}
+{"id": "d-random_forest-zh-2", "lang": "zh", "tags": ["random_forest"], "text": "思维导图：随机森林的核心概念、例题与决策树装袋。"}
+{"id": "d-random_forest-zh-3", "lang": "zh", "tags": ["random_forest"], "text": "下学期想深入随机森林，先从决策树装袋开始。"}
+{"id": "d-random_forest-zh-4", "lang": "zh", "tags": ["random_forest"], "text": "证据：随机森林章节总结，包含决策树装袋。"}
+{"id": "d-xgboost-en-0", "lang": "en", "tags": ["xgboost"], "text": "Studied XGBoost with detailed notes on gradient boosted trees."}
+{"id": "d-xgboost-en-1", "lang": "en", "tags": ["xgboost"], "text": "Applied XGBoost in a course project; wrote about gradient boosted trees."}
+{"id": "d-xgboost-en-2", "lang": "en", "tags": ["xgboost"], "text": "Mind map: XGBoost — key ideas, worked examples, gradient boosted trees."}
+{"id": "d-xgboost-en-3", "lang": "en", "tags": ["xgboost"], "text": "Wants to deepen XGBoost next semester, starting from gradient boosted trees."}
+{"id": "d-xgboost-en-4", "lang": "en", "tags": ["xgboost"], "text": "Evidence: chapter summary on XGBoost including gradient boosted trees."}
+{"id": "d-xgboost-zh-0", "lang": "zh", "tags": ["xgboost"], "text": "学过XGBoost，笔记里记录了梯度提升树。"}
+{"id": "d-xgboost-zh-1", "lang": "zh", "tags": ["xgboost"], "text": "在课程项目中应用了XGBoost，并写了梯度提升树的总结。"}
+{"id": "d-xgboost-zh-2", "lang": "zh", "tags": ["xgboost"], "text": "思维导图：XGBoost的核心概念、例题与梯度提升树。"}
+{"id": "d-xgboost-zh-3", "lang": "zh", "tags": ["xgboost"], "text": "下学期想深入XGBoost，先从梯度提升树开始。"}
+{"id": "d-xgboost-zh-4", "lang": "zh", "tags": ["xgboost"], "text": "证据：XGBoost章节总结，包含梯度提升树。"}
+{"id": "d-convex_optimization-en-0", "lang": "en", "tags": ["convex_optimization"], "text": "Studied convex optimization with detailed notes on duality and KKT conditions."}
+{"id": "d-convex_optimization-en-1", "lang": "en", "tags": ["convex_optimization"], "text": "Applied convex optimization in a course project; wrote about duality and KKT conditions."}
+{"id": "d-convex_optimization-en-2", "lang": "en", "tags": ["convex_optimization"], "text": "Mind map: convex optimization — key ideas, worked examples, duality and KKT conditions."}
+{"id": "d-convex_optimization-en-3", "lang": "en", "tags": ["convex_optimization"], "text": "Wants to deepen convex optimization next semester, starting from duality and KKT conditions."}
+{"id": "d-convex_optimization-en-4", "lang": "en", "tags": ["convex_optimization"], "text": "Evidence: chapter summary on convex optimization including duality and KKT conditions."}
+{"id": "d-convex_optimization-zh-0", "lang": "zh", "tags": ["convex_optimization"], "text": "学过凸优化，笔记里记录了对偶与KKT条件。"}
+{"id": "d-convex_optimization-zh-1", "lang": "zh", "tags": ["convex_optimization"], "text": "在课程项目中应用了凸优化，并写了对偶与KKT条件的总结。"}
+{"id": "d-convex_optimization-zh-2", "lang": "zh", "tags": ["convex_optimization"], "text": "思维导图：凸优化的核心概念、例题与对偶与KKT条件。"}
+{"id": "d-convex_optimization-zh-3", "lang": "zh", "tags": ["convex_optimization"], "text": "下学期想深入凸优化，先从对偶与KKT条件开始。"}
+{"id": "d-convex_optimization-zh-4", "lang": "zh", "tags": ["convex_optimization"], "text": "证据：凸优化章节总结，包含对偶与KKT条件。"}
+{"id": "d-probability-en-0", "lang": "en", "tags": ["probability"], "text": "Studied probability theory with detailed notes on random variables and expectation."}
+{"id": "d-probability-en-1", "lang": "en", "tags": ["probability"], "text": "Applied probability theory in a course project; wrote about random variables and expectation."}
+{"id": "d-probability-en-2", "lang": "en", "tags": ["probability"], "text": "Mind map: probability theory — key ideas, worked examples, random variables and expectation."}
+{"id": "d-probability-en-3", "lang": "en", "tags": ["probability"], "text": "Wants to deepen probability theory next semester, starting from random variables and expectation."}
+{"id": "d-probability-en-4", "lang": "en", "tags": ["probability"], "text": "Evidence: chapter summary on probability theory including random variables and expectation."}
+{"id": "d-probability-zh-0", "lang": "zh", "tags": ["probability"], "text": "学过概率论，笔记里记录了随机变量与期望。"}
+{"id": "d-probability-zh-1", "lang": "zh", "tags": ["probability"], "text": "在课程项目中应用了概率论，并写了随机变量与期望的总结。"}
+{"id": "d-probability-zh-2", "lang": "zh", "tags": ["probability"], "text": "思维导图：概率论的核心概念、例题与随机变量与期望。"}
+{"id": "d-probability-zh-3", "lang": "zh", "tags": ["probability"], "text": "下学期想深入概率论，先从随机变量与期望开始。"}
+{"id": "d-probability-zh-4", "lang": "zh", "tags": ["probability"], "text": "证据：概率论章节总结，包含随机变量与期望。"}
+{"id": "d-statistical_inference-en-0", "lang": "en", "tags": ["statistical_inference"], "text": "Studied statistical inference with detailed notes on confidence intervals."}
+{"id": "d-statistical_inference-en-1", "lang": "en", "tags": ["statistical_inference"], "text": "Applied statistical inference in a course project; wrote about confidence intervals."}
+{"id": "d-statistical_inference-en-2", "lang": "en", "tags": ["statistical_inference"], "text": "Mind map: statistical inference — key ideas, worked examples, confidence intervals."}
+{"id": "d-statistical_inference-en-3", "lang": "en", "tags": ["statistical_inference"], "text": "Wants to deepen statistical inference next semester, starting from confidence intervals."}
+{"id": "d-statistical_inference-en-4", "lang": "en", "tags": ["statistical_inference"], "text": "Evidence: chapter summary on statistical inference including confidence intervals."}
+{"id": "d-statistical_inference-zh-0", "lang": "zh", "tags": ["statistical_inference"], "text": "学过统计推断，笔记里记录了置信区间。"}
+{"id": "d-statistical_inference-zh-1", "lang": "zh", "tags": ["statistical_inference"], "text": "在课程项目中应用了统计推断，并写了置信区间的总结。"}
+{"id": "d-statistical_inference-zh-2", "lang": "zh", "tags": ["statistical_inference"], "text": "思维导图：统计推断的核心概念、例题与置信区间。"}
+{"id": "d-statistical_inference-zh-3", "lang": "zh", "tags": ["statistical_inference"], "text": "下学期想深入统计推断，先从置信区间开始。"}
+{"id": "d-statistical_inference-zh-4", "lang": "zh", "tags": ["statistical_inference"], "text": "证据：统计推断章节总结，包含置信区间。"}
+{"id": "d-quant_finance-en-0", "lang": "en", "tags": ["quant_finance"], "text": "Studied quantitative finance with detailed notes on asset pricing basics."}
+{"id": "d-quant_finance-en-1", "lang": "en", "tags": ["quant_finance"], "text": "Applied quantitative finance in a course project; wrote about asset pricing basics."}
+{"id": "d-quant_finance-en-2", "lang": "en", "tags": ["quant_finance"], "text": "Mind map: quantitative finance — key ideas, worked examples, asset pricing basics."}
+{"id": "d-quant_finance-en-3", "lang": "en", "tags": ["quant_finance"], "text": "Wants to deepen quantitative finance next semester, starting from asset pricing basics."}
+{"id": "d-quant_finance-en-4", "lang": "en", "tags": ["quant_finance"], "text": "Evidence: chapter summary on quantitative finance including asset pricing basics."}
+{"id": "d-quant_finance-zh-0", "lang": "zh", "tags": ["quant_finance"], "text": "学过量化金融，笔记里记录了资产定价基础。"}
+{"id": "d-quant_finance-zh-1", "lang": "zh", "tags": ["quant_finance"], "text": "在课程项目中应用了量化金融，并写了资产定价基础的总结。"}
+{"id": "d-quant_finance-zh-2", "lang": "zh", "tags": ["quant_finance"], "text": "思维导图：量化金融的核心概念、例题与资产定价基础。"}
+{"id": "d-quant_finance-zh-3", "lang": "zh", "tags": ["quant_finance"], "text": "下学期想深入量化金融，先从资产定价基础开始。"}
+{"id": "d-quant_finance-zh-4", "lang": "zh", "tags": ["quant_finance"], "text": "证据：量化金融章节总结，包含资产定价基础。"}
+{"id": "d-time_series-en-0", "lang": "en", "tags": ["time_series"], "text": "Studied time series with detailed notes on ARIMA and autocorrelation."}
+{"id": "d-time_series-en-1", "lang": "en", "tags": ["time_series"], "text": "Applied time series in a course project; wrote about ARIMA and autocorrelation."}
+{"id": "d-time_series-en-2", "lang": "en", "tags": ["time_series"], "text": "Mind map: time series — key ideas, worked examples, ARIMA and autocorrelation."}
+{"id": "d-time_series-en-3", "lang": "en", "tags": ["time_series"], "text": "Wants to deepen time series next semester, starting from ARIMA and autocorrelation."}
+{"id": "d-time_series-en-4", "lang": "en", "tags": ["time_series"], "text": "Evidence: chapter summary on time series including ARIMA and autocorrelation."}
+{"id": "d-time_series-zh-0", "lang": "zh", "tags": ["time_series"], "text": "学过时间序列，笔记里记录了ARIMA与自相关。"}
+{"id": "d-time_series-zh-1", "lang": "zh", "tags": ["time_series"], "text": "在课程项目中应用了时间序列，并写了ARIMA与自相关的总结。"}
+{"id": "d-time_series-zh-2", "lang": "zh", "tags": ["time_series"], "text": "思维导图：时间序列的核心概念、例题与ARIMA与自相关。"}
+{"id": "d-time_series-zh-3", "lang": "zh", "tags": ["time_series"], "text": "下学期想深入时间序列，先从ARIMA与自相关开始。"}
+{"id": "d-time_series-zh-4", "lang": "zh", "tags": ["time_series"], "text": "证据：时间序列章节总结，包含ARIMA与自相关。"}
+{"id": "d-machine_learning-en-0", "lang": "en", "tags": ["machine_learning"], "text": "Studied machine learning with detailed notes on bias variance trade-off."}
+{"id": "d-machine_learning-en-1", "lang": "en", "tags": ["machine_learning"], "text": "Applied machine learning in a course project; wrote about bias variance trade-off."}
+{"id": "d-machine_learning-en-2", "lang": "en", "tags": ["machine_learning"], "text": "Mind map: machine learning — key ideas, worked examples, bias variance trade-off."}
+{"id": "d-machine_learning-en-3", "lang": "en", "tags": ["machine_learning"], "text": "Wants to deepen machine learning next semester, starting from bias variance trade-off."}
+{"id": "d-machine_learning-en-4", "lang": "en", "tags": ["machine_learning"], "text": "Evidence: chapter summary on machine learning including bias variance trade-off."}
+{"id": "d-machine_learning-zh-0", "lang": "zh", "tags": ["machine_learning"], "text": "学过机器学习，笔记里记录了偏差方差权衡。"}
+{"id": "d-machine_learning-zh-1", "lang": "zh", "tags": ["machine_learning"], "text": "在课程项目中应用了机器学习，并写了偏差方差权衡的总结。"}
+{"id": "d-machine_learning-zh-2", "lang": "zh", "tags": ["machine_learning"], "text": "思维导图：机器学习的核心概念、例题与偏差方差权衡。"}
+{"id": "d-machine_learning-zh-3", "lang": "zh", "tags": ["machine_learning"], "text": "下学期想深入机器学习，先从偏差方差权衡开始。"}
+{"id": "d-machine_learning-zh-4", "lang": "zh", "tags": ["machine_learning"], "text": "证据：机器学习章节总结，包含偏差方差权衡。"}
+{"id": "d-deep_learning-en-0", "lang": "en", "tags": ["deep_learning"], "text": "Studied deep learning with detailed notes on backpropagation in neural networks."}
+{"id": "d-deep_learning-en-1", "lang": "en", "tags": ["deep_learning"], "text": "Applied deep learning in a course project; wrote about backpropagation in neural networks."}
+{"id": "d-deep_learning-en-2", "lang": "en", "tags": ["deep_learning"], "text": "Mind map: deep learning — key ideas, worked examples, backpropagation in neural networks."}
+{"id": "d-deep_learning-en-3", "lang": "en", "tags": ["deep_learning"], "text": "Wants to deepen deep learning next semester, starting from backpropagation in neural networks."}
+{"id": "d-deep_learning-en-4", "lang": "en", "tags": ["deep_learning"], "text": "Evidence: chapter summary on deep learning including backpropagation in neural networks."}
+{"id": "d-deep_learning-zh-0", "lang": "zh", "tags": ["deep_learning"], "text": "学过深度学习，笔记里记录了神经网络反向传播。"}
+{"id": "d-deep_learning-zh-1", "lang": "zh", "tags": ["deep_learning"], "text": "在课程项目中应用了深度学习，并写了神经网络反向传播的总结。"}
+{"id": "d-deep_learning-zh-2", "lang": "zh", "tags": ["deep_learning"], "text": "思维导图：深度学习的核心概念、例题与神经网络反向传播。"}
+{"id": "d-deep_learning-zh-3", "lang": "zh", "tags": ["deep_learning"], "text": "下学期想深入深度学习，先从神经网络反向传播开始。"}
+{"id": "d-deep_learning-zh-4", "lang": "zh", "tags": ["deep_learning"], "text": "证据：深度学习章节总结，包含神经网络反向传播。"}
+{"id": "d-bayesian-en-0", "lang": "en", "tags": ["bayesian"], "text": "Studied Bayesian statistics with detailed notes on posterior and prior."}
+{"id": "d-bayesian-en-1", "lang": "en", "tags": ["bayesian"], "text": "Applied Bayesian statistics in a course project; wrote about posterior and prior."}
+{"id": "d-bayesian-en-2", "lang": "en", "tags": ["bayesian"], "text": "Mind map: Bayesian statistics — key ideas, worked examples, posterior and prior."}
+{"id": "d-bayesian-en-3", "lang": "en", "tags": ["bayesian"], "text": "Wants to deepen Bayesian statistics next semester, starting from posterior and prior."}
+{"id": "d-bayesian-en-4", "lang": "en", "tags": ["bayesian"], "text": "Evidence: chapter summary on Bayesian statistics including posterior and prior."}
+{"id": "d-bayesian-zh-0", "lang": "zh", "tags": ["bayesian"], "text": "学过贝叶斯统计，笔记里记录了后验与先验。"}
+{"id": "d-bayesian-zh-1", "lang": "zh", "tags": ["bayesian"], "text": "在课程项目中应用了贝叶斯统计，并写了后验与先验的总结。"}
+{"id": "d-bayesian-zh-2", "lang": "zh", "tags": ["bayesian"], "text": "思维导图：贝叶斯统计的核心概念、例题与后验与先验。"}
+{"id": "d-bayesian-zh-3", "lang": "zh", "tags": ["bayesian"], "text": "下学期想深入贝叶斯统计，先从后验与先验开始。"}
+{"id": "d-bayesian-zh-4", "lang": "zh", "tags": ["bayesian"], "text": "证据：贝叶斯统计章节总结，包含后验与先验。"}
+{"id": "d-linear_algebra-en-0", "lang": "en", "tags": ["linear_algebra"], "text": "Studied linear algebra with detailed notes on eigenvalues and matrix factorization."}
+{"id": "d-linear_algebra-en-1", "lang": "en", "tags": ["linear_algebra"], "text": "Applied linear algebra in a course project; wrote about eigenvalues and matrix factorization."}
+{"id": "d-linear_algebra-en-2", "lang": "en", "tags": ["linear_algebra"], "text": "Mind map: linear algebra — key ideas, worked examples, eigenvalues and matrix factorization."}
+{"id": "d-linear_algebra-en-3", "lang": "en", "tags": ["linear_algebra"], "text": "Wants to deepen linear algebra next semester, starting from eigenvalues and matrix factorization."}
+{"id": "d-linear_algebra-en-4", "lang": "en", "tags": ["linear_algebra"], "text": "Evidence: chapter summary on linear algebra including eigenvalues and matrix factorization."}
+{"id": "d-linear_algebra-zh-0", "lang": "zh", "tags": ["linear_algebra"], "text": "学过线性代数，笔记里记录了特征值与矩阵分解。"}
+{"id": "d-linear_algebra-zh-1", "lang": "zh", "tags": ["linear_algebra"], "text": "在课程项目中应用了线性代数，并写了特征值与矩阵分解的总结。"}
+{"id": "d-linear_algebra-zh-2", "lang": "zh", "tags": ["linear_algebra"], "text": "思维导图：线性代数的核心概念、例题与特征值与矩阵分解。"}
+{"id": "d-linear_algebra-zh-3", "lang": "zh", "tags": ["linear_algebra"], "text": "下学期想深入线性代数，先从特征值与矩阵分解开始。"}
+{"id": "d-linear_algebra-zh-4", "lang": "zh", "tags": ["linear_algebra"], "text": "证据：线性代数章节总结，包含特征值与矩阵分解。"}
+{"id": "d-python-en-0", "lang": "en", "tags": ["python"], "text": "Studied Python programming with detailed notes on pandas and numpy."}
+{"id": "d-python-en-1", "lang": "en", "tags": ["python"], "text": "Applied Python programming in a course project; wrote about pandas and numpy."}
+{"id": "d-python-en-2", "lang": "en", "tags": ["python"], "text": "Mind map: Python programming — key ideas, worked examples, pandas and numpy."}
+{"id": "d-python-en-3", "lang": "en", "tags": ["python"], "text": "Wants to deepen Python programming next semester, starting from pandas and numpy."}
+{"id": "d-python-en-4", "lang": "en", "tags": ["python"], "text": "Evidence: chapter summary on Python programming including pandas and numpy."}
+{"id": "d-python-zh-0", "lang": "zh", "tags": ["python"], "text": "学过Python编程，笔记里记录了pandas与numpy。"}
+{"id": "d-python-zh-1", "lang": "zh", "tags": ["python"], "text": "在课程项目中应用了Python编程，并写了pandas与numpy的总结。"}
+{"id": "d-python-zh-2", "lang": "zh", "tags": ["python"], "text": "思维导图：Python编程的核心概念、例题与pandas与numpy。"}
+{"id": "d-python-zh-3", "lang": "zh", "tags": ["python"], "text": "下学期想深入Python编程，先从pandas与numpy开始。"}
+{"id": "d-python-zh-4", "lang": "zh", "tags": ["python"], "text": "证据：Python编程章节总结，包含pandas与numpy。"}
+{"id": "d-databases-en-0", "lang": "en", "tags": ["databases"], "text": "Studied SQL databases with detailed notes on joins and indexes."}
+{"id": "d-databases-en-1", "lang": "en", "tags": ["databases"], "text": "Applied SQL databases in a course project; wrote about joins and indexes."}
+{"id": "d-databases-en-2", "lang": "en", "tags": ["databases"], "text": "Mind map: SQL databases — key ideas, worked examples, joins and indexes."}
+{"id": "d-databases-en-3", "lang": "en", "tags": ["databases"], "text": "Wants to deepen SQL databases next semester, starting from joins and indexes."}
+{"id": "d-databases-en-4", "lang": "en", "tags": ["databases"], "text": "Evidence: chapter summary on SQL databases including joins and indexes."}
+{"id": "d-databases-zh-0", "lang": "zh", "tags": ["databases"], "text": "学过数据库，笔记里记录了连接与索引。"}
+{"id": "d-databases-zh-1", "lang": "zh", "tags": ["databases"], "text": "在课程项目中应用了数据库，并写了连接与索引的总结。"}
+{"id": "d-databases-zh-2", "lang": "zh", "tags": ["databases"], "text": "思维导图：数据库的核心概念、例题与连接与索引。"}
+{"id": "d-databases-zh-3", "lang": "zh", "tags": ["databases"], "text": "下学期想深入数据库，先从连接与索引开始。"}
+{"id": "d-databases-zh-4", "lang": "zh", "tags": ["databases"], "text": "证据：数据库章节总结，包含连接与索引。"}
+{"id": "d-medical_imaging-en-0", "lang": "en", "tags": ["medical_imaging"], "text": "Studied medical imaging with detailed notes on CT image preprocessing."}
+{"id": "d-medical_imaging-en-1", "lang": "en", "tags": ["medical_imaging"], "text": "Applied medical imaging in a course project; wrote about CT image preprocessing."}
+{"id": "d-medical_imaging-en-2", "lang": "en", "tags": ["medical_imaging"], "text": "Mind map: medical imaging — key ideas, worked examples, CT image preprocessing."}
+{"id": "d-medical_imaging-en-3", "lang": "en", "tags": ["medical_imaging"], "text": "Wants to deepen medical imaging next semester, starting from CT image preprocessing."}
+{"id": "d-medical_imaging-en-4", "lang": "en", "tags": ["medical_imaging"], "text": "Evidence: chapter summary on medical imaging including CT image preprocessing."}
+{"id": "d-medical_imaging-zh-0", "lang": "zh", "tags": ["medical_imaging"], "text": "学过医学影像，笔记里记录了CT图像预处理。"}
+{"id": "d-medical_imaging-zh-1", "lang": "zh", "tags": ["medical_imaging"], "text": "在课程项目中应用了医学影像，并写了CT图像预处理的总结。"}
+{"id": "d-medical_imaging-zh-2", "lang": "zh", "tags": ["medical_imaging"], "text": "思维导图：医学影像的核心概念、例题与CT图像预处理。"}
+{"id": "d-medical_imaging-zh-3", "lang": "zh", "tags": ["medical_imaging"], "text": "下学期想深入医学影像，先从CT图像预处理开始。"}
+{"id": "d-medical_imaging-zh-4", "lang": "zh", "tags": ["medical_imaging"], "text": "证据：医学影像章节总结，包含CT图像预处理。"}
+{"id": "d-concise_answers-en-0", "lang": "en", "tags": ["concise_answers"], "text": "Studied concise answers with detailed notes on conclusion first."}
+{"id": "d-concise_answers-en-1", "lang": "en", "tags": ["concise_answers"], "text": "Applied concise answers in a course project; wrote about conclusion first."}
+{"id": "d-concise_answers-en-2", "lang": "en", "tags": ["concise_answers"], "text": "Mind map: concise answers — key ideas, worked examples, conclusion first."}
+{"id": "d-concise_answers-en-3", "lang": "en", "tags": ["concise_answers"], "text": "Wants to deepen concise answers next semester, starting from conclusion first."}
+{"id": "d-concise_answers-en-4", "lang": "en", "tags": ["concise_answers"], "text": "Evidence: chapter summary on concise answers including conclusion first."}
+{"id": "d-concise_answers-zh-0", "lang": "zh", "tags": ["concise_answers"], "text": "学过简洁回答，笔记里记录了先给结论。"}
+{"id": "d-concise_answers-zh-1", "lang": "zh", "tags": ["concise_answers"], "text": "在课程项目中应用了简洁回答，并写了先给结论的总结。"}
+{"id": "d-concise_answers-zh-2", "lang": "zh", "tags": ["concise_answers"], "text": "思维导图：简洁回答的核心概念、例题与先给结论。"}
+{"id": "d-concise_answers-zh-3", "lang": "zh", "tags": ["concise_answers"], "text": "下学期想深入简洁回答，先从先给结论开始。"}
+{"id": "d-concise_answers-zh-4", "lang": "zh", "tags": ["concise_answers"], "text": "证据：简洁回答章节总结，包含先给结论。"}
+{"id": "d-markdown_format-en-0", "lang": "en", "tags": ["markdown_format"], "text": "Studied Markdown formatting with detailed notes on math in dollar signs."}
+{"id": "d-markdown_format-en-1", "lang": "en", "tags": ["markdown_format"], "text": "Applied Markdown formatting in a course project; wrote about math in dollar signs."}
+{"id": "d-markdown_format-en-2", "lang": "en", "tags": ["markdown_format"], "text": "Mind map: Markdown formatting — key ideas, worked examples, math in dollar signs."}
+{"id": "d-markdown_format-en-3", "lang": "en", "tags": ["markdown_format"], "text": "Wants to deepen Markdown formatting next semester, starting from math in dollar signs."}
+{"id": "d-markdown_format-en-4", "lang": "en", "tags": ["markdown_format"], "text": "Evidence: chapter summary on Markdown formatting including math in dollar signs."}
+{"id": "d-markdown_format-zh-0", "lang": "zh", "tags": ["markdown_format"], "text": "学过Markdown格式，笔记里记录了公式用美元符号。"}
+{"id": "d-markdown_format-zh-1", "lang": "zh", "tags": ["markdown_format"], "text": "在课程项目中应用了Markdown格式，并写了公式用美元符号的总结。"}
+{"id": "d-markdown_format-zh-2", "lang": "zh", "tags": ["markdown_format"], "text": "思维导图：Markdown格式的核心概念、例题与公式用美元符号。"}
+{"id": "d-markdown_format-zh-3", "lang": "zh", "tags": ["markdown_format"], "text": "下学期想深入Markdown格式，先从公式用美元符号开始。"}
+{"id": "d-markdown_format-zh-4", "lang": "zh", "tags": ["markdown_format"], "text": "证据：Markdown格式章节总结，包含公式用美元符号。"}
+{"id": "d-portfolio_optimization-en-0", "lang": "en", "tags": ["portfolio_optimization"], "text": "Studied portfolio optimization with detailed notes on mean variance allocation."}
+{"id": "d-portfolio_optimization-en-1", "lang": "en", "tags": ["portfolio_optimization"], "text": "Applied portfolio optimization in a course project; wrote about mean variance allocation."}
+{"id": "d-portfolio_optimization-en-2", "lang": "en", "tags": ["portfolio_optimization"], "text": "Mind map: portfolio optimization — key ideas, worked examples, mean variance allocation."}
+{"id": "d-portfolio_optimization-en-3", "lang": "en", "tags": ["portfolio_optimization"], "text": "Wants to deepen portfolio optimization next semester, starting from mean variance allocation."}
+{"id": "d-portfolio_optimization-en-4", "lang": "en", "tags": ["portfolio_optimization"], "text": "Evidence: chapter summary on portfolio optimization including mean variance allocation."}
+{"id": "d-portfolio_optimization-zh-0", "lang": "zh", "tags": ["portfolio_optimization"], "text": "学过投资组合优化，笔记里记录了均值方差配置。"}
+{"id": "d-portfolio_optimization-zh-1", "lang": "zh", "tags": ["portfolio_optimization"], "text": "在课程项目中应用了投资组合优化，并写了均值方差配置的总结。"}
+{"id": "d-portfolio_optimization-zh-2", "lang": "zh", "tags": ["portfolio_optimization"], "text": "思维导图：投资组合优化的核心概念、例题与均值方差配置。"}
+{"id": "d-portfolio_optimization-zh-3", "lang": "zh", "tags": ["portfolio_optimization"], "text": "下学期想深入投资组合优化，先从均值方差配置开始。"}
+{"id": "d-portfolio_optimization-zh-4", "lang": "zh", "tags": ["portfolio_optimization"], "text": "证据：投资组合优化章节总结，包含均值方差配置。"}
+{"id": "d-hypothesis_testing-en-0", "lang": "en", "tags": ["hypothesis_testing"], "text": "Studied hypothesis testing with detailed notes on p-values and power."}
+{"id": "d-hypothesis_testing-en-1", "lang": "en", "tags": ["hypothesis_testing"], "text": "Applied hypothesis testing in a course project; wrote about p-values and power."}
+{"id": "d-hypothesis_testing-en-2", "lang": "en", "tags": ["hypothesis_testing"], "text": "Mind map: hypothesis testing — key ideas, worked examples, p-values and power."}
+{"id": "d-hypothesis_testing-en-3", "lang": "en", "tags": ["hypothesis_testing"], "text": "Wants to deepen hypothesis testing next semester, starting from p-values and power."}
+{"id": "d-hypothesis_testing-en-4", "lang": "en", "tags": ["hypothesis_testing"], "text": "Evidence: chapter summary on hypothesis testing including p-values and power."}
+{"id": "d-hypothesis_testing-zh-0", "lang": "zh", "tags": ["hypothesis_testing"], "text": "学过假设检验，笔记里记录了p值与检验功效。"}
+{"id": "d-hypothesis_testing-zh-1", "lang": "zh", "tags": ["hypothesis_testing"], "text": "在课程项目中应用了假设检验，并写了p值与检验功效的总结。"}
+{"id": "d-hypothesis_testing-zh-2", "lang": "zh", "tags": ["hypothesis_testing"], "text": "思维导图：假设检验的核心概念、例题与p值与检验功效。"}
+{"id": "d-hypothesis_testing-zh-3", "lang": "zh", "tags": ["hypothesis_testing"], "text": "下学期想深入假设检验，先从p值与检验功效开始。"}
+{"id": "d-hypothesis_testing-zh-4", "lang": "zh", "tags": ["hypothesis_testing"], "text": "证据：假设检验章节总结，包含p值与检验功效。"}
+{"id": "d-causal_inference-en-0", "lang": "en", "tags": ["causal_inference"], "text": "Studied causal inference with detailed notes on confounding and propensity scores."}
+{"id": "d-causal_inference-en-1", "lang": "en", "tags": ["causal_inference"], "text": "Applied causal inference in a course project; wrote about confounding and propensity scores."}
+{"id": "d-causal_inference-en-2", "lang": "en", "tags": ["causal_inference"], "text": "Mind map: causal inference — key ideas, worked examples, confounding and propensity scores."}
+{"id": "d-causal_inference-en-3", "lang": "en", "tags": ["causal_inference"], "text": "Wants to deepen causal inference next semester, starting from confounding and propensity scores."}
+{"id": "d-causal_inference-en-4", "lang": "en", "tags": ["causal_inference"], "text": "Evidence: chapter summary on causal inference including confounding and propensity scores."}
+{"id": "d-causal_inference-zh-0", "lang": "zh", "tags": ["causal_inference"], "text": "学过因果推断，笔记里记录了混杂与倾向评分。"}
+{"id": "d-causal_inference-zh-1", "lang": "zh", "tags": ["causal_inference"], "text": "在课程项目中应用了因果推断，并写了混杂与倾向评分的总结。"}
+{"id": "d-causal_inference-zh-2", "lang": "zh", "tags": ["causal_inference"], "text": "思维导图：因果推断的核心概念、例题与混杂与倾向评分。"}
+{"id": "d-causal_inference-zh-3", "lang": "zh", "tags": ["causal_inference"], "text": "下学期想深入因果推断，先从混杂与倾向评分开始。"}
+{"id": "d-causal_inference-zh-4", "lang": "zh", "tags": ["causal_inference"], "text": "证据：因果推断章节总结，包含混杂与倾向评分。"}
+{"id": "d-reinforcement_learning-en-0", "lang": "en", "tags": ["reinforcement_learning"], "text": "Studied reinforcement learning with detailed notes on policy gradient and rewards."}
+{"id": "d-reinforcement_learning-en-1", "lang": "en", "tags": ["reinforcement_learning"], "text": "Applied reinforcement learning in a course project; wrote about policy gradient and rewards."}
+{"id": "d-reinforcement_learning-en-2", "lang": "en", "tags": ["reinforcement_learning"], "text": "Mind map: reinforcement learning — key ideas, worked examples, policy gradient and rewards."}
+{"id": "d-reinforcement_learning-en-3", "lang": "en", "tags": ["reinforcement_learning"], "text": "Wants to deepen reinforcement learning next semester, starting from policy gradient and rewards."}
+{"id": "d-reinforcement_learning-en-4", "lang": "en", "tags": ["reinforcement_learning"], "text": "Evidence: chapter summary on reinforcement learning including policy gradient and rewards."}
+{"id": "d-reinforcement_learning-zh-0", "lang": "zh", "tags": ["reinforcement_learning"], "text": "学过强化学习，笔记里记录了策略梯度与奖励。"}
+{"id": "d-reinforcement_learning-zh-1", "lang": "zh", "tags": ["reinforcement_learning"], "text": "在课程项目中应用了强化学习，并写了策略梯度与奖励的总结。"}
+{"id": "d-reinforcement_learning-zh-2", "lang": "zh", "tags": ["reinforcement_learning"], "text": "思维导图：强化学习的核心概念、例题与策略梯度与奖励。"}
+{"id": "d-reinforcement_learning-zh-3", "lang": "zh", "tags": ["reinforcement_learning"], "text": "下学期想深入强化学习，先从策略梯度与奖励开始。"}
+{"id": "d-reinforcement_learning-zh-4", "lang": "zh", "tags": ["reinforcement_learning"], "text": "证据：强化学习章节总结，包含策略梯度与奖励。"}
+{"id": "d-volatility-en-0", "lang": "en", "tags": ["volatility"], "text": "Studied volatility modeling with detailed notes on GARCH models."}
+{"id": "d-volatility-en-1", "lang": "en", "tags": ["volatility"], "text": "Applied volatility modeling in a course project; wrote about GARCH models."}
+{"id": "d-volatility-en-2", "lang": "en", "tags": ["volatility"], "text": "Mind map: volatility modeling — key ideas, worked examples, GARCH models."}
+{"id": "d-volatility-en-3", "lang": "en", "tags": ["volatility"], "text": "Wants to deepen volatility modeling next semester, starting from GARCH models."}
+{"id": "d-volatility-en-4", "lang": "en", "tags": ["volatility"], "text": "Evidence: chapter summary on volatility modeling including GARCH models."}
+{"id": "d-volatility-zh-0", "lang": "zh", "tags": ["volatility"], "text": "学过波动率建模，笔记里记录了GARCH模型。"}
+{"id": "d-volatility-zh-1", "lang": "zh", "tags": ["volatility"], "text": "在课程项目中应用了波动率建模，并写了GARCH模型的总结。"}
+{"id": "d-volatility-zh-2", "lang": "zh", "tags": ["volatility"], "text": "思维导图：波动率建模的核心概念、例题与GARCH模型。"}
+{"id": "d-volatility-zh-3", "lang": "zh", "tags": ["volatility"], "text": "下学期想深入波动率建模，先从GARCH模型开始。"}
+{"id": "d-volatility-zh-4", "lang": "zh", "tags": ["volatility"], "text": "证据：波动率建模章节总结，包含GARCH模型。"}
+{"id": "d-distractor-0", "lang": "en", "tags": ["distractor"], "text": "Enjoys forest hiking and survival games on weekends."}
+{"id": "d-distractor-1", "lang": "en", "tags": ["distractor"], "text": "Read a news article about venture capital risk appetite."}
+{"id": "d-distractor-2", "lang": "en", "tags": ["distractor"], "text": "Prefers long narrative explanations for history topics."}
+{"id": "d-distractor-3", "lang": "zh", "tags": ["distractor"], "text": "周末喜欢在森林里徒步，也玩生存类游戏。"}
+{"id": "d-distractor-4", "lang": "zh", "tags": ["distractor"], "text": "读了一篇关于风险投资偏好的新闻。"}
+{"id": "d-distractor-5", "lang": "zh", "tags": ["distractor"], "text": "生活中存储了很多照片，需要整理。"}
+{"id": "d-distractor-6", "lang": "zh", "tags": ["distractor"], "text": "喜欢听音乐，偶尔学习做饭。"}
+{"id": "d-distractor-7", "lang": "zh", "tags": ["distractor"], "text": "历史话题更喜欢长篇叙述。"}
+{"id": "d-distractor-8", "lang": "zh", "tags": ["distractor"], "text": "金色的秋天，融化的雪。"}
+{"id": "d-distractor-9", "lang": "en", "tags": ["distractor"], "text": "Organized family photos into albums."}
