@@ -1,0 +1,12 @@
+{
+  "status": "PASS_REQUIRED_READ_PATH",
+  "date": "2026-09-19",
+  "versions": {
+    "current_stable": {"version": "0.155.0", "result": "HOST_OK 61"},
+    "preceding_stable": {"version": "0.154.0", "result": "HOST_OK 61"},
+    "installed_observation": {"version": "0.153.4", "result": "HOST_OK 61"}
+  },
+  "session": {"sandbox_mode": "read-only", "approval_policy": "never", "ephemeral": true},
+  "mcp": {"transport": "stdio", "tool": "profile_get_identity_card", "max_units": 80},
+  "note": "This closes the required Codex read-path version pair, not the ADR-0013 confinement/status matrix."
+}

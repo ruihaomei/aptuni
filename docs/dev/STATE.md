@@ -26,9 +26,10 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   (`spikes/S03-fts.md`; `cjk_lexemes` selected; generalization/noise limit → KI-018). S04 and S05A
   pending. ADRs stay `Proposed` until spike results confirm or revise them; spike conclusions still
   need an independent evidence review (plan 00 exit checklist).
-- S04 is **IN PROGRESS**: deterministic local layer 13/13 PASS; installed Codex 0.153.4 partial host
-  PASS; Claude Code 2.1.87 BLOCKED_EXTERNAL before MCP invocation. Current/preceding stable host
-  journeys and ADR-0013 confinement/status cases remain blocking (KI-005/KI-014).
+- S04 is **IN PROGRESS**: deterministic local layer 13/13 PASS and Codex 0.155.0/0.154.0 required
+  read paths PASS; Claude Code 2.1.87 BLOCKED_EXTERNAL before MCP invocation. Required Claude
+  2.1.267/2.1.266 binaries reproduce an expired-OAuth failure before MCP. Re-authentication and
+  ADR-0013 confinement/status cases remain blocking (KI-005/KI-014).
 
 ## Awaiting maintainer decisions
 
@@ -38,8 +39,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-Continue S04 from `spikes/S04-mcp.md`: obtain runnable current/preceding host binaries, resolve the
-Claude HTTP 400 blocker, then finish ADR-0013 per-host confinement/status probes. Do not start S05A
+Continue S04 from `spikes/S04-mcp.md`: after the maintainer re-authenticates Claude Code, rerun
+2.1.267/2.1.266, then finish ADR-0013 per-host confinement/status probes. Do not start S05A
 or accept ADR-0005 until the S04 blocking matrix clears.
 
 ## Latest validation state
@@ -47,7 +48,7 @@ or accept ADR-0005 until the S04 blocking matrix clears.
 - `python3.13 -m unittest tests/dev/test_check_relay.py`: Ran 19 tests in 0.016s OK
 - `python3.13 tools/check_relay.py`: relay check passed (includes the workspace-text check, which
   covers untracked files for trailing whitespace/final newline).
-- `git diff --check`: exit 0 against S03 checkpoint `ba7f91c` (tracked files only).
+- `git diff --check`: exit 0 against S04 WIP checkpoint `0a33958` (tracked files only).
 - S01: `spikes/s01_vault/run_s01.py` in a pinned-3.13.3 venv → 46 tests OK, exit 0.
 - S02: `spikes/s02_plugins/run_s02.py` (offline) → 12 tests OK, exit 0.
 - S03: `spikes/s03_fts/run_s03.py verify` on Python 3.13.3 / SQLite 3.53.2 → 23 tests OK;

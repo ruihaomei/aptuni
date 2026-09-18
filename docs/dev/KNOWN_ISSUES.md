@@ -4,7 +4,7 @@
 |---|---|---|---|
 | KI-002 | Release blocker | Public license is not confirmed. | Maintainer decides ADR-0009 before release/contributions. |
 | KI-004 | Blocking per source | MarginNote export identity is not publicly guaranteed stable. | Run Gate 0 S05A then MarginNote S05B on real sanitized exports. |
-| KI-005 | Blocking | S04 local protocol/policy layer passes and installed Codex 0.153.4 has partial host evidence, but required current/preceding host versions are untested and Claude 2.1.87 returned repeated HTTP 400 before any tool call. | Continue S04 on Codex 0.155.0/0.154.0 and Claude Code 2.1.267/2.1.266 (or reviewed waiver); then finish ADR-0013 host probes. |
+| KI-005 | Blocking | S04 local protocol/policy layer and Codex 0.155.0/0.154.0 read paths pass, but Claude 2.1.267/2.1.266 both stop before MCP because the OAuth session is expired and cannot refresh. | Maintainer re-authenticates Claude Code; rerun both journeys, then finish ADR-0013 host probes. |
 | KI-008 | Deferred | Mem0 local privacy/retention/export behavior needs isolation testing. | S10 before Milestone 2 adapter. |
 | KI-009 | Deferred | Graphiti projection loses canonical semantics and needs a ledger. | S11 before Milestone 3 adapter. |
 | KI-010 | Process | Project Research Memory has not been initialized. | Await maintainer answer; not an implementation blocker. |
@@ -12,7 +12,6 @@
 | KI-016 | High | S01 findings F1–F3: whole-Vault revalidation per commit, integrity mismatch blocks all reads, purge needs startup `recover()`. | Mandatory M1.1 Slice 3 requirements (incremental validation + compaction; out-of-band edits → quarantine; recover before serving); fold into ADR-0001/0010 on acceptance. |
 | KI-017 | High | S02 F1: pip RECORD does not hash `.pyc`; a forged bytecode file passes closure verification and executes. | M1.1 sets `sys.pycache_prefix` to a core-owned directory before importing plugins (proven in S02) and adds F2/F3 (manifest placement; lockfile artifact hashes). |
 | KI-018 | High | S03 used a templated synthetic corpus; broad two-character queries admitted top-5 distractors even though aggregate gates passed. | M1 adds dogfood judgments and per-result context-noise tests; retain size telemetry and score/reranking seam before user-facing quality claims. |
-| KI-015 | Low | Codex 0.153.4 was observed only in the ChatGPT desktop bundle (not on PATH); it is now behind upstream stable 0.155.0. | S04 must run stable 0.155.0 and preceding stable 0.154.0 before acceptance. |
 
 Resolved issues move to an appended history section; do not silently delete them.
 
@@ -35,3 +34,6 @@ Resolved issues move to an appended history section; do not silently delete them
 - **KI-003 (2026-09-19):** S03 measured all three extension-free FTS5 strategies on frozen bilingual
   evidence. Deterministic 2–4-character CJK lexemes passed development, 25k-scale, and untouched
   holdout gates (23 tests); generalization and broad-query noise continue as KI-018.
+- **KI-015 (2026-09-19):** S04 ran the required Codex current/preceding stable pair (0.155.0 and
+  0.154.0); both returned `HOST_OK 61` on the bounded annotated read path. Installed 0.153.4 remains
+  an additional observation, not the release target.

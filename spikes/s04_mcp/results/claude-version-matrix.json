@@ -1,0 +1,28 @@
+{
+  "status": "BLOCKED_AUTH",
+  "date": "2026-09-19",
+  "versions": {
+    "current_stable": {
+      "version": "2.1.267",
+      "binary": "PASS",
+      "host_journey": "BLOCKED_BEFORE_MCP",
+      "duration_ms": 157
+    },
+    "preceding_stable": {
+      "version": "2.1.266",
+      "binary": "PASS",
+      "host_journey": "BLOCKED_BEFORE_MCP",
+      "duration_ms": 113
+    },
+    "installed": {
+      "version": "2.1.87",
+      "host_journey": "BLOCKED_BEFORE_MCP",
+      "legacy_symptom": "repeated HTTP 400"
+    }
+  },
+  "root_cause": "OAuth session expired and could not be refreshed",
+  "api_duration_ms": 0,
+  "api_tokens": 0,
+  "mcp_tool_calls": 0,
+  "required_user_action": "Re-authenticate Claude Code, then rerun the two stable-version journeys."
+}

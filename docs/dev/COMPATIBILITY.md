@@ -67,7 +67,9 @@ overridden, or appended; otherwise `unverified`. Core never reports confinement 
 
 | Host/session | Measured result | Remaining gap |
 |---|---|---|
-| Codex 0.153.4, `read-only`, `approval_policy=never` | Standard `readOnlyHint` allowed the bounded synthetic L0 call; without it the host denied the call as approval-required. A non-destructive idempotent candidate write was allowed, and core kept it quarantined/non-exposable. | Version is behind current stable; protected-path/status/session probes pending. |
+| Codex 0.155.0 and 0.154.0, `read-only`, `approval_policy=never` | Current and preceding stable both returned `HOST_OK 61` from the bounded annotated L0 tool. | Required read path passes; protected-path/status/session probes pending. |
+| Codex 0.153.4, same session profile | Without `readOnlyHint` the host denied the call as approval-required; after annotation it returned `HOST_OK 61`. A non-destructive idempotent candidate write was allowed, and core kept it quarantined/non-exposable. | Older installed observation only. |
+| Claude Code 2.1.267 and 2.1.266 | Both binaries start; both fail before MCP with expired OAuth, zero API tokens/tool calls. | User re-authentication required, then rerun journeys. |
 | Claude Code 2.1.87, `dontAsk`, strict synthetic MCP config | No MCP call occurred; repeated host API HTTP 400, zero API duration/tokens/cost, bounded termination after 131.6 seconds. | External/account/API blocker; version is behind stable. |
 
 Official current Codex configuration accepts `approval_policy = "on-request" | "never"` (plus a

@@ -30,13 +30,15 @@ not covered by the MCP server sandbox.
 
 | Host | Result | Observation |
 |---|---|---|
+| Codex CLI 0.155.0 / 0.154.0 | required read-path PASS | Both current and preceding stable called the annotated bounded L0 tool in `read-only` + `approval_policy=never` and returned `HOST_OK 61`. |
 | Codex CLI 0.153.4 | partial PASS | In `read-only` + `approval_policy=never`, a read tool without `readOnlyHint` was denied; after the standard annotation was added it returned `HOST_OK 61`. A non-destructive idempotent candidate observation was allowed and core kept it quarantined/non-exposable. |
+| Claude Code 2.1.267 / 2.1.266 | BLOCKED_AUTH | Both required binaries start, then fail before MCP with `OAuth session expired and could not be refreshed`; zero API tokens and zero tool calls. |
 | Claude Code 2.1.87 | BLOCKED_EXTERNAL | The synthetic run made no tool call or billed API request; the host returned repeated HTTP 400 responses for 131.6 seconds and was terminated. This is neither MCP failure nor PASS. |
 
 Official release sources checked on 2026-09-19 show Codex stable 0.155.0 with previous stable 0.154.0,
-and Claude Code npm `stable` 2.1.267 with previous published 2.1.266. The installed hosts are older.
-Attempts to start all four versions through `npx` produced no output for 90 seconds and were stopped;
-they remain untested.
+and Claude Code npm `stable` 2.1.267 with previous published 2.1.266. Both Codex versions passed after
+isolated `npm exec` starts. Both Claude binaries start but cannot reach MCP until the user's expired
+OAuth session is refreshed; installed Claude 2.1.87's repeated HTTP 400 is the older symptom.
 
 ## Interpretation
 
@@ -50,9 +52,8 @@ confinement/status cases pass.
 
 ## Remaining blockers
 
-- Run current + preceding stable Codex (0.155.0/0.154.0) and Claude Code (2.1.267/2.1.266), or record
-  a reviewed waiver with attempted source and reason.
-- Resolve the Claude API HTTP 400 / account availability issue and complete its synthetic journey.
+- Re-authenticate Claude Code, then rerun current + preceding stable 2.1.267/2.1.266. Codex
+  0.155.0/0.154.0 read paths pass.
 - Exercise protected-path write/read denial, settings/profile drift, session binding, canaries,
   `not_in_effect` versus `unverified`, project config injection, symlink/hardlink/APFS-clone paths,
   override enumeration, and status path-redaction per ADR-0013.
