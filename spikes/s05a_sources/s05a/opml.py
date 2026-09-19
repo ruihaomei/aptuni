@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import hashlib
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from s05a.opml_parse import OpmlError, OutlineNode, parse_opml
@@ -44,6 +44,10 @@ class _New:
     sibling_index: int
     children: list[int] = field(default_factory=list)
     children_signature: str | None = None
+
+
+def _fields(item: SnapshotItem) -> Any:
+    return item.locator.extension.fields
 
 
 def _hash(text: str) -> str:
@@ -104,18 +108,34 @@ class _Matcher:
         return progress
 
     def run(self) -> None:
-        fields = lambda item: item.locator.extension.fields  # noqa: E731
         phases = [
             (lambda n: n.attributes.get(self.vendor_attr) if self.vendor_attr else None,
-             lambda i: fields(i)["vendor_node_id"], "vendor_id_match"),
+             lambda i: _fields(i)["vendor_node_id"], "vendor_id_match"),
             (lambda n: (n.content_hash, self.parent_subject(n)) if self.parent_subject(n) else None,
-             lambda i: (i.content_hash, fields(i).get("parent_node_id")), "parent_content_match"),
+             lambda i: (i.content_hash, _fields(i).get("parent_node_id")), "parent_content_match"),
             (lambda n: n.content_hash, lambda i: i.content_hash, "exact_content_unique"),
-            (lambda n: n.children_signature, lambda i: fields(i).get("children_signature"),
-             "children_signature_match"),
+            # A single (often generic) child is too weak to link parents (review F5).
+            (lambda n: n.children_signature if len(n.children) >= 2 else None,
+             lambda i: _fields(i).get("children_signature"), "children_signature_match"),
         ]
         while any([self._pair(new_key, old_key, reason) for new_key, old_key, reason in phases]):
             pass
+
+    def demote_partial_relocations(self) -> dict[int, str]:
+        """In a partial (branch) export, a parent change may be a copy outside scope: review it (F2)."""
+        demoted: dict[int, str] = {}
+        changed = True
+        while changed:
+            changed = False
+            for index, (subject, _) in list(self.matched.items()):
+                node = self.nodes[index]
+                if node.parent is None:
+                    continue  # top of the exported branch: parent is outside scope by construction
+                if self.parent_subject(node) != _fields(self.old[subject]).get("parent_node_id"):
+                    demoted[index] = subject
+                    del self.matched[index]
+                    changed = True
+        return demoted
 
 
 def scan_opml(
@@ -127,24 +147,31 @@ def scan_opml(
     trusted_vendor_attr: str | None = None,
 ) -> OpmlScan:
     nodes = _flatten(parse_opml(text))
-    old = previous.snapshot.by_subject() if previous else {}
+    prior = previous.snapshot.items if previous else ()
+    held = [item for item in prior if item.held]  # reserved by unresolved review: never re-matched
+    old = {item.locator.subject_id: item for item in prior if not item.held}
     base_id = previous.snapshot.snapshot_id if previous else None
     matcher = _Matcher(nodes, old, trusted_vendor_attr)
     matcher.run()
     branch = export_scope != "full"
+    demoted = matcher.demote_partial_relocations() if branch else {}
     subjects: dict[int, str] = {i: s for i, (s, _) in matcher.matched.items()}
     pending: dict[int, tuple[str, ...]] = {}
     matched_subjects = matcher.used()
-    used = set(matched_subjects)  # grows with review reservations
+    used = set(matched_subjects) | set(demoted.values())  # grows with review reservations
 
     for node in nodes:  # review items for weak or indistinguishable evidence
         if node.index in subjects:
             continue
         subjects[node.index] = "marginnote-" + _hash(canonical_json([source_id, base_id, node.position,
                                                                      node.content_hash]))[7:27]
+        if node.index in demoted:
+            pending[node.index] = (demoted[node.index], "partial_scope_relocation")
+            continue
         # Indistinguishable duplicates share one candidate set, so compare with matcher results only.
         same = [s for s, item in old.items()
-                if s not in matched_subjects and item.content_hash == node.content_hash]
+                if s not in matched_subjects and s not in demoted.values()
+                and item.content_hash == node.content_hash]
         parent = matcher.parent_subject(node)
         slot = [s for s, item in old.items() if s not in used and parent and not node.children
                 and item.locator.extension.fields.get("parent_node_id") == parent
@@ -196,6 +223,8 @@ def scan_opml(
         else:
             ops.extend(_matched_op(old[subjects[node.index]], after, node, matcher, branch, parser_changed))
 
+    reserved = sorted(s for s in used if s not in matched_subjects)
+    items.extend([*held, *(replace(old[s], held=True) for s in reserved)])
     leftovers = sorted(s for s in old if s not in used)
     if branch:
         items.extend(old[s] for s in leftovers)

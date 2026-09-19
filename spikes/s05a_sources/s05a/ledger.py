@@ -2,8 +2,13 @@
 
 Facts are never created, rewritten or deleted by source deltas. Deltas only
 move source heads, withdraw or refresh evidence, flag dependent facts for
-re-evaluation and queue review items. Delivery is idempotent by ``delta_id``;
-a delta whose base is not the current head is stale and rejected.
+re-evaluation and queue review items.
+
+Ordering: a delta whose ``base_snapshot`` is the current head is applied (even if
+an identical content-addressed delta was applied earlier, e.g. A->B->A->B); an
+already-applied delta whose ``new_snapshot`` is the head is a duplicate; anything
+else is stale. Intake recomputes ``delta_id`` and gates every operation through
+the extension registry before mutating any state.
 """
 
 from __future__ import annotations
@@ -12,7 +17,8 @@ import hashlib
 from dataclasses import dataclass, field
 
 from s05a.codec import operation_to_dict
-from s05a.records import CandidateDelta, Operation, canonical_json
+from s05a.extensions import ExtensionRegistry, default_registry
+from s05a.records import CandidateDelta, Operation, canonical_json, compute_delta_id
 
 EvidenceRef = tuple[str, str]  # (source_id, subject_id)
 
@@ -31,7 +37,8 @@ class Fact:
 
 
 class Ledger:
-    def __init__(self) -> None:
+    def __init__(self, registry: ExtensionRegistry | None = None) -> None:
+        self.registry = registry or default_registry()
         self.applied: set[str] = set()
         self.heads: dict[str, str] = {}
         self.facts: dict[str, Fact] = {}
@@ -42,11 +49,15 @@ class Ledger:
         self.facts[fact_id] = Fact(fact_id, statement, tuple(evidence))
 
     def apply(self, delta: CandidateDelta) -> str:
-        if delta.delta_id in self.applied:
-            return "duplicate"
-        if self.heads.get(delta.source_id) != delta.base_snapshot:
+        if compute_delta_id(delta) != delta.delta_id:
+            raise LedgerError("delta_integrity_failed")
+        head = self.heads.get(delta.source_id)
+        if head != delta.base_snapshot:
+            if delta.delta_id in self.applied and head == delta.new_snapshot:
+                return "duplicate"
             raise LedgerError("stale_base_snapshot")
-        for op in delta.operations:
+        gated = [self.registry.gate(op) for op in delta.operations]  # validate all before mutating
+        for op in gated:
             self._apply_operation(delta.source_id, op)
         self.heads[delta.source_id] = delta.new_snapshot
         self.applied.add(delta.delta_id)

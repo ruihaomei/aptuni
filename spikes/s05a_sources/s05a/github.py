@@ -80,8 +80,15 @@ def scan_github(
         for item in (previous.snapshot.items if previous else ())
     }
     sticky = sorted(path for path in previous_reasons if path in blobs)
+    # A known item renamed out of its path keeps first claim on a budget slot (review F3).
+    vanished_blobs = {
+        item.locator.extension.fields["blob"]
+        for item in (previous.snapshot.items if previous else ())
+        if not item.held and item.locator.extension.fields["path"] not in blobs
+    }
     fresh = sorted((path for path in blobs if path not in previous_reasons),
-                   key=lambda path: (_selection_reason(path)[0], path.count("/"), path))
+                   key=lambda path: (blobs[path] not in vanished_blobs, _selection_reason(path)[0],
+                                     path.count("/"), path))
     selected = (sticky + fresh)[:budget]
     notes = {"tree_truncated"} if truncated else set()
     dropped = set(sticky) - set(selected)

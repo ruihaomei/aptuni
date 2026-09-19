@@ -1,21 +1,25 @@
 """Path + content-hash reconciliation shared by keyed providers (Folder, GitHub).
 
-Rules (conservative, ADR-0006):
+Rules (conservative, ADR-0006; hardened by S05A review round 1):
 - same key, same hash      -> unchanged (or ``modify`` with ``parser_upgrade``)
 - same key, new hash       -> ``modify``
-- new key whose hash matches exactly one vanished item, and that hash is not
-  shared by another new key -> ``move`` (identity kept)
-- several vanished/new items share a hash -> ``ambiguous`` for review; the
-  vanished candidates are *not* tombstoned while under review
-- other new keys -> ``add`` with a fresh deterministic subject id
-- other vanished keys -> ``remove`` (tombstone proposal) only under complete coverage
+- new key whose hash matches exactly one vanished item, that hash is not shared
+  by another new key, and coverage is complete -> ``move`` (identity kept)
+- the same match under *partial* coverage -> ``ambiguous``: an unobserved item is
+  not evidence of a move
+- several vanished/new items share a hash -> ``ambiguous``
+- old items named as ambiguity candidates are carried forward ``held``: never
+  re-matched or tombstoned until review resolves them; a held item re-observed
+  at its own key with its own bytes is released with its identity
+- other new keys -> ``add``; other vanished keys -> ``remove`` (tombstone
+  proposal) only under complete coverage, otherwise carried forward
 """
 
 from __future__ import annotations
 
 import hashlib
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from s05a.records import (
@@ -53,7 +57,8 @@ class Reconciled:
 
 def snapshot_id_for(source_id: str, coverage: str, items: tuple[SnapshotItem, ...]) -> str:
     body = [
-        [item.locator.subject_id, canonical_json(dict(item.locator.extension.fields)), item.content_hash]
+        [item.locator.subject_id, canonical_json(dict(item.locator.extension.fields)), item.content_hash,
+         item.held]
         for item in items
     ]
     digest = hashlib.sha256(canonical_json([source_id, coverage, body]).encode("utf-8"))
@@ -65,6 +70,103 @@ def _new_subject(spec: KeyedSpec, base_id: str | None, observed: Observed) -> st
     return f"{spec.provider}-" + hashlib.sha256(seed.encode("utf-8")).hexdigest()[:20]
 
 
+class _Run:
+    def __init__(self, spec: KeyedSpec, previous: Snapshot | None, observed: list[Observed]) -> None:
+        self.spec = spec
+        self.base_id = previous.snapshot_id if previous else None
+        key = spec.key_field
+        prior = previous.items if previous else ()
+        self.old_by_key = {i.locator.extension.fields[key]: i for i in prior if not i.held}
+        self.held = [i for i in prior if i.held]
+        self.new_by_key = {item.key: item for item in observed}
+        self.ops: list[Operation] = []
+        self.items: list[SnapshotItem] = []
+
+    def locator(self, subject: str, item: Observed) -> SourceLocator:
+        fields = {self.spec.key_field: item.key, **item.fields}
+        extension = Extension(self.spec.schema, self.spec.version, fields)
+        return SourceLocator(self.spec.source_id, self.spec.provider, subject, extension)
+
+    def release_held(self) -> None:
+        """A held item seen again at its own key with its own bytes keeps its identity."""
+        still_held = []
+        for item in self.held:
+            key = item.locator.extension.fields[self.spec.key_field]
+            new = self.new_by_key.get(key)
+            if new is not None and key not in self.old_by_key and new.content_hash == item.content_hash:
+                self.items.append(SnapshotItem(self.locator(item.locator.subject_id, new), new.content_hash))
+                del self.new_by_key[key]
+            else:
+                still_held.append(item)
+        self.held = still_held
+
+    def same_keys(self, parser_changed: bool) -> None:
+        for key in sorted(self.new_by_key.keys() & self.old_by_key.keys()):
+            old, new = self.old_by_key[key], self.new_by_key[key]
+            after = self.locator(old.locator.subject_id, new)
+            self.items.append(SnapshotItem(after, new.content_hash))
+            if old.content_hash != new.content_hash:
+                self.ops.append(Operation.modify(old.locator, after, new.content_hash, reasons=("content_changed",)))
+            elif parser_changed:
+                self.ops.append(Operation.modify(old.locator, after, new.content_hash, reasons=("parser_upgrade",)))
+
+    def new_keys(self, coverage: str) -> set[str]:
+        vanished = {k: v for k, v in self.old_by_key.items() if k not in self.new_by_key}
+        appeared = sorted(self.new_by_key.keys() - self.old_by_key.keys())
+        vanished_by_hash: dict[str, list[str]] = defaultdict(list)
+        for key, item in vanished.items():
+            vanished_by_hash[item.content_hash].append(key)
+        appeared_by_hash: dict[str, list[str]] = defaultdict(list)
+        for key in appeared:
+            appeared_by_hash[self.new_by_key[key].content_hash].append(key)
+
+        consumed: set[str] = set()
+        for key in appeared:
+            new = self.new_by_key[key]
+            old_keys = sorted(vanished_by_hash.get(new.content_hash, []))
+            unique = len(old_keys) == 1 and len(appeared_by_hash[new.content_hash]) == 1
+            if unique and coverage == "complete":
+                old = vanished[old_keys[0]]
+                after = self.locator(old.locator.subject_id, new)
+                self.items.append(SnapshotItem(after, new.content_hash))
+                self.ops.append(Operation.move(old.locator.subject_id, old.locator, after, new.content_hash,
+                                               reasons=("exact_hash_unique",)))
+                consumed.add(old_keys[0])
+                continue
+            subject = _new_subject(self.spec, self.base_id, new)
+            after = self.locator(subject, new)
+            self.items.append(SnapshotItem(after, new.content_hash))
+            if not old_keys:
+                self.ops.append(Operation.add(after, new.content_hash))
+                continue
+            candidates = tuple(vanished[k].locator.subject_id for k in old_keys)
+            if len(candidates) == 1:
+                candidates = (*candidates, subject)  # "same as old" vs "genuinely new"
+            reason = "duplicate_hash" if not unique else "partial_coverage_match"
+            self.ops.append(Operation.ambiguous(after, candidates, (reason,), content_hash=new.content_hash))
+            for old_key in old_keys:
+                if old_key not in consumed:
+                    self.held.append(replace(vanished[old_key], held=True))
+            consumed.update(old_keys)
+        return {k for k in vanished if k not in consumed}
+
+    def vanished(self, unresolved: set[str], coverage: str) -> None:
+        for key in sorted(unresolved):
+            old = self.old_by_key[key]
+            if coverage == "complete":
+                self.ops.append(Operation.remove(old.locator.subject_id, old.locator, old.content_hash,
+                                                 reasons=("source_item_missing",)))
+            else:
+                self.items.append(old)  # not observed is not gone
+
+    def snapshot(self, coverage: str) -> Snapshot:
+        ordered = tuple(sorted([*self.items, *self.held], key=lambda item: item.locator.subject_id))
+        if len({item.locator.subject_id for item in ordered}) != len(ordered):
+            raise ContractError("subject_collision")
+        return Snapshot(snapshot_id_for(self.spec.source_id, coverage, ordered), self.spec.source_id,
+                        coverage, ordered)
+
+
 def reconcile_keyed(
     spec: KeyedSpec,
     previous: Snapshot | None,
@@ -72,72 +174,9 @@ def reconcile_keyed(
     coverage: str,
     parser_changed: bool,
 ) -> Reconciled:
-    def locator(subject: str, item: Observed) -> SourceLocator:
-        fields = {spec.key_field: item.key, **item.fields}
-        return SourceLocator(spec.source_id, spec.provider, subject, Extension(spec.schema, spec.version, fields))
-
-    old_by_key = {
-        item.locator.extension.fields[spec.key_field]: item for item in (previous.items if previous else ())
-    }
-    new_by_key = {item.key: item for item in observed}
-    ops: list[Operation] = []
-    items: list[SnapshotItem] = []
-
-    for key in sorted(new_by_key.keys() & old_by_key.keys()):
-        old, new = old_by_key[key], new_by_key[key]
-        after = locator(old.locator.subject_id, new)
-        items.append(SnapshotItem(after, new.content_hash))
-        if old.content_hash != new.content_hash:
-            ops.append(Operation.modify(old.locator, after, new.content_hash, reasons=("content_changed",)))
-        elif parser_changed:
-            ops.append(Operation.modify(old.locator, after, new.content_hash, reasons=("parser_upgrade",)))
-
-    vanished = {key: old_by_key[key] for key in old_by_key.keys() - new_by_key.keys()}
-    appeared = sorted(new_by_key.keys() - old_by_key.keys())
-    vanished_by_hash: dict[str, list[str]] = defaultdict(list)
-    for key, item in vanished.items():
-        vanished_by_hash[item.content_hash].append(key)
-    appeared_by_hash: dict[str, list[str]] = defaultdict(list)
-    for key in appeared:
-        appeared_by_hash[new_by_key[key].content_hash].append(key)
-
-    consumed: set[str] = set()
-    base_id = previous.snapshot_id if previous else None
-    for key in appeared:
-        new = new_by_key[key]
-        old_keys = sorted(vanished_by_hash.get(new.content_hash, []))
-        if len(old_keys) == 1 and len(appeared_by_hash[new.content_hash]) == 1:
-            old = vanished[old_keys[0]]
-            after = locator(old.locator.subject_id, new)
-            items.append(SnapshotItem(after, new.content_hash))
-            ops.append(Operation.move(old.locator.subject_id, old.locator, after, new.content_hash,
-                                      reasons=("exact_hash_unique",)))
-            consumed.add(old_keys[0])
-            continue
-        subject = _new_subject(spec, base_id, new)
-        after = locator(subject, new)
-        items.append(SnapshotItem(after, new.content_hash))
-        if old_keys:
-            candidates = tuple(vanished[k].locator.subject_id for k in old_keys)
-            if len(candidates) == 1:
-                candidates = (*candidates, subject)  # "same as old" vs "genuinely new"
-            ops.append(Operation.ambiguous(after, candidates, ("duplicate_hash",), content_hash=new.content_hash))
-            consumed.update(old_keys)
-        else:
-            ops.append(Operation.add(after, new.content_hash))
-
-    unresolved = [key for key in vanished if key not in consumed]
-    if coverage == "complete":
-        for key in sorted(unresolved):
-            old = vanished[key]
-            ops.append(Operation.remove(old.locator.subject_id, old.locator, old.content_hash,
-                                        reasons=("source_item_missing",)))
-    else:
-        # Not observed is not gone: carry the old item forward unchanged.
-        items.extend(vanished[key] for key in sorted(unresolved))
-
-    ordered = tuple(sorted(items, key=lambda item: item.locator.subject_id))
-    if len({item.locator.subject_id for item in ordered}) != len(ordered):
-        raise ContractError("subject_collision")
-    snapshot = Snapshot(snapshot_id_for(spec.source_id, coverage, ordered), spec.source_id, coverage, ordered)
-    return Reconciled(snapshot, tuple(ops))
+    run = _Run(spec, previous, observed)
+    run.release_held()
+    run.same_keys(parser_changed)
+    unresolved = run.new_keys(coverage)
+    run.vanished(unresolved, coverage)
+    return Reconciled(run.snapshot(coverage), tuple(run.ops))

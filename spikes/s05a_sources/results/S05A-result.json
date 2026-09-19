@@ -11,15 +11,15 @@
     },
     "disappearance_never_deletes_facts": {
       "all_passed": true,
-      "tests": 6
+      "tests": 9
     },
     "identical_replay_is_idempotent": {
       "all_passed": true,
-      "tests": 6
+      "tests": 8
     },
     "source_identity_fits_versioned_extensions": {
       "all_passed": true,
-      "tests": 5
+      "tests": 8
     },
     "truncation_is_explicit": {
       "all_passed": true,
@@ -27,10 +27,10 @@
     },
     "unknown_or_ambiguous_identity_is_reviewable": {
       "all_passed": true,
-      "tests": 7
+      "tests": 11
     }
   },
   "spike": "S05A",
   "status": "PASS",
-  "tests_run": 72
+  "tests_run": 87
 }

@@ -22,7 +22,7 @@ class ContractError(ValueError):
 
 
 def canonical_json(value: Any) -> str:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
 
 
 @dataclass(frozen=True)
@@ -34,9 +34,10 @@ class Extension:
     fields: Mapping[str, Any]
 
     def __post_init__(self) -> None:
-        if "." not in self.schema or not isinstance(self.version, int) or self.version < 1:
+        if "." not in self.schema or type(self.version) is not int or self.version < 1:
             raise ContractError("extension_schema_invalid")
-        # Deep, JSON-normalized copy: callers cannot mutate a record after creation.
+        # Deep, JSON-normalized copy isolates the caller's object. The copy itself is a plain dict,
+        # so intake must recompute ``delta_id`` (see ``Ledger.apply``) rather than trust it.
         object.__setattr__(self, "fields", json.loads(canonical_json(dict(self.fields))))
 
     @property
@@ -127,6 +128,8 @@ def _check_shape(op: Operation) -> None:
     }[op.kind]
     if (has_before, has_after) != expected:
         raise ContractError(f"{op.kind}_shape_invalid")
+    if op.candidates and op.kind != "ambiguous":
+        raise ContractError("candidates_only_on_ambiguous")
     if op.kind == "ambiguous":
         if op.subject_id is not None or len(set(op.candidates)) < 2 or op.review_state != "needs_review":
             raise ContractError("ambiguous_requires_review_and_candidates")
@@ -140,8 +143,11 @@ def _check_shape(op: Operation) -> None:
 
 @dataclass(frozen=True)
 class SnapshotItem:
+    """``held`` marks a carried-forward item reserved by an unresolved review item."""
+
     locator: SourceLocator
     content_hash: str
+    held: bool = False
 
 
 @dataclass(frozen=True)
@@ -182,6 +188,9 @@ class CandidateDelta:
     def __post_init__(self) -> None:
         object.__setattr__(self, "parser", tuple(self.parser))
         object.__setattr__(self, "operations", tuple(self.operations))
+        touched = [op.subject_id or op.after.subject_id for op in self.operations if op.after or op.subject_id]
+        if len(touched) != len(set(touched)):
+            raise ContractError("multiple_operations_for_subject")
         for op in self.operations:
             for locator in (op.before, op.after):
                 if locator is not None and locator.source_id != self.source_id:

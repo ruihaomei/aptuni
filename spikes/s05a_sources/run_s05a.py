@@ -28,6 +28,8 @@ CRITERIA: dict[str, list[str]] = {
         "test_github.GitHubIdentityTests.test_identical_replay_is_idempotent",
         "test_ledger.LedgerTests.test_replaying_an_applied_delta_is_a_noop",
         "test_ledger.LedgerTests.test_full_sequence_replay_reproduces_the_same_state",
+        "test_hardening.LedgerOrderingTests.test_content_flip_flop_is_applied_not_swallowed",
+        "test_hardening.LedgerOrderingTests.test_mutated_delta_fails_integrity_check",
     ],
     "source_identity_fits_versioned_extensions": [
         "test_contract.ExtensionRegistryTests.test_three_provider_families_validate_through_one_common_contract",
@@ -35,6 +37,9 @@ CRITERIA: dict[str, list[str]] = {
         "test_folder.FolderIdentityTests.test_every_locator_passes_the_registry",
         "test_opml.ReconcileTests.test_every_locator_passes_the_registry",
         "test_github.GitHubSelectionTests.test_every_locator_passes_the_registry",
+        "test_hardening.LedgerOrderingTests.test_intake_gates_unknown_versions_to_review_and_rejects_invalid",
+        "test_hardening.RecordInvariantTests.test_candidates_only_on_ambiguous",
+        "test_hardening.RecordInvariantTests.test_one_operation_per_subject_per_delta",
     ],
     "unknown_or_ambiguous_identity_is_reviewable": [
         "test_contract.OperationInvariantTests.test_ambiguous_has_no_subject_and_needs_review",
@@ -44,6 +49,10 @@ CRITERIA: dict[str, list[str]] = {
         "test_opml.ReconcileTests.test_indistinguishable_duplicate_moves_are_ambiguous",
         "test_github.GitHubIdentityTests.test_different_repository_under_same_source_is_refused",
         "test_ledger.LedgerTests.test_ambiguous_operations_enter_the_review_queue",
+        "test_hardening.PartialCoverageTests.test_partial_folder_scan_never_moves_an_unobserved_identity",
+        "test_hardening.PartialCoverageTests.test_truncated_github_tree_never_moves_an_unlisted_identity",
+        "test_hardening.PartialCoverageTests.test_opml_branch_copy_is_not_a_silent_move",
+        "test_hardening.OpmlWeakSignatureTests.test_single_generic_child_does_not_link_unrelated_parents",
     ],
     "disappearance_never_deletes_facts": [
         "test_contract.OperationInvariantTests.test_remove_is_only_a_tombstone_proposal",
@@ -52,6 +61,9 @@ CRITERIA: dict[str, list[str]] = {
         "test_github.GitHubIdentityTests.test_truncated_tree_is_partial_and_never_removes",
         "test_github.GitHubSelectionTests.test_selection_is_sticky_and_unselected_files_are_not_removed",
         "test_ledger.LedgerTests.test_source_loss_withdraws_evidence_but_never_deletes_facts",
+        "test_hardening.PartialCoverageTests.test_held_ambiguity_candidates_survive_complete_rescans",
+        "test_hardening.PartialCoverageTests.test_opml_review_reserved_node_is_held_not_tombstoned",
+        "test_hardening.GitHubStickyRenameTests.test_sticky_item_renamed_outside_budget_is_a_move_not_a_tombstone",
     ],
     "authority_conflicts_and_locators_round_trip": [
         "test_contract.DeltaTests.test_json_round_trip_is_lossless",
