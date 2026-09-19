@@ -24,11 +24,17 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 - Relay harness: `AGENTS.md` (execution policy: steady, fast vertical slices), `CLAUDE.md`,
   `tools/check_relay.py`.
 
+## Implemented (Milestone 1)
+
+- **Slice 1 — Vault core and CLI (runnable).** `aptuni init | status | remember | facts | correct |
+  retract | module list/set | doctor`. The canonical records use the S05A locator; the Vault is
+  crash-safe (S01 protocol, recover on open, incremental validation, segment cache); the module
+  policy fails closed with independent ingest/expose switches. 61 tests; ruff and mypy strict clean.
+  The independent review (canonical schema, purge) is running.
+
 ## In progress
 
-- M1 Slice 1: toolchain (uv, pytest, ruff, mypy), domain records and invariants ported from S01 with
-  the S05A locator, a crash-safe Vault, module policy, and the `aptuni init/status/remember/facts/
-  module/doctor` CLI.
+- Slice 2 — Folder Source ingestion.
 
 ## Awaiting maintainer decisions
 
@@ -36,11 +42,12 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-Finish M1 Slice 1 and commit it. Then Folder Source ingestion (S05A contract promoted, coordinator,
+Folder Source ingestion (S05A contract promoted, coordinator,
 `aptuni source add` / `aptuni sync`), then SQLite/FTS and the Context API.
 
 ## Latest validation state
 
+- `.tools/bin/uv run pytest`: 61 passed; `ruff check src tests` and `mypy` (strict): clean.
 - `python3.13 tools/check_relay.py`: pass (Markdown link, ADR-index and workspace-text checks).
 - `python3.13 -m unittest tests/dev/test_check_relay.py`: 20 tests OK.
 - Spike evidence: S01 46, S02 12, S03 23, S04 58 (+5 skips), S05A 95 tests. Commands are in each
