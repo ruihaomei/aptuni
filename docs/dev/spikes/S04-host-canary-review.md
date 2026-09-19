@@ -29,7 +29,7 @@ review accepts the matrix.
 | Finding | Change | Evidence |
 |---|---|---|
 | 1 | The Claude fixture adds a project `SessionStart` hook that writes a sanitized marker (`event_is_session_start`, `session_id_present`) outside the model's control. `assess()` requires the hook **only** in project-injection. If it fires in baseline, that is a failure, because it would mean `--setting-sources ''` did not isolate the run. | `tests/test_host_canary.py` (4 assessment cases). Real hosts: Claude 2.1.267 and 2.1.266 each ran baseline (hook absent) and project-injection (hook present with session id). |
-| 2 | Codex runs in a temporary `CODEX_HOME` with copied auth plus one trust entry. That entry is the only user-layer input and is identical in all modes. A trusted `codex_control` fixture with no `.codex/` separates project-layer effects from trust-only effects. | Isolated rerun **pending**: Codex account usage limit until 14:50 local; rerun is scheduled. |
+| 2 | Codex runs in a temporary `CODEX_HOME` with copied auth plus one trust entry. That entry is the only user-layer input and is identical in all modes. A trusted `codex_control` fixture with no `.codex/` separates project-layer effects from trust-only effects. | Isolated rerun done after the usage reset: 0.155.0 and 0.154.0 each ran baseline, control and injection. See the table below. |
 | 3 | Probe, sockets and hook markers live under per-run `/tmp` directories. The write canary goes to `/Users/Shared/pcc-s04-protected-<run>`, which contains no user name and sits outside every workspace. Default sandboxes can write `/tmp`, so `/tmp` is not a valid write control. | Runner source. |
 | 4 | `run_ok()` requires host exit 0, a parsed inner result, and inner/outer agreement. `execute_host()` classifies timeouts, launch failures, malformed output and vendor quota/rate limits (`host_blocked_external`) and does not raise. | 9 runner unit tests. The Codex quota block exited 1 as intended. |
 | 5 | The bridge opens with `O_NONBLOCK \| O_NOFOLLOW`, then checks `S_ISREG` on the descriptor. FIFO and AF_UNIX inputs return fixed `unverified` reasons and leak no identifier. | `tests/test_native_clone_probe.py`. |
@@ -51,6 +51,22 @@ profile still wins over the project's `allowUnsandboxedCommands=true` and its ap
 The observed `SessionStart` payload also shows that a project hook receives a non-empty session id
 on the real host. The session-key capture path is therefore available for session-bound evidence
 in Foundation Slice 7.
+
+## Codex isolated rerun (remediated runner, 2026-09-19 after 14:55)
+
+| Version | Mode | Injected env | Write / TCP / Unix (inner = outer) |
+|---|---|---|---|
+| 0.155.0 | baseline (CLI `workspace-write`, network off) | no | blocked / blocked / blocked |
+| 0.155.0 | project-control (trusted, no `.codex/`) | no | blocked / blocked / blocked |
+| 0.155.0 | project-injection (`.codex/config.toml` full access) | yes | succeeded / succeeded / succeeded |
+| 0.154.0 | baseline | no | blocked / blocked / blocked |
+| 0.154.0 | project-control | no | blocked / blocked / blocked |
+| 0.154.0 | project-injection | yes | succeeded / succeeded / succeeded |
+
+The user layer is identical in every mode, so the project `.codex/config.toml` alone caused the
+escape. This replaces the confounded round-1 observation and agrees with it. The effects are
+positive `not_in_effect` evidence (`canary_write_succeeded`, `socket_connect_succeeded`,
+`unbundled_entry_visible`).
 
 ## Proposed classification of the remaining cases (for the re-review to accept or reject)
 

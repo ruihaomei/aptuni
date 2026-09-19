@@ -5,8 +5,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 ## Current position
 
 Gate 0. The plan-review gate is cleared and no production code exists. S01, S02 and S03 passed.
-S04 focused review round 2 blocked on canary attribution (`spikes/S04-host-canary-review.md`). The
-Claude findings are remediated and rerun. The isolated Codex rerun is blocked by a vendor usage limit.
+S04 focused review round 2 blocked on canary attribution (`spikes/S04-host-canary-review.md`). All
+findings are remediated, and both hosts are rerun with the isolated design. Round 3 is pending.
 S05A stays blocked.
 
 ## Read first
@@ -17,12 +17,10 @@ S05A stays blocked.
 
 ## Next action
 
-1. After 14:50 local on 2026-09-19 (Codex usage reset), run from `spikes/s04_mcp` with bash:
-   `run_host_canary.py --host codex --version {0.155.0,0.154.0} --mode {baseline,project-control,project-injection}`.
-   Pass = exit 0 on all six. Expected: baseline and control block every canary, while injection
-   succeeds on write/TCP/AF_UNIX with `project_config_injected=true`. Record the results in
-   `results/host-canary-matrix.json`, `S04-mcp.md`, `COMPATIBILITY.md` and the round-2 review file.
-2. Run focused review round 3 (independent agent). If it accepts, mark S04 PASS and move to S05A.
+Run focused review round 3 (independent agent) over `spikes/S04-host-canary-review.md`, the runner,
+`results/host-canary-matrix.json` and `COMPATIBILITY.md`. If it accepts, mark S04 PASS and start S05A.
+The Codex isolated rerun passed: its control blocked everything, and the project layer alone produced
+all three escapes.
 
 ## This pass changed
 

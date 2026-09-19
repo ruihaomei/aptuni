@@ -1,6 +1,6 @@
 # S04 result — MCP capability and privacy conformance
 
-**Result:** IN PROGRESS / ROUND-2 REVIEW BLOCK REMEDIATED FOR CLAUDE; CODEX ISOLATED RERUN PENDING
+**Result:** IN PROGRESS / ROUND-2 FINDINGS REMEDIATED AND RERUN; ROUND-3 FOCUSED REVIEW PENDING
 
 **Run date:** 2026-09-19
 
@@ -61,7 +61,7 @@ not covered by the MCP server sandbox.
 | Codex CLI 0.155.0 / 0.154.0 | protected-write partial PASS | Under real `workspace-write` + `approval_policy=never` sessions, both versions logged a Seatbelt `operation_not_permitted` for a home-directory canary and an independent outer check found no file. Per ADR-0013 this blocked canary remains `unverified`, never `confined`. |
 | Claude Code 2.1.267 / 2.1.266 | required read-path PASS | Both versions called the strict-config bounded L0 tool once and returned `HOST_OK 61`. |
 | Claude Code 2.1.267 / 2.1.266 | baseline canaries PASS as `unverified` (remediated rerun) | CLI settings disabled unsandboxed commands, Apple Events and Unix sockets and denied the protected marker. Inner write/TCP/Unix results were all false and independent outer observations agreed. A project `SessionStart` hook, observed outside the model and absent in baseline, proved project-layer merge with a non-empty session id; attempted `allowUnsandboxedCommands=true` and an appended `excludedCommands` entry did not override the higher-priority CLI profile. The non-bundled project entry itself derives `not_in_effect`. |
-| Codex CLI 0.155.0 / 0.154.0 | baseline PASS; injection re-verification PENDING | Explicit `workspace-write`/`never` plus network-off blocked write/TCP/Unix in both versions. With the real trusted-project layer and no CLI sandbox override, project `danger-full-access` loaded; the fixed environment marker and all three inner canaries were true, and the outer marker/listeners independently observed every effect. Review round 2 found this injection group confounded (it alone reintroduced the real user config). The isolated `CODEX_HOME` + control-fixture rerun is blocked by the vendor usage limit and scheduled after reset. |
+| Codex CLI 0.155.0 / 0.154.0 | baseline, control and isolated injection PASS | Explicit `workspace-write`/`never` plus network-off blocked write/TCP/Unix in both versions. With the real trusted-project layer and no CLI sandbox override, project `danger-full-access` loaded; the fixed environment marker and all three inner canaries were true, and the outer marker/listeners independently observed every effect. Review round 2 found the first injection group confounded (it alone reintroduced the real user config). The isolated rerun held the user layer fixed (a temporary `CODEX_HOME` with one trust entry). The trusted no-`.codex` control blocked everything, while the project layer alone produced all three escapes. |
 | Claude Code 2.1.87 | BLOCKED_EXTERNAL | The synthetic run made no tool call or billed API request; the host returned repeated HTTP 400 responses for 131.6 seconds and was terminated. This is neither MCP failure nor PASS. |
 
 Official release sources checked on 2026-09-19 show Codex stable 0.155.0 with previous stable 0.154.0,
@@ -82,8 +82,8 @@ independent review decides whether the remaining real-host gaps belong to S04 or
 
 ## Remaining blockers
 
-- Round-2 review (`S04-host-canary-review.md`) blocked on attribution. Claude findings are
-  remediated and rerun. The Codex isolated A/B rerun and a round-3 focused review remain.
+- Round-2 review (`S04-host-canary-review.md`) blocked on attribution. All findings are
+  remediated and both hosts are rerun. A round-3 focused review remains.
 - Real-host Bash write/TCP/Unix and project-merge probes are complete. The separate Claude built-in
   Read/Edit/Write rule path, Apple Event canary and session-key hook capture remain to be classified
   by review; Codex legacy `workspace-write` has no protected-read guarantee and must disclose that.

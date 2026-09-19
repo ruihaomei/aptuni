@@ -33,8 +33,8 @@ write/TCP/Unix-socket canaries are blocked in all four versions. Claude proves p
 through an outer-observed project `SessionStart` hook, without escaping the higher-priority CLI
 profile. The runner exits non-zero on any inner/outer disagreement, timeout, malformed output or
 vendor quota block (`host_blocked_external`). Codex runs use a temporary `CODEX_HOME` holding one
-trust entry and compare `codex_control` (no `.codex/`) with `codex_project`. That isolated rerun is
-pending. Unsafe outcomes derive `not_in_effect`; blocked canaries remain only `unverified`.
+trust entry and compare `codex_control` (no `.codex/`) with `codex_project`. In the isolated rerun the
+control blocked everything, while the project layer alone produced all three escapes. Unsafe outcomes derive `not_in_effect`; blocked canaries remain only `unverified`.
 
 `native_clone_probe.c` uses the documented full-clone mapping attributes and never emits paths or
 native identifiers. The current APFS Data volume supports `clonefile` but does not advertise
