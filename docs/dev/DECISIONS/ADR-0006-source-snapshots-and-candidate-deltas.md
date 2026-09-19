@@ -87,3 +87,15 @@ changes over time; ambiguous MarginNote match stops for review; no fact deletion
 ### 2026-09-19 — Gate 0 acceptance
 
 Accepted with the S05A refinements: Snapshot `coverage` (complete|partial; removal only under complete); `ambiguous` with ≥2 candidates; per-source delivery `sequence` covered by `delta_id` (envelope v2) with intake requiring base==head and the next sequence; versioned `<provider>.locator@<version>` extensions validated by a registry gate at intake; OPML parent identity (`parent_node_id`, `children_signature` with ≥2 children, `sibling_index`); sticky GitHub selection with unique-rename priority; `held` review-reserved items. Real MarginNote identity remains an S05B pre-ship gate (KI-020).
+
+### 2026-09-19 — S05B real-history refinements (reviews 22–23)
+
+Replaying the reconciler over real MarginNote 4 backup history (`spikes/s05b_marginnote/`) added two
+conservative matching rules. **R1:** identical content under the same parent in the same sibling
+slot keeps its identity (`parent_slot_content_match`); this links only identical text. **R3:** a
+parent matched only by its children signature that changed both its own text and its parent
+becomes a `weak_structural_match` review item. Consequence of R1: when one of several identical
+siblings is deleted, the sibling in the matching slot keeps its identity and the other is proposed
+for removal, where S05A asked for review. Indistinguishable duplicates that moved still stop
+for review; a proposal to resolve them as add/remove was rejected (review 22). KI-020 remains an
+S05B pre-ship gate: one real OPML export (full plus branch) and a review-burden plan are required.

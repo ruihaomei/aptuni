@@ -1,0 +1,29 @@
+{
+ "generated": "2026-09-19",
+ "parser": [
+  "marginnote.opml",
+  "1"
+ ],
+ "counts": {
+  "chains_stopped_unresolvable_delete": 24,
+  "correct_link": 90460,
+  "false_remove": 10,
+  "false_split": 23,
+  "false_split_text": 23,
+  "nodes_rendered": 131902,
+  "noop_transitions": 3,
+  "op_add": 801,
+  "op_ambiguous": 25534,
+  "op_move": 44,
+  "op_remove": 10,
+  "review_duplicate_content": 25470,
+  "review_items": 25534,
+  "review_same_position_text_changed": 64,
+  "topics": 108,
+  "transitions": 298,
+  "true_add": 778
+ },
+ "false_link_rate": 0.0,
+ "continuity_recall": 0.9997458086049313,
+ "seconds": 16.8
+}

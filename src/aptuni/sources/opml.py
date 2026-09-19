@@ -3,10 +3,16 @@
 No public MarginNote contract promises stable node IDs, so vendor attributes
 are preserved but untrusted unless explicitly configured (``trusted_vendor_attr``).
 Matching runs to a fixed point over: trusted vendor ID, same parent + same
-content, globally unique content, identical non-empty child signature. Kinds
-(move/modify) are decided afterwards from final parent identity. Weak evidence
-never links silently: indistinguishable duplicates and same-position leaf edits
-become review items. Branch exports are partial and cannot prove removal.
+content, same parent + same content + same sibling slot, globally unique content,
+identical non-empty child signature. Kinds (move/modify) are decided afterwards
+from final parent identity. Weak evidence never links silently: same-position
+leaf edits and parents matched only by children while both their text and parent
+changed become review items. Branch exports are partial and cannot prove removal.
+
+S05B refinements (see spikes/s05b_marginnote): R1 identical siblings (repeated labels,
+image-only cards) keep identity when they stay in the same slot under the same parent;
+R3 a children-signature match may not carry both a text change and a parent change.
+Indistinguishable duplicates that did move still go to review, as ADR-0006 requires.
 """
 
 from __future__ import annotations
@@ -121,6 +127,10 @@ class _Matcher:
              lambda i: _fields(i)["vendor_node_id"], "vendor_id_match"),
             (lambda n: (n.content_hash, self.parent_subject(n)) if self.parent_subject(n) else None,
              lambda i: (i.content_hash, _fields(i).get("parent_node_id")), "parent_content_match"),
+            # Identical siblings (repeated labels, image-only cards) keep identity in the same slot.
+            (lambda n: (n.content_hash, self.parent_subject(n), n.sibling_index) if self.parent_subject(n) else None,
+             lambda i: (i.content_hash, _fields(i).get("parent_node_id"), _fields(i).get("sibling_index")),
+             "parent_slot_content_match"),
             (lambda n: n.content_hash, lambda i: i.content_hash, "exact_content_unique"),
             # A single (often generic) child is too weak to link parents (review F5).
             (lambda n: n.children_signature if len(n.children) >= 2 else None,
@@ -128,6 +138,17 @@ class _Matcher:
         ]
         while any([self._pair(new_key, old_key, reason) for new_key, old_key, reason in phases]):
             pass
+
+    def demote_weak_structural(self) -> dict[int, str]:
+        """R3: a parent linked only by its children may not also change both its text and its parent."""
+        demoted: dict[int, str] = {}
+        for index, (subject, reason) in list(self.matched.items()):
+            node, old = self.nodes[index], self.old[subject]
+            if (reason == "children_signature_match" and old.content_hash != node.content_hash
+                    and self.parent_subject(node) != _fields(old).get("parent_node_id")):
+                demoted[index] = subject
+                del self.matched[index]
+        return demoted
 
     def demote_partial_relocations(self) -> dict[int, str]:
         """In a partial (branch) export, a parent change may be a copy outside scope: review it (F2)."""
@@ -146,6 +167,17 @@ class _Matcher:
         return demoted
 
 
+def _edited_in_place(node: _New, matcher: _Matcher, old: dict[str, SnapshotItem], used: set[str]) -> list[str]:
+    """Old leaves in the same slot whose text changed: reviewed, never silently linked (S05A)."""
+    parent = matcher.parent_subject(node)
+    if not parent or node.children:
+        return []
+    return [s for s, item in old.items() if s not in used
+            and _fields(item).get("parent_node_id") == parent
+            and _fields(item).get("sibling_index") == node.sibling_index
+            and _fields(item).get("children_signature") is None]
+
+
 def scan_opml(  # noqa: PLR0915 (reviewed S05A matcher; split when OPML ships)
     text: str,
     source_id: str,
@@ -162,11 +194,13 @@ def scan_opml(  # noqa: PLR0915 (reviewed S05A matcher; split when OPML ships)
     matcher = _Matcher(nodes, old, trusted_vendor_attr)
     matcher.run()
     branch = export_scope != "full"
-    demoted = matcher.demote_partial_relocations() if branch else {}
+    demoted = {i: (s, "weak_structural_match") for i, s in matcher.demote_weak_structural().items()}
+    if branch:
+        demoted |= {i: (s, "partial_scope_relocation") for i, s in matcher.demote_partial_relocations().items()}
     subjects: dict[int, str] = {i: s for i, (s, _) in matcher.matched.items()}
     pending: dict[int, tuple[str, ...]] = {}
     matched_subjects = matcher.used()
-    used = set(matched_subjects) | set(demoted.values())  # grows with review reservations
+    used = set(matched_subjects) | {s for s, _ in demoted.values()}  # grows with review reservations
 
     for node in nodes:  # review items for weak or indistinguishable evidence
         if node.index in subjects:
@@ -174,18 +208,14 @@ def scan_opml(  # noqa: PLR0915 (reviewed S05A matcher; split when OPML ships)
         subjects[node.index] = "marginnote-" + _hash(canonical_json([source_id, base_id, node.position,
                                                                      node.content_hash]))[7:27]
         if node.index in demoted:
-            pending[node.index] = (demoted[node.index], "partial_scope_relocation")
+            pending[node.index] = demoted[node.index]
             continue
         # Indistinguishable duplicates share one candidate set, so compare with matcher results only.
         same = [s for s, item in old.items()
-                if s not in matched_subjects and s not in demoted.values()
+                if s not in matched_subjects and s not in {d for d, _ in demoted.values()}
                 and item.content_hash == node.content_hash]
-        parent = matcher.parent_subject(node)
-        slot = [s for s, item in old.items() if s not in used and parent and not node.children
-                and item.locator.extension.fields.get("parent_node_id") == parent
-                and item.locator.extension.fields.get("sibling_index") == node.sibling_index
-                and item.locator.extension.fields.get("children_signature") is None]
-        found, reason = (same, "duplicate_content") if same else (slot, "same_position_text_changed")
+        found, reason = (same, "duplicate_content") if same else (
+            _edited_in_place(node, matcher, old, used), "same_position_text_changed")
         if found:
             pending[node.index] = (*found, reason)
             used.update(found)

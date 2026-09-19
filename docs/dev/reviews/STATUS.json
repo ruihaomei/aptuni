@@ -72,6 +72,14 @@
       "supersedes": [
         "20-m1-advisor-catalog-review.md"
       ]
+    },
+    "s05b-marginnote-reconciler": {
+      "kind": "review",
+      "current": "23-s05b-marginnote-reconciler-rereview.md",
+      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+      "supersedes": [
+        "22-s05b-marginnote-reconciler-review.md"
+      ]
     }
   }
 }

@@ -1,0 +1,33 @@
+{
+ "generated": "2026-09-19",
+ "parser": [
+  "marginnote.opml",
+  "1"
+ ],
+ "counts": {
+  "chains_stopped_unresolvable_delete": 24,
+  "correct_link": 103178,
+  "false_link": 2678,
+  "false_link_duplicate_swap": 75,
+  "false_link_empty_text": 2603,
+  "false_remove": 9,
+  "false_split": 28,
+  "false_split_text": 28,
+  "nodes_rendered": 131902,
+  "noop_transitions": 85,
+  "op_add": 891,
+  "op_ambiguous": 10048,
+  "op_modify": 2677,
+  "op_move": 15,
+  "op_remove": 9,
+  "review_duplicate_content": 9922,
+  "review_items": 10048,
+  "review_same_position_text_changed": 126,
+  "topics": 108,
+  "transitions": 298,
+  "true_add": 863
+ },
+ "false_link_rate": 0.025298518742442565,
+ "continuity_recall": 0.9997286979439179,
+ "seconds": 8.1
+}
