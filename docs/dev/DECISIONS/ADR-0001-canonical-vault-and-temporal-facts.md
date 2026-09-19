@@ -1,10 +1,10 @@
 # ADR-0001: Make the open-format vault canonical
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §4–§7, §16, §22–§23, §52
-- **Research refs:** `research/03-graphiti.md`, `research/08-source-identities-and-deltas.md`
+- **Research refs:** `docs/research/upstream/graphiti.md`, `docs/research/upstream/source-identities-and-deltas.md`
 - **Needs maintainer confirmation:** no
 
 ## Context
@@ -64,3 +64,9 @@ Golden-record schema tests including out-of-order observation, correction, later
 same-valid-time conflict, and historical “as known at”; append/supersession invariants; crash-safe
 write spike; delete/rebuild projection tests; export/import round-trip equality excluding declared
 derived fields.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted with the S01 protocol. Layout: `HEAD.json` manifest (seq, segment list with SHA-256 and count, hash chain) plus immutable `records/seg-NNNNNN-*.jsonl` segments; commit under an exclusive `flock` with `expected_seq`, `F_FULLFSYNC` and directory fsync at each rename; readers take no lock. The chain detects uninformed edits only (HEAD is self-attesting). S01 F1: commits validate incrementally (new records against the full index) and segment compaction is required; full revalidation lives in `doctor`. S01 F2: a hash mismatch becomes an out-of-band-change path (quarantine and propose), never a permanent read refusal. `episode` is carried in `provenance`; `observed_at`/`ingested_at` are record-type fields (Evidence/Fact). Still-untested verification items (same-valid-time conflict, out-of-order observation, projection delete/rebuild, export/import round-trip) are M1.1 work.

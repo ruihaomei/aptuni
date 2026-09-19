@@ -1,10 +1,10 @@
 # ADR-0003: Keep memory providers replaceable projections
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §13–§16, §30–§32, §48–§49
-- **Research refs:** `research/01-mem0.md`, `research/03-graphiti.md`
+- **Research refs:** `docs/research/upstream/mem0.md`, `docs/research/upstream/graphiti.md`
 - **Needs maintainer confirmation:** no
 
 ## Context
@@ -57,3 +57,9 @@ when canonical IDs cannot be represented exactly.
 Run one provider-neutral suite against builtin and fixture providers; rebuild from an empty backend;
 assert identical accepted/quarantined/exposure views including revocation; switch providers without
 canonical diffs; assert undeclared raw retention and telemetry are absent.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted. No spike contradicts it; S01 supports the canonical lifecycle with quarantined proposals. Mem0 (M2) and Graphiti (M3) stay gated by their own admission spikes; verification is an M1 conformance obligation.

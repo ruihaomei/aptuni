@@ -1,10 +1,10 @@
 # ADR-0010: Model retention, destruction, and restore across every copy
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §14, §22–§23, §27, §40, §52
-- **Research refs:** `research/01-mem0.md`, `research/08-source-identities-and-deltas.md`
+- **Research refs:** `docs/research/upstream/mem0.md`, `docs/research/upstream/source-identities-and-deltas.md`
 - **Needs maintainer confirmation:** no
 
 ## Context
@@ -77,3 +77,9 @@ Auditability never justifies retaining content the user validly purged.
 Marker tests search Vault, snapshots, deltas, temp files, backups, indexes, L0, logs, and providers
 after expiry/purge/uninstall. Restore a backup predating purge and prove the deletion ledger prevents
 resurrection. Fault-inject every purge step and prove safe retry/status.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted with S01 F3: the deletion-ledger entry is durable before any rewrite, and `recover()` runs at every process start before any read. Restore reapplies the ledger, must be atomic (never delete the live Vault before the replacement is in place) and must not re-baseline the change log (ADR-0013 item 5). Power loss was not tested (F4).

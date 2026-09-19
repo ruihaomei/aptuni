@@ -1,5 +1,8 @@
 # Research Synthesis
 
+> The research memory now lives in [`docs/research/INDEX.md`](../research/INDEX.md). This page keeps
+> the original synthesis table for reference.
+
 This is the durable synthesis of the eight upstream studies required by PRD §51. Detailed evidence,
 links, inspected commits/releases, caveats, and proposed spikes remain in `docs/dev/research/`.
 
@@ -7,14 +10,14 @@ links, inspected commits/releases, caveats, and proposed spikes remain in `docs/
 
 | Area | Planning conclusion | Durable artifact |
 |---|---|---|
-| Mem0 | Optional Milestone 2 projection. A no-extra-key path requires local inference; disable telemetry and do not inherit raw-message retention. | `research/01-mem0.md` |
-| LlamaIndex | Borrow contract separation and affected-dependant testing, not its hundreds-of-packages topology. Use explicit entry-point discovery and conformance tests. | `research/02-llamaindex.md` |
-| Graphiti | Optional Milestone 3 temporal graph projection. Its mutable node attributes and incomplete locator provenance cannot be canonical. | `research/03-graphiti.md` |
-| MCP | Portable baseline is task-oriented tools. Resources are an enhancement; prompts are host UX; sampling/elicitation are not core dependencies. Start with STDIO. | `research/04-mcp-sdk-and-hosts.md` |
-| Claude Code | Root `CLAUDE.md` imports `AGENTS.md`. Session-start L0 injection must use a command hook over a pre-rendered card because MCP is not yet connected. | `research/05-claude-code-instructions.md` |
-| Codex | `AGENTS.md`, skills, repository state, tests, and Git checkpoints form the relay. Sessions are not durable project state. | `research/06-codex-instructions.md` |
-| Retrieval/packaging | One `src/` Python distribution for MVP, standard entry points at the external seam, SQLite as a rebuildable projection. Built-in FTS needs a Chinese/English spike. | `research/07-local-retrieval-and-packaging.md` |
-| Source identity/deltas | Preserve immutable source snapshots and explicit candidate deltas. Never assume OPML outline IDs are stable; reconcile conservatively and surface ambiguity. | `research/08-source-identities-and-deltas.md` |
+| Mem0 | Optional Milestone 2 projection. A no-extra-key path requires local inference; disable telemetry and do not inherit raw-message retention. | `docs/research/upstream/mem0.md` |
+| LlamaIndex | Borrow contract separation and affected-dependant testing, not its hundreds-of-packages topology. Use explicit entry-point discovery and conformance tests. | `docs/research/upstream/llamaindex.md` |
+| Graphiti | Optional Milestone 3 temporal graph projection. Its mutable node attributes and incomplete locator provenance cannot be canonical. | `docs/research/upstream/graphiti.md` |
+| MCP | Portable baseline is task-oriented tools. Resources are an enhancement; prompts are host UX; sampling/elicitation are not core dependencies. Start with STDIO. | `docs/research/upstream/mcp-sdk-and-hosts.md` |
+| Claude Code | Root `CLAUDE.md` imports `AGENTS.md`. Session-start L0 injection must use a command hook over a pre-rendered card because MCP is not yet connected. | `docs/research/upstream/claude-code-instructions.md` |
+| Codex | `AGENTS.md`, skills, repository state, tests, and Git checkpoints form the relay. Sessions are not durable project state. | `docs/research/upstream/codex-instructions.md` |
+| Retrieval/packaging | One `src/` Python distribution for MVP, standard entry points at the external seam, SQLite as a rebuildable projection. Built-in FTS needs a Chinese/English spike. | `docs/research/upstream/local-retrieval-and-packaging.md` |
+| Source identity/deltas | Preserve immutable source snapshots and explicit candidate deltas. Never assume OPML outline IDs are stable; reconcile conservatively and surface ambiguity. | `docs/research/upstream/source-identities-and-deltas.md` |
 
 ## Cross-cutting conclusions
 

@@ -1,10 +1,10 @@
 # ADR-0012: Put interfaces behind application services and inference ports
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §11, §19–§20, §43, §48–§49
-- **Research refs:** `research/04-mcp-sdk-and-hosts.md`, `research/06-codex-instructions.md`
+- **Research refs:** `docs/research/upstream/mcp-sdk-and-hosts.md`, `docs/research/upstream/codex-instructions.md`
 - **Needs maintainer confirmation:** no
 
 ## Context
@@ -57,3 +57,9 @@ approves, promotes, or exposes records; absence/failure leaves canonical state u
 Run the same conformance cases through direct SDK, CLI, and MCP adapters; outcomes and error codes
 match. Static/import tests prevent adapters from importing filesystem Vault implementations or
 provider internals. A fake inference provider cannot persist or approve.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted. Freezing the command/query/error envelopes moves from S01/S04 to M1.1; S04 supports the thin-adapter shape.

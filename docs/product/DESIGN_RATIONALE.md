@@ -119,7 +119,7 @@ impact: [profile/knowledge.md, indexes/knowledge_index.md]
 - Graphiti's temporal knowledge graph is admired (valid_from/valid_until, provenance to episodes,
   incremental updates), but the design discussion noted a public report that its temporal
   versioning applies well to **edges** while **node attributes can be overwritten** (to be verified
-  in `docs/dev/research/03-graphiti.md`). Conclusion: **borrow Graphiti's ideas, do not adopt its
+  in `docs/research/upstream/graphiti.md`). Conclusion: **borrow Graphiti's ideas, do not adopt its
   schema as canonical**; our fact layer carries temporal fields from Day 1 and Graphiti is a projection.
 - "Memory forms quickly, Profile forms slowly": repeated requests such as *"not too long", "give
   the conclusion first", "use Markdown", "math in `$...$`"* gradually become a preference fact like

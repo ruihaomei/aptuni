@@ -1,10 +1,10 @@
 # ADR-0002: Start with one distribution and explicit plugin activation
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §11–§12, §35, §42–§43, §48–§49
-- **Research refs:** `research/02-llamaindex.md`, `research/07-local-retrieval-and-packaging.md`
+- **Research refs:** `docs/research/upstream/llamaindex.md`, `docs/research/upstream/local-retrieval-and-packaging.md`
 - **Needs maintainer confirmation:** no — temporary namespace fixed by S00; public brand remains later
 
 ## Context
@@ -56,8 +56,7 @@ that closure disables activation until renewed review/approval.
 Split packages or a uv workspace only when components need independent releases, dependency
 isolation, or owners.
 
-For development, use distribution `personal-context-core` and import namespace
-`personal_context_core` (S00). Treat both as temporary and keep them out of user-facing brand copy.
+Use distribution and import name `aptuni` (see Amendments; replaces the temporary S00 namespace).
 
 ## Consequences
 
@@ -72,3 +71,9 @@ Contract tests for builtins and a fixture third-party package; discovery/activat
 honest trust warning/approval records; import-boundary check; affected-component plus dependant test
 selection. Change a transitive artifact and prove activation denies or requires renewed approval.
 S02 proves failure isolation, not a security sandbox.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted. The public name is **Aptuni**: distribution and import `aptuni`, CLI `aptuni`, plugin entry-point group `aptuni.providers` (PyPI/npm/GitHub `aptuni` returned 404 on 2026-09-19; re-check before publishing). This replaces the temporary `personal_context_core` namespace; no migration is needed because no code used it. The first runtime dependency is pydantic v2 (validated in S01). From S02: set `sys.pycache_prefix` to a core-owned directory before importing plugins (F1), keep the manifest in a regular package (F2), bind approval to lock/SBOM artifact hashes plus RECORD verification with resolved extras (F3), and state detection-not-containment including startup `.pth` execution (F4). Files not listed in RECORD are not covered.

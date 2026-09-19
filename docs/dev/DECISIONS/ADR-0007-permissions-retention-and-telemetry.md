@@ -1,10 +1,10 @@
 # ADR-0007: Enforce privacy policy before persistence and exposure
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §6, §14, §23, §27, §40, §52
-- **Research refs:** `research/01-mem0.md`, `research/04-mcp-sdk-and-hosts.md`, `research/08-source-identities-and-deltas.md`
+- **Research refs:** `docs/research/upstream/mem0.md`, `docs/research/upstream/mcp-sdk-and-hosts.md`, `docs/research/upstream/source-identities-and-deltas.md`
 - **Needs maintainer confirmation:** no
 
 ## Context
@@ -66,3 +66,9 @@ Policy matrix/epoch-race tests at every boundary; process-level offline network 
 builtins plus fake local/declared remote host tests (the canary does not claim host coverage);
 telemetry destination/schema snapshots on dependency upgrades; diagnostic marker tests; secret
 scanning; raw-message canary tests; ADR-0010 purge/restore marker tests.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted. Evidence: S04 strict-local denial, epoch race and egress revocation to `cancelled_policy`, and the socket-denied server; S01 module-switch hiding; S02 detection-only network probe. The full policy matrix is M1 verification.

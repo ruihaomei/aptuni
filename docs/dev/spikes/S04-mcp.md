@@ -77,8 +77,7 @@ so candidate quarantine and terminal-only promotion must remain application-serv
 
 The local and host evidence supports the ADR-0005/0012 adapter shape. It also proves why host status
 must be evidence-only: blocked canaries do not prove safety, while a trusted Codex project can widen
-the effective sandbox. Do not accept ADR-0005 or begin production scaffolding until the focused
-independent review decides whether the remaining real-host gaps belong to S04 or Foundation Slice 7.
+the effective sandbox. Round 3 accepted S04, and Gate 0 closed on 2026-09-19 (review 15).
 
 ## Acceptance and deferred cases
 

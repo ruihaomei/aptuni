@@ -1,10 +1,10 @@
 # ADR-0006: Ingest immutable snapshots through candidate deltas
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §8–§10, §22–§23, §35, §48
-- **Research refs:** `research/08-source-identities-and-deltas.md`
+- **Research refs:** `docs/research/upstream/source-identities-and-deltas.md`
 - **Needs maintainer confirmation:** no
 
 ## Context
@@ -81,3 +81,9 @@ Idempotent import; move/rename/delete/reappear fixtures; root/symlink/TOCTOU/par
 exclusion tests; injection canaries in content and metadata; truncated/redirect/rate-limit GitHub
 handling; parser upgrade replay; conflicting MarginNote/Folder/GitHub candidates and authority
 changes over time; ambiguous MarginNote match stops for review; no fact deletion from source loss.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted with the S05A refinements: Snapshot `coverage` (complete|partial; removal only under complete); `ambiguous` with ≥2 candidates; per-source delivery `sequence` covered by `delta_id` (envelope v2) with intake requiring base==head and the next sequence; versioned `<provider>.locator@<version>` extensions validated by a registry gate at intake; OPML parent identity (`parent_node_id`, `children_signature` with ≥2 children, `sibling_index`); sticky GitHub selection with unique-rename priority; `held` review-reserved items. Real MarginNote identity remains an S05B pre-ship gate (KI-020).

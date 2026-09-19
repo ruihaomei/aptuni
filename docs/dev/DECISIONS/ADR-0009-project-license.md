@@ -1,11 +1,11 @@
 # ADR-0009: License the project under Apache-2.0
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §33–§34, §40–§41
-- **Research refs:** `research/01-mem0.md`, `research/02-llamaindex.md`, `research/03-graphiti.md`, `research/06-codex-instructions.md`
-- **Needs maintainer confirmation:** yes — public repository license
+- **Research refs:** `docs/research/upstream/mem0.md`, `docs/research/upstream/llamaindex.md`, `docs/research/upstream/graphiti.md`, `docs/research/upstream/codex-instructions.md`
+- **Needs maintainer confirmation:** no — confirmed 2026-09-19
 
 ## Context
 
@@ -50,3 +50,9 @@ Maintain `THIRD_PARTY_NOTICES.md` and automated dependency-license checks before
 
 Repository license scanner; dependency inventory; source-copy audit; release checklist fails when
 required notices or incompatible licenses are unresolved.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted by maintainer decision on 2026-09-19: Apache-2.0. `LICENSE` (canonical text), `NOTICE` and `THIRD_PARTY_NOTICES.md` are committed; the reuse order is dependency > adapter > clean-room > direct copy.

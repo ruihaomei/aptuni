@@ -1,9 +1,8 @@
 # Milestone 1.1 Execution Plan — Foundation (TDD)
 
-**Status:** Draft; do not execute until Gate 0 passes.
+**Status:** Active (Gate 0 closed 2026-09-19). Execute as vertical slices per the AGENTS.md execution policy.
 
-Development distribution is `personal-context-core`, import namespace `personal_context_core`, and
-temporary CLI name `personal-context`. A public rename requires a migration plan before stable API.
+Distribution, import namespace and CLI are all `aptuni` (ADR-0002 amendment, 2026-09-19).
 
 ## Objective
 
@@ -15,7 +14,7 @@ implemented in this package.
 
 ```text
 pyproject.toml
-src/personal_context_core/
+src/aptuni/
   domain/          # pure versioned records and invariants
   vault/           # ports + filesystem implementation + migrations
   policy/          # fail-closed ingest/expose/retention decisions

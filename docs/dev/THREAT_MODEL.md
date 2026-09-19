@@ -178,6 +178,9 @@ cleanup, partial-failure recovery, backup expiry disclosure, and restore-time to
    granted data and inventory names external copies.
 9. Egress is revoked between journal commit and worker execution → no network effect; intent ends in
    `cancelled_policy`.
+10. A forged `.pyc` is placed next to an approved plugin module (S02 F1; pip RECORD does not hash
+    bytecode) → plugin imports use a core-owned `sys.pycache_prefix`, so the forged bytecode is
+    never executed (KI-017).
 
 ## Residual risks and explicit non-claims
 
@@ -195,3 +198,5 @@ cleanup, partial-failure recovery, backup expiry disclosure, and restore-time to
 - **Accepted by the maintainer (ADR-0013):** a same-user host running unconfined can change the
   local profile and policy without product approval. Hardware-backed approval is a future ADR.
 - Model behavior is probabilistic; authorization correctness must remain deterministic outside it.
+- Installed `.pth` files run at interpreter startup, before any Aptuni code. Plugin integrity
+  checking is detection, not containment, and cannot see files that RECORD does not list (S02 F4).

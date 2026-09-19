@@ -1,10 +1,10 @@
 # ADR-0011: Keep the interaction-memory lifecycle canonical
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §13–§16, §23, §46, §52
-- **Research refs:** `research/01-mem0.md`, `research/03-graphiti.md`
+- **Research refs:** `docs/research/upstream/mem0.md`, `docs/research/upstream/graphiti.md`
 - **Needs maintainer confirmation:** no
 
 ## Context
@@ -64,3 +64,9 @@ revocation are idempotent and never expose quarantined content.
 Golden transitions cover retry, rejection, acceptance, contradiction, revocation, promotion,
 provider rebuild, retention expiry, and purge. Invalid/missing/cyclic links fail. Hash the canonical
 view, rebuild every provider, and assert the same accepted/quarantined/exposure sets.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted. S01 demonstrates all five lifecycle record types and their transition invariants. Provider rebuild and retention-expiry transitions are M1 verification.

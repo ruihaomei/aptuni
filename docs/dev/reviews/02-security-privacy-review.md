@@ -47,7 +47,7 @@ not prevent instruction injection.
 in the portable MCP surface (`ADR-0005`, lines 34–37), but its verification covers malformed input,
 budgets, permissions, and telemetry rather than caller authentication, authorization, replay, or
 confirmation (`ADR-0005`, lines 53–56). The upstream research explicitly says mutations must be
-separated from reads and use stronger validation/authorization (`research/04-mcp-sdk-and-hosts.md`,
+separated from reads and use stronger validation/authorization (`docs/research/upstream/mcp-sdk-and-hosts.md`,
 lines 118–119); that constraint was not carried into the ADR or S04. Local STDIO removes a listening
 socket, but it does not make model-initiated writes equivalent to user intent.
 
@@ -119,7 +119,7 @@ containment it cannot provide.
 ### H2 — Source-parser hardening from research is missing from the ADR and ship gates
 
 Research 08 requires confirmed roots, symlink boundary enforcement, default-deny secrets/VCS/cache,
-size limits, safe XML, secret storage, and content-free logs (`research/08-source-identities-and-deltas.md`,
+size limits, safe XML, secret storage, and content-free logs (`docs/research/upstream/source-identities-and-deltas.md`,
 lines 184–192). ADR-0006 and S05 retain identity/replay requirements but omit those controls. The only
 path-traversal/symlink tests are for the Vault repository, not source ingestion
 (`plans/01-foundation-tdd.md`, lines 53–59).

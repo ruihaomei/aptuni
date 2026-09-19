@@ -1,10 +1,10 @@
 # ADR-0005: Make MCP tools the portable agent baseline
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §18–§20, §36, §43, §48
-- **Research refs:** `research/04-mcp-sdk-and-hosts.md`, `research/05-claude-code-instructions.md`, `research/06-codex-instructions.md`
+- **Research refs:** `docs/research/upstream/mcp-sdk-and-hosts.md`, `docs/research/upstream/claude-code-instructions.md`, `docs/research/upstream/codex-instructions.md`
 - **Needs maintainer confirmation:** no
 
 ## Context
@@ -98,3 +98,9 @@ model-behavior injection probes remain defense in
 depth rather than an authorization claim; test remote/unknown host denial in strict local-only mode;
 forged caller, confused-deputy, and mid-request policy-change tests; budget assertions; STDIO
 end-to-end smoke test; telemetry/network audit.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted. Pin MCP Python SDK 2.2.0 and protocol `2026-07-28`. Standard tool annotations are security-relevant host input (`readOnlyHint` changed Codex 0.153.4 behavior). The STDIO server runs socket-denied except CPython's internal AF_UNIX self-pipe. Real-host probes deferred from S04 are M1.4/S12 release gates (plan 00 §5 step 4).

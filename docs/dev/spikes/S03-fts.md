@@ -11,7 +11,8 @@ spike-evidence review.
 
 ## Frozen protocol
 
-Before comparison, `spikes/s03_fts/FREEZE.json` fixed SHA-256 digests for the 250-document synthetic
+As attested by the author (the freeze, results and code landed in one commit, so git history
+cannot prove the ordering; review 15), before comparison `spikes/s03_fts/FREEZE.json` fixed SHA-256 digests for the 250-document synthetic
 Chinese-English corpus, 73 judged queries (58 development, 15 holdout), numeric thresholds, corpus
 generator, and metric implementation. Tests prove changed or missing inputs stop the run.
 
@@ -54,4 +55,4 @@ permission/current-state filters, and hydrate only canonical IDs. Do not add a s
 for MVP. Carry the broad-short-query noise and synthetic-corpus generalization limits into M1 tests.
 
 Machine-readable evidence is under `spikes/s03_fts/results/`; from that spike directory, the
-read-only verification command is `python3.13 run_s03.py verify`.
+read-only verification command is `/opt/homebrew/bin/python3.13 run_s03.py verify`.

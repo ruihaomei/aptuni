@@ -1,10 +1,10 @@
 # ADR-0008: Put cross-host relay state in the repository
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §36–§40, §51
-- **Research refs:** `research/05-claude-code-instructions.md`, `research/06-codex-instructions.md`
+- **Research refs:** `docs/research/upstream/claude-code-instructions.md`, `docs/research/upstream/codex-instructions.md`
 - **Needs maintainer confirmation:** no
 
 ## Context
@@ -57,3 +57,9 @@ gate for each host adapter.
 
 Fresh-session relay drill in both hosts; instruction-size checks; stale handoff detector; required
 validation recorded in `STATE.md`; independent plan/code reviews stored under `docs/dev/reviews/`.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted. Supported by relay drills 05 and 11 and `tools/check_relay.py`. The Codex L0-guidance mechanism remains an S12 ship gate.

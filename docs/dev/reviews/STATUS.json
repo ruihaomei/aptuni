@@ -5,13 +5,18 @@
       "kind": "review",
       "current": "07-architecture-rereview.md",
       "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": ["01-architecture-review.md"]
+      "supersedes": [
+        "01-architecture-review.md"
+      ]
     },
     "execution": {
       "kind": "review",
       "current": "10-execution-test-third-rereview.md",
       "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": ["03-execution-test-review.md", "08-execution-test-rereview.md"]
+      "supersedes": [
+        "03-execution-test-review.md",
+        "08-execution-test-rereview.md"
+      ]
     },
     "relay-claude-code": {
       "kind": "drill",
@@ -37,6 +42,12 @@
         "12-security-privacy-fourth-rereview.md",
         "13-security-privacy-fifth-rereview.md"
       ]
+    },
+    "gate0-exit": {
+      "kind": "review",
+      "current": "15-gate0-exit-review.md",
+      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+      "supersedes": []
     }
   }
 }

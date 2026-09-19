@@ -44,3 +44,10 @@ gh api -X GET search/repositories \
 
 - ADR-0002 can use the temporary namespace for scaffolding; public naming remains out of scope.
 - ADR-0009 stays Proposed and is a release/contribution gate, not a local engineering gate.
+
+## Addendum — 2026-09-19
+
+The maintainer chose the public name **Aptuni** and Apache-2.0. Probe: PyPI `aptuni` → 404, npm
+`aptuni` → 404, GitHub `aptuni/aptuni` → 404. This is not a reservation or trademark clearance;
+re-check before publishing. The temporary `personal_context_core` namespace was never used in code
+and is retired (ADR-0002 and ADR-0009 amendments).

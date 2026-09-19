@@ -39,3 +39,6 @@ credentials.json
 
 # --- Maintainer's original prompt copy of the PRD (canonical copy: docs/product/PRD.md)
 Prompt_PRD.txt
+
+# --- Repo-local tool environment (uv bootstrap) ---
+.tools/

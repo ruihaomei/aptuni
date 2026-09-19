@@ -246,7 +246,7 @@ def check_workspace_text(root: Path) -> list[str]:
         if not path.is_file():
             continue
         relative = path.relative_to(root)
-        if any(part in {".git", "temp", "__pycache__"} for part in relative.parts):
+        if any(part in {".git", "temp", "__pycache__", ".tools", ".venv"} for part in relative.parts):
             continue
         if _is_host_local_log(relative):
             continue

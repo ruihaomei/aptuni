@@ -1,10 +1,10 @@
 # ADR-0013: Treat shell-capable hosts as inside the user's trust boundary and require host confinement
 
-- **Status:** Proposed — maintainer accepted the residual risk on 2026-09-18 (see Decision)
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (chose this option explicitly) · planning agent · security reviewer
 - **PRD refs:** §2 (technical/psychological lightness), §6, §17, §23, §27, §52
-- **Research refs:** `docs/dev/research/05-claude-code-instructions.md`, `06-codex-instructions.md`
+- **Research refs:** `docs/research/upstream/claude-code-instructions.md`, `06-codex-instructions.md`
 - **Supersedes in part:** the OS/FIDO2 **ApprovalBroker** paragraphs of ADR-0005, ADR-0010 (purge
   confirmation), ADR-0011 (candidate acceptance) and ADR-0012 (broker port). All other content of those
   ADRs stands.
@@ -257,3 +257,9 @@ S04 (per host) and Foundation Slice 7 run these tests, each with a binary pass c
   Every remaining case is a Foundation Slice 7 failing-first test and an M1.4/S12 real-host release
   gate for each host version. Until one runs, its `COMPATIBILITY.md` row stays `pending`, and the
   host adapter cannot be marked supported.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted (S04 focused review round 3; residual risk accepted 2026-09-18). Item 5 gains S01 F2: a hash mismatch is quarantined and diffed into proposals, never a permanent read refusal, and restore must not re-baseline. The S04 coverage status is recorded in Verification.

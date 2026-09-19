@@ -1,10 +1,10 @@
 # ADR-0004: Use SQLite as the builtin retrieval projection
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-09-19, Gate 0 exit review 15)
 - **Date:** 2026-09-18
 - **Deciders:** maintainer (final say) · proposing agent · reviewing agent(s)
 - **PRD refs:** §18–§19, §30, §43, §46, §48
-- **Research refs:** `research/07-local-retrieval-and-packaging.md`
+- **Research refs:** `docs/research/upstream/local-retrieval-and-packaging.md`
 - **Needs maintainer confirmation:** no
 
 ## Context
@@ -53,3 +53,9 @@ Embeddings are not required for MVP.
 
 Spike compares `unicode61`, `trigram`, and deterministic CJK n-grams on recall@k, noise, latency,
 database size, and two-character queries. Permission and temporal filters get mandatory tests.
+
+## Amendments
+
+### 2026-09-19 — Gate 0 acceptance
+
+Accepted with option B final: SQLite FTS5 `unicode61` over normalized ASCII terms plus overlapping 2–4-character CJK lexemes (S03: dev recall@5 0.992, MRR 1.0, holdout 1.0, 25k-document p95 1.93 ms, index/text ratio 6.85). The "noisy English substrings" concern about trigram is not supported by S03 (trigram negative FPR 0.000 on that corpus). Carried limits: synthetic corpus, broad short-query noise (KI-018), and exposed index size with rebuild.
