@@ -228,3 +228,23 @@ a parser from silently rewriting the user's Profile.
   `7fd1a60b01f91b314f59955a4e4d4e80d8edf11d`, and one-entry complete tree
   `b4eecafa9be2f2006ce1b709d6857b07069b4608`. This proves the public baseline only; it does not
   replace the sanitized maintainer-repository fixture or private/enterprise redirect/auth cases.
+
+## 2026-09-19 GitHub S05B implementation and dogfood
+
+- The maintainer explicitly authorized `ruihaomei/ctffr-app` as representative public source
+  evidence. GitHub reported repository ID `1352604752`, default branch `main`, 10 commits and 50 HEAD
+  paths. Initial configured sync selected 38 bounded text/code paths, wrote only 280-character
+  minimized excerpts with canonical SHA-256 hashes, and passed `doctor`; repeat sync was a no-op.
+- Comparing real commits `e346b6d023187e4cf4a848818874c23f2d2c4556` and
+  `fb9fa9863c1b4a1b62a3f9ffda2b7cb5ee16fdc0` under stable repository identity produced complete
+  coverage and one removal for `HANDOFF.md`. The repository contains no rename commit, so live rename
+  is not claimed; unique blob rename remains covered by deterministic and integration fixtures.
+- Production uses the unpaginated Git Trees endpoints: recursive responses are bounded and fall back
+  to a request/entry-bounded non-recursive subtree walk. No list endpoint requiring `Link` pagination
+  is used by Standard mode. Redirects remain exact-origin and bounded; 403/429 retry/reset signals
+  stop without automatic sleeping.
+- Independent Review 17 found crash/ref-advance, exclusion, URL credential, malformed-tree, blob
+  identity and concurrent-journal defects. The implementation now journals final source state before
+  canonical commit, recovers it under a per-source process lock, excludes secret/hidden/VCS/cache
+  paths before fetch, canonicalizes origins, strictly validates tree identity, and recomputes each
+  fetched Git blob object hash. Review 18 approved the remediation.

@@ -61,30 +61,38 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   grant and deterministic Aptuni-owned bundle. Both hosts register grant-bound STDIO MCP; Claude's
   bundle adds a bounded SessionStart L0 command. Cancellation creates no grant/bundle and repeat
   apply is idempotent. Host class remains `remote_unknown`; config/tool/env labels cannot elevate it.
+- **Slice 7 — GitHub Standard Source (runnable, `0190cf6`).** `aptuni source add-github` stores an
+  exact official/enterprise origin plus optional ref and environment credential reference; `aptuni
+  sync` resolves a commit, traverses bounded trees, selects deterministic text/code scope, verifies
+  Git blob identity, and emits minimized Evidence through the common snapshot/delta pipeline.
+  Secret/hidden/cache/VCS paths are excluded before fetch. Exact-origin redirects, response/blob
+  sizes, rate limits, truncation fallback, crash/ref-advance replay, and concurrent syncs fail closed.
+  Independent Review 18 is `APPROVE`.
 
 ## In progress
 
-- GitHub Standard Source S05B admission. Current official API behavior and an anonymous public
-  repository baseline are recorded; production/provider integration is blocked at the accepted
-  dogfood gate pending a sanitized maintainer repository fixture. MarginNote is independently blocked
-  pending its real export series.
+- MarginNote S05B identity admission. The app's existing local MarginNote 4 database is available for
+  authorized read-only inspection; no standalone OPML export series was found in the initial bounded
+  search. Select representative local history/export evidence without committing private content.
 
 ## Awaiting maintainer decisions
 
-- **Source-data blocker:** provide a sanitized GitHub repository fixture (or a public repository the
-  maintainer authorizes as representative) and the KI-020 MarginNote export series. Brand vector
-  masters and social assets remain non-blocking (see `docs/brand/README.md`).
+- None currently blocking source investigation. If the local MarginNote database/backups cannot
+  reconstruct the required no-op/edit/move/duplicate/delete-recreate/branch/restart matrix, a
+  maintainer-created sanitized export series will still be required before the provider ships.
+  Brand vector masters and social assets remain non-blocking (see `docs/brand/README.md`).
 
 ## Next highest-priority task
 
-Resume GitHub Standard Source with the maintainer-authorized sanitized repository fixture, then run
-the MarginNote KI-020 export matrix. Do not claim either source shipped from synthetic/public-smoke
-evidence alone. Independently re-review remediation 16 when a separate reviewer is available; until
-then its stream remains BLOCK.
+Inspect the authorized local MarginNote 4 database/backups and any exports, select representative
+samples, and run as much of the KI-020 no-op/edit/move/duplicate/delete-recreate/branch/restart matrix
+as the existing history supports. Do not ship MarginNote without adequate real identity evidence.
+Independently re-review remediation 16 when a separate reviewer is available; until then its stream
+remains BLOCK.
 
 ## Latest validation state
 
-- `.tools/bin/uv run pytest`: 176 passed, 47 subtests passed; `ruff check .` and `mypy` (strict): clean.
+- `.tools/bin/uv run pytest`: 197 passed, 47 subtests passed; `ruff check .` and `mypy` (strict): clean.
 - `python3.13 tools/check_relay.py`: pass (Markdown link, ADR-index and workspace-text checks).
 - `python3.13 -m unittest tests/dev/test_check_relay.py`: 20 tests OK.
 - `/opt/homebrew/bin/python3.13 spikes/s03_fts/run_s03.py verify`: recorded bilingual retrieval evidence reproduced.
@@ -94,5 +102,9 @@ then its stream remains BLOCK.
   Internet/TCP socket canary fails closed with `aptuni_mcp_network_denied`; dependency check passes.
 - Clean-wheel adapter smoke: `plan → terminal apply → grant-bound aptuni-mcp` passes; generated
   Claude bundle and private grant are present; dependency check passes.
+- Live GitHub dogfood (`ruihaomei/ctffr-app`): repository ID `1352604752`; initial configured sync
+  admitted 38 bounded text/code items, repeat sync was a no-op, historical commits reproduced a real
+  removal, hidden-path policy withdrew one previously admitted item, and `doctor` passed. The sample
+  has no real rename commit, so rename remains fixture-covered rather than live-observed.
 - Spike evidence: S01 46, S02 12, S03 23, S04 58 (+5 skips), S05A 95 tests. Commands are in each
   spike README.
