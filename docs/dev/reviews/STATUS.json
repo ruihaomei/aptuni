@@ -51,9 +51,11 @@
     },
     "m1-slice1": {
       "kind": "review",
-      "current": "16-m1-slice1-core-review.md",
-      "verdict": "BLOCK",
-      "supersedes": []
+      "current": "19-m1-slice1-core-rereview.md",
+      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+      "supersedes": [
+        "16-m1-slice1-core-review.md"
+      ]
     },
     "m1-github-source": {
       "kind": "review",

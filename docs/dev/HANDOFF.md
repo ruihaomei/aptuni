@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-slice1=BLOCK; relay-claude-code=PASS; relay-codex=PASS; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
@@ -8,8 +8,8 @@ Gate 0 is closed (review 15; all ADRs accepted). The Vault/CLI core, Folder Sour
 SQLite/FTS retrieval, bounded Context API, and bounded MCP STDIO server are runnable. Slice 5's
 implementation checkpoint is `d4cc1fb`; adapter Slice 6 is `f7fb727`.
 GitHub Standard Source Slice 7 is runnable at `0190cf6` and independently approved in Review 18.
-Review 16 is **PENDING/BLOCKED FOR INDEPENDENT RE-REVIEW**. Its findings have test-first fixes in
-remediation 16, but its manifest verdict remains `BLOCK` until an independent reviewer verifies them.
+Review 16 is closed: independent focused re-review 19 verified remediation 16 (APPROVE WITH
+NON-BLOCKING NOTES); notes N1–N5 are in `BACKLOG.md`.
 
 ## Read first
 
@@ -31,8 +31,7 @@ no rename commit, so only the rename case remains fixture-proven.
 Latest validation: 197 tests plus 47 subtests; Ruff, mypy strict, relay checks, build, clean-wheel
 grant-bound MCP adapter smoke, network canary and dependency check pass. Known limitations: bundles
 are prepared but deliberately do not edit host-global configuration; Codex automatic L0 injection is
-unproven; S12 real-host release probes remain. Arrange the independent focused re-review of
-remediation 16 separately, without representing it as passed.
+unproven; S12 real-host release probes remain.
 
 ## Known constraints
 

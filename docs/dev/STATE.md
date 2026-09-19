@@ -6,7 +6,7 @@
 Folder Source, bilingual SQLite/FTS projection, bounded Context API, and fail-closed MCP STDIO server
 are runnable.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-slice1=BLOCK; relay-claude-code=PASS; relay-codex=PASS; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -31,9 +31,10 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   retract | module list/set | doctor`. The canonical records use the S05A locator; the Vault is
   crash-safe (S01 protocol, recover on open, incremental validation, segment cache); the module
   policy fails closed with independent ingest/expose switches. Review 16 found two blockers and
-  eight important notes; the fixes and regressions are implemented in remediation 16, with an
-  independent focused re-review still required before the review stream can close. **Review 16 is
-  PENDING/BLOCKED FOR INDEPENDENT RE-REVIEW; its manifest verdict remains BLOCK.**
+  eight important notes; remediation 16 fixed them test-first. Independent focused re-review 19
+  (Claude subagent, 2026-09-19) verified F1–F5 and F8–F11 and closed the stream **APPROVE WITH
+  NON-BLOCKING NOTES**; its notes N1–N5 are in `BACKLOG.md` (N1, a torn-ledger-then-purge case, is
+  scheduled first).
 - **Slice 2 — Folder Source (runnable).** `aptuni source add-folder/list`, `aptuni sync`, `aptuni
   evidence`, and `aptuni review list`. The S05A contract is promoted into production; sync emits
   minimized exposure Evidence, handles edits/moves/removals conservatively, holds ambiguous identity
@@ -87,8 +88,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 Inspect the authorized local MarginNote 4 database/backups and any exports, select representative
 samples, and run as much of the KI-020 no-op/edit/move/duplicate/delete-recreate/branch/restart matrix
 as the existing history supports. Do not ship MarginNote without adequate real identity evidence.
-Independently re-review remediation 16 when a separate reviewer is available; until then its stream
-remains BLOCK.
+Review 16 is closed by independent re-review 19.
 
 ## Latest validation state
 
