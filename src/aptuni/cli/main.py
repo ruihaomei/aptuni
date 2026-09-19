@@ -167,6 +167,11 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("path", type=Path)
     export.add_argument("--json", action="store_true")
 
+    privacy = sub.add_parser("privacy", help="inspect where personal data copies may exist")
+    privacy_sub = privacy.add_subparsers(dest="privacy_command", required=True, metavar="ACTION")
+    privacy_status = privacy_sub.add_parser("status", help="list managed and external copy locations")
+    privacy_status.add_argument("--json", action="store_true")
+
     sub.add_parser("doctor", help="recover and fully verify the Vault")
     return parser
 
@@ -556,6 +561,20 @@ def _cmd_export(args: argparse.Namespace, service: AptuniService) -> int:
     return 0
 
 
+def _cmd_privacy(args: argparse.Namespace, service: AptuniService) -> int:
+    inventory = service.privacy_inventory()
+    if args.json:
+        _print_json(inventory.to_dict())
+        return 0
+    print(f"Privacy inventory at Vault commit {inventory.vault_seq}")
+    print(f"{'copy':<34} {'control':<31} location")
+    for item in inventory.copies:
+        present = "unknown" if item.present is None else (str(item.bytes) + " B" if item.present else "absent")
+        print(f"{item.id:<34} {item.deletion_control:<31} {item.location} ({present})")
+    print("Exports and host/provider transcripts are not tracked copies; Aptuni cannot delete them for you.")
+    return 0
+
+
 COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "init": _cmd_init,
     "status": _cmd_status,
@@ -580,6 +599,7 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "observe": cmd_observe,
     "memory": cmd_memory,
     "export": _cmd_export,
+    "privacy": _cmd_privacy,
 }
 
 

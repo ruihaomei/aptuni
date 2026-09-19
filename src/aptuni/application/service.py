@@ -32,6 +32,7 @@ from aptuni.application.context import (
 from aptuni.application.errors import AptuniError
 from aptuni.application.export import ExportReport, export_profile
 from aptuni.application.memory_commands import MemoryCommands
+from aptuni.application.privacy import PrivacyInventory, build_privacy_inventory
 from aptuni.application.source_commands import SourceCommands
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
@@ -177,6 +178,11 @@ class AptuniService(SourceCommands, MemoryCommands):
         except OSError as error:
             message = "The Profile export could not be written; nothing was changed."
             raise AptuniError("export_failed", message) from error
+
+    def privacy_inventory(self) -> PrivacyInventory:
+        """Return owner-visible copy metadata only; never record content."""
+        seq, records = self.snapshot()
+        return build_privacy_inventory(self.vault().root, self.workspace.state_dir, seq, records)
 
     # ---------------------------------------------------------------- retrieval projection
     def index_status(self) -> ProjectionStatus:
