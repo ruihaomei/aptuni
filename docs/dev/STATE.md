@@ -2,8 +2,8 @@
 
 **Updated:** 2026-09-19
 **Current gate:** Milestone 1 — Portable Personal Context Core (Gate 0 closed 2026-09-19, review 15)
-**Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core and
-Folder Source are runnable, and the SQLite/FTS projection is next.
+**Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
+Folder Source, and bilingual SQLite/FTS projection are runnable. The bounded Context API is next.
 
 Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=BLOCK; relay-claude-code=PASS; relay-codex=PASS; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
@@ -37,10 +37,15 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   minimized exposure Evidence, handles edits/moves/removals conservatively, holds ambiguous identity
   for review, excludes common secrets/hidden/VCS/binary content, and replays idempotently after a
   crash between canonical commit and source-state save.
+- **Slice 3 — SQLite/FTS retrieval (runnable).** `aptuni search` and `aptuni index
+  status/rebuild/delete`. The disposable state-directory projection uses S03's deterministic
+  `unicode61` plus 2–4-character CJK lexemes, automatically repairs missing/stale/corrupt state,
+  serializes atomic rebuilds, never lets an older Vault sequence replace a newer index, and hydrates
+  IDs only after a final stable exposure-policy check.
 
 ## In progress
 
-- Slice 2 documentation/checkpoint and Slice 3 SQLite/FTS projection planning.
+- Bounded Context API slice planning (L0–L4 and response-unit budgets).
 
 ## Awaiting maintainer decisions
 
@@ -48,13 +53,15 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-Checkpoint Folder Source, obtain the independent focused re-review for remediation 16, then implement
-the disposable SQLite/FTS projection and Context API.
+Obtain the independent focused re-review for remediation 16, then implement the bounded Context API
+over the accepted retrieval projection.
 
 ## Latest validation state
 
-- `.tools/bin/uv run pytest`: 137 passed, 47 subtests passed; `ruff check .` and `mypy` (strict): clean.
+- `.tools/bin/uv run pytest`: 148 passed, 47 subtests passed; `ruff check .` and `mypy` (strict): clean.
 - `python3.13 tools/check_relay.py`: pass (Markdown link, ADR-index and workspace-text checks).
 - `python3.13 -m unittest tests/dev/test_check_relay.py`: 20 tests OK.
+- `/opt/homebrew/bin/python3.13 spikes/s03_fts/run_s03.py verify`: recorded bilingual retrieval evidence reproduced.
+- `.tools/bin/uv build` plus clean-wheel `init → remember → search → index status`: pass; 6 installed packages compatible.
 - Spike evidence: S01 46, S02 12, S03 23, S04 58 (+5 skips), S05A 95 tests. Commands are in each
   spike README.

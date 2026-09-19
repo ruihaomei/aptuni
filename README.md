@@ -20,6 +20,8 @@ aptuni source add-folder ~/Documents/portfolio --module projects --role portfoli
 aptuni source list
 aptuni sync SOURCE_ID
 aptuni evidence --source SOURCE_ID
+aptuni search "生存分析" --module knowledge
+aptuni index status
 aptuni doctor
 ```
 
@@ -27,5 +29,9 @@ Folder sync currently admits UTF-8-oriented Markdown, text, and CSV files. It sk
 common secret names, symlinks, VCS/cache folders, unsupported formats, and oversized files by
 default. A file mention creates only `exposure` evidence—it never claims that the user studied or
 mastered the topic.
+
+Search uses a disposable local SQLite/FTS5 index with deterministic English and 2–4-character CJK
+lexemes. The index contains only current records permitted by the module exposure policy; it can be
+inspected, deleted, or rebuilt without changing the canonical Vault.
 
 Licensed under [Apache-2.0](LICENSE).

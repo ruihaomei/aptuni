@@ -4,7 +4,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Current position
 
-Gate 0 is closed (review 15; all ADRs accepted). The Vault/CLI core and Folder Source are runnable.
+Gate 0 is closed (review 15; all ADRs accepted). The Vault/CLI core, Folder Source, and bilingual
+SQLite/FTS retrieval are runnable.
 Review 16's blocking findings have test-first fixes in remediation 16, but its stream remains BLOCK
 until an independent focused re-review verifies them.
 
@@ -16,8 +17,8 @@ until an independent focused re-review verifies them.
 
 ## Next action
 
-Checkpoint the Folder Source slice, arrange the independent focused re-review of remediation 16,
-then continue M1 in order: SQLite/FTS → Context API → MCP → Claude/Codex adapters →
+Checkpoint SQLite/FTS, arrange the independent focused re-review of remediation 16, then continue M1
+in order: Context API → MCP → Claude/Codex adapters →
 MarginNote/GitHub → Recipes/i18n.
 
 ## Known constraints

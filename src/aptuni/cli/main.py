@@ -22,6 +22,49 @@ def _on_off(value: str) -> bool:
     return value == "on"
 
 
+def _add_source_commands(sub: Any) -> None:
+    source = sub.add_parser("source", help="approve and inspect personal data sources")
+    source_sub = source.add_subparsers(dest="source_command", required=True, metavar="ACTION")
+    source_add = source_sub.add_parser("add-folder", help="approve a local folder as a source")
+    source_add.add_argument("path", type=Path)
+    source_add.add_argument("--module", action="append", required=True, choices=MODULES, dest="modules")
+    source_add.add_argument("--role", required=True, help="what this folder means (for example: portfolio)")
+    source_add.add_argument("--primary-for", action="append", default=[], metavar="DIMENSION")
+    source_add.add_argument("--json", action="store_true")
+    source_list = source_sub.add_parser("list", help="list approved sources")
+    source_list.add_argument("--json", action="store_true")
+
+    sync = sub.add_parser("sync", help="sync one approved source into minimized evidence")
+    sync.add_argument("source_id")
+    sync.add_argument("--json", action="store_true")
+
+    evidence = sub.add_parser("evidence", help="inspect current source evidence")
+    evidence.add_argument("--source", dest="source_id")
+    evidence.add_argument("--json", action="store_true")
+
+    review = sub.add_parser("review", help="inspect or resolve held source changes")
+    review_sub = review.add_subparsers(dest="review_command", required=True, metavar="ACTION")
+    review_list = review_sub.add_parser("list", help="list source changes waiting for review")
+    review_list.add_argument("source_id")
+    review_list.add_argument("--json", action="store_true")
+
+
+def _add_retrieval_commands(sub: Any) -> None:
+    search = sub.add_parser("search", help="search current permitted personal context")
+    search.add_argument("query")
+    search.add_argument("--module", choices=MODULES)
+    search.add_argument("--limit", type=int, default=5)
+    search.add_argument("--json", action="store_true")
+
+    index = sub.add_parser("index", help="inspect or rebuild the disposable search index")
+    index_sub = index.add_subparsers(dest="index_command", required=True, metavar="ACTION")
+    index_status = index_sub.add_parser("status", help="show projection freshness, rows and size")
+    index_status.add_argument("--json", action="store_true")
+    index_rebuild = index_sub.add_parser("rebuild", help="rebuild from current permitted Vault records")
+    index_rebuild.add_argument("--json", action="store_true")
+    index_sub.add_parser("delete", help="delete the derived index (the Vault is unchanged)")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="aptuni", description="Aptuni — context, attuned to you.")
     parser.add_argument("--version", action="version", version=f"aptuni {__version__}")
@@ -60,30 +103,8 @@ def build_parser() -> argparse.ArgumentParser:
     module_set.add_argument("--ingest", type=_on_off, metavar="on|off")
     module_set.add_argument("--expose", type=_on_off, metavar="on|off")
 
-    source = sub.add_parser("source", help="approve and inspect personal data sources")
-    source_sub = source.add_subparsers(dest="source_command", required=True, metavar="ACTION")
-    source_add = source_sub.add_parser("add-folder", help="approve a local folder as a source")
-    source_add.add_argument("path", type=Path)
-    source_add.add_argument("--module", action="append", required=True, choices=MODULES, dest="modules")
-    source_add.add_argument("--role", required=True, help="what this folder means (for example: portfolio)")
-    source_add.add_argument("--primary-for", action="append", default=[], metavar="DIMENSION")
-    source_add.add_argument("--json", action="store_true")
-    source_list = source_sub.add_parser("list", help="list approved sources")
-    source_list.add_argument("--json", action="store_true")
-
-    sync = sub.add_parser("sync", help="sync one approved source into minimized evidence")
-    sync.add_argument("source_id")
-    sync.add_argument("--json", action="store_true")
-
-    evidence = sub.add_parser("evidence", help="inspect current source evidence")
-    evidence.add_argument("--source", dest="source_id")
-    evidence.add_argument("--json", action="store_true")
-
-    review = sub.add_parser("review", help="inspect or resolve held source changes")
-    review_sub = review.add_subparsers(dest="review_command", required=True, metavar="ACTION")
-    review_list = review_sub.add_parser("list", help="list source changes waiting for review")
-    review_list.add_argument("source_id")
-    review_list.add_argument("--json", action="store_true")
+    _add_source_commands(sub)
+    _add_retrieval_commands(sub)
 
     sub.add_parser("doctor", help="recover and fully verify the Vault")
     return parser
@@ -266,6 +287,54 @@ def _cmd_review(args: argparse.Namespace, service: AptuniService) -> int:
     return 0
 
 
+def _cmd_search(args: argparse.Namespace, service: AptuniService) -> int:
+    hits = service.search(args.query, module=args.module, limit=args.limit)
+    values = [
+        {
+            "id": hit.id,
+            "record_type": hit.record_type,
+            "module": hit.module,
+            "text": hit.text,
+            "score": hit.score,
+            "source_id": hit.source_id,
+        }
+        for hit in hits
+    ]
+    if args.json:
+        _print_json(values)
+    elif not hits:
+        print("No permitted current context matched.")
+    else:
+        for hit in hits:
+            print(f"{hit.id}  [{hit.module}/{hit.record_type}]  {hit.text}")
+    return 0
+
+
+def _index_json(status: Any) -> dict[str, Any]:
+    return {
+        "path": str(status.path),
+        "state": status.state,
+        "vault_seq": status.vault_seq,
+        "records": status.records,
+        "bytes": status.bytes,
+        "schema_version": status.schema_version,
+        "lexeme_version": status.lexeme_version,
+    }
+
+
+def _cmd_index(args: argparse.Namespace, service: AptuniService) -> int:
+    if args.index_command == "delete":
+        service.delete_index()
+        print("Deleted the derived search index; canonical Vault records were not changed.")
+        return 0
+    status = service.rebuild_index() if args.index_command == "rebuild" else service.index_status()
+    if args.json:
+        _print_json(_index_json(status))
+    else:
+        print(f"Index: {status.state}  records={status.records}  bytes={status.bytes}  path={status.path}")
+    return 0
+
+
 def _cmd_doctor(args: argparse.Namespace, service: AptuniService) -> int:
     report = service.doctor()
     if report.ok:
@@ -289,6 +358,8 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "sync": _cmd_sync,
     "evidence": _cmd_evidence,
     "review": _cmd_review,
+    "search": _cmd_search,
+    "index": _cmd_index,
     "doctor": _cmd_doctor,
 }
 

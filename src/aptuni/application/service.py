@@ -25,6 +25,7 @@ from aptuni.domain.invariants import InvariantError, RecordSet
 from aptuni.domain.records import MODULES, Fact, ModulePolicy, Provenance, RetentionLabel, SchemaVersionError
 from aptuni.domain.temporal import utc_now
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
+from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SqliteProjection, documents_for
 from aptuni.vault.fsgate import UnsupportedFilesystemError
 from aptuni.vault.store import ConflictError, Vault, VaultDirNotEmptyError, VaultIntegrityError, VerifyReport
 
@@ -42,6 +43,16 @@ class Status:
     policy_epoch: int
     counts: dict[str, int]
     modules: dict[str, tuple[bool, bool]]  # module -> (ingest, expose)
+
+
+@dataclass(frozen=True)
+class SearchHit:
+    id: str
+    record_type: str
+    module: str
+    text: str
+    score: float
+    source_id: str | None
 
 
 class AptuniService(SourceCommands):
@@ -124,6 +135,54 @@ class AptuniService(SourceCommands):
 
     def history(self) -> list[Any]:
         return [r for r in self.records().records() if r.record_type == "fact"]
+
+    # ---------------------------------------------------------------- retrieval projection
+    def index_status(self) -> ProjectionStatus:
+        seq, _ = self.snapshot()
+        return SqliteProjection(self.workspace.state_dir).status(seq)
+
+    def rebuild_index(self) -> ProjectionStatus:
+        seq, records = self.snapshot()
+        try:
+            return SqliteProjection(self.workspace.state_dir).rebuild(documents_for(records.exposable()), seq)
+        except ProjectionError as error:
+            message = "The search index could not be rebuilt; canonical data is safe."
+            raise AptuniError("projection_failed", message) from error
+
+    def delete_index(self) -> None:
+        try:
+            SqliteProjection(self.workspace.state_dir).delete()
+        except ProjectionError as error:
+            raise AptuniError("projection_failed", "The derived search index could not be deleted.") from error
+
+    def search(self, query: str, *, module: str | None = None, limit: int = 5) -> list[SearchHit]:
+        if module is not None:
+            self._check_module(module)
+        if not query.strip() or type(limit) is not int or not 1 <= limit <= 100:
+            raise AptuniError("invalid_search", "Search needs a query and a limit between 1 and 100.")
+        projection = SqliteProjection(self.workspace.state_dir)
+        for _ in range(3):
+            seq, records = self.snapshot()
+            try:
+                projection.ensure(documents_for(records.exposable()), seq)
+                rows = projection.search(query, module=module, limit=limit)
+            except (ProjectionError, ValueError) as error:
+                message = "The search index is unavailable; canonical data is safe."
+                raise AptuniError("projection_failed", message) from error
+            final_seq, final_records = self.snapshot()
+            if final_seq != seq:
+                continue
+            allowed = {record.id: record for record in final_records.exposable()}
+            hits = []
+            for row in rows:
+                record = allowed.get(row.record_id)
+                if record is None or (module is not None and record.module != module):
+                    continue
+                text = getattr(record, "statement", None) or getattr(record, "excerpt", None) or record.subject
+                hits.append(SearchHit(record.id, record.record_type, record.module, str(text), row.score,
+                                      record.provenance.source_id))
+            return hits
+        raise AptuniError("concurrent_write", "The Vault kept changing during search; run it again.")
 
     # ---------------------------------------------------------------- commands
     def remember(self, statement: str, module: str, valid_from: str | None = None,

@@ -103,3 +103,23 @@ def test_folder_source_add_sync_and_inspect_flow() -> None:
         review = run(state, "review", "list", source_id, "--json")
         assert review.returncode == 0, review.stderr
         assert json.loads(review.stdout) == []
+
+
+def test_bilingual_search_and_index_lifecycle_flow() -> None:
+    with tempfile.TemporaryDirectory() as raw:
+        base = Path(raw)
+        state = base / "state"
+        assert run(state, "init", str(base / "Aptuni")).returncode == 0
+        added = run(state, "remember", "Applied 生存分析 with Python.", "--module", "knowledge")
+        record_id = added.stdout.split()[-1]
+
+        searched = run(state, "search", "生存", "--json")
+        assert searched.returncode == 0, searched.stderr
+        assert [item["id"] for item in json.loads(searched.stdout)] == [record_id]
+
+        status = run(state, "index", "status", "--json")
+        assert status.returncode == 0, status.stderr
+        assert json.loads(status.stdout)["state"] == "ready"
+        deleted = run(state, "index", "delete")
+        assert deleted.returncode == 0, deleted.stderr
+        assert json.loads(run(state, "index", "status", "--json").stdout)["state"] == "missing"
