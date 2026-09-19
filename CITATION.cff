@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use Aptuni in research, please cite it as below."
+title: "Aptuni: a local-first personal context layer for AI agents"
+abstract: >-
+  Aptuni gives AI agents the right personal context without giving them everything about the
+  user. It keeps an open-format Profile Vault as the source of truth, turns user-approved sources
+  into minimized evidence, and serves budgeted, permission-checked context to agents over MCP.
+type: software
+authors:
+  - family-names: Mei
+    given-names: Ruihao
+license: Apache-2.0
+version: 0.1.0.dev0
+date-released: 2026-09-19
+keywords:
+  - personal context
+  - agent memory
+  - model context protocol
+  - local-first
+  - context engineering
