@@ -14,7 +14,7 @@ from s05a.records import (
     canonical_json,
 )
 
-ENVELOPE_VERSION = 1
+ENVELOPE_VERSION = 2  # 2: per-source delivery ``sequence`` (S05A review round 2)
 
 
 def locator_to_dict(locator: SourceLocator | None) -> dict[str, Any] | None:
@@ -95,6 +95,13 @@ def delta_from_json(text: str) -> CandidateDelta:
     data = json.loads(text)
     if data.get("envelope_version") != ENVELOPE_VERSION:
         raise ContractError("envelope_version_unsupported")
+    try:
+        return _delta_from_dict(data)
+    except (KeyError, TypeError) as error:
+        raise ContractError("envelope_field_missing") from error
+
+
+def _delta_from_dict(data: dict[str, Any]) -> CandidateDelta:
     return CandidateDelta(
         source_id=data["source_id"],
         base_snapshot=data["base_snapshot"],

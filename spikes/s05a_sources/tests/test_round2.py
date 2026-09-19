@@ -114,6 +114,20 @@ class GitHubPriorityTests(unittest.TestCase):  # F3
         self.assertIn("pyproject.toml", selected)
 
 
+class EnvelopeVersionTests(unittest.TestCase):  # round 3 note 3
+    def test_envelope_without_sequence_is_a_contract_error(self) -> None:
+        import json
+
+        from s05a.contract import ContractError, delta_from_json, delta_to_json
+
+        delta = CandidateDelta.build("s", None, "a", ("p", "1"), ())
+        data = json.loads(delta_to_json(delta))
+        self.assertEqual(2, data["envelope_version"])
+        del data["sequence"]
+        with self.assertRaises(ContractError):
+            delta_from_json(json.dumps(data))
+
+
 class GateTests(unittest.TestCase):  # F7
     def test_understood_locator_is_validated_even_when_the_other_is_unknown(self) -> None:
         old = SourceLocator("s", "folder", "d", Extension("folder.locator", 9, {"relative_path": "a"}))

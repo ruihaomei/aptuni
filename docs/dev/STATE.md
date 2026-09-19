@@ -23,8 +23,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   non-blocking notes, all notes addressed in remediations 07/10/14; relay drills 05 and 11 PASS).
 - Gate 0 spikes: **S01 PASS** (`spikes/S01-vault.md`; F1–F3 → KI-016), **S02 PASS**
   (`spikes/S02-plugins.md`; bytecode gap F1 → KI-017), and **S03 PASS**
-  (`spikes/S03-fts.md`; `cjk_lexemes` selected; generalization/noise limit → KI-018). S05A
-  pending. ADRs stay `Proposed` until spike results confirm or revise them; spike conclusions still
+  (`spikes/S03-fts.md`; `cjk_lexemes` selected; generalization/noise limit → KI-018), and
+  **S05A PASS** (`spikes/S05A-sources.md`; see its bullet below). ADRs stay `Proposed` until spike results confirm or revise them; spike conclusions still
   need an independent evidence review (plan 00 exit checklist).
 - **S04 PASS** (`spikes/S04-mcp.md`; focused review round 3 `spikes/S04-round3-review.md`
   approved with non-blocking notes, all dispositioned). All four required host versions return
@@ -33,6 +33,11 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   is not attributed. An isolated Codex A/B proves that a trusted project `.codex/config.toml` alone
   yields full access (`not_in_effect`). The remaining real-host ADR-0013 probes are release-blocking
   M1.4/S12 gates. The native clone bridge fails closed (KI-014/KI-019).
+- **S05A PASS** (`spikes/S05A-sources.md`): one common envelope (locator/snapshot/delta/config)
+  covers Folder, MarginNote-OPML and GitHub identity. It uses versioned provider extensions, explicit
+  coverage, `held` review-reserved items, and a per-source delivery `sequence`. Test run: 95 tests,
+  stdlib only. Independent review blocked twice (ledger ordering, partial-coverage moves, held-item
+  edits) and approved round 3 with non-blocking notes. Synthetic fixtures only → KI-020.
 
 ## Awaiting maintainer decisions
 
@@ -42,10 +47,15 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-Run S05A (common source-identity contract) per `plans/00-phase-0-spikes.md` §6. Use sanitized
-Folder/MarginNote/GitHub fixtures to prove the SourceLocator/Snapshot/CandidateDelta/SourceConfig
-boundary, idempotency, ambiguity, authority conflicts, truncation and source disappearance. Record
-the result in `spikes/S05A-sources.md`, then run the plan 00 exit checklist before Gate 0 closes.
+Close Gate 0 using the plan 00 exit checklist:
+1. Run a batched independent evidence review of S01–S03. S04 and S05A already have focused
+   reviews.
+2. Confirm fixtures are safe and licensed, and that no spike dependency leaked.
+3. Move each ADR confirmed by the spikes from `Proposed` to `Accepted`, folding in the S05A
+   contract refinements (ADR-0006) and the S01/S04 amendments.
+
+Only then start Milestone 1.1 Slice 1 (toolchain and package skeleton). The license and public name
+stay release gates, not Gate 0 blockers.
 
 ## Latest validation state
 
@@ -61,6 +71,7 @@ the result in `spikes/S05A-sources.md`, then run the plan 00 exit checklist befo
   APFS volume does not advertise full-clone mapping, on MCP SDK 2.2.0. The Claude remediated A/B
   rerun on the final runner and the six-run isolated Codex A/B passed (exit 0, inner = outer);
   per-run evidence in `results/host-canary-runs/`.
+- S05A: `spikes/s05a_sources/run_s05a.py` on Python 3.13.3 → 95 tests OK, all six criteria mapped.
 - Markdown link and ADR-index checks run inside `tools/check_relay.py`: 75 Markdown files,
   13 ADRs, all indexed; 8 research notes.
 - No production tests exist because production scaffolding is intentionally gated.

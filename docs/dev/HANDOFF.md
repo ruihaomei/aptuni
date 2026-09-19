@@ -4,9 +4,9 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Current position
 
-Gate 0. The plan-review gate is cleared and no production code exists. S01, S02, S03 and **S04 have
-passed**. S04 was accepted by focused review round 3 with non-blocking notes, all dispositioned
-(`spikes/S04-round3-review.md`). S05A is the last decision-changing spike.
+Gate 0. All decision-changing spikes have passed: S01, S02, S03, S04 (focused review round 3) and
+**S05A** (focused review round 3; `spikes/S05A-sources.md`). No production code exists. Gate 0 still
+needs its exit checklist.
 
 ## Read first
 
@@ -16,16 +16,23 @@ passed**. S04 was accepted by focused review round 3 with non-blocking notes, al
 
 ## Next action
 
-Start S05A (`plans/00-phase-0-spikes.md` §6): a common source-identity contract on sanitized
-Folder/MarginNote/GitHub fixtures, recorded in `spikes/S05A-sources.md`. Then run the plan 00 exit
-checklist. Before M1.4 ships an adapter, the deferred ADR-0013 real-host probes in plan 00 §5
-step 4 must pass for each host version.
+Run the plan 00 exit checklist:
+1. A batched independent evidence review of S01–S03.
+2. The fixture-safety and dependency-leak checks.
+3. ADR `Proposed` → `Accepted` for spike-confirmed decisions, folding the S05A contract refinements
+   into ADR-0006.
+
+Then start Milestone 1.1 Slice 1. Before M1.4 ships an adapter, the deferred ADR-0013 real-host
+probes in plan 00 §5 step 4 must pass for each host version.
 
 ## This pass changed
 
 - S01 PASS (46 tests); findings F1–F3 → KI-016. S02 PASS (12 tests, offline); bytecode gap → KI-017.
 - S03 PASS (23 tests): frozen synthetic bilingual evidence selected deterministic 2–4-character CJK
   lexemes; holdout passed, while broad short-query noise and real-data generalization remain KI-018.
+- S05A (Claude, 2026-09-19): stdlib contract spike, 95 tests. Reviews rounds 1–2 BLOCK and were
+  fixed test-first: ledger ordering and delivery `sequence`, partial-coverage moves, held items,
+  GitHub sticky rename. Round 3 approved.
 - S04 relay (Claude, 2026-09-19): recorded the round-2 BLOCK and rebuilt the runner (pure `assess`/
   `run_ok`, and timeout/malformed/quota classified as `host_blocked_external`). Claude and Codex
   isolated A/B reruns passed. Round 3 accepted S04; its notes are applied (58 tests, per-run

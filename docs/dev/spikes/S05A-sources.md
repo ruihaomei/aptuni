@@ -1,7 +1,7 @@
 # S05A result — common source identity contract
 
-**Result:** PASS after review rounds 1 and 2 BLOCK remediation (`S05A-review-round1.md`,
-`S05A-review-round2.md`); round-3 re-review pending
+**Result:** PASS. Review round 3 (`S05A-review-round3.md`): APPROVE WITH NON-BLOCKING NOTES,
+after rounds 1 and 2 blocked and were remediated test-first.
 
 **Run date:** 2026-09-19
 
@@ -18,7 +18,7 @@ invariants for each provider?
 
 ## Measured facts
 
-`run_s05a.py` ran 94 tests and passed; 22 of them are regressions for review rounds 1 and 2. Each
+`run_s05a.py` ran 95 tests and passed; 23 of them are regressions from the review rounds. Each
 acceptance criterion maps to named tests, and a missing or failing mapped test fails the run (`spikes/s05a_sources/results/S05A-result.json`).
 
 | Criterion (SPIKES.md) | Evidence |
@@ -54,7 +54,10 @@ Per-provider identity behaviour exercised:
 3. Snapshot ids are content-addressed, so they repeat when content cycles. The envelope therefore
    needs a per-source monotonic `sequence`, and `delta_id` has to cover it so one id means one
    delivery. Intake de-duplicates by `delta_id`, requires `base_snapshot` == head plus the next
-   `sequence`, and recomputes `delta_id` itself.
+   `sequence`, and recomputes `delta_id` itself. Delivery rule: every delta, even an empty one, is
+   delivered. Otherwise the provider must rebase on the ledger's head and sequence. A skipped
+   delta makes later deltas stale; that is safe but blocks until the rescan.
+   The envelope is now version 2, and a missing field is a `ContractError`.
 4. Provider identity lives in `<provider>.locator@<version>` extensions, validated by a registry.
    An unknown version is preserved, not dropped, and gated to review.
 5. The OPML manifest needs `parent_node_id`, `children_signature` and `sibling_index` besides
@@ -96,6 +99,9 @@ Per-provider identity behaviour exercised:
 - Behaviours to know: a content swap between two paths is two `modify` ops (path identity), and a
   vendor-attribute churn re-export emits `modify (attributes_changed)` on every node. That flags
   dependent facts for re-evaluation without changing identity.
+- Review-gated operations take no effect before review. That includes `ambiguous` items and a
+  `held_item_changed` modify: dependent facts stay `active` until the review decision, even though
+  the evidence bytes changed. Slice 7 must decide whether a pending review also flags dependents.
 - `Extension.fields` is a JSON-normalized copy, not a deep-frozen mapping. Integrity comes from
   intake recomputing `delta_id`.
 - `ledger.py` stands in for canonical intake. It proves the boundary (no fact mutation from
