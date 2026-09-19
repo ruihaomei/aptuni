@@ -4,10 +4,10 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Current position
 
-Gate 0 is closed (review 15; all ADRs accepted). The Vault/CLI core, Folder Source, and bilingual
-SQLite/FTS retrieval are runnable.
-Review 16's blocking findings have test-first fixes in remediation 16, but its stream remains BLOCK
-until an independent focused re-review verifies them.
+Gate 0 is closed (review 15; all ADRs accepted). The Vault/CLI core, Folder Source, bilingual
+SQLite/FTS retrieval, and bounded owner-CLI Context API are runnable.
+Review 16 is **PENDING/BLOCKED FOR INDEPENDENT RE-REVIEW**. Its findings have test-first fixes in
+remediation 16, but its manifest verdict remains `BLOCK` until an independent reviewer verifies them.
 
 ## Read first
 
@@ -17,9 +17,9 @@ until an independent focused re-review verifies them.
 
 ## Next action
 
-Checkpoint SQLite/FTS, arrange the independent focused re-review of remediation 16, then continue M1
-in order: Context API → MCP → Claude/Codex adapters →
-MarginNote/GitHub → Recipes/i18n.
+Checkpoint the bounded Context API. Continue with MCP only after adding explicit principal/scope and
+`host_model_egress` enforcement; the owner-CLI authorization must not be reused as host authorization.
+Arrange the independent focused re-review of remediation 16 separately, without representing it as passed.
 
 ## Known constraints
 

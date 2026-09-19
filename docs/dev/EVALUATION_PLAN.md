@@ -32,8 +32,9 @@ first scored run. Changing them requires a recorded rationale and a fresh baseli
   never a noise pass.
 - **Judging:** two independent judges label each unit relevant/irrelevant against the versioned task;
   disagreements go to a third judge or the maintainer; unresolved ties count as irrelevant.
-- **Worked example:** `tests/fixtures/eval/context-noise-example-v1.json` with its checksum is added in
-  the M1.3 plan before thresholds freeze; runners must reproduce its score exactly.
+- **Worked example:** `tests/fixtures/eval/context-noise-example-v1.json` and its `.sha256` companion
+  are frozen. The context-budget unit test verifies the checksum and reproduces the exact total,
+  irrelevant-unit count, and noise ratio.
 
 ## Human/dogfood scorecard
 

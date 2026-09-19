@@ -153,9 +153,19 @@ class SqliteProjection:
             )
             connection.commit()
 
-    def search(self, query: str, *, module: str | None = None, limit: int = 5) -> list[SearchRow]:
-        if type(limit) is not int or not 1 <= limit <= 100:
-            raise ValueError("limit must be between 1 and 100")
+    def search(
+        self,
+        query: str,
+        *,
+        module: str | None = None,
+        modules: tuple[str, ...] | None = None,
+        record_types: tuple[str, ...] | None = None,
+        limit: int = 5,
+    ) -> list[SearchRow]:
+        if type(limit) is not int or not 1 <= limit <= 101:
+            raise ValueError("limit must be between 1 and 101")
+        if module is not None and modules is not None:
+            raise ValueError("pass module or modules, not both")
         expression = query_expression(query)
         if expression is None:
             return []
@@ -167,6 +177,12 @@ class SqliteProjection:
         if module is not None:
             statement += " AND module = ?"
             parameters.append(module)
+        elif modules:
+            statement += " AND module IN (" + ",".join("?" for _ in modules) + ")"
+            parameters.extend(modules)
+        if record_types:
+            statement += " AND record_type IN (" + ",".join("?" for _ in record_types) + ")"
+            parameters.extend(record_types)
         statement += " ORDER BY bm25(records_fts), record_id LIMIT ?"
         parameters.append(limit)
         try:

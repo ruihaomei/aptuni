@@ -123,3 +123,31 @@ def test_bilingual_search_and_index_lifecycle_flow() -> None:
         deleted = run(state, "index", "delete")
         assert deleted.returncode == 0, deleted.stderr
         assert json.loads(run(state, "index", "status", "--json").stdout)["state"] == "missing"
+
+
+def test_bounded_identity_and_context_flow() -> None:
+    with tempfile.TemporaryDirectory() as raw:
+        base = Path(raw)
+        state = base / "state"
+        assert run(state, "init", str(base / "Aptuni")).returncode == 0
+        run(state, "remember", "Statistics graduate student.", "--module", "identity")
+        fact = run(state, "remember", "Applied causal inference in Python.", "--module", "knowledge")
+        fact_id = fact.stdout.split()[-1]
+
+        identity = json.loads(run(state, "identity", "--budget", "600", "--json").stdout)
+        assert identity["layers"] == ["L0"]
+        context = run(
+            state,
+            "context",
+            "causal inference",
+            "--module",
+            "knowledge",
+            "--budget",
+            "1200",
+            "--json",
+        )
+        assert context.returncode == 0, context.stderr
+        payload = json.loads(context.stdout)
+        assert payload["audience"] == "owner_cli"
+        assert payload["used_units"] <= 1200
+        assert any(item["canonical_id"] == fact_id for item in payload["items"])

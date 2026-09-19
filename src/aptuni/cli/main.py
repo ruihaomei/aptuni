@@ -65,6 +65,20 @@ def _add_retrieval_commands(sub: Any) -> None:
     index_sub.add_parser("delete", help="delete the derived index (the Vault is unchanged)")
 
 
+def _add_context_commands(sub: Any) -> None:
+    identity = sub.add_parser("identity", help="return a bounded L0 identity card")
+    identity.add_argument("--budget", type=int, default=512, metavar="UNITS")
+    identity.add_argument("--json", action="store_true")
+
+    context = sub.add_parser("context", help="return bounded, layered personal context for a task")
+    context.add_argument("query")
+    context.add_argument("--module", action="append", choices=MODULES, dest="modules")
+    context.add_argument("--budget", type=int, default=1500, metavar="UNITS")
+    context.add_argument("--limit", type=int, default=20)
+    context.add_argument("--evidence", action="store_true", help="allow minimized L4 Evidence")
+    context.add_argument("--json", action="store_true")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="aptuni", description="Aptuni — context, attuned to you.")
     parser.add_argument("--version", action="version", version=f"aptuni {__version__}")
@@ -105,6 +119,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     _add_source_commands(sub)
     _add_retrieval_commands(sub)
+    _add_context_commands(sub)
 
     sub.add_parser("doctor", help="recover and fully verify the Vault")
     return parser
@@ -335,6 +350,56 @@ def _cmd_index(args: argparse.Namespace, service: AptuniService) -> int:
     return 0
 
 
+def _context_json(response: Any) -> dict[str, Any]:
+    return {
+        "audience": response.audience,
+        "requested_units": response.requested_units,
+        "used_units": response.used_units,
+        "remaining_units": response.remaining_units,
+        "truncated": response.truncated,
+        "layers": list(response.layers),
+        "vault_seq": response.vault_seq,
+        "policy_epoch": response.policy_epoch,
+        "items": [item.payload() | {"units": item.units} for item in response.items],
+    }
+
+
+def _print_context(response: Any) -> None:
+    if not response.items:
+        print("No permitted context fit the requested budget.")
+    else:
+        for item in response.items:
+            label = item.canonical_id or item.kind
+            print(f"{item.layer}  {label}  {item.text}")
+    marker = " truncated" if response.truncated else ""
+    print(f"Budget: {response.used_units}/{response.requested_units} units; "
+          f"remaining={response.remaining_units}{marker}")
+
+
+def _cmd_identity(args: argparse.Namespace, service: AptuniService) -> int:
+    response = service.identity_card(budget=args.budget)
+    if args.json:
+        _print_json(_context_json(response))
+    else:
+        _print_context(response)
+    return 0
+
+
+def _cmd_context(args: argparse.Namespace, service: AptuniService) -> int:
+    response = service.context(
+        args.query,
+        modules=tuple(args.modules or ()),
+        budget=args.budget,
+        include_evidence=args.evidence,
+        limit=args.limit,
+    )
+    if args.json:
+        _print_json(_context_json(response))
+    else:
+        _print_context(response)
+    return 0
+
+
 def _cmd_doctor(args: argparse.Namespace, service: AptuniService) -> int:
     report = service.doctor()
     if report.ok:
@@ -360,6 +425,8 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "review": _cmd_review,
     "search": _cmd_search,
     "index": _cmd_index,
+    "identity": _cmd_identity,
+    "context": _cmd_context,
     "doctor": _cmd_doctor,
 }
 

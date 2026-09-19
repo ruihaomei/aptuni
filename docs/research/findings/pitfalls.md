@@ -11,3 +11,4 @@
 | Vendor quota/429 looks like a tool failure | The canary runner labels it `host_blocked_external` |
 | `git filter-branch --all` also rewrites `refs/stash` and leaves Codex `refs/codex/turn-diffs/*` holding old blobs | Drop stashes, delete stale checkpoint refs, expire reflogs, `gc --prune=now`, then scan every blob |
 | Slice-based string rewrites can match the wrong occurrence and truncate a file | Use exact-match Edit with uniqueness checks |
+| Rechecking policy only after retrieval still leaves a race during response composition | Recheck the Vault sequence after hydration, layering, and budget packing; discard and retry the whole response on change |

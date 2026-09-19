@@ -13,19 +13,30 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from pydantic import ValidationError
 
+from aptuni.application.context import (
+    MAX_BUDGET,
+    MAX_QUERY_BYTES,
+    MIN_BUDGET,
+    ContextResponse,
+    pack_units,
+    record_unit,
+    response_from,
+    section,
+    unit_cost,
+)
 from aptuni.application.errors import AptuniError
 from aptuni.application.source_commands import SourceCommands
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
 from aptuni.domain.invariants import InvariantError, RecordSet
-from aptuni.domain.records import MODULES, Fact, ModulePolicy, Provenance, RetentionLabel, SchemaVersionError
+from aptuni.domain.records import MODULES, Fact, Module, ModulePolicy, Provenance, RetentionLabel, SchemaVersionError
 from aptuni.domain.temporal import utc_now
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
-from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SqliteProjection, documents_for
+from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SearchRow, SqliteProjection, documents_for
 from aptuni.vault.fsgate import UnsupportedFilesystemError
 from aptuni.vault.store import ConflictError, Vault, VaultDirNotEmptyError, VaultIntegrityError, VerifyReport
 
@@ -163,12 +174,40 @@ class AptuniService(SourceCommands):
             self._check_module(module)
         if not query.strip() or type(limit) is not int or not 1 <= limit <= 100:
             raise AptuniError("invalid_search", "Search needs a query and a limit between 1 and 100.")
+        seq, final_records, rows = self._stable_search(query, module=module, limit=limit)
+        del seq
+        allowed = {record.id: record for record in final_records.exposable()}
+        hits = []
+        for row in rows:
+            record = allowed.get(row.record_id)
+            if record is None or (module is not None and record.module != module):
+                continue
+            text = getattr(record, "statement", None) or getattr(record, "excerpt", None) or record.subject
+            hits.append(SearchHit(record.id, record.record_type, record.module, str(text), row.score,
+                                  record.provenance.source_id))
+        return hits
+
+    def _stable_search(
+        self,
+        query: str,
+        *,
+        module: str | None = None,
+        modules: tuple[str, ...] | None = None,
+        record_types: tuple[str, ...] | None = None,
+        limit: int = 5,
+    ) -> tuple[int, RecordSet, list[SearchRow]]:
         projection = SqliteProjection(self.workspace.state_dir)
         for _ in range(3):
             seq, records = self.snapshot()
             try:
                 projection.ensure(documents_for(records.exposable()), seq)
-                rows = projection.search(query, module=module, limit=limit)
+                rows = projection.search(
+                    query,
+                    module=module,
+                    modules=modules,
+                    record_types=record_types,
+                    limit=limit,
+                )
             except (OSError, ProjectionError, ValueError) as error:
                 message = "The search index is unavailable; canonical data is safe."
                 raise AptuniError("projection_failed", message) from error
@@ -176,16 +215,125 @@ class AptuniService(SourceCommands):
             if final_seq != seq:
                 continue
             allowed = {record.id: record for record in final_records.exposable()}
-            hits = []
-            for row in rows:
-                record = allowed.get(row.record_id)
-                if record is None or (module is not None and record.module != module):
-                    continue
-                text = getattr(record, "statement", None) or getattr(record, "excerpt", None) or record.subject
-                hits.append(SearchHit(record.id, record.record_type, record.module, str(text), row.score,
-                                      record.provenance.source_id))
-            return hits
+            filtered = [row for row in rows if row.record_id in allowed]
+            return final_seq, final_records, filtered
         raise AptuniError("concurrent_write", "The Vault kept changing during search; run it again.")
+
+    # ---------------------------------------------------------------- bounded context
+    @staticmethod
+    def _check_context_request(budget: int, audience: str, limit: int | None = None) -> None:
+        if audience != "owner_cli":
+            raise AptuniError(
+                "egress_not_authorized",
+                "Only the local owner CLI is authorized in this slice; host/model egress is not configured.",
+            )
+        if type(budget) is not int or not MIN_BUDGET <= budget <= MAX_BUDGET:
+            raise AptuniError("invalid_context", f"Budget must be between {MIN_BUDGET} and {MAX_BUDGET} units.")
+        if limit is not None and (type(limit) is not int or not 1 <= limit <= 100):
+            raise AptuniError("invalid_context", "Context result limit must be between 1 and 100.")
+
+    def identity_card(self, *, budget: int = 512, audience: str = "owner_cli") -> ContextResponse:
+        self._check_context_request(budget, audience)
+        for _ in range(3):
+            seq, records = self.snapshot()
+            identity = sorted(
+                (record for record in records.exposable()
+                 if record.record_type == "fact" and record.module == "identity"
+                 and record.trust == "user_declared"),
+                key=lambda record: (record.recorded_at, record.id),
+            )
+            final_seq, final_records = self.snapshot()
+            if final_seq != seq:
+                continue
+            allowed = {record.id for record in final_records.exposable()}
+            identity = [record for record in identity if record.id in allowed]
+            omitted = False
+            while identity:
+                card = section(
+                    "L0",
+                    "identity_card",
+                    "\n".join(record.statement for record in identity),
+                    canonical_ids=tuple(record.id for record in identity),
+                )
+                if 32 + unit_cost(card) <= budget:
+                    packed = pack_units((card,), budget)
+                    policy = self.policy_of(final_records)
+                    response = response_from(packed, budget=budget, vault_seq=final_seq,
+                                             policy_epoch=policy.epoch, more_results=omitted)
+                    if self.snapshot()[0] == final_seq:
+                        return response
+                    break
+                identity.pop()
+                omitted = True
+            else:
+                packed = pack_units((), budget)
+                policy = self.policy_of(final_records)
+                response = response_from(packed, budget=budget, vault_seq=final_seq,
+                                         policy_epoch=policy.epoch, more_results=omitted)
+                if self.snapshot()[0] == final_seq:
+                    return response
+        raise AptuniError("concurrent_write", "The Vault kept changing during identity-card creation; run it again.")
+
+    def context(
+        self,
+        query: str,
+        *,
+        modules: tuple[str, ...] = (),
+        budget: int = 1500,
+        include_evidence: bool = False,
+        limit: int = 20,
+        audience: str = "owner_cli",
+    ) -> ContextResponse:
+        self._check_context_request(budget, audience, limit)
+        if not query.strip() or len(query.encode("utf-8")) > MAX_QUERY_BYTES:
+            raise AptuniError(
+                "invalid_context",
+                f"Context query must be non-empty and at most {MAX_QUERY_BYTES} UTF-8 bytes.",
+            )
+        if type(include_evidence) is not bool:
+            raise AptuniError("invalid_context", "include_evidence must be true or false.")
+        for module_name in modules:
+            self._check_module(module_name)
+        selected = tuple(dict.fromkeys(cast(Module, module_name) for module_name in modules))
+        record_types = ("fact", "memory", "evidence") if include_evidence else ("fact", "memory")
+        for _ in range(3):
+            seq, records, rows = self._stable_search(
+                query,
+                modules=selected or None,
+                record_types=record_types,
+                limit=limit + 1,
+            )
+            more = len(rows) > limit
+            allowed = {record.id: record for record in records.exposable()}
+            matched = [allowed[row.record_id] for row in rows[:limit] if row.record_id in allowed]
+            policy = self.policy_of(records)
+            visible_requested = tuple(name for name in selected if policy.modules[name].expose_enabled)
+            selected_modules = visible_requested or tuple(dict.fromkeys(record.module for record in matched))
+            counts = Counter(record.module for record in matched)
+            index_text = "no matching permitted context" if not counts else "matches: " + ", ".join(
+                f"{name}={counts[name]}" for name in sorted(counts)
+            )
+            modules_text = "selected modules: " + (", ".join(selected_modules) if selected_modules else "none")
+            record_candidates = sorted(
+                (record_unit(record) for record in matched),
+                key=lambda item: 3 if item.layer == "L3" else 4,
+            )
+            candidates = (
+                section("L1", "context_index", index_text),
+                section("L2", "selected_modules", modules_text),
+                *record_candidates,
+            )
+            packed = pack_units(candidates, budget)
+            response = response_from(
+                packed,
+                budget=budget,
+                vault_seq=seq,
+                policy_epoch=policy.epoch,
+                more_results=more,
+            )
+            if self.snapshot()[0] == seq:
+                return response
+        raise AptuniError("concurrent_write", "The Vault kept changing during context creation; run it again.")
 
     # ---------------------------------------------------------------- commands
     def remember(self, statement: str, module: str, valid_from: str | None = None,

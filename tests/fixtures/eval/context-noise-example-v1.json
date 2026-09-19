@@ -1,0 +1,16 @@
+{
+  "fixed_overhead_per_unit": 32,
+  "task": "Teach a synthetic user about survival analysis.",
+  "units": [
+    {"id": "l1-index", "payload_bytes": 40, "relevant": true},
+    {"id": "l2-modules", "payload_bytes": 30, "relevant": true},
+    {"id": "l3-survival", "payload_bytes": 80, "relevant": true},
+    {"id": "l3-hiking-distractor", "payload_bytes": 50, "relevant": false}
+  ],
+  "version": 1,
+  "worked_result": {
+    "irrelevant_units": 82,
+    "noise_ratio": 0.25,
+    "total_units": 328
+  }
+}
