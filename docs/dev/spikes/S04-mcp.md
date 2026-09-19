@@ -1,6 +1,6 @@
 # S04 result — MCP capability and privacy conformance
 
-**Result:** IN PROGRESS / ROUND-2 FINDINGS REMEDIATED AND RERUN; ROUND-3 FOCUSED REVIEW PENDING
+**Result:** PASS (round-3 focused review: APPROVE WITH NON-BLOCKING NOTES; deferrals recorded)
 
 **Run date:** 2026-09-19
 
@@ -8,7 +8,7 @@
 
 ## Measured facts
 
-The deterministic local layer passes 54 tests (5 host-capability skips). The MCP SDK negotiated modern protocol `2026-07-28`
+The deterministic local layer passes 58 tests (5 host-capability skips). The MCP SDK negotiated modern protocol `2026-07-28`
 over a real STDIO subprocess. Five schema-snapshotted tools enforce bounded synthetic output;
 resources and prompts are optional and returned empty. Invalid arguments and disabled modules return
 tool errors, EOF shuts the server down, and tool input schemas contain no approval, nonce, or
@@ -60,7 +60,7 @@ not covered by the MCP server sandbox.
 | Codex CLI 0.153.4 | partial PASS | In `read-only` + `approval_policy=never`, a read tool without `readOnlyHint` was denied; after the standard annotation was added it returned `HOST_OK 61`. A non-destructive idempotent candidate observation was allowed and core kept it quarantined/non-exposable. |
 | Codex CLI 0.155.0 / 0.154.0 | protected-write partial PASS | Under real `workspace-write` + `approval_policy=never` sessions, both versions logged a Seatbelt `operation_not_permitted` for a home-directory canary and an independent outer check found no file. Per ADR-0013 this blocked canary remains `unverified`, never `confined`. |
 | Claude Code 2.1.267 / 2.1.266 | required read-path PASS | Both versions called the strict-config bounded L0 tool once and returned `HOST_OK 61`. |
-| Claude Code 2.1.267 / 2.1.266 | baseline canaries PASS as `unverified` (remediated rerun) | CLI settings disabled unsandboxed commands, Apple Events and Unix sockets and denied the protected marker. Inner write/TCP/Unix results were all false and independent outer observations agreed. A project `SessionStart` hook, observed outside the model and absent in baseline, proved project-layer merge with a non-empty session id; attempted `allowUnsandboxedCommands=true` and an appended `excludedCommands` entry did not override the higher-priority CLI profile. The non-bundled project entry itself derives `not_in_effect`. |
+| Claude Code 2.1.267 / 2.1.266 | baseline canaries PASS as `unverified` (remediated rerun) | CLI settings disabled unsandboxed commands, Apple Events and Unix sockets and denied the protected marker. Inner write/TCP/Unix results were all false and independent outer observations agreed. A project `SessionStart` hook, observed outside the model and absent in baseline, proved project-layer merge with a non-empty session id; with `allowUnsandboxedCommands=true` and an appended `excludedCommands` entry present, no escape was observed. The cause is not attributed, and blocked results stay `unverified`. The non-bundled project entry itself derives `not_in_effect`. |
 | Codex CLI 0.155.0 / 0.154.0 | baseline, control and isolated injection PASS | Explicit `workspace-write`/`never` plus network-off blocked write/TCP/Unix in both versions. With the real trusted-project layer and no CLI sandbox override, project `danger-full-access` loaded; the fixed environment marker and all three inner canaries were true, and the outer marker/listeners independently observed every effect. Review round 2 found the first injection group confounded (it alone reintroduced the real user config). The isolated rerun held the user layer fixed (a temporary `CODEX_HOME` with one trust entry). The trusted no-`.codex` control blocked everything, while the project layer alone produced all three escapes. |
 | Claude Code 2.1.87 | BLOCKED_EXTERNAL | The synthetic run made no tool call or billed API request; the host returned repeated HTTP 400 responses for 131.6 seconds and was terminated. This is neither MCP failure nor PASS. |
 
@@ -80,19 +80,24 @@ must be evidence-only: blocked canaries do not prove safety, while a trusted Cod
 the effective sandbox. Do not accept ADR-0005 or begin production scaffolding until the focused
 independent review decides whether the remaining real-host gaps belong to S04 or Foundation Slice 7.
 
-## Remaining blockers
+## Acceptance and deferred cases
 
-- Round-2 review (`S04-host-canary-review.md`) blocked on attribution. All findings are
-  remediated and both hosts are rerun. A round-3 focused review remains.
-- Real-host Bash write/TCP/Unix and project-merge probes are complete. The separate Claude built-in
-  Read/Edit/Write rule path, Apple Event canary and session-key hook capture remain to be classified
-  by review; Codex legacy `workspace-write` has no protected-read guarantee and must disclose that.
-- The complete effective-settings merge is not exposed by either host. Baselines therefore remain
-  `profile: unverified`; project/escape visibility and successful canaries still force
+Round 3 (`S04-round3-review.md`) accepted S04 with non-blocking notes, and every note is
+dispositioned. The following are recorded deferrals, not open S04 blockers:
+
+- **Real-host probes → M1.4/S12, release-blocking for each host version.** These are the Claude
+  built-in Read/Edit/Write deny rules, Apple Events, `additionalDirectories`, agent/SDK approve
+  inside a confined session, agent writes of hook/MCP entries, and shadow-module/`PYTHONPATH`. Their
+  status logic is a failing-first test in Foundation Slice 7 (plan 00 §5 step 4, plan 01, and the
+  ADR-0013 coverage status).
+- **Protected reads under Codex legacy `workspace-write`.** This is a disclosed limitation and is
+  never claimed.
+- **Effective settings.** Neither host exposes a complete effective-settings snapshot, so baselines
+  remain `profile: unverified`. Visible project/escape settings and successful canaries still force
   `not_in_effect`.
-- Install-path packaging and wheel/sdist isolation cannot be executed before the Foundation scaffold.
-  The review must decide whether they remain S04 acceptance blockers or are correctly retained in
-  Foundation Slice 1/7.
+- **Install path and wheel/sdist isolation → Foundation Slice 1 item 7.**
+- **Native full-clone evidence (KI-019).** It stays `unverified` on hosts without
+  `VOL_CAP_FMT_CLONE_MAPPING`.
 
 Machine evidence is in `spikes/s04_mcp/results/`. The deterministic command is
 `/tmp/pcc-s04-20260919/bin/python run_s04.py` from the spike directory.

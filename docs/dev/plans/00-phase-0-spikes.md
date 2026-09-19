@@ -69,6 +69,15 @@ package unless explicitly promoted by a reviewed change.
    `unverified` otherwise, session binding, read-deny, and quarantine. Record required keys and the
    core-observable evidence source per host version in the `COMPATIBILITY.md` table.
    Treat injection probes as defense in depth.
+   **S04 acceptance note (2026-09-19).** S04 was accepted with a recorded partial real-host run. The
+   following are deferred to M1.4/S12 as release-blocking probes for each host version:
+   - real-host Claude built-in Read/Edit/Write deny-rule probes;
+   - Apple Event canaries and `additionalDirectories`;
+   - agent/SDK approve inside a confined session;
+   - agent write of hook/MCP entries to project settings;
+   - the workspace shadow-module/`PYTHONPATH` case.
+
+   Codex legacy `workspace-write` protected-read denial is a disclosed limitation, never claimed.
 5. Test concurrent confirmers plus crashes immediately before/after durable journal commit, external
    effect success before receipt update, restart/retry, idempotent exactly-one durable intent, and
    egress revoked between journal commit and worker execution (`cancelled_policy`, no network).

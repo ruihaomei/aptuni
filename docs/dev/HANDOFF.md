@@ -4,10 +4,9 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Current position
 
-Gate 0. The plan-review gate is cleared and no production code exists. S01, S02 and S03 passed.
-S04 focused review round 2 blocked on canary attribution (`spikes/S04-host-canary-review.md`). All
-findings are remediated, and both hosts are rerun with the isolated design. Round 3 is pending.
-S05A stays blocked.
+Gate 0. The plan-review gate is cleared and no production code exists. S01, S02, S03 and **S04 have
+passed**. S04 was accepted by focused review round 3 with non-blocking notes, all dispositioned
+(`spikes/S04-round3-review.md`). S05A is the last decision-changing spike.
 
 ## Read first
 
@@ -17,10 +16,10 @@ S05A stays blocked.
 
 ## Next action
 
-Run focused review round 3 (independent agent) over `spikes/S04-host-canary-review.md`, the runner,
-`results/host-canary-matrix.json` and `COMPATIBILITY.md`. If it accepts, mark S04 PASS and start S05A.
-The Codex isolated rerun passed: its control blocked everything, and the project layer alone produced
-all three escapes.
+Start S05A (`plans/00-phase-0-spikes.md` §6): a common source-identity contract on sanitized
+Folder/MarginNote/GitHub fixtures, recorded in `spikes/S05A-sources.md`. Then run the plan 00 exit
+checklist. Before M1.4 ships an adapter, the deferred ADR-0013 real-host probes in plan 00 §5
+step 4 must pass for each host version.
 
 ## This pass changed
 
@@ -28,8 +27,9 @@ all three escapes.
 - S03 PASS (23 tests): frozen synthetic bilingual evidence selected deterministic 2–4-character CJK
   lexemes; holdout passed, while broad short-query noise and real-data generalization remain KI-018.
 - S04 relay (Claude, 2026-09-19): recorded the round-2 BLOCK and rebuilt the runner (pure `assess`/
-  `run_ok`, and timeout/malformed/quota classified as `host_blocked_external`). The Claude A/B rerun
-  passed with outer project-hook proof. The relay checker now skips gitignored `.claude/logs` (20
+  `run_ok`, and timeout/malformed/quota classified as `host_blocked_external`). Claude and Codex
+  isolated A/B reruns passed. Round 3 accepted S04; its notes are applied (58 tests, per-run
+  evidence committed, plans/ADR/ROADMAP carry the deferrals). The relay checker now skips gitignored `.claude/logs` (20
   tests). Local harness: 54 tests PASS with 5 host-capability skips. Earlier notes: Codex
   0.155.0/0.154.0 and Claude 2.1.267/2.1.266 read paths return `HOST_OK 61`; all block baseline
   write/TCP/AF_UNIX. Project merge is proven in both hosts; trusted Codex project full access yields

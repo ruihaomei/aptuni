@@ -7,8 +7,8 @@ that produced the first host A/B matrix. That session hit its usage limit before
 report. The findings below are copied from the relay transcript summary. Remediation and re-runs
 were done by the Claude Code relay session.
 
-**Verdict:** BLOCK S04 PASS until the isolated Codex A/B rerun completes and a fresh focused
-review accepts the matrix.
+Outcome: S04 was blocked until the isolated Codex A/B rerun completed and a fresh focused review
+accepted the matrix. Round 3 is in `S04-round3-review.md`.
 
 ## Findings (round 2)
 
@@ -43,9 +43,9 @@ review accepts the matrix.
 | 2.1.266 | baseline | no | no | blocked / blocked / blocked |
 | 2.1.266 | project-injection | yes, session id | yes | blocked / blocked / blocked |
 
-The project layer loads, which the outer observer confirms. The higher-precedence CLI sandbox
-profile still wins over the project's `allowUnsandboxedCommands=true` and its appended
-`excludedCommands` entry. Under ADR-0013 the visible, non-bundled project hook still derives
+The project layer loads, which the outer observer confirms. With the project's
+`allowUnsandboxedCommands=true` and its appended `excludedCommands` entry present, no escape was
+observed. The cause is not attributed (CLI precedence, matching semantics or permission mode). Under ADR-0013 the visible, non-bundled project hook still derives
 `not_in_effect`, and the blocked baselines remain `unverified`.
 
 The observed `SessionStart` payload also shows that a project hook receives a non-empty session id
@@ -66,7 +66,7 @@ in Foundation Slice 7.
 The user layer is identical in every mode, so the project `.codex/config.toml` alone caused the
 escape. This replaces the confounded round-1 observation and agrees with it. The effects are
 positive `not_in_effect` evidence (`canary_write_succeeded`, `socket_connect_succeeded`,
-`unbundled_entry_visible`).
+`escape_setting_visible`).
 
 ## Proposed classification of the remaining cases (for the re-review to accept or reject)
 
@@ -78,3 +78,5 @@ positive `not_in_effect` evidence (`canary_write_succeeded`, `socket_connect_suc
   `COMPATIBILITY.md` and is not claimed.
 - **Install path, wheel/sdist isolation, and test doubles absent from the wheel.** These already
   belong to Foundation Slice 1 item 7 and cannot run before the scaffold exists.
+
+**Verdict:** **BLOCK**

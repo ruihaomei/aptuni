@@ -151,5 +151,39 @@ class HostCanaryAssessmentTests(unittest.TestCase):
         self.assertEqual("host_blocked_external", status)
 
 
+class HostCanaryIsolationTests(unittest.TestCase):
+    def test_codex_control_and_injection_differ_only_by_fixture(self) -> None:
+        output, prompt = Path("last.txt"), "probe"
+        control, control_cwd = run_host_canary.codex_command("0.155.0", "project-control", output, prompt)
+        injection, injection_cwd = run_host_canary.codex_command(
+            "0.155.0", "project-injection", output, prompt
+        )
+        self.assertEqual(control, injection)
+        self.assertNotEqual(control_cwd, injection_cwd)
+        self.assertFalse((control_cwd / ".codex").exists())
+        self.assertTrue((injection_cwd / ".codex" / "config.toml").is_file())
+
+    def test_codex_home_is_isolated_in_every_mode(self) -> None:
+        for mode in ("baseline", "project-control", "project-injection"):
+            with self.subTest(mode=mode):
+                environment = run_host_canary.host_environment(
+                    "codex", Path("/tmp/marker"), Path("/tmp/home"), {"CODEX_HOME": "/real"}
+                )
+                self.assertEqual("/tmp/home", environment["CODEX_HOME"])
+
+    def test_inherited_injection_marker_is_removed(self) -> None:
+        environment = run_host_canary.host_environment(
+            "claude", Path("/tmp/marker"), None, {"PCC_S04_PROJECT_INJECTION": "active"}
+        )
+        self.assertNotIn("PCC_S04_PROJECT_INJECTION", environment)
+
+    def test_claude_profile_denies_agent_access_to_hook_marker(self) -> None:
+        marker = Path("/tmp/pcc-s04-project-hook-x")
+        settings = run_host_canary.claude_settings(Path("/Users/Shared/p"), marker)
+        filesystem = settings["sandbox"]["filesystem"]  # type: ignore[index]
+        self.assertIn(str(marker), filesystem["denyWrite"])
+        self.assertIn(str(marker), filesystem["denyRead"])
+
+
 if __name__ == "__main__":
     unittest.main()

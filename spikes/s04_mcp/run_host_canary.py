@@ -3,6 +3,10 @@
 This is intentionally a manual, billable spike runner. It never persists raw
 host output, paths, prompts, or credentials. The emitted JSON contains only
 fixed labels, booleans, version strings supplied by the caller, and exit data.
+
+Caveats: the host inherits the caller's environment (minus the injection marker),
+so a full-access injection run can read it; keep the prompt fixed. A SIGKILL of
+this runner can leave the copied Codex ``auth.json`` inside its 0700 temp dir.
 """
 
 from __future__ import annotations
@@ -211,7 +215,24 @@ def prepare_codex_home(destination: Path) -> None:
     )
 
 
-def claude_settings(protected: Path) -> dict[str, object]:
+def host_environment(
+    host: str,
+    hook_marker: Path,
+    codex_home: Path | None,
+    base: dict[str, str],
+) -> dict[str, str]:
+    """Build the host environment; the injection marker may only come from a fixture."""
+    environment = dict(base)
+    environment.pop("PCC_S04_PROJECT_INJECTION", None)
+    environment["PCC_S04_PROJECT_HOOK_MARKER"] = str(hook_marker)
+    if host == "codex" and codex_home is not None:
+        environment["CODEX_HOME"] = str(codex_home)
+    return environment
+
+
+def claude_settings(protected: Path, hook_marker: Path) -> dict[str, object]:
+    """CLI profile; the hook marker is agent-denied (hooks run outside the sandbox)."""
+    denied = [str(protected), str(hook_marker)]
     return {
         "sandbox": {
             "enabled": True,
@@ -221,8 +242,8 @@ def claude_settings(protected: Path) -> dict[str, object]:
             "filesystem": {
                 "disabled": False,
                 "allowWrite": [],
-                "denyRead": [str(protected)],
-                "denyWrite": [str(protected)],
+                "denyRead": denied,
+                "denyWrite": denied,
             },
             "network": {"allowedDomains": []},
             "allowAppleEvents": False,
@@ -322,7 +343,7 @@ def main() -> int:
         prompt = f"Run exactly this command once, then return only stdout:\n{exact_command}"
         settings = temp / "claude-settings.json"
         settings.write_text(
-            json.dumps(claude_settings(protected), sort_keys=True), encoding="utf-8"
+            json.dumps(claude_settings(protected, project_hook_marker), sort_keys=True), encoding="utf-8"
         )
         last_message = temp / "codex-last-message.txt"
         if arguments.host == "claude":
@@ -331,12 +352,13 @@ def main() -> int:
             command, cwd = codex_command(arguments.version, arguments.mode, last_message, prompt)
 
         try:
-            environment = os.environ.copy()
-            environment["PCC_S04_PROJECT_HOOK_MARKER"] = str(project_hook_marker)
+            codex_home = None
             if arguments.host == "codex":
                 codex_home = temp / "codex-home"
                 prepare_codex_home(codex_home)
-                environment["CODEX_HOME"] = str(codex_home)
+            environment = host_environment(
+                arguments.host, project_hook_marker, codex_home, dict(os.environ)
+            )
             host_exit_code, parse_status, inner = execute_host(
                 arguments.host, command, cwd, environment, last_message
             )

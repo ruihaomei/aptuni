@@ -47,7 +47,9 @@ must not import SQLite, MCP, host SDKs, or concrete providers.
    test no-key/offline runtime separately.
 6. Add verified local/CI commands to `AGENTS.md`.
 7. Assert security test doubles (fake proven-local host, confinement probes) are excluded from the
-   sdist and absent from the wheel and any installed import path (ADR-0013 item 7).
+   sdist and absent from the wheel and any installed import path (ADR-0013 item 7). This also closes
+   the ADR-0013 install-path row in `COMPATIBILITY.md`: the installed package lies outside every
+   writable root, and a project `.venv` install yields `not_in_effect`.
 
 **Done:** sdist/wheel contents match, clean non-editable installs pass in CI, wheelhouse install works
 with sockets denied, runtime smoke tests use no optional service or key, and no test double ships.
@@ -131,6 +133,15 @@ activate code or network.
    detection before every policy decision (narrowing honored; widening/mixed/retag quarantined;
    restore/migration/import never re-baseline). Every case in ADR-0013 Verification is a failing test
    first; the flag/env/config enumeration test proves no override.
+   The failing-first tests include:
+   - `apple_event_succeeded` → `not_in_effect`;
+   - a Claude built-in file-tool deny rule is reported only as the rule-based reason
+     `edit_tool_rule_based`, never as an OS-sandbox guarantee;
+   - a marker read through host file tools is denied, or disclosed in the preview where the host
+     cannot deny it (Codex `workspace-write`);
+   - a visible Codex project `.codex/config.toml` or escape key → `not_in_effect`.
+
+   The real-host execution of these cases belongs to M1.4/S12, not to this slice.
 3. For Vault actions atomically consume nonce with mutation. For external actions atomically consume
    nonce with a durable idempotent operation journal; fault concurrent approval, pre/post commit,
    effect-before-receipt, restart/retry, and digest/scope change.

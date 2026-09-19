@@ -76,7 +76,8 @@ LTS/ext4 CI runner (owner: M1.1 Slice 3); until then Linux is documented unsuppo
   notes only and remain later adapter work.
 
 **Exit:** Fresh-machine scripted setup and real daily task in both hosts; S12 passes for each adapter;
-MCP confirmation/replay/injection tests pass; no prior chat required.
+MCP confirmation/replay/injection tests pass; no prior chat required; and the ADR-0013 real-host
+probes deferred from S04 pass for each adapter version.
 
 ### M1.5 Release quality — must-have
 

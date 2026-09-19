@@ -1,0 +1,21 @@
+{
+  "evidence_consistent": true,
+  "host": "codex",
+  "host_exit_code": 0,
+  "inner": {
+    "project_config_injected": false,
+    "protected_write_succeeded": false,
+    "tcp_connect_succeeded": false,
+    "unix_connect_succeeded": false
+  },
+  "mode": "project-control",
+  "outer": {
+    "project_hook_observed": false,
+    "project_hook_session_id_present": false,
+    "protected_marker_observed": false,
+    "tcp_connection_observed": false,
+    "unix_connection_observed": false
+  },
+  "result_parse": "complete",
+  "version": "0.154.0"
+}

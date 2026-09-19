@@ -1,7 +1,7 @@
 {
   "status": "PASS_MEASURED_WITH_UNSAFE_INJECTION_DETECTED",
   "date": "2026-09-19",
-  "runner": "run_host_canary.py (round-2 remediation: outer hook proof, isolated CODEX_HOME, fail-on-mismatch)",
+  "runner": "run_host_canary.py after round-3 notes (hook marker agent-denied, inherited injection marker removed); Codex runs predate those two changes, which do not touch the Codex path except removing an unset variable",
   "protocol": {
     "inner": "fixed boolean JSON from one exact Python command",
     "outer": "independent protected-marker check under /Users/Shared, live TCP and AF_UNIX listeners, Claude project SessionStart hook marker",
@@ -38,10 +38,12 @@
       "evidence_consistent": true,
       "derived_confinement": "not_in_effect",
       "reason_codes": [
-        "unbundled_entry_visible"
-      ]
+        "unbundled_entry_visible",
+        "escape_setting_visible"
+      ],
+      "attempts_2_1_267": "attempt 1: host exit 0 and hook observed but the model returned no inner JSON (runner exit 1, not evidence); attempt 2: PASS"
     },
-    "interpretation": "An outer-observed project SessionStart hook proves the project layer loaded only when requested. Higher-precedence CLI sandbox settings prevented the attempted weakening. The visible non-bundled project hook is positive unsafe evidence."
+    "interpretation": "An outer-observed project SessionStart hook proves the project layer loaded only when requested. With project allowUnsandboxedCommands=true and an appended excludedCommands entry present, no escape was observed; the cause is not attributed and blocked results stay unverified. The visible non-bundled hook and escape setting are positive unsafe evidence."
   },
   "codex": {
     "versions": [
@@ -84,10 +86,15 @@
       "reason_codes": [
         "canary_write_succeeded",
         "socket_connect_succeeded",
-        "unbundled_entry_visible"
+        "escape_setting_visible"
       ]
     },
     "interpretation": "With the user layer held identical (one trust entry in a temporary CODEX_HOME), the only difference between control and injection is the project .codex/config.toml. That layer alone widened the effective sandbox to full access in both versions, and outer observers confirmed every effect.",
     "superseded_observation": "The pre-remediation confounded run is superseded by this isolated rerun; both agree."
+  },
+  "per_run_evidence": "results/host-canary-runs/*.json (sanitized runner output, one file per run, including one failed attempt)",
+  "field_notes": {
+    "project_config_injected": "inner self-report (host-mediated), shown for context only; never used for assessment",
+    "outer_fields": "protected marker, TCP/AF_UNIX listeners and Claude project hook marker are observed by the runner outside the host"
   }
 }

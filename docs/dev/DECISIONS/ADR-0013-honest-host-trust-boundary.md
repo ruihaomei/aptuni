@@ -96,7 +96,8 @@ the same day for reviews 12 and 13 (terminal-only approval; core never claims `c
      the installed package (which must live outside every writable root, e.g. a `uv tool` location,
      never a project `.venv`), and host hook/MCP/plugin/adapter files, **including project-scope files
      inside writable roots** (Claude Code `.claude/settings.json`, `.claude/settings.local.json`,
-     `.mcp.json`, project hook scripts; Codex project config if S04 finds it honored). Any hook or
+     `.mcp.json`, project hook scripts; Codex project `.codex/config.toml`, which trusted projects honor; S04 proved it alone can select
+     `danger-full-access`). Any hook or
      MCP-server entry in merged settings that is not in the bundled profile is a `not_in_effect`
      reason code.
    - **Required keys:** `COMPATIBILITY.md` holds the normative required-key list per host version,
@@ -248,3 +249,11 @@ S04 (per host) and Foundation Slice 7 run these tests, each with a binary pass c
   - The flag/env/config enumeration test shows no override.
   - Test doubles are absent from the wheel and the sdist.
 - **Regression.** Crash and concurrency cases from ADR-0005 and ADR-0010 still pass.
+- **Coverage status (S04, 2026-09-19).** S04 ran two sets of real-host checks on Claude Code
+  2.1.267/2.1.266 and Codex 0.155.0/0.154.0:
+  - Bash write/TCP/AF_UNIX canaries;
+  - the project-merge A/B.
+
+  Every remaining case is a Foundation Slice 7 failing-first test and an M1.4/S12 real-host release
+  gate for each host version. Until one runs, its `COMPATIBILITY.md` row stays `pending`, and the
+  host adapter cannot be marked supported.
