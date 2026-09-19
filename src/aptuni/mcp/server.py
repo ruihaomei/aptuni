@@ -22,6 +22,7 @@ from mcp.types import ToolAnnotations  # noqa: E402
 from pydantic import Field  # noqa: E402
 
 from aptuni import __version__  # noqa: E402
+from aptuni.adapters.manager import AdapterManager  # noqa: E402
 from aptuni.application.context import ContextResponse  # noqa: E402
 from aptuni.application.errors import AptuniError  # noqa: E402
 from aptuni.application.service import AptuniService, HostContextAccess  # noqa: E402
@@ -108,9 +109,19 @@ def main() -> None:
     if sys.argv[1:] == ["--network-canary"]:
         socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         raise AssertionError("network canary unexpectedly succeeded")
-    if sys.argv[1:]:
-        raise SystemExit("usage: aptuni-mcp")
-    create_server().run(transport="stdio")
+    args = sys.argv[1:]
+    if not args:
+        create_server().run(transport="stdio")
+        return
+    if len(args) == 2 and args[0] == "--grant":
+        workspace = Workspace.default()
+        try:
+            access = AdapterManager(workspace).load_grant(args[1]).access()
+        except AptuniError as error:
+            raise SystemExit(error.code) from error
+        create_server(AptuniService(workspace), access).run(transport="stdio")
+        return
+    raise SystemExit("usage: aptuni-mcp [--grant GRANT_ID]")
 
 
 if __name__ == "__main__":

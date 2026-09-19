@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from aptuni import __version__
+from aptuni.adapters.manager import AdapterManager
 from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService, Status
 from aptuni.application.workspace import DEFAULT_VAULT, Workspace
@@ -79,6 +80,22 @@ def _add_context_commands(sub: Any) -> None:
     context.add_argument("--json", action="store_true")
 
 
+def _add_adapter_commands(sub: Any) -> None:
+    adapter = sub.add_parser("adapter", help="prepare bounded Claude Code or Codex integration")
+    adapter_sub = adapter.add_subparsers(dest="adapter_command", required=True, metavar="ACTION")
+    plan = adapter_sub.add_parser("plan", help="preview a host adapter and informed egress grant")
+    plan.add_argument("host", choices=("claude", "codex"))
+    plan.add_argument("--module", action="append", required=True, choices=MODULES, dest="modules")
+    plan.add_argument("--allow-host-model-egress", action="store_true")
+    plan.add_argument("--json", action="store_true")
+    apply = adapter_sub.add_parser("apply", help="terminal-confirm one exact pending adapter plan")
+    apply.add_argument("action_id")
+    apply.add_argument("--json", action="store_true")
+    l0 = adapter_sub.add_parser("l0", help=argparse.SUPPRESS)
+    l0.add_argument("--grant", required=True, dest="grant_id")
+    l0.add_argument("--budget", type=int, default=512)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="aptuni", description="Aptuni — context, attuned to you.")
     parser.add_argument("--version", action="version", version=f"aptuni {__version__}")
@@ -120,6 +137,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_source_commands(sub)
     _add_retrieval_commands(sub)
     _add_context_commands(sub)
+    _add_adapter_commands(sub)
 
     sub.add_parser("doctor", help="recover and fully verify the Vault")
     return parser
@@ -400,6 +418,52 @@ def _cmd_context(args: argparse.Namespace, service: AptuniService) -> int:
     return 0
 
 
+def _cmd_adapter(args: argparse.Namespace, service: AptuniService) -> int:
+    manager = AdapterManager(service.workspace)
+    if args.adapter_command == "plan":
+        plan = manager.plan(
+            args.host,
+            tuple(args.modules),
+            allow_host_model_egress=args.allow_host_model_egress,
+        )
+        if args.json:
+            _print_json({
+                "action_id": plan.action_id,
+                "digest": plan.digest,
+                "host": plan.host,
+                "modules": list(plan.modules),
+                "scopes": list(plan.scopes),
+                "preview": manager.preview(plan),
+            })
+        else:
+            print(manager.preview(plan))
+            print(f"Pending action: {plan.action_id}")
+            print(f"Apply from your terminal with: aptuni adapter apply {plan.action_id}")
+        return 0
+    if args.adapter_command == "apply":
+        plan = manager.pending(args.action_id)
+        print(manager.preview(plan))
+        if input("Type APPLY to create this grant and bundle: ") != "APPLY":
+            print("Cancelled; no grant or bundle was created.")
+            return 1
+        grant, bundle = manager.apply(args.action_id)
+        if args.json:
+            _print_json({"grant_id": grant.grant_id, "host": grant.host, "bundle": str(bundle)})
+        else:
+            print(f"Prepared {grant.host} adapter bundle at {bundle}")
+            print("Review and install the generated host configuration, then start a new host session.")
+        return 0
+    grant = manager.load_grant(args.grant_id)
+    response = service.identity_card(
+        budget=args.budget,
+        audience="host_mcp",
+        access=grant.access(),
+    )
+    for item in response.items:
+        print(item.text)
+    return 0
+
+
 def _cmd_doctor(args: argparse.Namespace, service: AptuniService) -> int:
     report = service.doctor()
     if report.ok:
@@ -427,6 +491,7 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "index": _cmd_index,
     "identity": _cmd_identity,
     "context": _cmd_context,
+    "adapter": _cmd_adapter,
     "doctor": _cmd_doctor,
 }
 
