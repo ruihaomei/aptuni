@@ -19,6 +19,7 @@ agents building Aptuni.
 | Codex | [upstream/codex-instructions.md](upstream/codex-instructions.md) | `AGENTS.md`, skills, repo state and git checkpoints form the relay. |
 | Retrieval and packaging | [upstream/local-retrieval-and-packaging.md](upstream/local-retrieval-and-packaging.md) | One `src/` distribution, entry points at the external seam, SQLite as a projection. |
 | Source identity | [upstream/source-identities-and-deltas.md](upstream/source-identities-and-deltas.md) | Immutable snapshots plus candidate deltas; OPML IDs are unproven. |
+| MarginNote 4 store | [upstream/marginnote4-local-store.md](upstream/marginnote4-local-store.md) | Core Data layout, native IDs, TCC behavior, URL scheme and add-on fallback (ADR-0015). |
 | Claude-Mem | not yet researched | Referenced for progressive disclosure (PRD §18). Research it when the Context API slice needs it. |
 | Khoj, memU | not yet researched | PRD §32 secondary references (Obsidian UX, wiki-first memory). |
 

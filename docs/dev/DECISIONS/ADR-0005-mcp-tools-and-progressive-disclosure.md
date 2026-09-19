@@ -104,3 +104,25 @@ end-to-end smoke test; telemetry/network audit.
 ### 2026-09-19 — Gate 0 acceptance
 
 Accepted. Pin MCP Python SDK 2.2.0 and protocol `2026-07-28`. Standard tool annotations are security-relevant host input (`readOnlyHint` changed Codex 0.153.4 behavior). The STDIO server runs socket-denied except CPython's internal AF_UNIX self-pipe. Real-host probes deferred from S04 are M1.4/S12 release gates (plan 00 §5 step 4).
+
+### 2026-09-20 — `aptuni_propose_memory` and the `memory.propose` scope
+
+The first write tool is `aptuni_propose_memory` (not read-only, not destructive, idempotent). It
+requires the `memory.propose` scope, which an adapter plan grants only with
+`--allow-memory-proposals` and discloses in its preview, plus access to the target module. The tool
+creates an Observation and a quarantined CandidateMemory tagged `host_proposal` and
+`mcp:<principal>`, capped at 200 pending proposals per principal. It never exposes content. Only the
+owner's terminal (`aptuni memory accept|reject`) decides. A preview issues a random, mode-0600,
+ten-minute nonce; the digest binds action, target, statement, module, policy epoch, nonce and expiry.
+The committed ReviewEvent carries that nonce, so the canonical mutation is also its authoritative
+single-use consumption record; a leftover preview file after a crash cannot authorize a second
+decision. `aptuni memory forget` uses the same preview/nonce/typed-confirmation path before appending
+a revocation.
+
+Caller idempotency keys are namespaced by MCP principal and bound to module plus normalized payload.
+Reusing a key for a different payload returns a content-free conflict and never an existing candidate
+ID. Before any host proposal is committed, a fixed local filter rejects recognizable credentials,
+private keys, transcript-role prefixes and instruction-shaped control text. This is a narrow
+fail-closed screen for obvious protected content, not a claim that arbitrary secret detection is
+complete. Owner-authored CLI observations remain a distinct path. Tool schemas carry no authority,
+approval or nonce fields.

@@ -30,6 +30,7 @@ from aptuni.application.workspace import Workspace  # noqa: E402
 from aptuni.domain.records import Module  # noqa: E402
 
 READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
+PROPOSE = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=True, openWorldHint=False)
 
 
 def _context_json(value: ContextResponse) -> dict[str, object]:
@@ -101,6 +102,21 @@ def create_server(
         except AptuniError as error:
             raise ToolError(error.code) from error
         return _context_json(response)
+
+    @server.tool(name="aptuni_propose_memory", annotations=PROPOSE)
+    def propose_memory(
+        statement: Annotated[str, Field(min_length=1, max_length=280)],
+        module: Module,
+        idempotency_key: Annotated[str | None, Field(max_length=128)] = None,
+    ) -> dict[str, object]:
+        """Propose one bounded user-context statement for terminal review. It stays hidden, and Aptuni
+        rejects recognizable credential, private-key, transcript, and instruction-shaped patterns."""
+        try:
+            proposal = application.propose_from_host(statement, module, access, idempotency_key)
+        except AptuniError as error:
+            raise ToolError(error.code) from error
+        return {"schema_version": 1, "candidate_id": proposal.candidate_id, "created": proposal.created,
+                "status": "pending_owner_review"}
 
     return server
 

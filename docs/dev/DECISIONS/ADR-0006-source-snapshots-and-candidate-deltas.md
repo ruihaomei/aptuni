@@ -99,3 +99,11 @@ siblings is deleted, the sibling in the matching slot keeps its identity and the
 for removal, where S05A asked for review. Indistinguishable duplicates that moved still stop
 for review; a proposal to resolve them as add/remove was rejected (review 22). KI-020 remains an
 S05B pre-ship gate: one real OPML export (full plus branch) and a review-burden plan are required.
+
+### 2026-09-19 — MarginNote 4 native store (ADR-0015)
+
+The primary MarginNote path reads the local MarginNote 4 store with native note IDs as identity, so
+it needs no content matching and has no identity ambiguity. `marginnote.locator@2` stores IDs and
+structure only (no text), replacing the text-bearing `ancestor_path` locator for that path. A missing
+selected notebook makes the snapshot partial, so nothing is withdrawn. The OPML reconciler and
+`marginnote.locator@1` remain for the compatibility path only.

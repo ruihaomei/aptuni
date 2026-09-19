@@ -27,3 +27,6 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | R3-demoted parent's children become moves under the parent's new generated ID | Review 22/23 | MarginNote ingest slice |
 | Replay harness: hidden truth attribute inflates modify/no-op counts; restart stopped chains at later full snapshots; order roots by canvas position | Review 22/23 | MarginNote ingest slice |
 | Collision re-check for `aptuni` on PyPI/npm/GitHub before first publish | Review 15 F9 | Release |
+| MarginNote: permanent no-parent-stat TCC pre-probe test; deterministic multi-parent ordering; refresh Evidence on locator-only drift; source-specific crash/replay test | Review 25 R1–R3 | MarginNote hardening |
+| Profile export: injected render/rename/race tests, broader adversarial Markdown/control characters, explicit corrected/retracted Fact and withdrawn Evidence chains | Review 27 N2–N5 | Export hardening |
+| Memory proposals: extend high-confidence protected-pattern corpus and keep errors/logs content-free; preserve forced concurrent-idempotency regression | Review 28 N3–N4 | Memory hardening |

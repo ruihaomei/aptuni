@@ -64,6 +64,14 @@ def default_registry() -> ExtensionRegistry:
         ),
     )
     registry.register(
+        "marginnote.locator",
+        2,
+        ExtensionSpec(
+            frozenset({"database_id", "notebook_id", "note_id", "revision"}),
+            frozenset({"parent_id", "depth", "sibling_index", "child_count", "subtree_concepts", "excerpt_count"}),
+        ),
+    )
+    registry.register(
         "github.locator",
         1,
         ExtensionSpec(

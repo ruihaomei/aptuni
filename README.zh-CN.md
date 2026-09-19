@@ -67,10 +67,10 @@ uv run aptuni adapter apply ACTION_ID    # 在你自己的终端里确认
 | GitHub 来源（标准模式，有界读取，精确到提交） | ✅ |
 | 中英文本地检索，索引可随时重建 | ✅ |
 | 分层上下文（L0 身份卡 → L4 证据），带预算 | ✅ |
-| 本地 STDIO 的 MCP 服务，只读并做权限检查 | ✅ |
+| 本地 STDIO 的 MCP 服务：权限受控读取与隔离的记忆提案 | ✅ |
 | Claude Code 与 Codex 适配器 | ✅ |
 | 插件顾问、配方、中英文命令行 | ✅ 预览（`aptuni advise`） |
-| MarginNote 来源 | 🔒 已实现；已用真实历史验证身份安全，等待一次真实 OPML 导出确认格式 |
+| MarginNote 4 来源（macOS，本地只读直连，原生 ID） | ✅ |
 | Obsidian 来源与界面、Mem0、混合检索、Graphiti | 🗺 里程碑 2–3 |
 
 运行 `aptuni plugin list --lang zh-CN` 和 `aptuni recipe list --lang zh-CN` 可以在命令行看到同样的信息。

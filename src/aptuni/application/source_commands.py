@@ -6,6 +6,7 @@ snapshot and commits with that ``expected_seq``.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,7 @@ from aptuni.application.ingest import (
     review_operations,
     summarize,
 )
+from aptuni.application.marginnote_ingest import MarginNoteIngest, MarginNoteSourceSpec, MarginNoteSpecError
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
 from aptuni.domain.invariants import RecordSet
@@ -35,8 +37,25 @@ from aptuni.domain.temporal import utc_now
 from aptuni.policy.modules import can_ingest
 from aptuni.sources.delivery import DeliveryError, DeliveryGuard
 from aptuni.sources.github import GitHubApi, GitHubApiError, GitHubSourceSpec, SourceIdentityError
+from aptuni.sources.marginnote4 import PARSER as MARGINNOTE_PARSER
+from aptuni.sources.marginnote4 import MarginNoteStoreError, probe
+from aptuni.sources.marginnote4.store import CONTAINER
 from aptuni.sources.records import Operation
 from aptuni.vault.store import Vault
+
+MARGINNOTE_MESSAGES = {
+    "marginnote_permission_pending": "macOS is asking whether this app may access MarginNote's data. Answer the "
+                                     "prompt (Allow), then run the command again. Nothing was read.",
+    "marginnote_permission_denied": "macOS denied access to MarginNote's data. Allow it in System Settings > "
+                                    "Privacy & Security (App Data or Full Disk Access) for the app running Aptuni.",
+    "marginnote_not_found": "No MarginNote 4 library was found on this Mac.",
+    "marginnote_schema_unsupported": "This MarginNote version stores notes in a layout Aptuni has not verified. "
+                                     "Nothing was read or changed; update Aptuni.",
+    "marginnote_store_missing": "The MarginNote library file is missing.",
+    "marginnote_store_empty": "The selected MarginNote notebooks read as empty. Nothing was withdrawn; open "
+                              "MarginNote to check the library, then sync again.",
+    "marginnote_store_unreadable": "The MarginNote library could not be read safely. Nothing was changed.",
+}
 
 
 class SourceCommands:
@@ -120,6 +139,27 @@ class SourceCommands:
         self._commit([config], seq)
         return config
 
+    def add_marginnote_source(self, store: Path, notebooks: tuple[str, ...] | None, modules: tuple[str, ...],
+                              role: str, primary_for: tuple[str, ...] = ()) -> SourceConfig:
+        """Grant ingestion of chosen MarginNote 4 notebooks (``None`` = all). Discovery never grants this."""
+        if not modules:
+            raise AptuniError("modules_required", "Choose at least one module for this source.")
+        for module in modules:
+            self._check_module(module)
+        if notebooks is not None and not notebooks:
+            raise AptuniError("notebooks_required", "Choose notebooks with --notebook, or pass --all-notebooks.")
+        spec = MarginNoteSourceSpec(store.expanduser().absolute(), None if notebooks is None else frozenset(notebooks))
+        seq, _ = self.snapshot()
+        try:
+            config = SourceConfig(record_type="source_config", id=new_id("src"), schema_version=1,
+                                  recorded_at=utc_now(), source_type="marginnote4", roots=spec.roots(),
+                                  semantic_role=role, module_mapping=modules,
+                                  authority=AuthorityPolicy(version=1, primary_for=primary_for))
+        except (ValidationError, ValueError) as error:
+            raise AptuniError("invalid_source", f"Invalid MarginNote source configuration: {error}") from error
+        self._commit([config], seq)
+        return config
+
     def sources(self) -> list[SourceConfig]:
         return [r for r in self.records().records() if r.record_type == "source_config"]
 
@@ -151,31 +191,23 @@ class SourceCommands:
         module = config.module_mapping[0]
         if not can_ingest(policy, module):
             raise AptuniError("module_ingest_disabled", f"Module '{module}' is not accepting new information.")
-        if config.source_type not in {"folder", "github"}:
+        if config.source_type not in {"folder", "github", "marginnote4"}:
             raise AptuniError("source_type_unsupported", f"Source type '{config.source_type}' is not runnable.")
         store = SourceStateStore(self.vault().root, config.id)
         state = store.load()
         state = self._recover_pending(store, state, records.ids())
         current = {e.provenance.locator.subject_id: e for e in records.current_evidence(config.id)}
-        if config.source_type == "folder":
-            ingest: FolderIngest | GitHubIngest = FolderIngest(
-                config, module, policy.epoch, current, existing_ids=records.ids())
-            parser = FOLDER_PARSER
-            provider_data: dict[str, Any] = {}
-        else:
-            try:
-                spec = GitHubSourceSpec.from_roots(config.roots)
-            except SourceIdentityError as error:
-                raise AptuniError("source_config_invalid", "The GitHub source configuration is invalid.") from error
-            ingest = GitHubIngest(config, module, policy.epoch, current, records.ids(), self._github_client(spec))
-            parser = GITHUB_PARSER
-            provider_data = {}
+        provider_data: dict[str, Any] = {}
+        ingest, parser = self._ingest_for(config, module, policy.epoch, current, records.ids())
         try:
             scan = ingest.scan(state)
             if config.source_type == "github":
                 provider_data = {"repository_id": scan.repository_id}  # type: ignore[union-attr]
         except (GitHubApiError, SourceIdentityError) as error:
             raise AptuniError("github_sync_failed", f"GitHub sync stopped safely ({error}).") from error
+        except MarginNoteStoreError as error:
+            message = MARGINNOTE_MESSAGES.get(str(error), "MarginNote sync stopped safely.")
+            raise AptuniError(str(error), message) from error
         guard = state.delivery if state else DeliveryGuard()
         try:
             if guard.admit(scan.delta) == "duplicate":
@@ -221,6 +253,33 @@ class SourceCommands:
             raise AptuniError("source_recovery_failed", "A source sync has a partial canonical commit.")
         store.clear_pending()
         return state
+
+    def _ingest_for(self, config: SourceConfig, module: str, epoch: int, current: dict[str, Any],
+                    ids: set[str]) -> tuple[FolderIngest | GitHubIngest | MarginNoteIngest, tuple[str, str]]:
+        if config.source_type == "marginnote4":
+            return self._marginnote_ingest(config, module, epoch, current, ids), MARGINNOTE_PARSER
+        if config.source_type == "folder":
+            return FolderIngest(config, module, epoch, current, existing_ids=ids), FOLDER_PARSER
+        try:
+            spec = GitHubSourceSpec.from_roots(config.roots)
+        except SourceIdentityError as error:
+            raise AptuniError("source_config_invalid", "The GitHub source configuration is invalid.") from error
+        return GitHubIngest(config, module, epoch, current, ids, self._github_client(spec)), GITHUB_PARSER
+
+    @staticmethod
+    def _marginnote_ingest(config: SourceConfig, module: str, epoch: int, current: dict[str, Any],
+                           ids: set[str]) -> MarginNoteIngest:
+        try:
+            ingest = MarginNoteIngest(config, module, epoch, current, ids)
+        except MarginNoteSpecError as error:
+            raise AptuniError("source_config_invalid", "The MarginNote source configuration is invalid.") from error
+        # A pure path-string check: touching the container here could block on the macOS prompt.
+        if os.path.abspath(ingest.spec.store).startswith(os.path.abspath(CONTAINER) + os.sep):
+            status = probe(CONTAINER).status  # never let a pending macOS prompt hang the sync
+            if status != "found":
+                code = f"marginnote_{status}"
+                raise AptuniError(code, MARGINNOTE_MESSAGES.get(code, "MarginNote is not reachable."))
+        return ingest
 
     @staticmethod
     def _github_client(spec: GitHubSourceSpec) -> GitHubApi:

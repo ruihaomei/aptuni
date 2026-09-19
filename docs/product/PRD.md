@@ -358,6 +358,15 @@ Reasons:
 
 MarginNote currently supports structured mind-map workflows and official Markdown / OPML export paths.
 
+> **Amendment 2026-09-19 (ADR-0015).** Current MarginNote 4 documentation does not clearly expose OPML
+> as a native export, and manual exports contradict automatic onboarding. The integration priority is:
+> (1) automatic, read-only discovery and sync from the local MarginNote 4 store after explicit
+> permission; (2) a minimal MarginNote Add-on/API bridge if the store is unreachable or its schema
+> drifts; (3) manual structured exports / `.marginpkg` as a compatibility path; never GUI export
+> automation. Native note and notebook IDs are the source identity. Aptuni stores a compact knowledge
+> digest (mind-map topology, learning path, coverage boundary, depth, source pages, study time), not
+> excerpt or comment text. The OPML reasoning below remains for the compatibility path.
+
 The integration should prefer OPML when hierarchy is important.
 
 Do NOT implement:

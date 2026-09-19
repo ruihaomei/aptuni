@@ -57,6 +57,19 @@ def test_cli_cancel_creates_no_grant_or_bundle(tmp_path: Path, monkeypatch: pyte
     assert not (manager.root / "bundles").exists()
 
 
+def test_memory_proposal_scope_is_explicit_and_digest_bound(tmp_path: Path) -> None:
+    _, _, manager = _ready(tmp_path)
+    default = manager.plan("codex", ("preferences",), allow_host_model_egress=True)
+    enabled = manager.plan("codex", ("preferences",), allow_host_model_egress=True,
+                           allow_memory_proposals=True)
+    assert "memory.propose" not in default.scopes
+    assert "memory.propose" in enabled.scopes
+    assert default.action_id != enabled.action_id and default.digest != enabled.digest
+    assert "stay hidden until you accept" in manager.preview(enabled)
+    grant, _ = manager.apply(enabled.action_id)
+    assert "memory.propose" in manager.load_grant(grant.grant_id).scopes
+
+
 def test_exact_ids_only_and_grant_drives_real_stdio(tmp_path: Path) -> None:
     workspace, _, manager = _ready(tmp_path)
     plan = manager.plan("codex", ("identity",), allow_host_model_egress=True)

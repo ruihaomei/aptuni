@@ -30,6 +30,8 @@ from aptuni.application.context import (
     unit_cost,
 )
 from aptuni.application.errors import AptuniError
+from aptuni.application.export import ExportReport, export_profile
+from aptuni.application.memory_commands import MemoryCommands
 from aptuni.application.source_commands import SourceCommands
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
@@ -78,7 +80,7 @@ class HostContextAccess:
     host_model_egress: bool
 
 
-class AptuniService(SourceCommands):
+class AptuniService(SourceCommands, MemoryCommands):
     def __init__(self, workspace: Workspace) -> None:
         self.workspace = workspace
         self._vault: Vault | None = None
@@ -158,6 +160,23 @@ class AptuniService(SourceCommands):
 
     def history(self) -> list[Any]:
         return [r for r in self.records().records() if r.record_type == "fact"]
+
+    def export(self, target: Path) -> ExportReport:
+        """Write a private, readable current-Profile copy outside the canonical Vault."""
+        vault_root = self.vault().root.resolve()
+        destination = target.expanduser().resolve(strict=False)
+        if destination == vault_root or vault_root in destination.parents:
+            raise AptuniError("export_inside_vault", "Choose an export folder outside the canonical Vault.")
+        seq, records = self.snapshot()
+        try:
+            return export_profile(records, seq, target)
+        except FileExistsError as error:
+            raise AptuniError(
+                "export_target_not_empty", "The export destination must be absent or an empty directory."
+            ) from error
+        except OSError as error:
+            message = "The Profile export could not be written; nothing was changed."
+            raise AptuniError("export_failed", message) from error
 
     # ---------------------------------------------------------------- retrieval projection
     def index_status(self) -> ProjectionStatus:

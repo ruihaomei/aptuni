@@ -69,7 +69,7 @@ def test_case_c_research_sources_get_researcher_and_optional_token() -> None:
     rec = recommend(answers(sources=frozenset({"github", "marginnote"}), hosts=frozenset({"claude_code", "codex"})),
                     load_catalog())
     assert rec.recipe_id == "researcher"
-    assert "source.github" in selected(rec)
+    assert {"source.github", "source.marginnote"} <= selected(rec)
     assert [key.env for key in rec.optional_api_keys] == ["GITHUB_TOKEN"]
     assert "https://api.github.com" in rec.network
     assert {"agent.claude_code", "agent.codex"} <= selected(rec)

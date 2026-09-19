@@ -70,10 +70,10 @@ uv run aptuni adapter apply ACTION_ID     # you confirm in your own terminal
 | GitHub source, Standard mode (bounded, exact commit provenance) | ✅ |
 | Bilingual (English + Chinese) local search, rebuildable index | ✅ |
 | Layered context (L0 identity card → L4 evidence) with a budget | ✅ |
-| MCP server over local STDIO, read-only and permission-checked | ✅ |
+| MCP server over local STDIO, permission-checked reads and quarantined memory proposals | ✅ |
 | Claude Code and Codex adapters | ✅ |
 | Plugin Advisor, Recipes, English / 简体中文 CLI | ✅ preview (`aptuni advise`) |
-| MarginNote source | 🔒 identity verified on real MarginNote history; waiting for one real OPML export to confirm the format |
+| MarginNote 4 source (macOS, direct read-only local sync, native IDs) | ✅ |
 | Obsidian source and UI, Mem0, hybrid retrieval, Graphiti | 🗺 Milestones 2–3 |
 
 Run `aptuni plugin list` and `aptuni recipe list` to see the same picture from the CLI.

@@ -80,6 +80,28 @@
       "supersedes": [
         "22-s05b-marginnote-reconciler-review.md"
       ]
+    },
+    "m1-marginnote4-source": {
+      "kind": "review",
+      "current": "25-m1-marginnote4-source-rereview.md",
+      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+      "supersedes": [
+        "24-m1-marginnote4-source-review.md"
+      ]
+    },
+    "m1-memory-lifecycle": {
+      "kind": "review",
+      "current": "28-m1-memory-lifecycle-rereview.md",
+      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+      "supersedes": [
+        "26-m1-memory-lifecycle-review.md"
+      ]
+    },
+    "m1-profile-export": {
+      "kind": "review",
+      "current": "27-m1-profile-export-review.md",
+      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+      "supersedes": []
     }
   }
 }

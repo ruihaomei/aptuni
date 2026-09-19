@@ -35,16 +35,17 @@ def test_tool_schema_has_no_caller_authority_or_approval(tmp_path: Path) -> None
         return [tool.model_dump(mode="json", exclude_none=True) for tool in await server.list_tools()]
 
     tools = anyio.run(collect)
-    assert [tool["name"] for tool in tools] == ["aptuni_health", "aptuni_get_identity_card", "aptuni_search_context"]
+    assert [tool["name"] for tool in tools] == [
+        "aptuni_health", "aptuni_get_identity_card", "aptuni_search_context", "aptuni_propose_memory"]
     serialized = json.dumps(tools, sort_keys=True)
-    for forbidden in ("principal", "approval", "nonce", "confirmation", "vault_path", "database"):
+    for forbidden in ("principal", "approval", "nonce", "confirmation", "vault_path", "database", "accept"):
         assert forbidden not in serialized
     for tool in tools:
         assert tool["annotations"] == {
             "destructive_hint": False,
             "idempotent_hint": True,
             "open_world_hint": False,
-            "read_only_hint": True,
+            "read_only_hint": tool["name"] != "aptuni_propose_memory",  # proposals only; review is terminal-only
         }
 
 
@@ -120,7 +121,7 @@ def test_real_stdio_health_default_deny_and_eof_shutdown(tmp_path: Path) -> None
         )
         async with Client(params) as client:
             tools = await client.list_tools()
-            assert len(tools.tools) == 3
+            assert len(tools.tools) == 4
             health = await client.call_tool("aptuni_health", {})
             assert health.structured_content == {
                 "schema_version": 1,

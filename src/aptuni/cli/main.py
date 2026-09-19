@@ -15,6 +15,8 @@ from aptuni.adapters.manager import AdapterManager
 from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService, Status
 from aptuni.application.workspace import DEFAULT_VAULT, Workspace
+from aptuni.cli.marginnote_commands import MARGINNOTE_COMMANDS, add_marginnote_parsers, cmd_marginnote
+from aptuni.cli.memory_cli import add_memory_commands, cmd_memory, cmd_observe
 from aptuni.cli.setup_commands import add_setup_commands, cmd_advise, cmd_plugin, cmd_recipe
 from aptuni.domain.invariants import InvariantError
 from aptuni.domain.records import MODULES, SchemaVersionError
@@ -49,6 +51,7 @@ def _add_source_commands(sub: Any) -> None:
                             help="GitHub API origin (GitHub Enterprise must use same-host /api/v3)")
     github_add.add_argument("--primary-for", action="append", default=[], metavar="DIMENSION")
     github_add.add_argument("--json", action="store_true")
+    add_marginnote_parsers(source_sub)
     source_list = source_sub.add_parser("list", help="list approved sources")
     source_list.add_argument("--json", action="store_true")
 
@@ -104,6 +107,8 @@ def _add_adapter_commands(sub: Any) -> None:
     plan.add_argument("host", choices=("claude", "codex"))
     plan.add_argument("--module", action="append", required=True, choices=MODULES, dest="modules")
     plan.add_argument("--allow-host-model-egress", action="store_true")
+    plan.add_argument("--allow-memory-proposals", action="store_true",
+                      help="let the agent propose memories that you review with 'aptuni memory'")
     plan.add_argument("--json", action="store_true")
     apply = adapter_sub.add_parser("apply", help="terminal-confirm one exact pending adapter plan")
     apply.add_argument("action_id")
@@ -156,6 +161,11 @@ def build_parser() -> argparse.ArgumentParser:
     _add_context_commands(sub)
     _add_adapter_commands(sub)
     add_setup_commands(sub)
+    add_memory_commands(sub)
+
+    export = sub.add_parser("export", help="write a private, readable copy of your current Profile")
+    export.add_argument("path", type=Path)
+    export.add_argument("--json", action="store_true")
 
     sub.add_parser("doctor", help="recover and fully verify the Vault")
     return parser
@@ -276,6 +286,8 @@ def _cmd_source(args: argparse.Namespace, service: AptuniService) -> int:
         else:
             print(f"Approved GitHub source {source.id}: {source.roots[0]}")
         return 0
+    if args.source_command in MARGINNOTE_COMMANDS:
+        return cmd_marginnote(args, service, _source_json)
     sources = service.sources()
     if args.json:
         _print_json([_source_json(source) for source in sources])
@@ -304,6 +316,13 @@ def _cmd_sync(args: argparse.Namespace, service: AptuniService) -> int:
     return 0
 
 
+def _open_url(locator: Any) -> str | None:
+    """Deep link back to the source card, derived (never stored) from the native note ID."""
+    if locator.provider == "marginnote" and locator.extension.version == 2:
+        return f"marginnote4app://note/{locator.extension.fields['note_id']}"
+    return None
+
+
 def _cmd_evidence(args: argparse.Namespace, service: AptuniService) -> int:
     evidence = service.evidence(args.source_id)
     values = [
@@ -314,6 +333,8 @@ def _cmd_evidence(args: argparse.Namespace, service: AptuniService) -> int:
             "relative_path": item.provenance.locator.extension.fields.get(
                 "relative_path", item.provenance.locator.extension.fields.get("path")
             ),
+            "subject": item.subject,
+            "open_url": _open_url(item.provenance.locator),
             "signals": list(item.signals),
             "excerpt": item.excerpt,
             "content_hash": item.content_hash,
@@ -327,7 +348,8 @@ def _cmd_evidence(args: argparse.Namespace, service: AptuniService) -> int:
         print("No current evidence.")
     else:
         for item in values:
-            print(f"{item['id']}  [{item['module']}]  {item['relative_path']}  {', '.join(item['signals'])}")
+            where = item["relative_path"] or item["subject"]
+            print(f"{item['id']}  [{item['module']}]  {where}  {', '.join(item['signals'])}")
     return 0
 
 
@@ -462,6 +484,7 @@ def _cmd_adapter(args: argparse.Namespace, service: AptuniService) -> int:
             args.host,
             tuple(args.modules),
             allow_host_model_egress=args.allow_host_model_egress,
+            allow_memory_proposals=args.allow_memory_proposals,
         )
         if args.json:
             _print_json({
@@ -512,6 +535,27 @@ def _cmd_doctor(args: argparse.Namespace, service: AptuniService) -> int:
     return 2
 
 
+def _cmd_export(args: argparse.Namespace, service: AptuniService) -> int:
+    report = service.export(args.path)
+    value = {
+        "path": str(report.path),
+        "files": report.files,
+        "facts": report.facts,
+        "memories": report.memories,
+        "evidence": report.evidence,
+        "omitted_full_content": report.omitted_full_content,
+    }
+    if args.json:
+        _print_json(value)
+    else:
+        print(f"Exported current Profile to {report.path}: facts={report.facts}, memories={report.memories}, "
+              f"evidence={report.evidence}.")
+        if report.omitted_full_content:
+            print(f"Omitted {report.omitted_full_content} full-content source record(s) for privacy.")
+        print("This copy is not tracked by Aptuni and is not a restorable Vault backup.")
+    return 0
+
+
 COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "init": _cmd_init,
     "status": _cmd_status,
@@ -533,6 +577,9 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "plugin": cmd_plugin,
     "recipe": cmd_recipe,
     "advise": cmd_advise,
+    "observe": cmd_observe,
+    "memory": cmd_memory,
+    "export": _cmd_export,
 }
 
 
@@ -547,6 +594,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run(sys.argv[1:] if argv is None else argv, service)
     except AptuniError as error:
         print(f"aptuni: {error.message}", file=sys.stderr)
+        return 1
+    except BrokenPipeError:
+        # The reader (for example ``| head``) closed the pipe; this is not a Vault problem.
+        os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
         return 1
     except UNSAFE_STATE_ERRORS as error:
         # Last-line boundary (review 19 N2): never print a traceback or the exception text, which can

@@ -17,6 +17,7 @@ from aptuni.domain.records import MODULES
 
 Host = Literal["claude", "codex"]
 SCOPES = ("identity.read", "context.read", "evidence.read")
+PROPOSE_SCOPE = "memory.propose"  # quarantined proposals only; approval stays in the owner's terminal
 
 
 @dataclass(frozen=True)
@@ -70,6 +71,7 @@ class AdapterManager:
         modules: tuple[str, ...],
         *,
         allow_host_model_egress: bool,
+        allow_memory_proposals: bool = False,
     ) -> AdapterPlan:
         if host not in ("claude", "codex"):
             raise AptuniError("unknown_host", "Choose claude or codex.")
@@ -84,6 +86,7 @@ class AdapterManager:
         operator = "Anthropic" if host == "claude" else "OpenAI"
         destination = "Claude Code configured model endpoint" if host == "claude" else "Codex configured model endpoint"
         host_value = cast(Host, host)
+        scopes = (*SCOPES, PROPOSE_SCOPE) if allow_memory_proposals else SCOPES
         payload = {
             "host": host_value,
             "host_model_egress": True,
@@ -91,11 +94,11 @@ class AdapterManager:
             "operator": operator,
             "destination": destination,
             "retention": "externally_controlled_unknown",
-            "scopes": SCOPES,
+            "scopes": scopes,
         }
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
         plan = AdapterPlan(
-            "act-" + digest[:16], digest, host_value, f"{host}-adapter", unique, SCOPES, True,
+            "act-" + digest[:16], digest, host_value, f"{host}-adapter", unique, scopes, True,
             operator, destination, "externally_controlled_unknown",
         )
         self._write_json(self.root / "pending" / f"{plan.action_id}.json", asdict(plan), mode=0o600)
@@ -166,6 +169,9 @@ class AdapterManager:
             f"Modules ({len(plan.modules)}): {', '.join(plan.modules)}\n"
             f"Scopes: {', '.join(plan.scopes)}\nHost/model egress: allowed\nOperator: {plan.operator}\n"
             f"Destination: {plan.destination}\nRetention/deletion: externally controlled; details unknown\n"
+            + ("Memory proposals: the agent may propose memories; they stay hidden until you accept them "
+               "with 'aptuni memory accept'\n" if PROPOSE_SCOPE in plan.scopes else "")
+            +
             "Effect: create an Aptuni-owned grant and adapter bundle; host config is not modified."
         )
 
