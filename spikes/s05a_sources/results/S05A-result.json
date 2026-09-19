@@ -15,22 +15,22 @@
     },
     "identical_replay_is_idempotent": {
       "all_passed": true,
-      "tests": 8
+      "tests": 11
     },
     "source_identity_fits_versioned_extensions": {
       "all_passed": true,
-      "tests": 8
+      "tests": 9
     },
     "truncation_is_explicit": {
       "all_passed": true,
-      "tests": 2
+      "tests": 3
     },
     "unknown_or_ambiguous_identity_is_reviewable": {
       "all_passed": true,
-      "tests": 11
+      "tests": 12
     }
   },
   "spike": "S05A",
   "status": "PASS",
-  "tests_run": 87
+  "tests_run": 94
 }

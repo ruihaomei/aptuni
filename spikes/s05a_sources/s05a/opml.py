@@ -234,7 +234,8 @@ def scan_opml(
     ordered = tuple(sorted(items, key=lambda item: item.locator.subject_id))
     coverage = "partial" if branch else "complete"
     snapshot = Snapshot(snapshot_id_for(source_id, coverage, ordered), source_id, coverage, ordered)
-    delta = CandidateDelta.build(source_id, base_id, snapshot.snapshot_id, parser, tuple(ops))
+    sequence = previous.delta.sequence + 1 if previous else 1
+    delta = CandidateDelta.build(source_id, base_id, snapshot.snapshot_id, parser, tuple(ops), sequence)
     return OpmlScan(snapshot, delta, parser)
 
 

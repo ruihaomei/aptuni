@@ -80,5 +80,6 @@ def scan_folder(
         result.snapshot.snapshot_id,
         parser,
         result.operations,
+        sequence=previous.delta.sequence + 1 if previous else 1,
     )
     return FolderScan(result.snapshot, delta, parser, tuple(sorted(notes)))

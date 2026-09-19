@@ -1,6 +1,7 @@
 # S05A result — common source identity contract
 
-**Result:** PASS after review round 1 BLOCK remediation (`S05A-review-round1.md`); round-2 re-review pending
+**Result:** PASS after review rounds 1 and 2 BLOCK remediation (`S05A-review-round1.md`,
+`S05A-review-round2.md`); round-3 re-review pending
 
 **Run date:** 2026-09-19
 
@@ -17,15 +18,15 @@ invariants for each provider?
 
 ## Measured facts
 
-`run_s05a.py` ran 87 tests and passed; 15 of them are regressions for review round 1. Each
+`run_s05a.py` ran 94 tests and passed; 22 of them are regressions for review rounds 1 and 2. Each
 acceptance criterion maps to named tests, and a missing or failing mapped test fails the run (`spikes/s05a_sources/results/S05A-result.json`).
 
 | Criterion (SPIKES.md) | Evidence |
 |---|---|
-| Identical replay is idempotent | `delta_id` is content-addressed. Replaying a scan gives a byte-identical delta for all three providers. The ledger applies a delta when its base is the current head, and treats it as a duplicate only if it was already applied and its `new_snapshot` is the head. That makes a content flip-flop (A→B→A→B) apply correctly. Intake recomputes `delta_id`, so a mutated delta is rejected. Replaying a whole history, including duplicate delivery, gives the same state digest. |
+| Identical replay is idempotent | `delta_id` is content-addressed. Replaying a scan gives a byte-identical delta for all three providers. Each delta carries a per-source `sequence`, and that sequence is part of `delta_id`, so every delivery gets a distinct id even when content goes A→B→A→B. The ledger treats a known `delta_id` as a duplicate, in or out of order, including a late redelivery after a content cycle. It applies a new delta only when its base is the current head and its sequence is the next one; a gap is rejected. Intake recomputes `delta_id`, so a mutated delta is rejected. Replaying a whole history, including in-order and late duplicate delivery, gives the same state digest. |
 | Source identity fits versioned extensions | `folder.locator@1`, `marginnote.locator@1` and `github.locator@1` validate through one registry. Common invariants never read provider fields. Intake gates every operation through the registry: an unknown extension version round-trips losslessly and goes to review, and an invalid understood locator is rejected before any state changes. Candidates are allowed only on `ambiguous`, and each subject gets at most one operation per delta. |
 | Unknown/ambiguous identity is reviewable | Duplicate-hash renames, indistinguishable OPML duplicates, same-position leaf edits, and any would-be move under partial coverage (Folder bound, truncated GitHub tree, OPML branch export) become `ambiguous` + `needs_review`, with at least 2 candidates. A single-child OPML signature is too weak to link parents. A rename+edit is not silently linked. A different repository under one source is refused. Ambiguous items enter the review queue. |
-| Disappearance never deletes facts | `remove` is only a `tombstone_proposal`. Partial coverage never produces removals: a Folder file-count bound, an OPML branch export, a truncated GitHub tree, or a sticky selection that drops a known item. A sticky GitHub item renamed to an unselected path gets priority for a slot and becomes a `move`. Old items named as ambiguity candidates are carried forward `held`: never re-matched or tombstoned. A held Folder/GitHub item re-observed at its own key with its own bytes is released with its identity. When a delta arrives, the ledger withdraws evidence and marks dependent facts `needs_reevaluation`. It never deletes or rewrites facts. |
+| Disappearance never deletes facts | `remove` is only a `tombstone_proposal`. Partial coverage never produces removals: a Folder file-count bound, an OPML branch export, a truncated GitHub tree, or a sticky selection that drops a known item. A sticky GitHub item renamed to an unselected path gets priority for a slot and becomes a `move`. Old items named as ambiguity candidates are carried forward `held`: never re-matched or tombstoned. A held Folder/GitHub item re-observed at its own key keeps its identity. If its bytes changed, that is a reviewable `modify` (`held_item_changed`), not a silent `add`. When a delta arrives, the ledger withdraws evidence and marks dependent facts `needs_reevaluation`. It never deletes or rewrites facts. |
 | Authority conflicts and locators round-trip | The envelope, `SourceConfig` and `Resolution` round-trip through JSON. A sole configured primary supersedes only within its dimension. Absent or multiple primaries give parallel review, and 0.99 confidence does not override that. A policy-version change before commit forces review. |
 | Truncation is explicit | A truncated tree gives coverage `partial` plus a `tree_truncated` note. Standard selection is bounded, deterministic under input shuffling, prioritized (README → manifests → source) and sticky. |
 
@@ -50,17 +51,19 @@ Per-provider identity behaviour exercised:
    complete coverage, and a partial snapshot carries unobserved items forward unchanged.
 2. `ambiguous` needs at least 2 candidates. When a single old item might match, the new
    provisional ID is the second candidate ("same as old" vs "genuinely new").
-3. `delta_id` must be content-addressed over the canonical envelope. It identifies content, not
-   the delivery event, because it repeats on A→B→A→B. Intake must therefore check
-   `base_snapshot` == current head *before* checking for duplicates, and recompute `delta_id`
-   itself.
+3. Snapshot ids are content-addressed, so they repeat when content cycles. The envelope therefore
+   needs a per-source monotonic `sequence`, and `delta_id` has to cover it so one id means one
+   delivery. Intake de-duplicates by `delta_id`, requires `base_snapshot` == head plus the next
+   `sequence`, and recomputes `delta_id` itself.
 4. Provider identity lives in `<provider>.locator@<version>` extensions, validated by a registry.
    An unknown version is preserved, not dropped, and gated to review.
 5. The OPML manifest needs `parent_node_id`, `children_signature` and `sibling_index` besides
    `ancestor_path`. Move/modify is decided from final parent *identity*, not ancestor text,
    otherwise renaming a parent would look like moving its children.
 6. GitHub Standard selection must be sticky. A known item that is merely unselected is a coverage
-   gap, not a disappearance. A blob that vanished from a sticky path claims a slot first.
+   gap, not a disappearance. A blob that vanished from a sticky path claims a slot first, but only
+   when exactly one fresh path has that blob, so a common blob such as an empty file can't flood
+   the budget.
 7. `SnapshotItem` needs a `held` flag. Review-reserved old items must survive later scans, and
    under partial coverage an unobserved item is never a move source.
 8. The registry gate belongs at canonical intake, not only in provider tests.
@@ -81,7 +84,15 @@ Per-provider identity behaviour exercised:
   item is re-observed at its own key. The resolution command that re-keys, releases or tombstones
   them is Foundation Slice 7 work (with the review UI).
 - OPML child-signature linkage uses exact multisets of at least 2 children, not a similarity
-  threshold. OPML held nodes are never auto-released.
+  threshold. OPML held nodes are never auto-released, so repeated edits or reverts of one card add
+  a held node and a review item each time. Held items grow without bound until the Slice 7 review
+  loop exists.
+- On an OPML branch export, demotion cascades: descendants of a demoted node are demoted too. One
+  branch export after a legitimate subtree move can therefore split that subtree's identity (new
+  provisional IDs, originals held) until review resolves it. Full exports keep it a single `move`.
+- When a hold is released, any queued review item that names the held subject can go stale, for
+  example when its provisional `after` subject is later tombstoned. The Slice 7 review loop must
+  detect and close stale items.
 - Behaviours to know: a content swap between two paths is two `modify` ops (path identity), and a
   vendor-attribute churn re-export emits `modify (attributes_changed)` on every node. That flags
   dependent facts for re-evaluation without changing identity.

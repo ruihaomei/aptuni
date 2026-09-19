@@ -10,6 +10,7 @@ coverage is partial, which never proves disappearance.
 from __future__ import annotations
 
 import re
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
@@ -86,9 +87,12 @@ def scan_github(
         for item in (previous.snapshot.items if previous else ())
         if not item.held and item.locator.extension.fields["path"] not in blobs
     }
-    fresh = sorted((path for path in blobs if path not in previous_reasons),
-                   key=lambda path: (blobs[path] not in vanished_blobs, _selection_reason(path)[0],
-                                     path.count("/"), path))
+    fresh_paths = [path for path in blobs if path not in previous_reasons]
+    fresh_per_blob = Counter(blobs[path] for path in fresh_paths)
+    # Only an unambiguous rename target is prioritized; a common blob (e.g. empty file) cannot flood.
+    priority = {blob for blob in vanished_blobs if fresh_per_blob[blob] == 1}
+    fresh = sorted(fresh_paths, key=lambda path: (blobs[path] not in priority, _selection_reason(path)[0],
+                                                  path.count("/"), path))
     selected = (sticky + fresh)[:budget]
     notes = {"tree_truncated"} if truncated else set()
     dropped = set(sticky) - set(selected)
@@ -116,5 +120,6 @@ def scan_github(
         result.snapshot.snapshot_id,
         parser,
         result.operations,
+        sequence=previous.delta.sequence + 1 if previous else 1,
     )
     return GitHubScan(result.snapshot, delta, parser, repository_id, tuple(sorted(notes)))

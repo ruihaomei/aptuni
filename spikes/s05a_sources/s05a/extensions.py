@@ -41,13 +41,13 @@ class ExtensionRegistry:
             raise ContractError("extension_field_unexpected")
 
     def gate(self, op: Operation) -> Operation:
-        """Validate understood locators; route not-understood versions to review."""
-        for locator in (op.before, op.after):
-            if locator is None:
-                continue
-            if not self.understands(locator.extension):
-                return op.needing_review("extension_version_unknown")
-            self.validate(locator.extension)
+        """Validate every understood locator; route not-understood versions to review."""
+        locators = [loc for loc in (op.before, op.after) if loc is not None]
+        for locator in locators:
+            if self.understands(locator.extension):
+                self.validate(locator.extension)
+        if any(not self.understands(loc.extension) for loc in locators):
+            return op.needing_review("extension_version_unknown")
         return op
 
 

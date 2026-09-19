@@ -30,6 +30,9 @@ CRITERIA: dict[str, list[str]] = {
         "test_ledger.LedgerTests.test_full_sequence_replay_reproduces_the_same_state",
         "test_hardening.LedgerOrderingTests.test_content_flip_flop_is_applied_not_swallowed",
         "test_hardening.LedgerOrderingTests.test_mutated_delta_fails_integrity_check",
+        "test_round2.DeliveryIdentityTests.test_sequence_makes_repeated_content_transitions_distinct_deliveries",
+        "test_round2.DeliveryIdentityTests.test_late_redelivery_after_content_cycle_is_a_duplicate_not_reapplied",
+        "test_round2.DeliveryIdentityTests.test_sequence_gap_is_rejected",
     ],
     "source_identity_fits_versioned_extensions": [
         "test_contract.ExtensionRegistryTests.test_three_provider_families_validate_through_one_common_contract",
@@ -40,6 +43,7 @@ CRITERIA: dict[str, list[str]] = {
         "test_hardening.LedgerOrderingTests.test_intake_gates_unknown_versions_to_review_and_rejects_invalid",
         "test_hardening.RecordInvariantTests.test_candidates_only_on_ambiguous",
         "test_hardening.RecordInvariantTests.test_one_operation_per_subject_per_delta",
+        "test_round2.GateTests.test_understood_locator_is_validated_even_when_the_other_is_unknown",
     ],
     "unknown_or_ambiguous_identity_is_reviewable": [
         "test_contract.OperationInvariantTests.test_ambiguous_has_no_subject_and_needs_review",
@@ -53,6 +57,7 @@ CRITERIA: dict[str, list[str]] = {
         "test_hardening.PartialCoverageTests.test_truncated_github_tree_never_moves_an_unlisted_identity",
         "test_hardening.PartialCoverageTests.test_opml_branch_copy_is_not_a_silent_move",
         "test_hardening.OpmlWeakSignatureTests.test_single_generic_child_does_not_link_unrelated_parents",
+        "test_round2.HeldItemEditTests.test_held_item_edited_while_unobserved_is_a_reviewable_modify_of_its_identity",
     ],
     "disappearance_never_deletes_facts": [
         "test_contract.OperationInvariantTests.test_remove_is_only_a_tombstone_proposal",
@@ -76,6 +81,7 @@ CRITERIA: dict[str, list[str]] = {
     "truncation_is_explicit": [
         "test_github.GitHubIdentityTests.test_truncated_tree_is_partial_and_never_removes",
         "test_github.GitHubSelectionTests.test_selection_is_bounded_deterministic_and_prioritized",
+        "test_round2.GitHubPriorityTests.test_common_vanished_blob_does_not_flood_the_budget",
     ],
 }
 

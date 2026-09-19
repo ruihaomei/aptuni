@@ -183,9 +183,12 @@ class CandidateDelta:
     new_snapshot: str
     parser: tuple[str, str]
     operations: tuple[Operation, ...]
+    sequence: int = 1  # per-source delivery counter: content ids repeat on A->B->A->B
     delta_id: str = field(default="")
 
     def __post_init__(self) -> None:
+        if type(self.sequence) is not int or self.sequence < 1:
+            raise ContractError("sequence_invalid")
         object.__setattr__(self, "parser", tuple(self.parser))
         object.__setattr__(self, "operations", tuple(self.operations))
         touched = [op.subject_id or op.after.subject_id for op in self.operations if op.after or op.subject_id]
@@ -206,9 +209,11 @@ class CandidateDelta:
         new_snapshot: str,
         parser: tuple[str, str],
         operations: tuple[Operation, ...],
+        sequence: int = 1,
     ) -> CandidateDelta:
-        draft = _Draft(source_id, base_snapshot, new_snapshot, tuple(parser), tuple(operations))
-        return cls(source_id, base_snapshot, new_snapshot, parser, tuple(operations), compute_delta_id(draft))
+        draft = _Draft(source_id, base_snapshot, new_snapshot, tuple(parser), tuple(operations), sequence)
+        return cls(source_id, base_snapshot, new_snapshot, parser, tuple(operations), sequence,
+                   compute_delta_id(draft))
 
 
 @dataclass(frozen=True)
@@ -218,6 +223,7 @@ class _Draft:
     new_snapshot: str
     parser: tuple[str, str]
     operations: tuple[Operation, ...]
+    sequence: int
 
 
 def compute_delta_id(delta: CandidateDelta | _Draft) -> str:
@@ -229,5 +235,6 @@ def compute_delta_id(delta: CandidateDelta | _Draft) -> str:
         "new_snapshot": delta.new_snapshot,
         "parser": list(delta.parser),
         "operations": [operation_to_dict(op) for op in delta.operations],
+        "sequence": delta.sequence,
     }
     return hashlib.sha256(canonical_json(body).encode("utf-8")).hexdigest()

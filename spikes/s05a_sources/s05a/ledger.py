@@ -4,10 +4,11 @@ Facts are never created, rewritten or deleted by source deltas. Deltas only
 move source heads, withdraw or refresh evidence, flag dependent facts for
 re-evaluation and queue review items.
 
-Ordering: a delta whose ``base_snapshot`` is the current head is applied (even if
-an identical content-addressed delta was applied earlier, e.g. A->B->A->B); an
-already-applied delta whose ``new_snapshot`` is the head is a duplicate; anything
-else is stale. Intake recomputes ``delta_id`` and gates every operation through
+Ordering: ``delta_id`` covers a per-source ``sequence``, so it identifies one
+delivery even when content cycles (A->B->A->B). An already-applied ``delta_id``
+is a duplicate (in or out of order). A new delta applies only when its
+``base_snapshot`` is the current head and its ``sequence`` is the next one;
+anything else is stale. Intake recomputes ``delta_id`` and gates every operation through
 the extension registry before mutating any state.
 """
 
@@ -41,6 +42,7 @@ class Ledger:
         self.registry = registry or default_registry()
         self.applied: set[str] = set()
         self.heads: dict[str, str] = {}
+        self.sequences: dict[str, int] = {}
         self.facts: dict[str, Fact] = {}
         self.tombstones: set[EvidenceRef] = set()
         self.review_queue: list[Operation] = []
@@ -51,15 +53,16 @@ class Ledger:
     def apply(self, delta: CandidateDelta) -> str:
         if compute_delta_id(delta) != delta.delta_id:
             raise LedgerError("delta_integrity_failed")
-        head = self.heads.get(delta.source_id)
-        if head != delta.base_snapshot:
-            if delta.delta_id in self.applied and head == delta.new_snapshot:
-                return "duplicate"
-            raise LedgerError("stale_base_snapshot")
+        if delta.delta_id in self.applied:
+            return "duplicate"
+        expected_sequence = self.sequences.get(delta.source_id, 0) + 1
+        if self.heads.get(delta.source_id) != delta.base_snapshot or delta.sequence != expected_sequence:
+            raise LedgerError("stale_or_out_of_order_delta")
         gated = [self.registry.gate(op) for op in delta.operations]  # validate all before mutating
         for op in gated:
             self._apply_operation(delta.source_id, op)
         self.heads[delta.source_id] = delta.new_snapshot
+        self.sequences[delta.source_id] = delta.sequence
         self.applied.add(delta.delta_id)
         return "applied"
 
@@ -85,6 +88,7 @@ class Ledger:
         body = {
             "applied": sorted(self.applied),
             "heads": self.heads,
+            "sequences": self.sequences,
             "facts": {
                 fid: [f.statement, [list(e) for e in f.evidence], f.status, sorted(map(list, f.withdrawn_evidence))]
                 for fid, f in sorted(self.facts.items())

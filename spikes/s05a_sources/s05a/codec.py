@@ -86,6 +86,7 @@ def delta_to_json(delta: CandidateDelta) -> str:
             "new_snapshot": delta.new_snapshot,
             "parser": list(delta.parser),
             "operations": [operation_to_dict(op) for op in delta.operations],
+            "sequence": delta.sequence,
         }
     )
 
@@ -100,5 +101,6 @@ def delta_from_json(text: str) -> CandidateDelta:
         new_snapshot=data["new_snapshot"],
         parser=tuple(data["parser"]),
         operations=tuple(operation_from_dict(item) for item in data["operations"]),
+        sequence=data["sequence"],
         delta_id=data["delta_id"],
     )

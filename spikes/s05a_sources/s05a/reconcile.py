@@ -10,7 +10,8 @@ Rules (conservative, ADR-0006; hardened by S05A review round 1):
 - several vanished/new items share a hash -> ``ambiguous``
 - old items named as ambiguity candidates are carried forward ``held``: never
   re-matched or tombstoned until review resolves them; a held item re-observed
-  at its own key with its own bytes is released with its identity
+  at its own key is released with its identity (changed bytes -> reviewable
+  ``modify`` with ``held_item_changed``)
 - other new keys -> ``add``; other vanished keys -> ``remove`` (tombstone
   proposal) only under complete coverage, otherwise carried forward
 """
@@ -88,16 +89,21 @@ class _Run:
         return SourceLocator(self.spec.source_id, self.spec.provider, subject, extension)
 
     def release_held(self) -> None:
-        """A held item seen again at its own key with its own bytes keeps its identity."""
+        """A held item seen again at its own key keeps its identity; changed bytes go to review."""
         still_held = []
         for item in self.held:
             key = item.locator.extension.fields[self.spec.key_field]
             new = self.new_by_key.get(key)
-            if new is not None and key not in self.old_by_key and new.content_hash == item.content_hash:
-                self.items.append(SnapshotItem(self.locator(item.locator.subject_id, new), new.content_hash))
-                del self.new_by_key[key]
-            else:
+            if new is None or key in self.old_by_key:
                 still_held.append(item)
+                continue
+            after = self.locator(item.locator.subject_id, new)
+            self.items.append(SnapshotItem(after, new.content_hash))
+            if new.content_hash != item.content_hash:
+                self.ops.append(Operation.modify(item.locator, after, new.content_hash,
+                                                 reasons=("content_changed", "held_item_changed"),
+                                                 review_state="needs_review"))
+            del self.new_by_key[key]
         self.held = still_held
 
     def same_keys(self, parser_changed: bool) -> None:

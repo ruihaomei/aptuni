@@ -60,7 +60,7 @@ class LedgerOrderingTests(unittest.TestCase):  # F1, F4, F6
         s3 = self.fx.scan(s2)
         self.fx.write("a.md", "v2")
         s4 = self.fx.scan(s3)
-        self.assertEqual(s2.delta.delta_id, s4.delta.delta_id)
+        self.assertNotEqual(s2.delta.delta_id, s4.delta.delta_id)  # round 2 F1: sequence is part of the id
         for delta in (s2.delta, s3.delta):
             ledger.apply(delta)
         ledger.facts["f"].status = "active"  # reviewed in between
@@ -85,7 +85,8 @@ class LedgerOrderingTests(unittest.TestCase):  # F1, F4, F6
         self.assertEqual(["extension_version_unknown"], [r for op in ledger.review_queue for r in op.reasons])
         bad = SourceLocator("src-folder", "folder", "d2", Extension("folder.locator", 1, {"relative_path": "a", "x": 1}))
         with self.assertRaises(ContractError):
-            ledger.apply(CandidateDelta.build("src-folder", "s1", "s2", ("p", "1"), (Operation.add(bad, "h"),)))
+            ledger.apply(CandidateDelta.build("src-folder", "s1", "s2", ("p", "1"), (Operation.add(bad, "h"),),
+                                             sequence=2))
 
 
 class RecordInvariantTests(unittest.TestCase):  # F7
