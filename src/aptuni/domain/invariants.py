@@ -174,6 +174,12 @@ class RecordSet:
                 result.append(fact)
         return result
 
+    def current_evidence(self, source_id: str | None = None) -> list[Any]:
+        """Latest Evidence version per source subject (retraction markers included)."""
+        superseded = self._superseding_kinds(self._records)
+        return [r for r in self._records if r.record_type == "evidence" and r.id not in superseded
+                and (source_id is None or r.provenance.source_id == source_id)]
+
     def policy(self, as_known_at: datetime | None = None) -> ModulePolicy | None:
         policies = [r for r in self._known(as_known_at) if r.record_type == "module_policy"]
         return max(policies, key=lambda p: (p.epoch, p.recorded_at)) if policies else None
@@ -192,9 +198,12 @@ class RecordSet:
         for record in known:
             if record.record_type not in EXPOSABLE_TYPES or record.id in superseded or record.id in withdrawn:
                 continue
-            if record.record_type == "fact" and record.change_kind == "retraction":
+            if record.record_type in ("fact", "evidence") and record.change_kind == "retraction":
                 continue
-            if record.record_type == "memory" and record.candidate_id not in accepted:
+            if getattr(record, "review_status", None) in ("quarantined", "pending_review"):
+                continue
+            if record.record_type == "memory" and (record.candidate_id not in accepted
+                                                   or record.candidate_id in withdrawn):
                 continue
             if not policy.modules[record.module].expose_enabled:
                 continue

@@ -1,11 +1,14 @@
 """Application service: the single entry point used by the CLI (and later MCP and the SDK).
 
-Every write goes through the Vault's validated, atomic commit. The owner sees all current facts;
-agent-facing views go through ``exposable()`` and the module policy (fail closed).
+Every command decides on one consistent ``(seq, records)`` snapshot and commits with that
+``expected_seq``. A concurrent writer therefore turns a stale decision into ``concurrent_write``
+instead of a lost update (review 16 F1). The owner sees all current facts; agent-facing views go
+through ``exposable()`` and the module policy (fail closed).
 """
 
 from __future__ import annotations
 
+import json
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
@@ -15,18 +18,20 @@ from typing import Any
 from pydantic import ValidationError
 
 from aptuni.application.errors import AptuniError
+from aptuni.application.source_commands import SourceCommands
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
 from aptuni.domain.invariants import InvariantError, RecordSet
-from aptuni.domain.records import MODULES, Fact, ModulePolicy, Provenance, RetentionLabel
+from aptuni.domain.records import MODULES, Fact, ModulePolicy, Provenance, RetentionLabel, SchemaVersionError
 from aptuni.domain.temporal import utc_now
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
 from aptuni.vault.fsgate import UnsupportedFilesystemError
-from aptuni.vault.store import ConflictError, Vault, VerifyReport
+from aptuni.vault.store import ConflictError, Vault, VaultDirNotEmptyError, VaultIntegrityError, VerifyReport
 
 CLI_EPISODE = "cli"
 DECLARED_RETENTION = RetentionLabel(retention_class="canonical", purpose="user_declared_profile",
                                     expires_at=None, full_content=False)
+UNREADABLE = (VaultIntegrityError, SchemaVersionError, UnsupportedFilesystemError, json.JSONDecodeError, KeyError)
 
 
 @dataclass(frozen=True)
@@ -39,7 +44,7 @@ class Status:
     modules: dict[str, tuple[bool, bool]]  # module -> (ingest, expose)
 
 
-class AptuniService:
+class AptuniService(SourceCommands):
     def __init__(self, workspace: Workspace) -> None:
         self.workspace = workspace
         self._vault: Vault | None = None
@@ -54,6 +59,9 @@ class AptuniService:
             raise AptuniError("vault_exists", f"A Vault already exists at {vault_path}.")
         try:
             vault = Vault.init(vault_path, state)
+        except VaultDirNotEmptyError as error:
+            raise AptuniError("vault_dir_not_empty",
+                              f"{vault_path} is not empty. Choose a new or empty folder for your Vault.") from error
         except UnsupportedFilesystemError as error:
             raise AptuniError("unsupported_filesystem", str(error)) from error
         vault.commit([default_policy()], expected_seq=0)
@@ -63,40 +71,52 @@ class AptuniService:
 
     def vault(self) -> Vault:
         if self._vault is None:
-            path = self.workspace.vault_path()
+            try:
+                path = self.workspace.vault_path()
+            except UNREADABLE as error:
+                raise AptuniError("config_unreadable", f"Aptuni config is unreadable: {error}") from error
             if path is None:
                 raise AptuniError("not_initialized", "No Vault configured. Run `aptuni init` first.")
             try:
                 self._vault = Vault.open(path, self.workspace.state_dir)
             except FileNotFoundError as error:
                 raise AptuniError("vault_missing", f"The configured Vault is missing: {path}") from error
+            except UNREADABLE as error:
+                message = f"The Vault cannot be read ({error}). Run `aptuni doctor`."
+                raise AptuniError("vault_unreadable", message) from error
         return self._vault
+
+    def snapshot(self) -> tuple[int, RecordSet]:
+        try:
+            return self.vault().snapshot()
+        except UNREADABLE as error:
+            message = f"The Vault cannot be read ({error}). Run `aptuni doctor`."
+            raise AptuniError("vault_unreadable", message) from error
 
     # ---------------------------------------------------------------- queries
     def records(self) -> RecordSet:
-        return self.vault().record_set()
+        return self.snapshot()[1]
 
-    def policy(self) -> ModulePolicy:
-        policy = self.records().policy()
+    @staticmethod
+    def policy_of(records: RecordSet) -> ModulePolicy:
+        policy = records.policy()
         if policy is None:
             raise AptuniError("policy_missing", "The Vault has no module policy; run `aptuni doctor`.")
         return policy
 
     def status(self) -> Status:
-        vault = self.vault()
-        records = vault.record_set()
+        seq, records = self.snapshot()
         policy = records.policy()
+        vault = self.vault()
         return Status(
-            vault_path=vault.root, state_dir=vault.state_dir, seq=vault.head().seq,
-            policy_epoch=policy.epoch if policy else 0,
+            vault_path=vault.root, state_dir=vault.state_dir, seq=seq, policy_epoch=policy.epoch if policy else 0,
             counts=dict(Counter(r.record_type for r in records.records())),
             modules={m: (s.ingest_enabled, s.expose_enabled) for m, s in (policy.modules if policy else {}).items()},
         )
 
     def facts(self, module: str | None = None, as_known_at: datetime | None = None) -> list[Any]:
         """Current facts as the owner sees them (including modules hidden from agents)."""
-        facts = self.records().current_facts(as_known_at)
-        return [f for f in facts if module is None or f.module == module]
+        return [f for f in self.records().current_facts(as_known_at) if module is None or f.module == module]
 
     def exposable(self) -> list[Any]:
         """What an agent may see under the current policy (fail closed)."""
@@ -110,35 +130,38 @@ class AptuniService:
                  valid_until: str | None = None) -> Fact:
         """Record a user-declared fact about yourself."""
         self._check_module(module)
-        policy = self.policy()
-        if not can_ingest(policy, module):
-            raise AptuniError("module_ingest_disabled", f"Module '{module}' is not accepting new information.")
+        seq, records = self.snapshot()
+        policy = self._ingest_policy(records, module)
         fact = self._fact(statement, module, policy.epoch, valid_from=valid_from, valid_until=valid_until)
-        self._commit([fact])
+        self._commit([fact], seq)
         return fact
 
     def correct(self, fact_id: str, statement: str) -> Fact:
         """Replace what was believed (history is kept; the new record supersedes the old one)."""
-        old = self._current_fact(fact_id)
-        fact = self._fact(statement, old.module, self.policy().epoch, supersedes=(old.id,),
+        seq, records = self.snapshot()
+        old = self._current_fact(records, fact_id)
+        policy = self._ingest_policy(records, old.module)
+        fact = self._fact(statement, old.module, policy.epoch, supersedes=(old.id,),
                           change_kind="correction", valid_from=old.valid_from, valid_until=old.valid_until)
-        self._commit([fact])
+        self._commit([fact], seq)
         return fact
 
     def retract(self, fact_id: str) -> Fact:
-        """Withdraw a fact without asserting a replacement (not a deletion)."""
-        old = self._current_fact(fact_id)
-        fact = self._fact(f"Retracted: {old.statement}"[:500], old.module, self.policy().epoch,
+        """Withdraw a fact without asserting a replacement (not a deletion; always allowed)."""
+        seq, records = self.snapshot()
+        old = self._current_fact(records, fact_id)
+        fact = self._fact(f"Retracted: {old.statement}"[:500], old.module, self.policy_of(records).epoch,
                           supersedes=(old.id,), change_kind="retraction")
-        self._commit([fact])
+        self._commit([fact], seq)
         return fact
 
     def set_module(self, module: str, *, ingest: bool | None = None, expose: bool | None = None) -> ModulePolicy:
         self._check_module(module)
         if ingest is None and expose is None:
             raise AptuniError("nothing_to_change", "Pass --ingest and/or --expose.")
-        policy = with_switch(self.policy(), module, ingest=ingest, expose=expose)
-        self._commit([policy])
+        seq, records = self.snapshot()
+        policy = with_switch(self.policy_of(records), module, ingest=ingest, expose=expose)
+        self._commit([policy], seq)
         return policy
 
     def doctor(self) -> VerifyReport:
@@ -152,13 +175,21 @@ class AptuniService:
         if module not in MODULES:
             raise AptuniError("unknown_module", f"Unknown module '{module}'. Choose one of: {', '.join(MODULES)}.")
 
-    def _current_fact(self, fact_id: str) -> Any:
-        for fact in self.records().current_facts():
+    def _ingest_policy(self, records: RecordSet, module: str) -> ModulePolicy:
+        policy = self.policy_of(records)
+        if not can_ingest(policy, module):
+            raise AptuniError("module_ingest_disabled", f"Module '{module}' is not accepting new information.")
+        return policy
+
+    @staticmethod
+    def _current_fact(records: RecordSet, fact_id: str) -> Any:
+        for fact in records.current_facts():
             if fact.id == fact_id:
                 return fact
         raise AptuniError("fact_not_current", f"No current fact with id {fact_id}.")
 
-    def _fact(self, statement: str, module: str, epoch: int, *, supersedes: tuple[str, ...] = (),
+    @staticmethod
+    def _fact(statement: str, module: str, epoch: int, *, supersedes: tuple[str, ...] = (),
               change_kind: str = "assert", valid_from: str | None = None, valid_until: str | None = None) -> Fact:
         now = utc_now()
         try:
@@ -174,11 +205,10 @@ class AptuniService:
         except (ValidationError, ValueError) as error:
             raise AptuniError("invalid_record", f"Invalid fact: {error}") from error
 
-    def _commit(self, records: list[Any]) -> None:
-        vault = self.vault()
+    def _commit(self, records: list[Any], expected_seq: int) -> None:
         try:
-            vault.commit(records, expected_seq=vault.head().seq)
+            self.vault().commit(records, expected_seq=expected_seq)
+        except ConflictError as error:
+            raise AptuniError("concurrent_write", "The Vault changed while this command ran; run it again.") from error
         except InvariantError as error:
             raise AptuniError("invariant_violation", str(error)) from error
-        except ConflictError as error:
-            raise AptuniError("concurrent_write", "The Vault changed during the write; try again.") from error

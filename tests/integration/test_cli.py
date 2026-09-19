@@ -60,3 +60,46 @@ def test_version_flag() -> None:
         result = run(Path(raw) / "state", "--version")
         assert result.returncode == 0
         assert "aptuni" in result.stdout
+
+
+def test_folder_source_add_sync_and_inspect_flow() -> None:
+    with tempfile.TemporaryDirectory() as raw:
+        base = Path(raw)
+        state = base / "state"
+        docs = base / "materials"
+        docs.mkdir()
+        (docs / "profile.md").write_text("Built bilingual retrieval in Python.", encoding="utf-8")
+        assert run(state, "init", str(base / "Aptuni")).returncode == 0
+
+        added = run(
+            state,
+            "source",
+            "add-folder",
+            str(docs),
+            "--module",
+            "projects",
+            "--role",
+            "portfolio",
+            "--json",
+        )
+        assert added.returncode == 0, added.stderr
+        source_id = json.loads(added.stdout)["id"]
+        assert source_id.startswith("src_")
+
+        listed = run(state, "source", "list", "--json")
+        assert [item["id"] for item in json.loads(listed.stdout)] == [source_id]
+
+        synced = run(state, "sync", source_id, "--json")
+        assert synced.returncode == 0, synced.stderr
+        assert json.loads(synced.stdout)["counts"] == {"add": 1}
+
+        evidence = run(state, "evidence", "--source", source_id, "--json")
+        assert evidence.returncode == 0, evidence.stderr
+        [item] = json.loads(evidence.stdout)
+        assert item["module"] == "projects"
+        assert item["signals"] == ["exposure"]
+        assert item["relative_path"] == "profile.md"
+
+        review = run(state, "review", "list", source_id, "--json")
+        assert review.returncode == 0, review.stderr
+        assert json.loads(review.stdout) == []

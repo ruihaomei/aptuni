@@ -8,6 +8,7 @@ Records are frozen Pydantic models with ``extra="forbid"``. Unknown schema versi
 from __future__ import annotations
 
 import json
+import math
 from datetime import datetime, timedelta
 from typing import Annotated, Any, Literal
 
@@ -56,6 +57,15 @@ class LocatorExtension(Frozen):
     fields: dict[str, Any]
 
     model_config = ConfigDict(frozen=True, extra="forbid", populate_by_name=True)
+
+    @field_validator("fields")
+    @classmethod
+    def _json_only(cls, value: dict[str, Any]) -> dict[str, Any]:
+        try:
+            normalized: dict[str, Any] = json.loads(json.dumps(value, allow_nan=False, sort_keys=True))
+        except (TypeError, ValueError) as error:
+            raise ValueError("locator fields must be finite JSON values") from error
+        return normalized
 
 
 class SourceLocator(Frozen):
@@ -147,6 +157,13 @@ class Fact(Envelope):
     memory_ids: tuple[RecordId, ...]
     observed_at: AwareDatetime
     ingested_at: AwareDatetime | None
+
+    @field_validator("object")
+    @classmethod
+    def _finite_object(cls, value: bool | int | float | str | None) -> bool | int | float | str | None:
+        if isinstance(value, float) and not math.isfinite(value):
+            raise ValueError("fact object must be a finite number")
+        return value
 
     @model_validator(mode="after")
     def _needs_support(self) -> Fact:
@@ -242,7 +259,7 @@ _RECORD_ADAPTER: TypeAdapter[CanonicalRecord] = TypeAdapter(
 def parse_record(raw: dict[str, Any]) -> CanonicalRecord:
     """Validate one raw record; unknown schema versions raise ``SchemaVersionError``."""
     version = raw.get("schema_version")
-    if version != SCHEMA_VERSION:
+    if type(version) is not int or version != SCHEMA_VERSION:
         raise SchemaVersionError(
             f"unsupported schema_version {version!r} (supported: {SCHEMA_VERSION}); "
             "run the documented migration instead of loading this record"
@@ -253,7 +270,7 @@ def parse_record(raw: dict[str, Any]) -> CanonicalRecord:
 def canonical_json(record: BaseModel) -> str:
     """Serialize deterministically: sorted keys, UTF-8, one line."""
     return json.dumps(record.model_dump(mode="json", by_alias=True), ensure_ascii=False, sort_keys=True,
-                      separators=(",", ":"))
+                      separators=(",", ":"), allow_nan=False)
 
 
 class PendingAction(Frozen):

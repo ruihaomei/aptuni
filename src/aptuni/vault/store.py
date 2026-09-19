@@ -19,6 +19,7 @@ import fcntl
 import hashlib
 import json
 import os
+import re
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
@@ -43,6 +44,12 @@ CRASH_POINTS = ("after_segment_tmp", "after_segment_rename", "after_head_tmp", "
 GENESIS = "0" * 64
 READ_RETRIES = 50
 HEAD_FORMAT = 1
+SEGMENT_RE = re.compile(r"^seg-\d{6}-[0-9a-f]{8}\.jsonl$")
+TMP_SEGMENT_RE = re.compile(r"^\.tmp-seg-\d{6}-[0-9a-f]{8}\.jsonl$")
+
+
+class VaultDirNotEmptyError(FileExistsError):
+    """``init`` refuses folders that already contain files (never adopt or clean user data)."""
 
 
 class ConflictError(RuntimeError):
@@ -64,6 +71,7 @@ class Head:
 class RecoveryReport:
     removed: list[str] = field(default_factory=list)
     remaining_orphans: list[str] = field(default_factory=list)
+    unexpected: list[str] = field(default_factory=list)  # foreign files: reported, never deleted
 
 
 @dataclass(frozen=True)
@@ -117,9 +125,12 @@ class Vault:
     def init(cls, root: Path, state_dir: Path) -> Vault:
         if (root / "HEAD.json").exists():
             raise FileExistsError(f"a Vault already exists at {root}")
+        if root.exists() and any(root.iterdir()):
+            raise VaultDirNotEmptyError(f"{root} is not empty")
         (root / "records").mkdir(parents=True, exist_ok=True)
         state_dir.mkdir(parents=True, exist_ok=True)
-        os.chmod(state_dir, 0o700)
+        for private in (root, root / "records", state_dir):
+            os.chmod(private, 0o700)
         vault = cls(root, state_dir)
         vault._write_head(Head(0, (), GENESIS))
         return vault
@@ -175,6 +186,16 @@ class Vault:
     def record_set(self) -> RecordSet:
         return RecordSet(self.read_all())
 
+    def snapshot(self) -> tuple[int, RecordSet]:
+        """A consistent (seq, records) pair: decisions based on it commit with that seq."""
+        for _ in range(READ_RETRIES):
+            head = self.head()
+            try:
+                return head.seq, RecordSet(self._read_segments(head))
+            except FileNotFoundError:
+                time.sleep(0.01)
+        raise VaultIntegrityError("could not obtain a stable snapshot")
+
     def _read_segments(self, head: Head) -> list[CanonicalRecord]:
         records: list[CanonicalRecord] = []
         for segment in head.segments:
@@ -201,6 +222,10 @@ class Vault:
             head = self.head()
             if head.seq != expected_seq:
                 raise ConflictError(f"expected seq {expected_seq}, vault is at {head.seq}")
+            ledger = self.ledger_digests()
+            purged = [r.id for r in records if sha256_text(r.id) in ledger]
+            if purged:
+                raise InvariantError(f"purged ids cannot be committed again: {purged}")
             existing = self._read_segments(head)
             RecordSet([*existing, *records]).validate(only={r.id for r in records})
             return self._append_segment(head, records)
@@ -244,15 +269,29 @@ class Vault:
                     self._purge_locked(head, unfinished, write_ledger=False)
                     self._remove_orphans(report)
             committed = {s["name"] for s in self.head().segments}
-            report.remaining_orphans = [p.name for p in self.records_dir.iterdir() if p.name not in committed]
+            report.remaining_orphans = [p.name for p in self.records_dir.iterdir()
+                                        if p.name not in committed and SEGMENT_RE.match(p.name)]
         return report
 
     def _remove_orphans(self, report: RecoveryReport) -> None:
+        """Remove only this protocol's own leftovers; report anything else and leave it alone."""
         committed = {s["name"] for s in self.head().segments}
-        for path in [*self.records_dir.iterdir(), *self.root.glob(".HEAD.*.tmp")]:
-            if path.name not in committed:
+        for path in self.records_dir.iterdir():
+            if path.name in committed:
+                continue
+            if path.is_file() and (SEGMENT_RE.match(path.name) or TMP_SEGMENT_RE.match(path.name)):
                 path.unlink()
                 report.removed.append(path.name)
+            else:
+                report.unexpected.append(path.name)
+        for path in self.root.glob(".HEAD.*.tmp"):
+            path.unlink()
+            report.removed.append(path.name)
+
+    def unexpected_files(self) -> list[str]:
+        committed = {s["name"] for s in self.head().segments}
+        return sorted(p.name for p in self.records_dir.iterdir()
+                      if p.name not in committed and not SEGMENT_RE.match(p.name))
 
     def verify(self) -> VerifyReport:
         """Full check for ``doctor``: segment hashes, chain, and every cross-record invariant."""
@@ -271,6 +310,7 @@ class Vault:
             problems.append(str(error))
         if not problems and chain != head.chain and not self.ledger_digests():
             problems.append("hash chain does not match the committed segments")
+        problems.extend(f"unexpected file in records/ (left untouched): {name}" for name in self.unexpected_files())
         return VerifyReport(not problems, head.seq, count, tuple(problems))
 
     # ---------------------------------------------------------------- purge
@@ -330,4 +370,13 @@ class Vault:
         path = self.state_dir / "deletion-ledger.jsonl"
         if not path.exists():
             return set()
-        return {json.loads(line)["target_digest"] for line in path.read_text(encoding="utf-8").splitlines()}
+        digests: set[str] = set()
+        lines = path.read_text(encoding="utf-8").splitlines()
+        for number, line in enumerate(lines, start=1):
+            try:
+                digests.add(json.loads(line)["target_digest"])
+            except (json.JSONDecodeError, KeyError, TypeError) as error:
+                if number == len(lines):
+                    break  # torn tail from a crash mid-append; the purge itself never completed
+                raise VaultIntegrityError(f"deletion ledger line {number} is malformed") from error
+        return digests

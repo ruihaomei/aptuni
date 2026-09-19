@@ -1,12 +1,12 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=BLOCK; relay-claude-code=PASS; relay-codex=PASS; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
-Gate 0 is closed (review 15; all ADRs accepted). Milestone 1 is under way in `src/aptuni/`, following
-the AGENTS.md execution policy: runnable vertical slices, with independent review only for
-high-risk changes.
+Gate 0 is closed (review 15; all ADRs accepted). The Vault/CLI core and Folder Source are runnable.
+Review 16's blocking findings have test-first fixes in remediation 16, but its stream remains BLOCK
+until an independent focused re-review verifies them.
 
 ## Read first
 
@@ -16,8 +16,9 @@ high-risk changes.
 
 ## Next action
 
-Continue M1 in order: Vault/init → Folder Source → SQLite/FTS → Context API → CLI → MCP →
-Claude/Codex adapters → MarginNote/GitHub → Recipes/i18n.
+Checkpoint the Folder Source slice, arrange the independent focused re-review of remediation 16,
+then continue M1 in order: SQLite/FTS → Context API → MCP → Claude/Codex adapters →
+MarginNote/GitHub → Recipes/i18n.
 
 ## Known constraints
 

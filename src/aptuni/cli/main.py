@@ -60,6 +60,31 @@ def build_parser() -> argparse.ArgumentParser:
     module_set.add_argument("--ingest", type=_on_off, metavar="on|off")
     module_set.add_argument("--expose", type=_on_off, metavar="on|off")
 
+    source = sub.add_parser("source", help="approve and inspect personal data sources")
+    source_sub = source.add_subparsers(dest="source_command", required=True, metavar="ACTION")
+    source_add = source_sub.add_parser("add-folder", help="approve a local folder as a source")
+    source_add.add_argument("path", type=Path)
+    source_add.add_argument("--module", action="append", required=True, choices=MODULES, dest="modules")
+    source_add.add_argument("--role", required=True, help="what this folder means (for example: portfolio)")
+    source_add.add_argument("--primary-for", action="append", default=[], metavar="DIMENSION")
+    source_add.add_argument("--json", action="store_true")
+    source_list = source_sub.add_parser("list", help="list approved sources")
+    source_list.add_argument("--json", action="store_true")
+
+    sync = sub.add_parser("sync", help="sync one approved source into minimized evidence")
+    sync.add_argument("source_id")
+    sync.add_argument("--json", action="store_true")
+
+    evidence = sub.add_parser("evidence", help="inspect current source evidence")
+    evidence.add_argument("--source", dest="source_id")
+    evidence.add_argument("--json", action="store_true")
+
+    review = sub.add_parser("review", help="inspect or resolve held source changes")
+    review_sub = review.add_subparsers(dest="review_command", required=True, metavar="ACTION")
+    review_list = review_sub.add_parser("list", help="list source changes waiting for review")
+    review_list.add_argument("source_id")
+    review_list.add_argument("--json", action="store_true")
+
     sub.add_parser("doctor", help="recover and fully verify the Vault")
     return parser
 
@@ -140,6 +165,107 @@ def _cmd_module(args: argparse.Namespace, service: AptuniService) -> int:
     return 0
 
 
+def _source_json(source: Any) -> dict[str, Any]:
+    return {
+        "id": source.id,
+        "type": source.source_type,
+        "roots": list(source.roots),
+        "role": source.semantic_role,
+        "modules": list(source.module_mapping),
+        "primary_for": list(source.authority.primary_for),
+    }
+
+
+def _cmd_source(args: argparse.Namespace, service: AptuniService) -> int:
+    if args.source_command == "add-folder":
+        source = service.add_folder_source(
+            args.path,
+            modules=tuple(args.modules),
+            role=args.role,
+            primary_for=tuple(args.primary_for),
+        )
+        if args.json:
+            _print_json(_source_json(source))
+        else:
+            print(f"Approved folder source {source.id}: {source.roots[0]}")
+        return 0
+    sources = service.sources()
+    if args.json:
+        _print_json([_source_json(source) for source in sources])
+    elif not sources:
+        print("No sources yet. Add one with: aptuni source add-folder PATH --module knowledge --role notes")
+    else:
+        for source in sources:
+            print(f"{source.id}  [{source.source_type}]  {source.semantic_role}  {source.roots[0]}")
+    return 0
+
+
+def _cmd_sync(args: argparse.Namespace, service: AptuniService) -> int:
+    report = service.sync(args.source_id)
+    value = {
+        "source_id": report.source_id,
+        "counts": report.counts,
+        "review_items": report.review_items,
+        "notes": list(report.notes),
+        "evidence_written": report.evidence_written,
+    }
+    if args.json:
+        _print_json(value)
+    else:
+        changes = ", ".join(f"{kind}={count}" for kind, count in sorted(report.counts.items())) or "no changes"
+        print(f"Synced {report.source_id}: {changes}; evidence={report.evidence_written}; review={report.review_items}")
+    return 0
+
+
+def _cmd_evidence(args: argparse.Namespace, service: AptuniService) -> int:
+    evidence = service.evidence(args.source_id)
+    values = [
+        {
+            "id": item.id,
+            "source_id": item.provenance.source_id,
+            "module": item.module,
+            "relative_path": item.provenance.locator.extension.fields.get("relative_path"),
+            "signals": list(item.signals),
+            "excerpt": item.excerpt,
+            "content_hash": item.content_hash,
+            "review_status": item.review_status,
+        }
+        for item in evidence
+    ]
+    if args.json:
+        _print_json(values)
+    elif not values:
+        print("No current evidence.")
+    else:
+        for item in values:
+            print(f"{item['id']}  [{item['module']}]  {item['relative_path']}  {', '.join(item['signals'])}")
+    return 0
+
+
+def _review_json(operation: Any) -> dict[str, Any]:
+    locator = operation.after or operation.before
+    return {
+        "kind": operation.kind,
+        "subject_id": operation.subject_id,
+        "relative_path": locator.extension.fields.get("relative_path") if locator else None,
+        "reasons": list(operation.reasons),
+        "candidates": list(operation.candidates),
+    }
+
+
+def _cmd_review(args: argparse.Namespace, service: AptuniService) -> int:
+    operations = service.review_queue(args.source_id)
+    values = [_review_json(operation) for operation in operations]
+    if args.json:
+        _print_json(values)
+    elif not values:
+        print("No source changes waiting for review.")
+    else:
+        for item in values:
+            print(f"{item['kind']}  {item['relative_path']}  {', '.join(item['reasons'])}")
+    return 0
+
+
 def _cmd_doctor(args: argparse.Namespace, service: AptuniService) -> int:
     report = service.doctor()
     if report.ok:
@@ -159,6 +285,10 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "correct": _cmd_correct,
     "retract": _cmd_retract,
     "module": _cmd_module,
+    "source": _cmd_source,
+    "sync": _cmd_sync,
+    "evidence": _cmd_evidence,
+    "review": _cmd_review,
     "doctor": _cmd_doctor,
 }
 

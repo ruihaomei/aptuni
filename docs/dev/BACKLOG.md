@@ -14,4 +14,6 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Re-run S01 in a fresh pinned venv to refresh its recorded run | Review 15 F1 | optional |
 | OPML/Folder held-item review loop, stale review items, held growth | S05A rounds 2–3 | Review workflow slice |
 | Pending-review ops may also flag dependent facts | S05A round 3 note 2 | Review workflow slice |
+| Preserve verifiable chain semantics after a privacy purge instead of disabling the chain check once any ledger entry exists | Review 16 F6 | M1 privacy/restore slice |
+| Purging a superseding correction/retraction must not silently reactivate the older record | Review 16 F7 | M1 privacy/restore slice |
 | Collision re-check for `aptuni` on PyPI/npm/GitHub before first publish | Review 15 F9 | Release |

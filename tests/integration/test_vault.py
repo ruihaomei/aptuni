@@ -167,10 +167,10 @@ if __name__ == "__main__":
 
 class OpenTests(VaultTestCase):
     def test_open_runs_recovery_before_serving_reads(self) -> None:
-        (self.vault_dir / "records" / "seg-000099-orphan.jsonl").write_text("{}\n", encoding="utf-8")
+        (self.vault_dir / "records" / "seg-000099-deadbeef.jsonl").write_text("{}\n", encoding="utf-8")
         vault = Vault.open(self.vault_dir, self.state_dir)
         self.assertEqual([], vault.read_all())
-        self.assertFalse((self.vault_dir / "records" / "seg-000099-orphan.jsonl").exists())
+        self.assertFalse((self.vault_dir / "records" / "seg-000099-deadbeef.jsonl").exists())
 
     def test_new_records_are_validated_against_the_full_index(self) -> None:
         records = golden_records()
