@@ -64,19 +64,23 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- GitHub Standard Source admission/provider work, beginning with S05B live API behavior required by
-  KI-020; MarginNote remains data-blocked pending the maintainer's sanitized export series.
+- GitHub Standard Source S05B admission. Current official API behavior and an anonymous public
+  repository baseline are recorded; production/provider integration is blocked at the accepted
+  dogfood gate pending a sanitized maintainer repository fixture. MarginNote is independently blocked
+  pending its real export series.
 
 ## Awaiting maintainer decisions
 
-- None blocking. Brand vector masters and social assets are pending (see `docs/brand/README.md`).
+- **Source-data blocker:** provide a sanitized GitHub repository fixture (or a public repository the
+  maintainer authorizes as representative) and the KI-020 MarginNote export series. Brand vector
+  masters and social assets remain non-blocking (see `docs/brand/README.md`).
 
 ## Next highest-priority task
 
-Implement and verify GitHub Standard Source pagination, redirects/origin limits, rate limits,
-truncation, credential references, snapshots/deltas and sync CLI integration. Do not ship MarginNote
-until the KI-020 sanitized real-export series exists. Independently re-review remediation 16 when a
-separate reviewer is available; until then its stream remains BLOCK.
+Resume GitHub Standard Source with the maintainer-authorized sanitized repository fixture, then run
+the MarginNote KI-020 export matrix. Do not claim either source shipped from synthetic/public-smoke
+evidence alone. Independently re-review remediation 16 when a separate reviewer is available; until
+then its stream remains BLOCK.
 
 ## Latest validation state
 

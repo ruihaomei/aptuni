@@ -18,11 +18,12 @@ remediation 16, but its manifest verdict remains `BLOCK` until an independent re
 
 ## Next action
 
-Implement GitHub Standard Source after its KI-020/S05B live API checks: bounded pagination,
-official/enterprise origin and redirect constraints, rate-limit/truncation behavior, least-scope
-credential references, snapshot/delta replay, and sync CLI integration. MarginNote cannot ship until
-the maintainer supplies the sanitized no-op/edit/move/duplicate/delete-recreate/branch/restart
-export series.
+Source work is now genuinely data-blocked. Obtain (1) a sanitized maintainer GitHub repository
+fixture or explicit representative public repository, including rename/delete/history cases, and
+(2) the MarginNote no-op/edit/move/duplicate/delete-recreate/branch/restart export series. Then
+complete bounded pagination, origin/redirect, rate-limit/truncation, credential-reference,
+snapshot/delta and sync integration. The anonymous `octocat/Hello-World` API baseline passed and is
+recorded in research memory, but is not representative dogfood evidence.
 
 Latest validation: 176 tests plus 47 subtests; Ruff, mypy strict, relay checks, build, clean-wheel
 grant-bound MCP adapter smoke, network canary and dependency check pass. Known limitations: bundles

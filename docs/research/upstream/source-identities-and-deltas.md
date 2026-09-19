@@ -211,3 +211,20 @@ a parser from silently rewriting the user's Profile.
   upgrade using Markdown/DOCX/XLSX/PDF fixtures.
 - **S4 — GitHub Standard budget:** against small, monorepo and >1,000-entry fixtures, verify tree
   truncation fallback, deterministic file selection, commit/blob provenance and bounded API calls.
+
+## 2026-09-19 GitHub S05B admission refresh
+
+- Current official Git Trees documentation keeps recursive responses bounded at 100,000 entries or
+  7 MB and requires non-recursive subtree traversal when `truncated=true`:
+  <https://docs.github.com/en/rest/git/trees>.
+- Official guidance requires following typed `Link` headers rather than constructing pagination,
+  conditional requests with ETag where appropriate, and stopping on 403/429 according to
+  `retry-after` or `x-ratelimit-reset`:
+  <https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api>,
+  <https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api>, and
+  <https://docs.github.com/rest/guides/best-practices-for-integrators>.
+- An anonymous read-only probe of `octocat/Hello-World` using API version `2026-03-10` resolved
+  repository ID `1296269`, default branch `master`, commit
+  `7fd1a60b01f91b314f59955a4e4d4e80d8edf11d`, and one-entry complete tree
+  `b4eecafa9be2f2006ce1b709d6857b07069b4608`. This proves the public baseline only; it does not
+  replace the sanitized maintainer-repository fixture or private/enterprise redirect/auth cases.
