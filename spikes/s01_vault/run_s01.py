@@ -38,7 +38,8 @@ def baseline_facts() -> dict[str, str]:
     """Collect interpreter/SQLite/OS/filesystem facts the result must record."""
     tmp_info = statfs_info(Path(tempfile.gettempdir()))
     return {
-        "executable": sys.executable,
+        # Never record the absolute interpreter path: it can contain the local user name.
+        "executable": "venv/bin/python" if sys.prefix != sys.base_prefix else "system/python",
         "python": platform.python_version(),
         "sqlite": sqlite3.sqlite_version,
         "macos": subprocess.run(["sw_vers", "-productVersion"], capture_output=True, text=True,

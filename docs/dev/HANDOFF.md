@@ -52,4 +52,7 @@ S05A stays blocked.
   gitignored; `docs/product/PRD.md` is canonical.
 - Research Memory must not be initialized without explicit maintainer confirmation.
 - Bare `python3` on the Gate 0 host is Anaconda 3.12.4; use `python3.13`.
+- Commits before `890dbec` stored an interpreter path containing the local user name in
+  `spikes/s01_vault/results/S01-result.json` (now sanitized at source). Rewrite or squash history
+  before any first public push.
 - Commits are local only (maintainer authorized the first checkpoint on 2026-09-18); never push.
