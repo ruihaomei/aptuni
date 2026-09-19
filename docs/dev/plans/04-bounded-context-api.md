@@ -1,6 +1,6 @@
 # Milestone 1 Slice 4 — Bounded Context API
 
-**Status:** Complete (implementation and local verification; checkpoint pending)
+**Status:** Complete (`bc0f7c3`)
 **Decision basis:** ADR-0005, ADR-0007, ADR-0012, PRD §§18–19, and the accepted SQLite projection.
 
 ## User-visible capability

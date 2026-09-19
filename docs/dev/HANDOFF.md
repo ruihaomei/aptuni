@@ -5,7 +5,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 ## Current position
 
 Gate 0 is closed (review 15; all ADRs accepted). The Vault/CLI core, Folder Source, bilingual
-SQLite/FTS retrieval, and bounded owner-CLI Context API are runnable.
+SQLite/FTS retrieval, bounded Context API, and bounded MCP STDIO server are runnable. Slice 5's
+implementation checkpoint is `d4cc1fb`; its relay/documentation checkpoint follows this handoff.
 Review 16 is **PENDING/BLOCKED FOR INDEPENDENT RE-REVIEW**. Its findings have test-first fixes in
 remediation 16, but its manifest verdict remains `BLOCK` until an independent reviewer verifies them.
 
@@ -17,9 +18,16 @@ remediation 16, but its manifest verdict remains `BLOCK` until an independent re
 
 ## Next action
 
-Checkpoint the bounded Context API. Continue with MCP only after adding explicit principal/scope and
-`host_model_egress` enforcement; the owner-CLI authorization must not be reused as host authorization.
-Arrange the independent focused re-review of remediation 16 separately, without representing it as passed.
+Implement Slice 6, the Claude Code/Codex adapters: persist informed per-host grants outside source
+content; bind principal, exact read scopes/modules, operator/destination and retention disclosure;
+write bundled STDIO configuration; integrate bounded L0; and report only `not_in_effect` or
+`unverified` confinement evidence. Never accept host/tool/env labels as `proven_local`.
+
+Latest validation: 172 tests plus 47 subtests; Ruff, mypy strict, relay checks, build, clean-wheel
+MCP STDIO EOF/default-deny smoke, network canary and dependency check pass. Known limitation: the
+production MCP entry point intentionally returns personal-content denial until Slice 6 installs a
+persisted informed grant and adapter configuration. Arrange the independent focused re-review of
+remediation 16 separately, without representing it as passed.
 
 ## Known constraints
 

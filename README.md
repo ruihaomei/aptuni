@@ -24,6 +24,7 @@ aptuni search "生存分析" --module knowledge
 aptuni index status
 aptuni identity --budget 600
 aptuni context "teach me survival analysis" --module knowledge --budget 1500
+aptuni-mcp
 aptuni doctor
 ```
 
@@ -38,7 +39,8 @@ inspected, deleted, or rebuilt without changing the canonical Vault.
 
 The bounded Context API uses explicit L0–L4 layers and conservative response units rather than
 pretending to know every host tokenizer. L4 minimized Evidence is excluded unless `--evidence` is
-requested. This local CLI slice is authorized only for the owner; MCP/host delivery will add its own
-principal, scope, and model-egress checks.
+requested. The local `aptuni-mcp` STDIO server adds process-bound principal, scope, module, and
+host-model-egress checks. Its production entry point deliberately exposes only content-free health
+until a configured host adapter supplies admitted access; tool arguments cannot self-authorize.
 
 Licensed under [Apache-2.0](LICENSE).

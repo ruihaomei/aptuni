@@ -3,7 +3,8 @@
 **Updated:** 2026-09-19
 **Current gate:** Milestone 1 — Portable Personal Context Core (Gate 0 closed 2026-09-19, review 15)
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
-Folder Source, bilingual SQLite/FTS projection, and bounded owner-CLI Context API are runnable.
+Folder Source, bilingual SQLite/FTS projection, bounded Context API, and fail-closed MCP STDIO server
+are runnable.
 
 Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=BLOCK; relay-claude-code=PASS; relay-codex=PASS; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
@@ -49,10 +50,17 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   epoch, Vault sequence, exact used/remaining response units, and truncation. The service discards
   and retries responses if policy changes during retrieval or during final budget packing. This
   slice is `owner_cli` only; MCP host/model egress is not implicitly authorized.
+- **Slice 5 — Bounded MCP STDIO (runnable, `d4cc1fb`).** `aptuni-mcp` exposes content-free health,
+  bounded L0 identity, and explicit-module L1–L4 context tools over application services. Personal
+  reads require a process-bound principal, exact read scopes, allowed modules, and either
+  core-admitted `proven_local` execution or `host_model_egress`. Principal/authority are absent from
+  tool inputs, no approve/write tool exists, and the production entry point defaults to content-free
+  denial. MCP Python SDK 2.2.0 is locked; the process denies Internet/TCP sockets.
 
 ## In progress
 
-- MCP STDIO read surface planning over the bounded application service.
+- Claude Code and Codex adapter slice: persisted informed host grants, bundled STDIO configuration,
+  bounded L0 integration, and honest confinement diagnostics.
 
 ## Awaiting maintainer decisions
 
@@ -60,16 +68,20 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-Proceed to MCP only with explicit principal/scope/`host_model_egress` checks. Independently re-review
-remediation 16 when a separate reviewer is available; until then its stream remains BLOCK.
+Implement the Claude Code/Codex adapters without allowing config/tool/env labels to assign
+`proven_local`; bind persisted grants to principal, exact scopes/modules, operator/destination and
+retention disclosure. Independently re-review remediation 16 when a separate reviewer is available;
+until then its stream remains BLOCK.
 
 ## Latest validation state
 
-- `.tools/bin/uv run pytest`: 166 passed, 47 subtests passed; `ruff check .` and `mypy` (strict): clean.
+- `.tools/bin/uv run pytest`: 172 passed, 47 subtests passed; `ruff check .` and `mypy` (strict): clean.
 - `python3.13 tools/check_relay.py`: pass (Markdown link, ADR-index and workspace-text checks).
 - `python3.13 -m unittest tests/dev/test_check_relay.py`: 20 tests OK.
 - `/opt/homebrew/bin/python3.13 spikes/s03_fts/run_s03.py verify`: recorded bilingual retrieval evidence reproduced.
 - `.tools/bin/uv build` plus clean-wheel `init → remember → search → index status`: pass; 6 installed packages compatible.
 - Clean-wheel `identity → bilingual context` smoke: L0 and L1–L3 layers, budget accounting, canonical IDs, and owner-only audience all verified.
+- Clean-wheel `aptuni-mcp` smoke: SDK STDIO EOF shutdown and content-free default start pass; the
+  Internet/TCP socket canary fails closed with `aptuni_mcp_network_denied`; dependency check passes.
 - Spike evidence: S01 46, S02 12, S03 23, S04 58 (+5 skips), S05A 95 tests. Commands are in each
   spike README.

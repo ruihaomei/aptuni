@@ -37,6 +37,11 @@ graphs are rebuildable projections. License: Apache-2.0 (`LICENSE`, `NOTICE`,
    Claude/Codex adapters → MarginNote/GitHub → Recipes/i18n.
 9. Continue autonomously until a genuine blocker or a maintainer decision is required. Keep work
    local; commit in small checkpoints and never push.
+10. A successful slice boundary is a checkpoint, not a stopping point. After verification, update
+    `STATE.md` and `HANDOFF.md` with the checkpoint hash, limitations and exact next slice; commit,
+    restore a clean tree, and immediately continue. Stop only for a genuine blocker, required user
+    decision, conflicting accepted contracts, irreversible unapproved architecture, unavailable
+    credentials/data, or an unsafe security/privacy issue.
 
 ## Invariants
 

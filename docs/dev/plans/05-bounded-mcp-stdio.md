@@ -1,6 +1,6 @@
 # Milestone 1 Slice 5 — Bounded MCP STDIO
 
-**Status:** Active
+**Status:** Complete (`d4cc1fb` implementation checkpoint; relay checkpoint follows)
 **Decision basis:** ADR-0005, ADR-0007, ADR-0013, S04, and Slice 4's bounded Context API.
 
 ## User-visible capability
@@ -31,3 +31,13 @@
 No write/observe/review/approve tools, Streamable HTTP, host configuration mutation, or implicit
 egress grant. Claude/Codex configuration and persisted informed consent belong to the next adapter
 slice.
+
+## Exit evidence
+
+- 172 tests plus 47 subtests pass; Ruff and mypy strict are clean.
+- Real SDK STDIO negotiation, health, default-deny personal read, EOF shutdown, and network canary
+  pass from a clean wheel install.
+- SDK 2.2.0 and its production closure are locked; runtime licenses are recorded in
+  `THIRD_PARTY_NOTICES.md`.
+- Production startup has no content grant. Persisted informed grants and host configuration belong
+  to Slice 6; no environment or tool input can elevate a host to `proven_local`.
