@@ -13,7 +13,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 from pydantic import ValidationError
 
@@ -21,6 +21,7 @@ from aptuni.application.context import (
     MAX_BUDGET,
     MAX_QUERY_BYTES,
     MIN_BUDGET,
+    Audience,
     ContextResponse,
     pack_units,
     record_unit,
@@ -64,6 +65,17 @@ class SearchHit:
     text: str
     score: float
     source_id: str | None
+
+
+@dataclass(frozen=True)
+class HostContextAccess:
+    """Process-bound MCP authority created from trusted local adapter configuration."""
+
+    principal: str
+    scopes: frozenset[str]
+    modules: frozenset[str]
+    host_class: Literal["remote_unknown", "proven_local"]
+    host_model_egress: bool
 
 
 class AptuniService(SourceCommands):
@@ -222,18 +234,39 @@ class AptuniService(SourceCommands):
     # ---------------------------------------------------------------- bounded context
     @staticmethod
     def _check_context_request(budget: int, audience: str, limit: int | None = None) -> None:
-        if audience != "owner_cli":
-            raise AptuniError(
-                "egress_not_authorized",
-                "Only the local owner CLI is authorized in this slice; host/model egress is not configured.",
-            )
+        if audience not in ("owner_cli", "host_mcp"):
+            raise AptuniError("egress_not_authorized", "The requested context audience is not authorized.")
         if type(budget) is not int or not MIN_BUDGET <= budget <= MAX_BUDGET:
             raise AptuniError("invalid_context", f"Budget must be between {MIN_BUDGET} and {MAX_BUDGET} units.")
         if limit is not None and (type(limit) is not int or not 1 <= limit <= 100):
             raise AptuniError("invalid_context", "Context result limit must be between 1 and 100.")
 
-    def identity_card(self, *, budget: int = 512, audience: str = "owner_cli") -> ContextResponse:
+    @staticmethod
+    def _authorize_host(
+        access: HostContextAccess | None,
+        *,
+        scope: str,
+        modules: tuple[str, ...],
+    ) -> None:
+        if access is None or not access.principal or scope not in access.scopes:
+            raise AptuniError("mcp_scope_denied", "The configured MCP principal lacks the required scope.")
+        if not modules or not set(modules) <= access.modules:
+            raise AptuniError("mcp_module_denied", "The configured MCP principal lacks module access.")
+        if access.host_class != "proven_local" and not access.host_model_egress:
+            raise AptuniError("host_model_egress_denied", "Host/model egress is not granted.")
+
+    def identity_card(
+        self,
+        *,
+        budget: int = 512,
+        audience: str = "owner_cli",
+        access: HostContextAccess | None = None,
+    ) -> ContextResponse:
         self._check_context_request(budget, audience)
+        if audience == "host_mcp":
+            self._authorize_host(access, scope="identity.read", modules=("identity",))
+        elif access is not None:
+            raise AptuniError("invalid_context", "Host access is valid only for the host_mcp audience.")
         for _ in range(3):
             seq, records = self.snapshot()
             identity = sorted(
@@ -259,7 +292,8 @@ class AptuniService(SourceCommands):
                     packed = pack_units((card,), budget)
                     policy = self.policy_of(final_records)
                     response = response_from(packed, budget=budget, vault_seq=final_seq,
-                                             policy_epoch=policy.epoch, more_results=omitted)
+                                             policy_epoch=policy.epoch, more_results=omitted,
+                                             audience=cast(Audience, audience))
                     if self.snapshot()[0] == final_seq:
                         return response
                     break
@@ -269,7 +303,8 @@ class AptuniService(SourceCommands):
                 packed = pack_units((), budget)
                 policy = self.policy_of(final_records)
                 response = response_from(packed, budget=budget, vault_seq=final_seq,
-                                         policy_epoch=policy.epoch, more_results=omitted)
+                                         policy_epoch=policy.epoch, more_results=omitted,
+                                         audience=cast(Audience, audience))
                 if self.snapshot()[0] == final_seq:
                     return response
         raise AptuniError("concurrent_write", "The Vault kept changing during identity-card creation; run it again.")
@@ -283,6 +318,7 @@ class AptuniService(SourceCommands):
         include_evidence: bool = False,
         limit: int = 20,
         audience: str = "owner_cli",
+        access: HostContextAccess | None = None,
     ) -> ContextResponse:
         self._check_context_request(budget, audience, limit)
         if not query.strip() or len(query.encode("utf-8")) > MAX_QUERY_BYTES:
@@ -295,6 +331,12 @@ class AptuniService(SourceCommands):
         for module_name in modules:
             self._check_module(module_name)
         selected = tuple(dict.fromkeys(cast(Module, module_name) for module_name in modules))
+        if audience == "host_mcp":
+            self._authorize_host(access, scope="context.read", modules=selected)
+            if include_evidence:
+                self._authorize_host(access, scope="evidence.read", modules=selected)
+        elif access is not None:
+            raise AptuniError("invalid_context", "Host access is valid only for the host_mcp audience.")
         record_types = ("fact", "memory", "evidence") if include_evidence else ("fact", "memory")
         for _ in range(3):
             seq, records, rows = self._stable_search(
@@ -330,6 +372,7 @@ class AptuniService(SourceCommands):
                 vault_seq=seq,
                 policy_epoch=policy.epoch,
                 more_results=more,
+                audience=cast(Audience, audience),
             )
             if self.snapshot()[0] == seq:
                 return response

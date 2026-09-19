@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 Layer = Literal["L0", "L1", "L2", "L3", "L4"]
-Audience = Literal["owner_cli"]
+Audience = Literal["owner_cli", "host_mcp"]
 PER_UNIT_OVERHEAD = 32
 METADATA_UNITS = 32
 MIN_BUDGET = METADATA_UNITS
@@ -98,9 +98,10 @@ def response_from(
     vault_seq: int,
     policy_epoch: int,
     more_results: bool = False,
+    audience: Audience = "owner_cli",
 ) -> ContextResponse:
     return ContextResponse(
-        audience="owner_cli",
+        audience=audience,
         requested_units=budget,
         used_units=packed.used_units,
         remaining_units=packed.remaining_units,

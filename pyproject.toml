@@ -14,11 +14,13 @@ classifiers = [
     "Operating System :: MacOS",
 ]
 dependencies = [
+    "mcp==2.2.0",
     "pydantic>=2.11,<3",
 ]
 
 [project.scripts]
 aptuni = "aptuni.cli.main:main"
+aptuni-mcp = "aptuni.mcp.server:main"
 
 [dependency-groups]
 dev = [
