@@ -1,0 +1,36 @@
+{
+  "baseline": {
+    "dependencies": "stdlib only",
+    "network": "none",
+    "python": "3.13.3"
+  },
+  "criteria": {
+    "authority_conflicts_and_locators_round_trip": {
+      "all_passed": true,
+      "tests": 6
+    },
+    "disappearance_never_deletes_facts": {
+      "all_passed": true,
+      "tests": 6
+    },
+    "identical_replay_is_idempotent": {
+      "all_passed": true,
+      "tests": 6
+    },
+    "source_identity_fits_versioned_extensions": {
+      "all_passed": true,
+      "tests": 5
+    },
+    "truncation_is_explicit": {
+      "all_passed": true,
+      "tests": 2
+    },
+    "unknown_or_ambiguous_identity_is_reviewable": {
+      "all_passed": true,
+      "tests": 7
+    }
+  },
+  "spike": "S05A",
+  "status": "PASS",
+  "tests_run": 72
+}
