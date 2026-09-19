@@ -1,0 +1,7 @@
+schema_version = 1
+id = "researcher"
+name = "recipe.researcher.name"
+goal = "recipe.researcher.goal"
+plugins = ["memory.builtin", "retrieval.sqlite_fts", "agent.mcp", "interface.cli"]
+later = ["retrieval.hybrid", "interface.obsidian"]
+suggested_sources = ["folder", "github", "marginnote", "obsidian"]

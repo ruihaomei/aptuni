@@ -1,0 +1,31 @@
+schema_version = 1
+id = "memory.mem0"
+category = "memory"
+contract_version = 1
+maturity = "planned"
+milestone = "M2"
+name = "plugin.memory.mem0.name"
+summary = "plugin.memory.mem0.summary"
+egress = ["cloud_api"]
+retention = "provider_managed"
+strengths = ["plugin.memory.mem0.strength"]
+weaknesses = ["plugin.memory.mem0.weakness"]
+
+[capabilities]
+interaction_memory = true
+automatic_extraction = true
+
+[requirements]
+docker = false
+local_only_supported = false
+network = ["https://api.openai.com"]
+
+[[requirements.api_keys]]
+env = "OPENAI_API_KEY"
+required = true
+purpose = "plugin.memory.mem0.key_purpose"
+
+[setup]
+min_minutes = 3
+max_minutes = 10
+difficulty = "moderate"

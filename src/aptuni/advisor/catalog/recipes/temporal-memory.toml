@@ -1,0 +1,7 @@
+schema_version = 1
+id = "temporal-memory"
+name = "recipe.temporal-memory.name"
+goal = "recipe.temporal-memory.goal"
+plugins = ["memory.graphiti", "retrieval.hybrid", "agent.mcp", "interface.cli"]
+later = []
+suggested_sources = []

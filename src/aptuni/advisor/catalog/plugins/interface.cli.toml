@@ -1,0 +1,25 @@
+schema_version = 1
+id = "interface.cli"
+category = "interface"
+contract_version = 1
+maturity = "builtin"
+milestone = "M1"
+name = "plugin.interface.cli.name"
+summary = "plugin.interface.cli.summary"
+egress = ["none"]
+retention = "none"
+strengths = ["plugin.interface.cli.strength"]
+weaknesses = ["plugin.interface.cli.weakness"]
+
+[capabilities]
+bilingual = true
+
+[requirements]
+docker = false
+local_only_supported = true
+network = []
+
+[setup]
+min_minutes = 0
+max_minutes = 1
+difficulty = "easy"

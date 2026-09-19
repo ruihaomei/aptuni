@@ -34,4 +34,5 @@ community contributors' agents) must read the ADRs relevant to its task before e
 | [ADR-0011](ADR-0011-canonical-interaction-memory-lifecycle.md) | Keep the interaction-memory lifecycle canonical | Accepted |
 | [ADR-0012](ADR-0012-application-services-and-inference-boundary.md) | Put interfaces behind application services and inference ports | Accepted |
 | [ADR-0013](ADR-0013-honest-host-trust-boundary.md) | Treat shell-capable hosts as inside the trust boundary; require host confinement | Accepted |
+| [ADR-0014](ADR-0014-plugin-catalog-recipes-and-advisor.md) | Describe plugins and Recipes as bundled TOML and advise without side effects | Accepted |
 <!-- ADR-INDEX:END -->

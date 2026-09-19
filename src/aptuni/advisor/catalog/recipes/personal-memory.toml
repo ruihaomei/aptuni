@@ -1,0 +1,7 @@
+schema_version = 1
+id = "personal-memory"
+name = "recipe.personal-memory.name"
+goal = "recipe.personal-memory.goal"
+plugins = ["memory.mem0", "retrieval.hybrid", "agent.mcp", "interface.cli"]
+later = []
+suggested_sources = []

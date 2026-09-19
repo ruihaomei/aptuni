@@ -1,0 +1,26 @@
+schema_version = 1
+id = "retrieval.hybrid"
+category = "retrieval"
+contract_version = 1
+maturity = "planned"
+milestone = "M2"
+name = "plugin.retrieval.hybrid.name"
+summary = "plugin.retrieval.hybrid.summary"
+egress = ["none"]
+retention = "none"
+strengths = ["plugin.retrieval.hybrid.strength"]
+weaknesses = ["plugin.retrieval.hybrid.weakness"]
+
+[capabilities]
+lexical = true
+semantic = true
+
+[requirements]
+docker = false
+local_only_supported = true
+network = []
+
+[setup]
+min_minutes = 3
+max_minutes = 8
+difficulty = "moderate"

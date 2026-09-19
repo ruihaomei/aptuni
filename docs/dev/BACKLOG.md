@@ -16,8 +16,12 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Pending-review ops may also flag dependent facts | S05A round 3 note 2 | Review workflow slice |
 | Preserve verifiable chain semantics after a privacy purge instead of disabling the chain check once any ledger entry exists | Review 16 F6 | M1 privacy/restore slice |
 | Purging a superseding correction/retraction must not silently reactivate the older record | Review 16 F7 | M1 privacy/restore slice |
-| Torn deletion-ledger tail followed by a purge glues entries together (purged ID can return, or later opens fail) | Review 19 N1 | Next Vault slice (scheduled first) |
-| Map remaining raw exceptions (malformed config/HEAD, schema_version 2 in doctor, unreadable records dir, init on a file, stray `.HEAD.*.tmp` directory, partial multi-ID ledger entry) to stable CLI errors | Review 19 N2 | Next Vault slice |
 | Purging a deterministic-ID source Evidence makes later syncs of that source fail with `invariant_violation` | Review 19 N3 | M1 privacy/restore slice |
 | Tests for bad locator values, `records/` and state-directory permissions, and revoking a memory candidate | Review 19 N4 | Next Vault slice |
+| Manifest schema: strict typing (`contract_version = true` coerces), duplicate egress/recipe entries, file name must equal `id`, orphan message keys, `suggested_sources` vocabulary | Review 20 N3 | Plugin activation slice |
+| `minimize_cloud` behaves like `quality`; give it a real budget/module difference or merge the answers | Review 20 N8 | Guided-setup apply slice |
+| A plan whose only named source is unshipped (e.g. MarginNote) should suggest a Folder source over an export | Review 20 N9 | Guided-setup apply slice |
+| Show configured GitHub Enterprise origins in the preview network list | Review 20 N10 | Guided-setup apply slice |
+| Bind the apply confirmation digest to catalog/schema version and the answers | Review 20 N11 | Guided-setup apply slice |
+| i18n polish: localized `recipe show` unknown-id error, CJK list separator `、`, CJK column widths, `--lang fr` notice, Claude Desktop file-access wording, retention heading vs provider-managed data | Review 20 N7, Review 21 | i18n pass |
 | Collision re-check for `aptuni` on PyPI/npm/GitHub before first publish | Review 15 F9 | Release |

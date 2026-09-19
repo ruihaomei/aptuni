@@ -1,0 +1,31 @@
+schema_version = 1
+id = "memory.graphiti"
+category = "memory"
+contract_version = 1
+maturity = "planned"
+milestone = "M3"
+name = "plugin.memory.graphiti.name"
+summary = "plugin.memory.graphiti.summary"
+egress = ["cloud_api"]
+retention = "provider_managed"
+strengths = ["plugin.memory.graphiti.strength"]
+weaknesses = ["plugin.memory.graphiti.weakness"]
+
+[capabilities]
+interaction_memory = true
+temporal_graph = true
+
+[requirements]
+docker = true
+local_only_supported = false
+network = ["https://api.openai.com"]
+
+[[requirements.api_keys]]
+env = "OPENAI_API_KEY"
+required = true
+purpose = "plugin.memory.graphiti.key_purpose"
+
+[setup]
+min_minutes = 15
+max_minutes = 40
+difficulty = "advanced"

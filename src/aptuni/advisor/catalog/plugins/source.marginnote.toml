@@ -1,0 +1,26 @@
+schema_version = 1
+id = "source.marginnote"
+category = "source"
+contract_version = 1
+maturity = "preview"
+milestone = "M1"
+name = "plugin.source.marginnote.name"
+summary = "plugin.source.marginnote.summary"
+egress = ["none"]
+retention = "source_minimized"
+strengths = ["plugin.source.marginnote.strength"]
+weaknesses = ["plugin.source.marginnote.weakness"]
+
+[capabilities]
+incremental_sync = true
+hierarchy = true
+
+[requirements]
+docker = false
+local_only_supported = true
+network = []
+
+[setup]
+min_minutes = 3
+max_minutes = 8
+difficulty = "moderate"

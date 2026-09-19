@@ -1,0 +1,27 @@
+schema_version = 1
+id = "memory.builtin"
+category = "memory"
+contract_version = 1
+maturity = "builtin"
+milestone = "M1"
+name = "plugin.memory.builtin.name"
+summary = "plugin.memory.builtin.summary"
+egress = ["none"]
+retention = "canonical"
+strengths = ["plugin.memory.builtin.strength"]
+weaknesses = ["plugin.memory.builtin.weakness"]
+
+[capabilities]
+interaction_memory = true
+temporal_facts = true
+temporal_graph = false
+
+[requirements]
+docker = false
+local_only_supported = true
+network = []
+
+[setup]
+min_minutes = 0
+max_minutes = 1
+difficulty = "easy"

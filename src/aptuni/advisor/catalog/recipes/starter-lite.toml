@@ -1,0 +1,7 @@
+schema_version = 1
+id = "starter-lite"
+name = "recipe.starter-lite.name"
+goal = "recipe.starter-lite.goal"
+plugins = ["memory.builtin", "retrieval.sqlite_fts", "agent.mcp", "interface.cli"]
+later = []
+suggested_sources = ["folder"]

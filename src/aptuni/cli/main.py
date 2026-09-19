@@ -15,6 +15,7 @@ from aptuni.adapters.manager import AdapterManager
 from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService, Status
 from aptuni.application.workspace import DEFAULT_VAULT, Workspace
+from aptuni.cli.setup_commands import add_setup_commands, cmd_advise, cmd_plugin, cmd_recipe
 from aptuni.domain.invariants import InvariantError
 from aptuni.domain.records import MODULES, SchemaVersionError
 from aptuni.vault.store import VaultIntegrityError
@@ -154,6 +155,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_retrieval_commands(sub)
     _add_context_commands(sub)
     _add_adapter_commands(sub)
+    add_setup_commands(sub)
 
     sub.add_parser("doctor", help="recover and fully verify the Vault")
     return parser
@@ -528,6 +530,9 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "context": _cmd_context,
     "adapter": _cmd_adapter,
     "doctor": _cmd_doctor,
+    "plugin": cmd_plugin,
+    "recipe": cmd_recipe,
+    "advise": cmd_advise,
 }
 
 

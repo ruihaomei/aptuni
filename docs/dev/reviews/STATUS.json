@@ -64,6 +64,14 @@
       "supersedes": [
         "17-m1-github-source-review.md"
       ]
+    },
+    "m1-advisor-catalog": {
+      "kind": "review",
+      "current": "21-m1-advisor-catalog-rereview.md",
+      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+      "supersedes": [
+        "20-m1-advisor-catalog-review.md"
+      ]
     }
   }
 }

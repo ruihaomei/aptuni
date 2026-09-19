@@ -1,0 +1,25 @@
+schema_version = 1
+id = "agent.cursor"
+category = "agent"
+contract_version = 1
+maturity = "planned"
+milestone = "M2"
+name = "plugin.agent.cursor.name"
+summary = "plugin.agent.cursor.summary"
+egress = ["host_model"]
+retention = "none"
+strengths = ["plugin.agent.cursor.strength"]
+weaknesses = ["plugin.agent.cursor.weakness"]
+
+[capabilities]
+mcp = true
+
+[requirements]
+docker = false
+local_only_supported = true
+network = []
+
+[setup]
+min_minutes = 2
+max_minutes = 4
+difficulty = "easy"

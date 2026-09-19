@@ -1,0 +1,33 @@
+schema_version = 1
+id = "source.github"
+category = "source"
+contract_version = 1
+maturity = "builtin"
+milestone = "M1"
+name = "plugin.source.github.name"
+summary = "plugin.source.github.summary"
+egress = ["source_origin"]
+retention = "source_minimized"
+strengths = ["plugin.source.github.strength"]
+weaknesses = ["plugin.source.github.weakness"]
+
+[capabilities]
+incremental_sync = true
+provenance = true
+standard_mode = true
+deep_mode = false
+
+[requirements]
+docker = false
+local_only_supported = true
+network = ["https://api.github.com"]
+
+[[requirements.api_keys]]
+env = "GITHUB_TOKEN"
+required = false
+purpose = "plugin.source.github.key_purpose"
+
+[setup]
+min_minutes = 2
+max_minutes = 5
+difficulty = "easy"

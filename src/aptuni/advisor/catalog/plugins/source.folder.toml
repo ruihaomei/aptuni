@@ -1,0 +1,26 @@
+schema_version = 1
+id = "source.folder"
+category = "source"
+contract_version = 1
+maturity = "builtin"
+milestone = "M1"
+name = "plugin.source.folder.name"
+summary = "plugin.source.folder.summary"
+egress = ["none"]
+retention = "source_minimized"
+strengths = ["plugin.source.folder.strength"]
+weaknesses = ["plugin.source.folder.weakness"]
+
+[capabilities]
+incremental_sync = true
+provenance = true
+
+[requirements]
+docker = false
+local_only_supported = true
+network = []
+
+[setup]
+min_minutes = 1
+max_minutes = 3
+difficulty = "easy"

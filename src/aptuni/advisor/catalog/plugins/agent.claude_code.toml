@@ -1,0 +1,26 @@
+schema_version = 1
+id = "agent.claude_code"
+category = "agent"
+contract_version = 1
+maturity = "builtin"
+milestone = "M1"
+name = "plugin.agent.claude_code.name"
+summary = "plugin.agent.claude_code.summary"
+egress = ["host_model"]
+retention = "none"
+strengths = ["plugin.agent.claude_code.strength"]
+weaknesses = ["plugin.agent.claude_code.weakness"]
+
+[capabilities]
+session_start_l0 = true
+mcp = true
+
+[requirements]
+docker = false
+local_only_supported = true
+network = []
+
+[setup]
+min_minutes = 2
+max_minutes = 4
+difficulty = "easy"

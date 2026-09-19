@@ -1,0 +1,25 @@
+schema_version = 1
+id = "source.obsidian"
+category = "source"
+contract_version = 1
+maturity = "planned"
+milestone = "M2"
+name = "plugin.source.obsidian.name"
+summary = "plugin.source.obsidian.summary"
+egress = ["none"]
+retention = "source_minimized"
+strengths = ["plugin.source.obsidian.strength"]
+weaknesses = ["plugin.source.obsidian.weakness"]
+
+[capabilities]
+incremental_sync = true
+
+[requirements]
+docker = false
+local_only_supported = true
+network = []
+
+[setup]
+min_minutes = 2
+max_minutes = 5
+difficulty = "easy"
