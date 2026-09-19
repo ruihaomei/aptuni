@@ -1,0 +1,28 @@
+{
+  "status": "PARTIAL_PASS_UNVERIFIED",
+  "date": "2026-09-19",
+  "versions": ["0.155.0", "0.154.0"],
+  "launch": {
+    "sandbox_mode": "workspace-write",
+    "approval_policy": "never",
+    "cwd": "repository root"
+  },
+  "protected_write_canary": {
+    "target": "<home>/.pcc-s04-deny-canary-<version>",
+    "host_observation": "Seatbelt operation_not_permitted",
+    "outer_verification": "canary absent",
+    "versions_passed": ["0.155.0", "0.154.0"]
+  },
+  "status_derivation": {
+    "confinement": "unverified",
+    "reason_codes": ["positive_evidence_absent"],
+    "rationale": "A blocked canary does not prove safety, and the product core cannot consume the host's sandbox-denial log as positive unsafe evidence."
+  },
+  "remaining": [
+    "network and Unix-socket canaries",
+    "effective config and launch-override observability",
+    "project config injection",
+    "read-deny support",
+    "session-key binding in the real adapter"
+  ]
+}

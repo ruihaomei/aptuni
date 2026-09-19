@@ -8,7 +8,7 @@
 
 ## Measured facts
 
-The deterministic local layer passes 13 tests. The MCP SDK negotiated modern protocol `2026-07-28`
+The deterministic local layer passes 31 tests. The MCP SDK negotiated modern protocol `2026-07-28`
 over a real STDIO subprocess. Five schema-snapshotted tools enforce bounded synthetic output;
 resources and prompts are optional and returned empty. Invalid arguments and disabled modules return
 tool errors, EOF shuts the server down, and tool input schemas contain no approval, nonce, or
@@ -19,6 +19,26 @@ forged-principal/confused-deputy denial, exact action IDs, digest/scope/epoch bi
 one intent under eight concurrent confirmers, hard crashes immediately before and after journal
 commit, idempotent restart after effect success but before receipt update, and egress revocation to
 `cancelled_policy` with no effect. Observations are idempotent, quarantined, and non-exposable.
+
+The ADR-0013 status prototype has no `confined` value by construction. It distinguishes positive
+core-observed unsafe evidence (`not_in_effect`) from absent, skipped, misdirected, agent-only or
+unobservable evidence (`unverified`); ignores forged labels/metadata; binds evidence to one session;
+and emits only fixed reason codes. Marker paths do not enter host payloads. Realpath plus device/inode
+detects symlink and hardlink aliases. Portable stat metadata cannot establish APFS clone ancestry,
+so that path remains `unverified`. A macOS Foundation probe found a promising native signal: a
+`FileManager.copyItem` clone shared the source `fileContentIdentifier`, retained it after overwrite,
+and had a distinct resource identifier, while an independently rewritten copy received another
+content identifier. This preserves the ADR direction but requires a pinned native bridge and
+adversarial validation before acceptance.
+
+An independent focused review blocked ADR-0013 acceptance until two corrections landed. The status
+prototype now separates a complete, positively absent profile (`missing` → `not_in_effect`) from an
+unreadable/incomplete/ambiguous effective-settings snapshot (`profile: unverified`, confinement
+`unverified`). ADR-0013 now treats ordinary copies and APFS clones as distinct objects and permits
+only optional positive full-clone evidence from a validated macOS-native scan; absence never proves
+confinement. A re-review also caught and fixed unsafe-evidence precedence: a successful canary now
+forces confinement `not_in_effect` even when profile discovery is itself `unverified`. Native clone
+mapping and complete-settings discovery remain unimplemented blockers.
 
 The server runs under macOS `sandbox-exec` with `deny network*`. A Python audit hook denies AF_INET/
 AF_INET6 creation and all socket connect/bind operations. CPython asyncio itself requires a local
@@ -32,13 +52,15 @@ not covered by the MCP server sandbox.
 |---|---|---|
 | Codex CLI 0.155.0 / 0.154.0 | required read-path PASS | Both current and preceding stable called the annotated bounded L0 tool in `read-only` + `approval_policy=never` and returned `HOST_OK 61`. |
 | Codex CLI 0.153.4 | partial PASS | In `read-only` + `approval_policy=never`, a read tool without `readOnlyHint` was denied; after the standard annotation was added it returned `HOST_OK 61`. A non-destructive idempotent candidate observation was allowed and core kept it quarantined/non-exposable. |
-| Claude Code 2.1.267 / 2.1.266 | BLOCKED_AUTH | Both required binaries start, then fail before MCP with `OAuth session expired and could not be refreshed`; zero API tokens and zero tool calls. |
+| Codex CLI 0.155.0 / 0.154.0 | protected-write partial PASS | Under real `workspace-write` + `approval_policy=never` sessions, both versions logged a Seatbelt `operation_not_permitted` for a home-directory canary and an independent outer check found no file. Per ADR-0013 this blocked canary remains `unverified`, never `confined`. |
+| Claude Code 2.1.267 / 2.1.266 | BLOCKED_USAGE_LIMIT | Authentication now passes, but both versions receive HTTP 429 before inference because the account usage/session limit is exhausted; zero API tokens and zero tool calls. |
 | Claude Code 2.1.87 | BLOCKED_EXTERNAL | The synthetic run made no tool call or billed API request; the host returned repeated HTTP 400 responses for 131.6 seconds and was terminated. This is neither MCP failure nor PASS. |
 
 Official release sources checked on 2026-09-19 show Codex stable 0.155.0 with previous stable 0.154.0,
 and Claude Code npm `stable` 2.1.267 with previous published 2.1.266. Both Codex versions passed after
-isolated `npm exec` starts. Both Claude binaries start but cannot reach MCP until the user's expired
-OAuth session is refreshed; installed Claude 2.1.87's repeated HTTP 400 is the older symptom.
+isolated `npm exec` starts. Claude authentication was restored, but both required versions now stop
+at the account usage limit before MCP; installed Claude 2.1.87's repeated HTTP 400 is the older
+symptom.
 
 ## Interpretation
 
@@ -52,11 +74,14 @@ confinement/status cases pass.
 
 ## Remaining blockers
 
-- Re-authenticate Claude Code, then rerun current + preceding stable 2.1.267/2.1.266. Codex
-  0.155.0/0.154.0 read paths pass.
+- Rerun Claude Code 2.1.267/2.1.266 after the account session/usage limit resets or is raised. Codex
+  0.155.0/0.154.0 read paths and protected-write canaries pass.
 - Exercise protected-path write/read denial, settings/profile drift, session binding, canaries,
   `not_in_effect` versus `unverified`, project config injection, symlink/hardlink/APFS-clone paths,
-  override enumeration, and status path-redaction per ADR-0013.
+  override enumeration, and status path-redaction per ADR-0013. The local status/path-redaction
+  contract passes; real-host evidence remains.
+- Turn the Foundation `fileContentIdentifier` APFS result into a pinned bridge and test clone-family
+  false positives/negatives, cross-volume copies, renames, partial writes and probe failure.
 - Record exact core-observable setting/argv/hook sources in `COMPATIBILITY.md`.
 - Add the direct SDK/CLI/MCP outcome-parity table and injection defense-in-depth probes.
 

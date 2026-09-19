@@ -7,7 +7,7 @@
   "api_duration_ms": 0,
   "tool_calls": 0,
   "cost_usd": 0,
-  "error": "repeated HTTP 400 from host API; later stable versions identified expired OAuth as the root cause",
+  "error": "repeated HTTP 400 from host API; no MCP call or billed inference occurred, so the cause remains unclassified",
   "limitations": [
     "This is not an MCP server failure and not a host PASS",
     "2.1.87 is older than the npm stable tag 2.1.267",

@@ -8,7 +8,8 @@ Gate 0/S01 proof baseline on 2026-09-18: macOS 26.2 (build 25C56), local APFS **
 at `/opt/homebrew/bin/python3.13` with its SQLite 3.53.2. Installed Claude Code 2.1.87
 (`~/.local/bin/claude`) and Codex CLI 0.153.4 (ChatGPT desktop bundle) are local S04 evidence hosts,
 not the release matrix. On 2026-09-19 the upstream stable targets were Claude Code 2.1.267 plus
-2.1.266 and Codex 0.155.0 plus 0.154.0; those four journeys remain pending. Gate 0 accepts the Vault
+2.1.266 and Codex 0.155.0 plus 0.154.0. Codex read paths pass; Claude's two journeys remain blocked
+before inference by the account usage limit. Gate 0 accepts the Vault
 write protocol only on this baseline; unknown, network,
 or synchronized filesystems fail closed until separately admitted.
 
@@ -49,18 +50,21 @@ fake proven-local host and verify remote/unknown host denial.
 
 S04 fills each row with exact key names, required values, and the core-observable evidence source
 (merged settings, host argv, or hook-reported permission mode) for the pinned host version before any
-host journey. Core reports `not_in_effect` when observable evidence shows a required state is missing,
-overridden, or appended; otherwise `unverified`. Core never reports confinement as proven.
+host journey. Only a complete effective-settings snapshot can yield `installed`, `missing` or
+`drifted`; an unreadable, incomplete or ambiguously merged snapshot yields profile `unverified`.
+Core reports confinement `not_in_effect` when positive observable evidence shows a required state is
+missing, overridden or appended; otherwise confinement is `unverified`. Core never reports
+confinement as proven.
 
 | Host (version) | Surface | Required state | Verified by S04 |
 |---|---|---|---|
-| Claude Code 2.1.87 | Bash OS sandbox | enabled; protected paths denied for writes and, where supported, reads; no unsandboxed retry or excluded command (approval is terminal-only) | pending |
-| Claude Code 2.1.87 | Edit/Write/Read tools | deny rules for protected paths (rule-based, reason code `edit_tool_rule_based`) | pending |
-| Claude Code 2.1.87 | Escape settings | Apple Events, Unix sockets to core, extra directories and bypass/auto permission modes do not reach protected paths | pending |
-| Claude Code 2.1.87 | Hooks/MCP/plugin files | user-scope files outside every writable root; project-scope `.claude/settings.json`, `.claude/settings.local.json`, `.mcp.json`, hook scripts write-denied; non-bundled hook/MCP entries → `not_in_effect` | pending |
-| Codex 0.153.4 + preceding | Sandbox | workspace-write; protected paths outside writable roots; network off unless granted | pending |
-| Codex 0.153.4 + preceding | Approval/escalation | record the effective approval policy; escalation-capable → reason `host_escalation_available` (user's control is declining; `never` removes it); record read-deny support and project-config handling | pending |
-| Codex 0.153.4 + preceding | Config/profiles | no profile/`-c` override weakens the above; `~/.codex` not writable | pending |
+| Claude Code 2.1.267 + 2.1.266 | Bash OS sandbox | `sandbox.enabled=true`; `failIfUnavailable=true`; `allowUnsandboxedCommands=false`; `filesystem.disabled=false`; protected paths denied; no `excludedCommands` entry reaches them | keys confirmed by current official docs; real probes blocked by account limit |
+| Claude Code 2.1.267 + 2.1.266 | Edit/Write/Read tools | permission deny rules for protected paths (rule-based, reason code `edit_tool_rule_based`) | pending real probe; these tools do not use the Bash OS sandbox |
+| Claude Code 2.1.267 + 2.1.266 | Escape settings | `allowAppleEvents=false`; Unix sockets cannot reach core; `additionalDirectories`, permission modes and setting-source selection do not expose protected paths | exact merged values and real probes pending |
+| Claude Code 2.1.267 + 2.1.266 | Hooks/MCP/plugin files | user-scope files outside every writable root; project-scope `.claude/settings.json`, `.claude/settings.local.json`, `.mcp.json`, hook scripts write-denied; non-bundled hook/MCP entries → `not_in_effect` | pending |
+| Codex 0.155.0 + 0.154.0 | Sandbox | `sandbox_mode=workspace-write`; protected paths outside `sandbox_workspace_write.writable_roots`; `network_access=false`; `exclude_tmpdir_env_var=true`; `exclude_slash_tmp=true` | partial: real protected write denied in both versions; remaining keys/probes pending |
+| Codex 0.155.0 + 0.154.0 | Approval/escalation | record effective `approval_policy`; `on-request` or granular sandbox approval → reason `host_escalation_available`; `never` removes the prompt | partial: `never` used in read/write journeys; effective-value observability pending |
+| Codex 0.155.0 + 0.154.0 | Config/profiles | no profile/`-c`/project override weakens the above; `~/.codex` and bundled adapter path outside writable roots | pending; project-scoped `.codex` layers are skipped only for untrusted projects |
 | Any | Install path | installed package outside every writable root (never a project `.venv`) | pending |
 
 ## S04 interim host evidence (not acceptance)
@@ -69,13 +73,16 @@ overridden, or appended; otherwise `unverified`. Core never reports confinement 
 |---|---|---|
 | Codex 0.155.0 and 0.154.0, `read-only`, `approval_policy=never` | Current and preceding stable both returned `HOST_OK 61` from the bounded annotated L0 tool. | Required read path passes; protected-path/status/session probes pending. |
 | Codex 0.153.4, same session profile | Without `readOnlyHint` the host denied the call as approval-required; after annotation it returned `HOST_OK 61`. A non-destructive idempotent candidate write was allowed, and core kept it quarantined/non-exposable. | Older installed observation only. |
-| Claude Code 2.1.267 and 2.1.266 | Both binaries start; both fail before MCP with expired OAuth, zero API tokens/tool calls. | User re-authentication required, then rerun journeys. |
+| Claude Code 2.1.267 and 2.1.266 | Authentication and both binaries pass startup; both then fail before inference/MCP with HTTP 429 and zero API tokens/tool calls because the account usage/session limit is exhausted. | Rerun after the limit resets or is raised. |
 | Claude Code 2.1.87, `dontAsk`, strict synthetic MCP config | No MCP call occurred; repeated host API HTTP 400, zero API duration/tokens/cost, bounded termination after 131.6 seconds. | External/account/API blocker; version is behind stable. |
 
 Official current Codex configuration accepts `approval_policy = "on-request" | "never"` (plus a
 granular table); `untrusted` is removed and `on-failure` deprecated. `workspace-write` command
 network defaults off, but that control explicitly does not cover MCP, model/auth, apps, browser, or
 other client traffic. Claude's current sandbox supports `sandbox.enabled`,
-`allowUnsandboxedCommands=false`, `failIfUnavailable`, `filesystem.denyRead`/`denyWrite`, and read/
-edit permission rules, but several controls postdate installed 2.1.87. S04 must verify them on the
-target versions rather than copying current docs into an old profile.
+`allowUnsandboxedCommands=false`, `failIfUnavailable`, `filesystem.disabled=false`,
+`filesystem.denyRead`/`denyWrite`, `allowAppleEvents=false`, an empty `allowUnixSockets`, and read/
+edit permission rules. Built-in Read/Edit/Write use permission rules rather than the Bash OS sandbox,
+and `excludedCommands` can be appended across settings scopes, so those surfaces require separate
+real-host probes. Several controls postdate installed 2.1.87; the release profile targets
+2.1.267/2.1.266 and cannot infer support from the older binary.

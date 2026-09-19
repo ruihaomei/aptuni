@@ -26,10 +26,12 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   (`spikes/S03-fts.md`; `cjk_lexemes` selected; generalization/noise limit → KI-018). S04 and S05A
   pending. ADRs stay `Proposed` until spike results confirm or revise them; spike conclusions still
   need an independent evidence review (plan 00 exit checklist).
-- S04 is **IN PROGRESS**: deterministic local layer 13/13 PASS and Codex 0.155.0/0.154.0 required
-  read paths PASS; Claude Code 2.1.87 BLOCKED_EXTERNAL before MCP invocation. Required Claude
-  2.1.267/2.1.266 binaries reproduce an expired-OAuth failure before MCP. Re-authentication and
-  ADR-0013 confinement/status cases remain blocking (KI-005/KI-014).
+- S04 is **IN PROGRESS**: deterministic local/status layer 31/31 PASS and Codex 0.155.0/0.154.0
+  required read paths plus protected-write canaries PASS. Claude Code 2.1.87 is BLOCKED_EXTERNAL;
+  required Claude 2.1.267/2.1.266 authentication passes but both hit the account usage limit before
+  inference/MCP. A native Foundation probe found a viable APFS clone-family identifier, but its
+  production bridge and adversarial validation remain blocking with the other real-host cases
+  (KI-005/KI-014/KI-019).
 
 ## Awaiting maintainer decisions
 
@@ -39,8 +41,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-Continue S04 from `spikes/S04-mcp.md`: after the maintainer re-authenticates Claude Code, rerun
-2.1.267/2.1.266, then finish ADR-0013 per-host confinement/status probes. Do not start S05A
+Continue S04 from `spikes/S04-mcp.md`: rerun Claude 2.1.267/2.1.266 after the account limit resets,
+then finish ADR-0013 per-host confinement/status probes and resolve KI-019. Do not start S05A
 or accept ADR-0005 until the S04 blocking matrix clears.
 
 ## Latest validation state
@@ -53,7 +55,7 @@ or accept ADR-0005 until the S04 blocking matrix clears.
 - S02: `spikes/s02_plugins/run_s02.py` (offline) → 12 tests OK, exit 0.
 - S03: `spikes/s03_fts/run_s03.py verify` on Python 3.13.3 / SQLite 3.53.2 → 23 tests OK;
   frozen evidence verified; selected `cjk_lexemes` clears development, 25k-scale, and holdout gates.
-- S04 local: `/tmp/pcc-s04-20260919/bin/python run_s04.py` → 13 tests OK on MCP SDK 2.2.0;
+- S04 local: `/tmp/pcc-s04-20260919/bin/python run_s04.py` → 31 tests OK on MCP SDK 2.2.0;
   real-host evidence remains incomplete and S04 is not PASS.
 - Markdown link and ADR-index checks run inside `tools/check_relay.py`: 75 Markdown files,
   13 ADRs, all indexed; 8 research notes.

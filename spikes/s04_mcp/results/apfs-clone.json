@@ -1,0 +1,18 @@
+{
+  "status": "PASS_NATIVE_SIGNAL_FOUND",
+  "date": "2026-09-19",
+  "host": "macOS 26.2 APFS data volume",
+  "probe": "Foundation URLResourceValues",
+  "volume_supports_file_cloning": true,
+  "source_and_clone": {
+    "file_content_identifier_equal_before_write": true,
+    "file_resource_identifier_equal": false,
+    "may_share_file_content": true,
+    "clone_content_identifier_stable_after_overwrite": true
+  },
+  "source_and_independent_rewrite": {
+    "file_content_identifier_equal": false,
+    "may_share_file_content": false
+  },
+  "interpretation": "Portable realpath/stat is insufficient, but the macOS Foundation content identifier distinguishes the tested APFS clone family from an independent rewrite. Production still needs a pinned native bridge and adversarial validation."
+}

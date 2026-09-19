@@ -108,14 +108,25 @@ the same day for reviews 12 and 13 (terminal-only approval; core never claims `c
        overrides.
 
      A missing, overridden or appended required key lowers the status (item 4).
-   - **Path indirection:** protected paths are compared by real path and inode, so symlinks,
-     hardlinks, renames and APFS clones from a writable root count as violations.
+   - **Path identity and copies:** Core compares protected filesystem objects by canonical real path
+     and `(st_dev, st_ino)`. Symlinks, hardlinks and renames that resolve to the same object are alias
+     violations. Ordinary copies and APFS clones are distinct objects; core MUST NOT infer clone
+     ancestry from `realpath`, `stat`, inode, timestamps or content equality. On an APFS volume
+     advertising `VOL_CAP_FMT_CLONE_MAPPING`, an optional macOS-native scan may treat matching
+     `ATTR_CMNEXT_CLONEID` together with full-clone evidence as positive
+     `protected_full_clone_visible` evidence inside an enumerated writable root. Missing capability,
+     incomplete scans, permission failure, deleted clones, and partial or diverged clones remain
+     `unverified`. Absence of a detected clone never proves confinement.
    - **No approval-capable IPC:** the core exposes none, and core sockets must not be reachable
      through `allowUnixSockets`.
 4. **Status derivation (normative).** Core can prove a setup is *unsafe*, never that it is safe, so
    it never reports `confined`. The status fields are:
-   - `profile`: `installed` / `missing` / `drifted`, from diffing the effective settings files against
-     the bundled profile;
+   - `profile`: `installed` / `missing` / `drifted` / `unverified`. The first three require a
+     complete, core-observed effective-settings snapshot covering every normative source and
+     precedence layer. Confirmed absence yields `missing`; unreadable, incomplete, unsupported or
+     ambiguously merged settings yield `profile: unverified`, `confinement: unverified`, reason
+     `effective_settings_unobservable`. `installed` means only that the required security-relevant
+     projection matches; it is never a confinement claim;
    - `confinement`: `not_in_effect` or `unverified`.
 
    `not_in_effect` requires positive, core-observed evidence. Examples:
@@ -214,6 +225,12 @@ S04 (per host) and Foundation Slice 7 run these tests, each with a binary pass c
     yields `not_in_effect`.
   - A skipped or misdirected probe leg, or an escape set only by an unobservable launch flag, yields
     `unverified`.
+  - An unreadable, incomplete, unsupported or ambiguously merged effective-settings snapshot yields
+    `profile: unverified` and confinement `unverified`; only confirmed absence in a complete snapshot
+    yields `profile: missing` and `not_in_effect`.
+  - Symlink/hardlink/rename aliases are detected by canonical path plus device/inode. Portable clone
+    checks and incomplete native scans remain `unverified`; a detected full clone may only add the
+    positive reason `protected_full_clone_visible`.
   - A forged label or env var changes nothing.
   - Evidence from session N is absent in session N+1.
 - **Leaks.**

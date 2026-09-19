@@ -4,7 +4,7 @@
 |---|---|---|---|
 | KI-002 | Release blocker | Public license is not confirmed. | Maintainer decides ADR-0009 before release/contributions. |
 | KI-004 | Blocking per source | MarginNote export identity is not publicly guaranteed stable. | Run Gate 0 S05A then MarginNote S05B on real sanitized exports. |
-| KI-005 | Blocking | S04 local protocol/policy layer and Codex 0.155.0/0.154.0 read paths pass, but Claude 2.1.267/2.1.266 both stop before MCP because the OAuth session is expired and cannot refresh. | Maintainer re-authenticates Claude Code; rerun both journeys, then finish ADR-0013 host probes. |
+| KI-005 | Blocking | S04 local protocol/policy layer and Codex 0.155.0/0.154.0 read/protected-write paths pass. Claude authentication is restored, but 2.1.267/2.1.266 both stop before inference/MCP with HTTP 429 because the account usage/session limit is exhausted. | Rerun both Claude journeys after the limit resets or is raised, then finish ADR-0013 host probes. |
 | KI-008 | Deferred | Mem0 local privacy/retention/export behavior needs isolation testing. | S10 before Milestone 2 adapter. |
 | KI-009 | Deferred | Graphiti projection loses canonical semantics and needs a ledger. | S11 before Milestone 3 adapter. |
 | KI-010 | Process | Project Research Memory has not been initialized. | Await maintainer answer; not an implementation blocker. |
@@ -12,6 +12,7 @@
 | KI-016 | High | S01 findings F1–F3: whole-Vault revalidation per commit, integrity mismatch blocks all reads, purge needs startup `recover()`. | Mandatory M1.1 Slice 3 requirements (incremental validation + compaction; out-of-band edits → quarantine; recover before serving); fold into ADR-0001/0010 on acceptance. |
 | KI-017 | High | S02 F1: pip RECORD does not hash `.pyc`; a forged bytecode file passes closure verification and executes. | M1.1 sets `sys.pycache_prefix` to a core-owned directory before importing plugins (proven in S02) and adds F2/F3 (manifest placement; lockfile artifact hashes). |
 | KI-018 | High | S03 used a templated synthetic corpus; broad two-character queries admitted top-5 distractors even though aggregate gates passed. | M1 adds dogfood judgments and per-result context-noise tests; retain size telemetry and score/reranking seam before user-facing quality claims. |
+| KI-019 | High | Portable `realpath`/`stat` cannot identify APFS clone ancestry. S04 found a promising Foundation content identifier, while independent review identified native full-clone mapping attributes but warned that arbitrary historical, partial or diverged ancestry remains unprovable. | ADR-0013 was narrowed. Add a pinned native full-clone bridge plus adversarial false-positive/false-negative and incomplete-scan tests; portable or failed native probes remain `unverified`, and absence never proves confinement. |
 
 Resolved issues move to an appended history section; do not silently delete them.
 

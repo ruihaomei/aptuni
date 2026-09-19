@@ -58,7 +58,8 @@ For successful cases, assert the required sequence:
 - Snapshots pass both locales with no untranslated keys/messages.
 - The exact built-artifact install/doctor/smoke commands pass on `COMPATIBILITY.md`.
 - No setup path bypasses application services or the ADR-0013 confirmation; setup ends by showing the
-  profile status (`installed` / `missing` / `drifted`) and confinement (`unverified` or `not_in_effect`)
+  profile status (`installed` / `missing` / `drifted` / `unverified`) and confinement (`unverified`
+  or `not_in_effect`)
   with full detail from the CLI, and only an enum plus reason codes to the host and in
   `views/Status.md`. It tells the user that the profile covers only newly launched host sessions and
   that the current session must be relaunched.

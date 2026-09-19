@@ -1,18 +1,20 @@
 {
-  "status": "BLOCKED_AUTH",
+  "status": "BLOCKED_USAGE_LIMIT",
   "date": "2026-09-19",
   "versions": {
     "current_stable": {
       "version": "2.1.267",
       "binary": "PASS",
       "host_journey": "BLOCKED_BEFORE_MCP",
-      "duration_ms": 157
+      "api_error_status": 429,
+      "duration_ms": 1285
     },
     "preceding_stable": {
       "version": "2.1.266",
       "binary": "PASS",
       "host_journey": "BLOCKED_BEFORE_MCP",
-      "duration_ms": 113
+      "api_error_status": 429,
+      "duration_ms": 2815
     },
     "installed": {
       "version": "2.1.87",
@@ -20,9 +22,10 @@
       "legacy_symptom": "repeated HTTP 400"
     }
   },
-  "root_cause": "OAuth session expired and could not be refreshed",
+  "authentication": "PASS",
+  "root_cause": "Account usage limit rejected both runs before inference",
   "api_duration_ms": 0,
   "api_tokens": 0,
   "mcp_tool_calls": 0,
-  "required_user_action": "Re-authenticate Claude Code, then rerun the two stable-version journeys."
+  "required_user_action": "Rerun both stable-version journeys after the account session limit resets or the usage limit is raised."
 }

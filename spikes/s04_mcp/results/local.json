@@ -5,7 +5,7 @@
   "sqlite": "3.53.2",
   "mcp_sdk": "2.2.0",
   "protocol_observed": "2026-07-28",
-  "tests": 13,
+  "tests": 31,
   "network_boundary": {
     "os_profile": "sandbox-exec deny network*",
     "python_audit": "allow AF_UNIX creation only for asyncio self-pipe; deny AF_INET/AF_INET6 creation and every connect/bind",
@@ -20,6 +20,14 @@
     "hard crashes before and after journal commit",
     "external effect before receipt update is idempotent on restart",
     "egress revocation cancels before effect",
-    "candidate remains quarantined and non-exposable"
+    "candidate remains quarantined and non-exposable",
+    "confinement status has no confined value and requires positive unsafe evidence for not_in_effect",
+    "status evidence is session-bound and host payloads contain fixed reason codes only",
+    "forged labels, environment-like metadata, and adapter claims cannot elevate status",
+    "symlink and hardlink aliases resolve by real path plus device/inode",
+    "portable copy or APFS-clone provenance without shared identity remains unverified",
+    "missing, overridden, or appended required profile values produce content-free drift reasons",
+    "incomplete or unreadable effective settings remain profile and confinement unverified",
+    "positive unsafe evidence still forces not_in_effect when profile discovery is unverified"
   ]
 }
