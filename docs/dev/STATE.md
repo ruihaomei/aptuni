@@ -56,11 +56,16 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   core-admitted `proven_local` execution or `host_model_egress`. Principal/authority are absent from
   tool inputs, no approve/write tool exists, and the production entry point defaults to content-free
   denial. MCP Python SDK 2.2.0 is locked; the process denies Internet/TCP sockets.
+- **Slice 6 — Claude/Codex adapter bundles (runnable, `f7fb727`).** `aptuni adapter plan/apply`
+  creates a full informed-egress preview, asks for terminal `APPLY`, then writes a mode-0600 exact-ID
+  grant and deterministic Aptuni-owned bundle. Both hosts register grant-bound STDIO MCP; Claude's
+  bundle adds a bounded SessionStart L0 command. Cancellation creates no grant/bundle and repeat
+  apply is idempotent. Host class remains `remote_unknown`; config/tool/env labels cannot elevate it.
 
 ## In progress
 
-- Claude Code and Codex adapter slice: persisted informed host grants, bundled STDIO configuration,
-  bounded L0 integration, and honest confinement diagnostics.
+- GitHub Standard Source admission/provider work, beginning with S05B live API behavior required by
+  KI-020; MarginNote remains data-blocked pending the maintainer's sanitized export series.
 
 ## Awaiting maintainer decisions
 
@@ -68,14 +73,14 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-Implement the Claude Code/Codex adapters without allowing config/tool/env labels to assign
-`proven_local`; bind persisted grants to principal, exact scopes/modules, operator/destination and
-retention disclosure. Independently re-review remediation 16 when a separate reviewer is available;
-until then its stream remains BLOCK.
+Implement and verify GitHub Standard Source pagination, redirects/origin limits, rate limits,
+truncation, credential references, snapshots/deltas and sync CLI integration. Do not ship MarginNote
+until the KI-020 sanitized real-export series exists. Independently re-review remediation 16 when a
+separate reviewer is available; until then its stream remains BLOCK.
 
 ## Latest validation state
 
-- `.tools/bin/uv run pytest`: 172 passed, 47 subtests passed; `ruff check .` and `mypy` (strict): clean.
+- `.tools/bin/uv run pytest`: 176 passed, 47 subtests passed; `ruff check .` and `mypy` (strict): clean.
 - `python3.13 tools/check_relay.py`: pass (Markdown link, ADR-index and workspace-text checks).
 - `python3.13 -m unittest tests/dev/test_check_relay.py`: 20 tests OK.
 - `/opt/homebrew/bin/python3.13 spikes/s03_fts/run_s03.py verify`: recorded bilingual retrieval evidence reproduced.
@@ -83,5 +88,7 @@ until then its stream remains BLOCK.
 - Clean-wheel `identity → bilingual context` smoke: L0 and L1–L3 layers, budget accounting, canonical IDs, and owner-only audience all verified.
 - Clean-wheel `aptuni-mcp` smoke: SDK STDIO EOF shutdown and content-free default start pass; the
   Internet/TCP socket canary fails closed with `aptuni_mcp_network_denied`; dependency check passes.
+- Clean-wheel adapter smoke: `plan → terminal apply → grant-bound aptuni-mcp` passes; generated
+  Claude bundle and private grant are present; dependency check passes.
 - Spike evidence: S01 46, S02 12, S03 23, S04 58 (+5 skips), S05A 95 tests. Commands are in each
   spike README.

@@ -25,6 +25,7 @@ aptuni index status
 aptuni identity --budget 600
 aptuni context "teach me survival analysis" --module knowledge --budget 1500
 aptuni-mcp
+aptuni adapter plan claude --module identity --module knowledge --allow-host-model-egress
 aptuni doctor
 ```
 
@@ -42,5 +43,8 @@ pretending to know every host tokenizer. L4 minimized Evidence is excluded unles
 requested. The local `aptuni-mcp` STDIO server adds process-bound principal, scope, module, and
 host-model-egress checks. Its production entry point deliberately exposes only content-free health
 until a configured host adapter supplies admitted access; tool arguments cannot self-authorize.
+`aptuni adapter plan` and the terminal-confirmed `adapter apply` command prepare an Aptuni-owned
+Claude Code or Codex bundle without silently editing host configuration. The preview names the
+operator, destination, modules, scopes, and externally controlled retention boundary.
 
 Licensed under [Apache-2.0](LICENSE).

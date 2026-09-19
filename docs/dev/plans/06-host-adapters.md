@@ -1,6 +1,6 @@
 # Milestone 1 Slice 6 — Claude Code and Codex Adapter Bundles
 
-**Status:** Active
+**Status:** Complete (`f7fb727` implementation checkpoint; relay checkpoint follows)
 **Decision basis:** ADR-0005, ADR-0007, ADR-0008, ADR-0013, S04, and bounded MCP Slice 5.
 
 ## User-visible capability
@@ -29,3 +29,11 @@
 
 No automatic edits to host-global/project config, credentials, write tools, or claim of confinement.
 Guided placement/rollback and remaining real-host S12 probes remain the next interface slice.
+
+## Exit evidence
+
+- 176 tests plus 47 subtests pass; Ruff and mypy strict are clean.
+- Clean-wheel `plan → terminal apply → grant-bound aptuni-mcp` smoke and dependency check pass.
+- Grants are mode 0600, exact-ID loaded, remote/unknown, and bind scopes/modules/egress disclosure.
+- Known limitations: bundles are prepared but not installed into host-global configuration; Codex has
+  static on-demand guidance rather than proven automatic L0 injection; S12 real-host probes remain.
