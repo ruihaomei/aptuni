@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -14,7 +15,12 @@ from aptuni.adapters.manager import AdapterManager
 from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService, Status
 from aptuni.application.workspace import DEFAULT_VAULT, Workspace
-from aptuni.domain.records import MODULES
+from aptuni.domain.invariants import InvariantError
+from aptuni.domain.records import MODULES, SchemaVersionError
+from aptuni.vault.store import VaultIntegrityError
+
+UNSAFE_STATE_ERRORS = (VaultIntegrityError, InvariantError, SchemaVersionError, OSError, ValueError, TypeError,
+                       KeyError, AttributeError)
 
 
 def _on_off(value: str) -> bool:
@@ -536,4 +542,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run(sys.argv[1:] if argv is None else argv, service)
     except AptuniError as error:
         print(f"aptuni: {error.message}", file=sys.stderr)
+        return 1
+    except UNSAFE_STATE_ERRORS as error:
+        # Last-line boundary (review 19 N2): never print a traceback or the exception text, which can
+        # echo Vault content. APTUNI_DEBUG=1 re-raises for development.
+        if os.environ.get("APTUNI_DEBUG") == "1":
+            raise
+        print(f"aptuni: the Vault, its state or its configuration could not be read safely "
+              f"({type(error).__name__}). Nothing was changed; run 'aptuni doctor' for details.", file=sys.stderr)
         return 1

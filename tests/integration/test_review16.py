@@ -131,6 +131,49 @@ def test_torn_ledger_tail_does_not_brick_open(base: Path) -> None:
     assert "obs_00000000000000000000000002" not in {r.id for r in reopened.read_all()}
 
 
+
+@pytest.mark.parametrize("purged", [
+    {"fct_00000000000000000000000004"},
+    {"fct_00000000000000000000000003", "fct_00000000000000000000000004"},
+])
+def test_purge_after_torn_ledger_tail_keeps_every_entry(base: Path, purged: set[str]) -> None:
+    """Review 19 N1: a torn fragment must not swallow the next purge's first ledger entry."""
+    from aptuni.domain.ids import sha256_text
+
+    records = [parse_record(raw) for raw in golden_raw()]
+    vault = Vault.init(base / "v", base / "s")
+    vault.commit(records, expected_seq=0)
+    vault.purge({"obs_00000000000000000000000002"}, expected_seq=1)
+    with open(base / "s" / "deletion-ledger.jsonl", "a", encoding="utf-8") as handle:
+        handle.write('{"id": "led_trunc')
+    opened = Vault.open(base / "v", base / "s")
+    opened.purge(purged, expected_seq=opened.head().seq)
+    reopened = Vault.open(base / "v", base / "s")
+    assert {sha256_text(rid) for rid in purged} <= reopened.ledger_digests()
+    again = next(r for r in records if r.id in purged)
+    with pytest.raises(InvariantError):
+        reopened.commit([again], expected_seq=reopened.head().seq)
+
+
+@pytest.mark.parametrize(("label", "setup"), [
+    ("config vault is int", lambda base: (base / "state" / "config.json").write_text('{"version":1,"vault":5}')),
+    ("config is a list", lambda base: (base / "state" / "config.json").write_text("[]")),
+    ("config invalid utf-8", lambda base: (base / "state" / "config.json").write_bytes(b"\xff\xfe")),
+    ("stray HEAD temp dir", lambda base: (base / "Aptuni" / ".HEAD.x.tmp").mkdir()),
+])
+def test_malformed_state_never_prints_a_traceback(base: Path, label: str, setup: Any) -> None:
+    """Review 19 N2: the CLI maps every unsafe-state failure to a fixed, content-free message."""
+    env = dict(os.environ, APTUNI_STATE_DIR=str(base / "state"), PYTHONPATH=str(REPO / "src"))
+    env.pop("APTUNI_DEBUG", None)
+    subprocess.run([sys.executable, "-m", "aptuni", "init", str(base / "Aptuni")], env=env, check=True,
+                   capture_output=True)
+    setup(base)
+    done = subprocess.run([sys.executable, "-m", "aptuni", "status"], env=env, capture_output=True, text=True,
+                          check=False)
+    assert "Traceback" not in done.stderr, label
+    assert done.returncode != 0 or "Vault" in done.stdout, label
+
+
 # F8 -------------------------------------------------------------------------------------------
 def test_pending_or_quarantined_facts_are_never_exposable() -> None:
     raws = golden_raw()

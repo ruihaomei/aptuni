@@ -361,7 +361,9 @@ class Vault:
                                                target_digest=sha256_text(rid))) + "\n"
             for rid in sorted(record_ids)
         )
-        with open(self.state_dir / "deletion-ledger.jsonl", "a", encoding="utf-8") as handle:
+        path = self.state_dir / "deletion-ledger.jsonl"
+        _drop_torn_tail(path)
+        with open(path, "a", encoding="utf-8") as handle:
             handle.write(lines)
             handle.flush()
             _full_fsync(handle.fileno())
@@ -380,3 +382,23 @@ class Vault:
                     break  # torn tail from a crash mid-append; the purge itself never completed
                 raise VaultIntegrityError(f"deletion ledger line {number} is malformed") from error
         return digests
+
+
+def _drop_torn_tail(path: Path) -> None:
+    """Cut an interrupted final append back to the last newline so it cannot merge with new entries.
+
+    Called under the writer lock before every ledger append (review 19 N1). Complete lines are
+    never touched; only the fragment after the final newline is removed.
+    """
+    try:
+        data = path.read_bytes()
+    except FileNotFoundError:
+        return
+    if not data or data.endswith(b"\n"):
+        return
+    os.truncate(path, data.rfind(b"\n") + 1)
+    fd = os.open(path, os.O_RDONLY)
+    try:
+        _full_fsync(fd)
+    finally:
+        os.close(fd)
