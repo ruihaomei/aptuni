@@ -3,10 +3,11 @@
 **Updated:** 2026-09-19
 **Current gate:** Milestone 1 — Portable Personal Context Core (Gate 0 closed 2026-09-19, review 15)
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
-Folder Source, bilingual SQLite/FTS projection, bounded Context API, and fail-closed MCP STDIO server
-are runnable.
+Folder and GitHub sources, bilingual SQLite/FTS projection, bounded Context API, fail-closed MCP
+STDIO server, Claude/Codex adapters, and the read-only Plugin Advisor are runnable. The repository
+has bilingual READMEs and community files for open-sourcing (not yet pushed or published).
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -69,30 +70,56 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   Secret/hidden/cache/VCS paths are excluded before fetch. Exact-origin redirects, response/blob
   sizes, rate limits, truncation fallback, crash/ref-advance replay, and concurrent syncs fail closed.
   Independent Review 18 is `APPROVE`.
+- **Slice 8 — Plugin catalog, Recipes, i18n and Plugin Advisor (runnable, `e3dbd2e`).** ADR-0014:
+  one TOML manifest per plugin/recipe with honest maturity (only `builtin` is selectable); `aptuni
+  advise` (PRD §50 questions, language first, or options/`--json`), `aptuni plugin list`, `aptuni
+  recipe list|show`; English and Simplified Chinese catalogs with parity tests. Read-only; the plan
+  digest is language independent. Review 20 BLOCK (local-only overclaim) → remediation → Review 21
+  APPROVE WITH NON-BLOCKING NOTES.
+- **Retrieval fallback (`82ad8ee`).** All-terms FTS first, then stopword-filtered bm25 any-term
+  matches above a relative floor, so task-shaped queries find context (ADR-0004 amendment).
+- **Vault hardening (`ec4ebbe`).** Torn deletion-ledger tail repaired before append (Review 19 N1);
+  unsafe-state failures end in a fixed CLI message, `APTUNI_DEBUG=1` re-raises (N2).
+- **Open-source readiness (`048556b`).** README/README.zh-CN (verified quickstart), CONTRIBUTING,
+  SECURITY, CODE_OF_CONDUCT, CHANGELOG, CITATION.cff, `.github/CODEOWNERS`.
 
 ## In progress
 
-- MarginNote S05B identity admission. The app's existing local MarginNote 4 database is available for
-  authorized read-only inspection; no standalone OPML export series was found in the initial bounded
-  search. Select representative local history/export evidence without committing private content.
+- MarginNote S05B. `spikes/s05b_marginnote/` replays the production OPML reconciler over the
+  maintainer's real MarginNote 4 backup history (incremental snapshots reconstructed by overlay):
+  108 notebooks, 298 transitions, 131,902 nodes, **0 links across different content**. Refinements
+  R1 (same-slot identical siblings) and R3 (weak structural match → review) cut review items 61%
+  (25,534 → 10,048); R2 was rejected by Review 22. KI-020 stays open: review burden (≈34/sync in the
+  harness, partly artifacts) and the real exporter's OPML shape are unresolved.
 
 ## Awaiting maintainer decisions
 
-- None currently blocking source investigation. If the local MarginNote database/backups cannot
-  reconstruct the required no-op/edit/move/duplicate/delete-recreate/branch/restart matrix, a
-  maintainer-created sanitized export series will still be required before the provider ships.
-  Brand vector masters and social assets remain non-blocking (see `docs/brand/README.md`).
+- **MarginNote OPML export:** one full-notebook OPML export and one focus-branch export of the
+  same notebook, placed anywhere local; tell the agent the paths. Required to close KI-020.
+- **Before publishing:** choose the public GitHub repository name, enable GitHub private
+  vulnerability reporting (SECURITY.md relies on it), confirm `@ruihaomei` in `.github/CODEOWNERS`,
+  and re-check `aptuni` name availability (BACKLOG).
+- Brand vector masters and social assets remain non-blocking (see `docs/brand/README.md`).
 
 ## Next highest-priority task
 
-Inspect the authorized local MarginNote 4 database/backups and any exports, select representative
-samples, and run as much of the KI-020 no-op/edit/move/duplicate/delete-recreate/branch/restart matrix
-as the existing history supports. Do not ship MarginNote without adequate real identity evidence.
-Review 16 is closed by independent re-review 19.
+1. **MarginNote locator minimization (ADR-0006 amendment + review).** The S05A locator stores each
+   node's full `ancestor_path` text and unknown attributes in source state and Evidence provenance,
+   which reproduces the mind map (full-content retention). Define `marginnote.locator@2`: keep
+   structural fields (`parent_node_id`, `children_signature`, `sibling_index`), replace ancestor
+   text with hashes or a bounded path, allowlist attributes. Then build `aptuni source
+   add-marginnote PATH.opml` + sync in a new `application/marginnote_ingest.py` (reuse
+   `_read_approved_file`, bounded size; skip empty-text nodes; `exposure` by default, `studied` only
+   when the source's authority policy lists `knowledge.studied`). Keep `source.marginnote` at
+   `preview` until KI-020 closes with a real export replay.
+2. Guided-setup apply step (plan 02 steps 1, 4, 5): `SetupPlan` bound to the advise digest, one
+   terminal confirmation, install, doctor, smoke.
 
 ## Latest validation state
 
-- `.tools/bin/uv run pytest`: 197 passed, 47 subtests passed; `ruff check .` and `mypy` (strict): clean.
+- `.tools/bin/uv run pytest`: 268 passed, 47 subtests passed; `ruff check .` and `mypy` (strict): clean.
+- Clean-wheel `aptuni advise --json` and `aptuni recipe list --lang zh-CN`: pass (22 TOML data files ship).
+- README quickstart (`init → remember → add-folder → sync → context --evidence`) run end to end.
 - `python3.13 tools/check_relay.py`: pass (Markdown link, ADR-index and workspace-text checks).
 - `python3.13 -m unittest tests/dev/test_check_relay.py`: 20 tests OK.
 - `/opt/homebrew/bin/python3.13 spikes/s03_fts/run_s03.py verify`: recorded bilingual retrieval evidence reproduced.

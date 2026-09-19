@@ -12,3 +12,7 @@
 | `git filter-branch --all` also rewrites `refs/stash` and leaves Codex `refs/codex/turn-diffs/*` holding old blobs | Drop stashes, delete stale checkpoint refs, expire reflogs, `gc --prune=now`, then scan every blob |
 | Slice-based string rewrites can match the wrong occurrence and truncate a file | Use exact-match Edit with uniqueness checks |
 | Rechecking policy only after retrieval still leaves a race during response composition | Recheck the Vault sequence after hydration, layering, and budget packing; discard and retry the whole response on change |
+| MarginNote 4 `BackupSnapshots_v4.sqlite` snapshots are incremental (only changed notes after the first; `note_count` holds the true total). Treating each as a full tree invents thousands of deletions | Overlay deltas in order and evaluate only while the overlay size equals `note_count` (`spikes/s05b_marginnote/replay.py`) |
+| Reading another app's container (`~/Library/Containers/...`) blocks on a macOS privacy prompt; the process sleeps with ~0 CPU | Ask the maintainer to approve the prompt; do not busy-retry |
+| All-terms FTS queries return nothing for natural task requests | Keep all-terms first, then a ranked any-term fallback (ADR-0004 amendment 2026-09-19) |
+| Building evidence from `ancestor_path` or unknown OPML attributes copies the whole mind map into the Vault | Minimize the MarginNote locator before shipping ingest (full-content retention, ADR-0006) |

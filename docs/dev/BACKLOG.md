@@ -24,4 +24,6 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Show configured GitHub Enterprise origins in the preview network list | Review 20 N10 | Guided-setup apply slice |
 | Bind the apply confirmation digest to catalog/schema version and the answers | Review 20 N11 | Guided-setup apply slice |
 | i18n polish: localized `recipe show` unknown-id error, CJK list separator `、`, CJK column widths, `--lang fr` notice, Claude Desktop file-access wording, retention heading vs provider-managed data | Review 20 N7, Review 21 | i18n pass |
+| R3-demoted parent's children become moves under the parent's new generated ID | Review 22/23 | MarginNote ingest slice |
+| Replay harness: hidden truth attribute inflates modify/no-op counts; restart stopped chains at later full snapshots; order roots by canvas position | Review 22/23 | MarginNote ingest slice |
 | Collision re-check for `aptuni` on PyPI/npm/GitHub before first publish | Review 15 F9 | Release |

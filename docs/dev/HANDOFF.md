@@ -1,41 +1,34 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
-Gate 0 is closed (review 15; all ADRs accepted). The Vault/CLI core, Folder Source, bilingual
-SQLite/FTS retrieval, bounded Context API, and bounded MCP STDIO server are runnable. Slice 5's
-implementation checkpoint is `d4cc1fb`; adapter Slice 6 is `f7fb727`.
-GitHub Standard Source Slice 7 is runnable at `0190cf6` and independently approved in Review 18.
-Review 16 is closed: independent focused re-review 19 verified remediation 16 (APPROVE WITH
-NON-BLOCKING NOTES); notes N1–N5 are in `BACKLOG.md`.
+Milestone 1. Runnable: Vault/CLI core, Folder and GitHub sources, bilingual SQLite/FTS retrieval
+(with task-query fallback), bounded Context API, MCP STDIO, Claude/Codex adapters, and the read-only
+Plugin Advisor (`aptuni advise`, ADR-0014). Review 16 is closed by re-review 19; the advisor stream
+is approved (review 21). Community files and bilingual READMEs are in place; nothing is pushed.
+
+MarginNote S05B: the real-history replay (`spikes/s05b_marginnote/`) shows no cross-content link
+and adopts R1/R3 (ADR-0006 amendment); R2 was withdrawn after Review 22. KI-020 stays open.
 
 ## Read first
 
-1. `AGENTS.md` (execution policy), `STATE.md`, `KNOWN_ISSUES.md`, `BACKLOG.md`
-2. `DECISIONS/` for the area you touch; `docs/research/INDEX.md` before any research
+1. `AGENTS.md`, `STATE.md` (next tasks), `KNOWN_ISSUES.md`, `BACKLOG.md`
+2. `DECISIONS/` for the area you touch; `docs/research/INDEX.md` and `findings/pitfalls.md`
 3. `docs/brand/BRAND_GUIDELINES.md` before README, docs or UI work
 
 ## Next action
 
-Continue MarginNote S05B using the authorized local MarginNote 4 database, backup history, and any
-existing exports. Select sanitized structural samples for no-op/edit/move/duplicate/delete-recreate/
-branch/restart identity checks without committing private note content. The initial bounded search
-found the live MN4 databases but no standalone OPML exports; require a maintainer-created export
-series if database history cannot cover the matrix. GitHub Standard Source is complete: exact-origin
-network bounds, rate/truncation behavior, credential references, snapshots/deltas, crash recovery,
-concurrency, CLI sync, and real dogfood all pass. The authorized repository has deletion/history but
-no rename commit, so only the rename case remains fixture-proven.
-
-Latest validation: 197 tests plus 47 subtests; Ruff, mypy strict, relay checks, build, clean-wheel
-grant-bound MCP adapter smoke, network canary and dependency check pass. Known limitations: bundles
-are prepared but deliberately do not edit host-global configuration; Codex automatic L0 injection is
-unproven; S12 real-host release probes remain.
+Minimize the MarginNote locator (`marginnote.locator@2`, ADR-0006 amendment, independent review),
+then ship `aptuni source add-marginnote` + sync as `preview`. Details in STATE "Next highest-priority
+task". The replay harness needs the maintainer's read-only MarginNote access (macOS may prompt; a
+blocked process sleeps at ~0 CPU) and prints counts only; never commit note content.
 
 ## Known constraints
 
 - Commits are local only; never push. Toolchain: `.tools/bin/uv` (bootstrap in AGENTS.md).
 - `Prompt_PRD.txt` and the design-history file are maintainer-private and gitignored;
   `docs/product/PRD.md` is canonical.
-- Pre-rewrite backup bundle: session scratchpad only (not in the repo).
+- Codex's `temp/notes.md` MarginNote backup counts (e.g. 21,749 removals) are invalid: snapshots
+  are incremental. Use the S05B harness instead.

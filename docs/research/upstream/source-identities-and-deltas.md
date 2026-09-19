@@ -248,3 +248,17 @@ a parser from silently rewriting the user's Profile.
   canonical commit, recovers it under a per-source process lock, excludes secret/hidden/VCS/cache
   paths before fetch, canonicalizes origins, strictly validates tree identity, and recomputes each
   fetched Git blob object hash. Review 18 approved the remediation.
+
+## 2026-09-19 MarginNote S05B real-history replay
+
+- MarginNote 4 keeps incremental notebook backups whose note JSON carries the internal `noteid` and an
+  ordered `mindlinks` child list. Rebuilding full states by overlay gives 108 notebooks, 298 valid
+  transitions and 131,902 nodes with ground-truth identity.
+- The production reconciler never linked nodes across different content (0 on both the S05A matcher
+  and the adopted one). S05A produced about 86 review prompts per sync in the harness, almost all
+  identical-content duplicates (repeated labels, image-only cards). Adopted R1 (same-slot identical
+  siblings) and R3 cut review items 61%; a proposed R2 (duplicates → add/remove) was rejected by
+  Review 22. 99.4% of remaining reviews sit at the harness's ID-sorted top level, so per-sync burden
+  on real exports is still unmeasured. Details: `spikes/s05b_marginnote/README.md`.
+- Still unverified: the real exporter's OPML shape (which text becomes `text`, branch exports). One
+  maintainer OPML export (full notebook plus one focus branch) closes it.

@@ -32,4 +32,5 @@ agents building Aptuni.
 
 - [findings/pitfalls.md](findings/pitfalls.md) — traps already hit while building. Read it before
   running host probes, shell loops or history operations.
-- Spike evidence: `docs/dev/spikes/` (S01–S05A results and their reviews).
+- Spike evidence: `docs/dev/spikes/` (S01–S05A results and their reviews) and
+  `spikes/s05b_marginnote/README.md` (real MarginNote 4 history replay, 2026-09-19).
