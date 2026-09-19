@@ -17,6 +17,9 @@ from aptuni.retrieval.lexical import LEXEME_VERSION, cjk_lexemes, query_expressi
 PROJECTION_SCHEMA = 1
 
 
+FALLBACK_RELATIVE_SCORE = 0.25
+
+
 class ProjectionError(RuntimeError):
     """Projection creation or access failed; canonical records remain untouched."""
 
@@ -166,25 +169,36 @@ class SqliteProjection:
             raise ValueError("limit must be between 1 and 101")
         if module is not None and modules is not None:
             raise ValueError("pass module or modules, not both")
-        expression = query_expression(query)
+        filters, filter_parameters = "", list[Any]()
+        if module is not None:
+            filters += " AND module = ?"
+            filter_parameters.append(module)
+        elif modules:
+            filters += " AND module IN (" + ",".join("?" for _ in modules) + ")"
+            filter_parameters.extend(modules)
+        if record_types:
+            filters += " AND record_type IN (" + ",".join("?" for _ in record_types) + ")"
+            filter_parameters.extend(record_types)
+        rows = self._match(query_expression(query, "all"), filters, filter_parameters, limit)
+        if len(rows) < limit:
+            # Task-shaped requests rarely contain every term of a record: fill the remaining slots with
+            # ranked any-term matches, keeping only those within FALLBACK_RELATIVE_SCORE of the best.
+            seen = {row.record_id for row in rows}
+            extra = [row for row in self._match(query_expression(query, "any"), filters, filter_parameters, limit)
+                     if row.record_id not in seen]
+            if extra:
+                floor = extra[0].score * FALLBACK_RELATIVE_SCORE
+                rows += [row for row in extra if row.score >= floor][: limit - len(rows)]
+        return rows
+
+    def _match(self, expression: str | None, filters: str, filter_parameters: list[Any], limit: int) -> list[SearchRow]:
         if expression is None:
             return []
         statement = (
-            "SELECT record_id, bm25(records_fts) FROM records_fts "
-            "WHERE records_fts MATCH ?"
+            "SELECT record_id, bm25(records_fts) FROM records_fts WHERE records_fts MATCH ?"
+            + filters + " ORDER BY bm25(records_fts), record_id LIMIT ?"
         )
-        parameters: list[Any] = [expression]
-        if module is not None:
-            statement += " AND module = ?"
-            parameters.append(module)
-        elif modules:
-            statement += " AND module IN (" + ",".join("?" for _ in modules) + ")"
-            parameters.extend(modules)
-        if record_types:
-            statement += " AND record_type IN (" + ",".join("?" for _ in record_types) + ")"
-            parameters.extend(record_types)
-        statement += " ORDER BY bm25(records_fts), record_id LIMIT ?"
-        parameters.append(limit)
+        parameters: list[Any] = [expression, *filter_parameters, limit]
         try:
             with sqlite3.connect(self._read_uri(), uri=True) as connection:
                 return [SearchRow(str(row[0]), -float(row[1])) for row in connection.execute(statement, parameters)]

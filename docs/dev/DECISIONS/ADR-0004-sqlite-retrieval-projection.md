@@ -59,3 +59,13 @@ database size, and two-character queries. Permission and temporal filters get ma
 ### 2026-09-19 — Gate 0 acceptance
 
 Accepted with option B final: SQLite FTS5 `unicode61` over normalized ASCII terms plus overlapping 2–4-character CJK lexemes (S03: dev recall@5 0.992, MRR 1.0, holdout 1.0, 25k-document p95 1.93 ms, index/text ratio 6.85). The "noisy English substrings" concern about trigram is not supported by S03 (trigram negative FPR 0.000 on that corpus). Carried limits: synthetic corpus, broad short-query noise (KI-018), and exposed index size with rebuild.
+
+### 2026-09-19 — Ranked any-term fallback for task-shaped queries
+
+Dogfooding the README quickstart showed that all-terms (`AND`) matching returns nothing for natural
+requests such as "help me prepare for a data science interview" or "教我生存分析", so the Context API
+starved on the PRD's own examples. Search now runs the S03 all-terms query first and, only when it
+fills fewer than `limit` slots, adds bm25-ranked any-term (`OR`) matches over stopword-filtered
+lexemes, keeping those scoring at least 25% of the best fallback hit. The lexeme scheme is unchanged
+(S03 evidence stays valid); all-terms hits always rank first; permission filters and final hydration
+checks are unchanged. Broad-query noise remains tracked by KI-018 and needs dogfood judgments.

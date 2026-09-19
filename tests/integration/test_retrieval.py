@@ -110,3 +110,30 @@ def test_older_rebuild_cannot_replace_a_newer_projection(tmp_path: Path) -> None
     assert projection.status().vault_seq == 5
     assert [row.record_id for row in projection.search("newer")] == ["fct_new"]
     assert projection.search("older") == []
+
+
+def _projection(tmp_path: Path, texts: dict[str, str]) -> SqliteProjection:
+    projection = SqliteProjection(tmp_path / "state")
+    documents = [ProjectionDocument(record_id, "fact", "knowledge", None, text) for record_id, text in texts.items()]
+    projection.rebuild(documents, vault_seq=1)
+    return projection
+
+
+def test_task_shaped_queries_fall_back_to_ranked_any_term_matches(tmp_path: Path) -> None:
+    projection = _projection(tmp_path, {
+        "fct_ds": "Data science intern; built churn models with XGBoost.",
+        "fct_tea": "Likes green tea in the afternoon.",
+        "fct_survival": "学习过生存分析和 Cox 比例风险模型。",
+    })
+    hits = [row.record_id for row in projection.search("help me prepare for a data science interview")]
+    assert hits == ["fct_ds"]
+    assert [row.record_id for row in projection.search("教我生存分析")] == ["fct_survival"]
+
+
+def test_all_term_matches_rank_before_fallback_matches(tmp_path: Path) -> None:
+    projection = _projection(tmp_path, {
+        "fct_both": "Survival analysis with Cox models.",
+        "fct_one": "Survival skills for camping.",
+    })
+    assert next(row.record_id for row in projection.search("survival analysis")) == "fct_both"
+    assert [row.record_id for row in projection.search("survival analysis", limit=1)] == ["fct_both"]

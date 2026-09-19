@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from collections.abc import Iterable
+from typing import Literal
 
 LEXEME_VERSION = 1
 _SEGMENTS = re.compile(r"[a-zA-Z0-9]+|[\u3400-\u4dbf\u4e00-\u9fff]+")
@@ -31,9 +32,29 @@ def cjk_lexemes(text: str) -> list[str]:
     return _deduplicate(lexemes)
 
 
-def query_expression(text: str) -> str | None:
-    """Build an FTS expression from data terms only; caller text is never parsed as FTS syntax."""
-    terms = [term.replace('"', '""') for term in cjk_lexemes(text) if term]
+# Function words that carry no retrieval signal in task-shaped requests ("help me prepare for ...").
+STOPWORDS = frozenset({
+    "a", "an", "the", "and", "or", "of", "to", "in", "on", "for", "with", "about", "at", "by", "from",
+    "is", "are", "be", "i", "me", "my", "you", "your", "we", "our", "it", "this", "that", "what", "how",
+    "why", "can", "could", "would", "should", "please", "help", "teach", "tell", "explain", "give",
+    "some", "any", "do", "does", "want", "need", "like", "things", "thing",
+    "我", "你", "的", "了", "是", "在", "和", "教我", "帮我", "请", "如何", "怎么", "什么", "一个", "一些",
+    "我们", "你们", "我的", "你的", "可以", "这个", "那个", "需要", "想要",
+})
+QueryMode = Literal["all", "any"]
+
+
+def query_expression(text: str, mode: QueryMode = "all") -> str | None:
+    """Build an FTS expression from data terms only; caller text is never parsed as FTS syntax.
+
+    ``all`` requires every term (precise). ``any`` drops stopwords and CJK lexemes that contain a
+    stopword prefix, then ORs the rest for bm25-ranked recall on task-shaped requests.
+    """
+    terms = [term for term in cjk_lexemes(text) if term]
+    if mode == "any":
+        terms = [term for term in terms if term not in STOPWORDS
+                 and not (_CJK.fullmatch(term) and any(term.startswith(w) for w in STOPWORDS if _CJK.fullmatch(w)))]
     if not terms:
         return None
-    return " AND ".join(f'"{term}"' for term in terms)
+    joiner = " AND " if mode == "all" else " OR "
+    return joiner.join('"' + term.replace('"', '""') + '"' for term in terms)
