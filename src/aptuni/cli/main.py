@@ -32,6 +32,16 @@ def _add_source_commands(sub: Any) -> None:
     source_add.add_argument("--role", required=True, help="what this folder means (for example: portfolio)")
     source_add.add_argument("--primary-for", action="append", default=[], metavar="DIMENSION")
     source_add.add_argument("--json", action="store_true")
+    github_add = source_sub.add_parser("add-github", help="approve one GitHub repository as a source")
+    github_add.add_argument("repository_url", help="exact https repository URL")
+    github_add.add_argument("--module", action="append", required=True, choices=MODULES, dest="modules")
+    github_add.add_argument("--role", required=True, help="what this repository means")
+    github_add.add_argument("--ref", help="branch, tag, or commit to follow (default: repository default branch)")
+    github_add.add_argument("--token-env", metavar="NAME", help="environment variable holding a least-scope token")
+    github_add.add_argument("--api-origin", default="https://api.github.com",
+                            help="GitHub API origin (GitHub Enterprise must use same-host /api/v3)")
+    github_add.add_argument("--primary-for", action="append", default=[], metavar="DIMENSION")
+    github_add.add_argument("--json", action="store_true")
     source_list = source_sub.add_parser("list", help="list approved sources")
     source_list.add_argument("--json", action="store_true")
 
@@ -243,11 +253,26 @@ def _cmd_source(args: argparse.Namespace, service: AptuniService) -> int:
         else:
             print(f"Approved folder source {source.id}: {source.roots[0]}")
         return 0
+    if args.source_command == "add-github":
+        source = service.add_github_source(
+            args.repository_url,
+            modules=tuple(args.modules),
+            role=args.role,
+            ref=args.ref,
+            token_env=args.token_env,
+            api_origin=args.api_origin,
+            primary_for=tuple(args.primary_for),
+        )
+        if args.json:
+            _print_json(_source_json(source))
+        else:
+            print(f"Approved GitHub source {source.id}: {source.roots[0]}")
+        return 0
     sources = service.sources()
     if args.json:
         _print_json([_source_json(source) for source in sources])
     elif not sources:
-        print("No sources yet. Add one with: aptuni source add-folder PATH --module knowledge --role notes")
+        print("No sources yet. Add one with aptuni source add-folder or aptuni source add-github.")
     else:
         for source in sources:
             print(f"{source.id}  [{source.source_type}]  {source.semantic_role}  {source.roots[0]}")
@@ -278,7 +303,9 @@ def _cmd_evidence(args: argparse.Namespace, service: AptuniService) -> int:
             "id": item.id,
             "source_id": item.provenance.source_id,
             "module": item.module,
-            "relative_path": item.provenance.locator.extension.fields.get("relative_path"),
+            "relative_path": item.provenance.locator.extension.fields.get(
+                "relative_path", item.provenance.locator.extension.fields.get("path")
+            ),
             "signals": list(item.signals),
             "excerpt": item.excerpt,
             "content_hash": item.content_hash,
@@ -301,7 +328,9 @@ def _review_json(operation: Any) -> dict[str, Any]:
     return {
         "kind": operation.kind,
         "subject_id": operation.subject_id,
-        "relative_path": locator.extension.fields.get("relative_path") if locator else None,
+        "relative_path": locator.extension.fields.get(
+            "relative_path", locator.extension.fields.get("path")
+        ) if locator else None,
         "reasons": list(operation.reasons),
         "candidates": list(operation.candidates),
     }

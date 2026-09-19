@@ -105,6 +105,34 @@ def test_folder_source_add_sync_and_inspect_flow() -> None:
         assert json.loads(review.stdout) == []
 
 
+def test_github_source_configuration_keeps_a_token_reference_not_a_secret() -> None:
+    with tempfile.TemporaryDirectory() as raw:
+        base = Path(raw)
+        state = base / "state"
+        assert run(state, "init", str(base / "Aptuni")).returncode == 0
+        added = run(
+            state,
+            "source",
+            "add-github",
+            "https://github.com/ruihaomei/ctffr-app",
+            "--module",
+            "projects",
+            "--role",
+            "maintained_research_software",
+            "--token-env",
+            "APTUNI_GITHUB_TOKEN",
+            "--json",
+        )
+        assert added.returncode == 0, added.stderr
+        payload = json.loads(added.stdout)
+        assert payload["type"] == "github"
+        assert payload["roots"] == [
+            "https://github.com/ruihaomei/ctffr-app",
+            "api:https://api.github.com",
+            "env:APTUNI_GITHUB_TOKEN",
+        ]
+
+
 def test_bilingual_search_and_index_lifecycle_flow() -> None:
     with tempfile.TemporaryDirectory() as raw:
         base = Path(raw)

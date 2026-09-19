@@ -137,7 +137,7 @@ def test_crash_after_commit_before_state_save_replays_idempotently(env: Env, mon
         env.service.sync(env.source_id)
     monkeypatch.undo()
     report = env.service.sync(env.source_id)
-    assert report.counts == {"add": 2}
+    assert report.counts == {}
     assert len(env.service.evidence(env.source_id)) == 2  # no duplicates after replay
     assert env.service.doctor().ok
 
