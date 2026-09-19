@@ -289,6 +289,19 @@ class RelayCheckTests(unittest.TestCase):
             self.assertEqual(1, len(errors))
             self.assertIn("trailing whitespace", errors[0])
 
+    def test_workspace_text_skips_host_local_agent_logs(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            logs = root / "spikes" / "x" / ".claude" / "logs"
+            logs.mkdir(parents=True)
+            (logs / "session.md").write_text("host log\n\n", encoding="utf-8")
+            (root / "spikes" / "x" / "logs.md").write_text("bad\n\n", encoding="utf-8")
+
+            errors = check_relay.check_workspace_text(root)
+
+            self.assertEqual(1, len(errors))
+            self.assertIn("logs.md", errors[0])
+
 
 if __name__ == "__main__":
     unittest.main()

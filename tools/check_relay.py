@@ -233,6 +233,12 @@ def check_instruction_size(root: Path, maximum_bytes: int = 12_000) -> list[str]
     return errors
 
 
+def _is_host_local_log(relative: Path) -> bool:
+    """Match the gitignored ``**/.claude/logs/`` host runtime directory."""
+    parts = relative.parts
+    return any(parts[i] == ".claude" and parts[i + 1] == "logs" for i in range(len(parts) - 1))
+
+
 def check_workspace_text(root: Path) -> list[str]:
     """Cover new/untracked text files that ordinary ``git diff --check`` cannot see."""
     errors: list[str] = []
@@ -241,6 +247,8 @@ def check_workspace_text(root: Path) -> list[str]:
             continue
         relative = path.relative_to(root)
         if any(part in {".git", "temp", "__pycache__"} for part in relative.parts):
+            continue
+        if _is_host_local_log(relative):
             continue
         if path.suffix not in TEXT_SUFFIXES and path.name != ".gitignore":
             continue

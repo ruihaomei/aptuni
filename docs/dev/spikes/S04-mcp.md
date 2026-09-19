@@ -1,6 +1,6 @@
 # S04 result — MCP capability and privacy conformance
 
-**Result:** IN PROGRESS / BLOCKED ON REQUIRED HOST MATRIX
+**Result:** IN PROGRESS / ROUND-2 REVIEW BLOCK REMEDIATED FOR CLAUDE; CODEX ISOLATED RERUN PENDING
 
 **Run date:** 2026-09-19
 
@@ -8,7 +8,7 @@
 
 ## Measured facts
 
-The deterministic local layer passes 31 tests. The MCP SDK negotiated modern protocol `2026-07-28`
+The deterministic local layer passes 54 tests (5 host-capability skips). The MCP SDK negotiated modern protocol `2026-07-28`
 over a real STDIO subprocess. Five schema-snapshotted tools enforce bounded synthetic output;
 resources and prompts are optional and returned empty. Invalid arguments and disabled modules return
 tool errors, EOF shuts the server down, and tool input schemas contain no approval, nonce, or
@@ -24,12 +24,16 @@ The ADR-0013 status prototype has no `confined` value by construction. It distin
 core-observed unsafe evidence (`not_in_effect`) from absent, skipped, misdirected, agent-only or
 unobservable evidence (`unverified`); ignores forged labels/metadata; binds evidence to one session;
 and emits only fixed reason codes. Marker paths do not enter host payloads. Realpath plus device/inode
-detects symlink and hardlink aliases. Portable stat metadata cannot establish APFS clone ancestry,
-so that path remains `unverified`. A macOS Foundation probe found a promising native signal: a
-`FileManager.copyItem` clone shared the source `fileContentIdentifier`, retained it after overwrite,
-and had a distinct resource identifier, while an independently rewritten copy received another
-content identifier. This preserves the ADR direction but requires a pinned native bridge and
-adversarial validation before acceptance.
+detects symlink and hardlink aliases. Portable stat metadata cannot establish APFS clone ancestry.
+The pinned native C bridge now requires all three documented positive signals on two distinct,
+same-volume files: equal non-zero `ATTR_CMNEXT_CLONEID`, `EF_SHARES_ALL_BLOCKS`, and
+`ATTR_CMNEXT_CLONE_REFCNT >= 2`. It uses file descriptors, validates returned-attribute bitmaps, and
+emits neither paths nor identifiers. Missing capability, incomplete attributes, symlinks,
+non-regular/cross-volume inputs and open failure return only fixed `unverified` reasons. Its decision
+predicate passes positive and adversarial self-tests. This APFS Data volume supports `clonefile` but
+does not advertise `VOL_CAP_FMT_CLONE_MAPPING`, so real positive clone-family validation is
+unavailable and rename/partial-write/independent-copy host cases are skipped. The earlier Foundation
+`fileContentIdentifier` observation is therefore diagnostic only, not security evidence.
 
 An independent focused review blocked ADR-0013 acceptance until two corrections landed. The status
 prototype now separates a complete, positively absent profile (`missing` → `not_in_effect`) from an
@@ -37,8 +41,10 @@ unreadable/incomplete/ambiguous effective-settings snapshot (`profile: unverifie
 `unverified`). ADR-0013 now treats ordinary copies and APFS clones as distinct objects and permits
 only optional positive full-clone evidence from a validated macOS-native scan; absence never proves
 confinement. A re-review also caught and fixed unsafe-evidence precedence: a successful canary now
-forces confinement `not_in_effect` even when profile discovery is itself `unverified`. Native clone
-mapping and complete-settings discovery remain unimplemented blockers.
+forces confinement `not_in_effect` even when profile discovery is itself `unverified`. The native
+bridge is now implemented. Neither host exposes a complete, precedence-attributed effective-settings
+snapshot, so their baseline profile remains honestly `unverified`; this is a measured host limit,
+not converted into `installed`.
 
 The server runs under macOS `sandbox-exec` with `deny network*`. A Python audit hook denies AF_INET/
 AF_INET6 creation and all socket connect/bind operations. CPython asyncio itself requires a local
@@ -53,14 +59,15 @@ not covered by the MCP server sandbox.
 | Codex CLI 0.155.0 / 0.154.0 | required read-path PASS | Both current and preceding stable called the annotated bounded L0 tool in `read-only` + `approval_policy=never` and returned `HOST_OK 61`. |
 | Codex CLI 0.153.4 | partial PASS | In `read-only` + `approval_policy=never`, a read tool without `readOnlyHint` was denied; after the standard annotation was added it returned `HOST_OK 61`. A non-destructive idempotent candidate observation was allowed and core kept it quarantined/non-exposable. |
 | Codex CLI 0.155.0 / 0.154.0 | protected-write partial PASS | Under real `workspace-write` + `approval_policy=never` sessions, both versions logged a Seatbelt `operation_not_permitted` for a home-directory canary and an independent outer check found no file. Per ADR-0013 this blocked canary remains `unverified`, never `confined`. |
-| Claude Code 2.1.267 / 2.1.266 | BLOCKED_USAGE_LIMIT | Authentication now passes, but both versions receive HTTP 429 before inference because the account usage/session limit is exhausted; zero API tokens and zero tool calls. |
+| Claude Code 2.1.267 / 2.1.266 | required read-path PASS | Both versions called the strict-config bounded L0 tool once and returned `HOST_OK 61`. |
+| Claude Code 2.1.267 / 2.1.266 | baseline canaries PASS as `unverified` (remediated rerun) | CLI settings disabled unsandboxed commands, Apple Events and Unix sockets and denied the protected marker. Inner write/TCP/Unix results were all false and independent outer observations agreed. A project `SessionStart` hook, observed outside the model and absent in baseline, proved project-layer merge with a non-empty session id; attempted `allowUnsandboxedCommands=true` and an appended `excludedCommands` entry did not override the higher-priority CLI profile. The non-bundled project entry itself derives `not_in_effect`. |
+| Codex CLI 0.155.0 / 0.154.0 | baseline PASS; injection re-verification PENDING | Explicit `workspace-write`/`never` plus network-off blocked write/TCP/Unix in both versions. With the real trusted-project layer and no CLI sandbox override, project `danger-full-access` loaded; the fixed environment marker and all three inner canaries were true, and the outer marker/listeners independently observed every effect. Review round 2 found this injection group confounded (it alone reintroduced the real user config). The isolated `CODEX_HOME` + control-fixture rerun is blocked by the vendor usage limit and scheduled after reset. |
 | Claude Code 2.1.87 | BLOCKED_EXTERNAL | The synthetic run made no tool call or billed API request; the host returned repeated HTTP 400 responses for 131.6 seconds and was terminated. This is neither MCP failure nor PASS. |
 
 Official release sources checked on 2026-09-19 show Codex stable 0.155.0 with previous stable 0.154.0,
-and Claude Code npm `stable` 2.1.267 with previous published 2.1.266. Both Codex versions passed after
-isolated `npm exec` starts. Claude authentication was restored, but both required versions now stop
-at the account usage limit before MCP; installed Claude 2.1.87's repeated HTTP 400 is the older
-symptom.
+and Claude Code npm `stable` 2.1.267 with previous published 2.1.266. All four required-version read
+journeys and A/B canary journeys completed after account reset. Installed Claude 2.1.87's repeated
+HTTP 400 remains an older-version observation only.
 
 ## Interpretation
 
@@ -68,22 +75,24 @@ MCP tools remain the correct portable baseline, and standard tool annotations ar
 host input. Host approval is not core authorization: Codex may run a reversible write under `never`,
 so candidate quarantine and terminal-only promotion must remain application-service invariants.
 
-The local evidence supports the ADR-0005/0012 adapter shape but does not yet clear S04. Do not accept
-ADR-0005 or begin production scaffolding until the required host/version matrix and all ADR-0013
-confinement/status cases pass.
+The local and host evidence supports the ADR-0005/0012 adapter shape. It also proves why host status
+must be evidence-only: blocked canaries do not prove safety, while a trusted Codex project can widen
+the effective sandbox. Do not accept ADR-0005 or begin production scaffolding until the focused
+independent review decides whether the remaining real-host gaps belong to S04 or Foundation Slice 7.
 
 ## Remaining blockers
 
-- Rerun Claude Code 2.1.267/2.1.266 after the account session/usage limit resets or is raised. Codex
-  0.155.0/0.154.0 read paths and protected-write canaries pass.
-- Exercise protected-path write/read denial, settings/profile drift, session binding, canaries,
-  `not_in_effect` versus `unverified`, project config injection, symlink/hardlink/APFS-clone paths,
-  override enumeration, and status path-redaction per ADR-0013. The local status/path-redaction
-  contract passes; real-host evidence remains.
-- Turn the Foundation `fileContentIdentifier` APFS result into a pinned bridge and test clone-family
-  false positives/negatives, cross-volume copies, renames, partial writes and probe failure.
-- Record exact core-observable setting/argv/hook sources in `COMPATIBILITY.md`.
-- Add the direct SDK/CLI/MCP outcome-parity table and injection defense-in-depth probes.
+- Round-2 review (`S04-host-canary-review.md`) blocked on attribution. Claude findings are
+  remediated and rerun. The Codex isolated A/B rerun and a round-3 focused review remain.
+- Real-host Bash write/TCP/Unix and project-merge probes are complete. The separate Claude built-in
+  Read/Edit/Write rule path, Apple Event canary and session-key hook capture remain to be classified
+  by review; Codex legacy `workspace-write` has no protected-read guarantee and must disclose that.
+- The complete effective-settings merge is not exposed by either host. Baselines therefore remain
+  `profile: unverified`; project/escape visibility and successful canaries still force
+  `not_in_effect`.
+- Install-path packaging and wheel/sdist isolation cannot be executed before the Foundation scaffold.
+  The review must decide whether they remain S04 acceptance blockers or are correctly retained in
+  Foundation Slice 1/7.
 
 Machine evidence is in `spikes/s04_mcp/results/`. The deterministic command is
 `/tmp/pcc-s04-20260919/bin/python run_s04.py` from the spike directory.

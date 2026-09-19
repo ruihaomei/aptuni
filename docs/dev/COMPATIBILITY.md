@@ -8,9 +8,8 @@ Gate 0/S01 proof baseline on 2026-09-18: macOS 26.2 (build 25C56), local APFS **
 at `/opt/homebrew/bin/python3.13` with its SQLite 3.53.2. Installed Claude Code 2.1.87
 (`~/.local/bin/claude`) and Codex CLI 0.153.4 (ChatGPT desktop bundle) are local S04 evidence hosts,
 not the release matrix. On 2026-09-19 the upstream stable targets were Claude Code 2.1.267 plus
-2.1.266 and Codex 0.155.0 plus 0.154.0. Codex read paths pass; Claude's two journeys remain blocked
-before inference by the account usage limit. Gate 0 accepts the Vault
-write protocol only on this baseline; unknown, network,
+2.1.266 and Codex 0.155.0 plus 0.154.0. All four required MCP read journeys and host-confinement A/B
+journeys completed. Gate 0 accepts the Vault write protocol only on this baseline; unknown, network,
 or synchronized filesystems fail closed until separately admitted.
 
 ## Supported production matrix
@@ -58,22 +57,28 @@ confinement as proven.
 
 | Host (version) | Surface | Required state | Verified by S04 |
 |---|---|---|---|
-| Claude Code 2.1.267 + 2.1.266 | Bash OS sandbox | `sandbox.enabled=true`; `failIfUnavailable=true`; `allowUnsandboxedCommands=false`; `filesystem.disabled=false`; protected paths denied; no `excludedCommands` entry reaches them | keys confirmed by current official docs; real probes blocked by account limit |
+| Claude Code 2.1.267 + 2.1.266 | Bash OS sandbox | `sandbox.enabled=true`; `autoAllowBashIfSandboxed=true`; `failIfUnavailable=true`; `allowUnsandboxedCommands=false`; `filesystem.disabled=false`; exact protected paths in `denyRead`/`denyWrite`; `allowWrite=[]`; `excludedCommands=[]` | Both versions: CLI `--settings` baseline blocked protected write. Project source injected an environment marker and attempted scalar/list weakening, but the higher-priority CLI scalar prevented escape. Complete managed+CLI+project provenance is not exposed, so baseline profile remains `unverified`; core can positively scan non-bundled project entries. |
 | Claude Code 2.1.267 + 2.1.266 | Edit/Write/Read tools | permission deny rules for protected paths (rule-based, reason code `edit_tool_rule_based`) | pending real probe; these tools do not use the Bash OS sandbox |
-| Claude Code 2.1.267 + 2.1.266 | Escape settings | `allowAppleEvents=false`; Unix sockets cannot reach core; `additionalDirectories`, permission modes and setting-source selection do not expose protected paths | exact merged values and real probes pending |
-| Claude Code 2.1.267 + 2.1.266 | Hooks/MCP/plugin files | user-scope files outside every writable root; project-scope `.claude/settings.json`, `.claude/settings.local.json`, `.mcp.json`, hook scripts write-denied; non-bundled hook/MCP entries → `not_in_effect` | pending |
-| Codex 0.155.0 + 0.154.0 | Sandbox | `sandbox_mode=workspace-write`; protected paths outside `sandbox_workspace_write.writable_roots`; `network_access=false`; `exclude_tmpdir_env_var=true`; `exclude_slash_tmp=true` | partial: real protected write denied in both versions; remaining keys/probes pending |
-| Codex 0.155.0 + 0.154.0 | Approval/escalation | record effective `approval_policy`; `on-request` or granular sandbox approval → reason `host_escalation_available`; `never` removes the prompt | partial: `never` used in read/write journeys; effective-value observability pending |
-| Codex 0.155.0 + 0.154.0 | Config/profiles | no profile/`-c`/project override weakens the above; `~/.codex` and bundled adapter path outside writable roots | pending; project-scoped `.codex` layers are skipped only for untrusted projects |
+| Claude Code 2.1.267 + 2.1.266 | Escape settings | `allowAppleEvents=false`; `allowUnixSockets=[]`; `network.allowedDomains=[]`; no `additionalDirectories`; CLI `--permission-mode dontAsk`, `--permission-prompts none`, and explicit `--setting-sources` | Both versions blocked live TCP and AF_UNIX connections, confirmed by independent outer listeners. Apple Event and `additionalDirectories` host canaries remain pending. CLI launch values are known to the launcher, but complete effective settings remain unobservable. |
+| Claude Code 2.1.267 + 2.1.266 | Hooks/MCP/plugin files | user-scope files outside every writable root; project-scope `.claude/settings.json`, `.claude/settings.local.json`, `.mcp.json`, hook scripts write-denied; non-bundled hook/MCP entries → `not_in_effect` | Project settings were loaded in both versions, proven by an outer-observed project `SessionStart` hook marker that is absent in baseline (`--setting-sources ''`). The fixture itself is positive `unbundled_entry_visible` evidence even though CLI precedence blocked escape. Real built-in Write denial remains proposed for Foundation Slice 7. |
+| Codex 0.155.0 + 0.154.0 | Sandbox | CLI `sandbox_mode=workspace-write`; protected paths outside writable roots; `sandbox_workspace_write.network_access=false`; `exclude_tmpdir_env_var=true`; `exclude_slash_tmp=true` | Both versions blocked protected write, TCP and AF_UNIX under explicit CLI overrides; outer observations matched. Legacy `workspace-write` permits reads outside the workspace, so it cannot claim protected-read denial. Complete effective-setting provenance is not exposed; baseline stays `unverified`. |
+| Codex 0.155.0 + 0.154.0 | Approval/escalation | record effective `approval_policy`; `on-request` or granular sandbox approval → reason `host_escalation_available`; `never` removes the prompt | Both read and canary journeys used CLI `never`. The launcher knows its flag; the MCP process cannot prove every launch layer, so an absent positive escape remains `unverified`. |
+| Codex 0.155.0 + 0.154.0 | Config/profiles | no profile/`-c`/trusted-project override weakens the above; `~/.codex` and bundled adapter path outside writable roots | **Re-verification pending.** A pre-remediation run in which only the injection group reintroduced the real user config saw project `danger-full-access` take effect with write/TCP/AF_UNIX all succeeding. Review round 2 rejected that as confounded. The isolated rerun uses a temporary `CODEX_HOME` with a single trust entry plus a no-`.codex` control fixture, and is blocked by the vendor usage limit. Core project-file scanning yields `unbundled_entry_visible` regardless. |
 | Any | Install path | installed package outside every writable root (never a project `.venv`) | pending |
+
+Session evidence uses the Claude `SessionStart` hook session ID when the packaged hook is present;
+the MCP process lifetime is the fallback and the Codex key. Real Claude 2.1.267/2.1.266
+project hooks received a non-empty `session_id` (sanitized to a boolean), so the capture path exists;
+the S04 fixture still binds evidence to one runner process and never carries it forward.
 
 ## S04 interim host evidence (not acceptance)
 
 | Host/session | Measured result | Remaining gap |
 |---|---|---|
-| Codex 0.155.0 and 0.154.0, `read-only`, `approval_policy=never` | Current and preceding stable both returned `HOST_OK 61` from the bounded annotated L0 tool. | Required read path passes; protected-path/status/session probes pending. |
+| Codex 0.155.0 and 0.154.0, `read-only`, `approval_policy=never` | Current and preceding stable both returned `HOST_OK 61` from the bounded annotated L0 tool. | Required read path passes. |
 | Codex 0.153.4, same session profile | Without `readOnlyHint` the host denied the call as approval-required; after annotation it returned `HOST_OK 61`. A non-destructive idempotent candidate write was allowed, and core kept it quarantined/non-exposable. | Older installed observation only. |
-| Claude Code 2.1.267 and 2.1.266 | Authentication and both binaries pass startup; both then fail before inference/MCP with HTTP 429 and zero API tokens/tool calls because the account usage/session limit is exhausted. | Rerun after the limit resets or is raised. |
+| Claude Code 2.1.267 and 2.1.266, `dontAsk`, strict MCP config | Both returned `HOST_OK 61`. Baseline write/TCP/AF_UNIX canaries were blocked; the outer-observed project hook loaded without escaping the CLI profile and carried a session id. | Built-in file-tool and Apple Event probes proposed for Foundation Slice 7. |
+| Codex 0.155.0 and 0.154.0, baseline versus trusted project | Baseline blocked write/TCP/AF_UNIX. A confounded pre-remediation run saw trusted project `danger-full-access` make all three succeed. | Isolated rerun pending (vendor usage limit); does not close protected-read support. |
 | Claude Code 2.1.87, `dontAsk`, strict synthetic MCP config | No MCP call occurred; repeated host API HTTP 400, zero API duration/tokens/cost, bounded termination after 131.6 seconds. | External/account/API blocker; version is behind stable. |
 
 Official current Codex configuration accepts `approval_policy = "on-request" | "never"` (plus a

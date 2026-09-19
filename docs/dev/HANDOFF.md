@@ -4,10 +4,10 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Current position
 
-Gate 0. The independent plan-review gate is cleared: architecture, execution and security are each
-APPROVE WITH NON-BLOCKING NOTES (notes addressed), and both cold relay drills passed. No production
-code exists. S01, S02, and S03 passed. S04 has a passing local layer but its required real-host
-matrix is blocked/incomplete; S05A remains before production scaffolding.
+Gate 0. The plan-review gate is cleared and no production code exists. S01, S02 and S03 passed.
+S04 focused review round 2 blocked on canary attribution (`spikes/S04-host-canary-review.md`). The
+Claude findings are remediated and rerun. The isolated Codex rerun is blocked by a vendor usage limit.
+S05A stays blocked.
 
 ## Read first
 
@@ -17,22 +17,25 @@ matrix is blocked/incomplete; S05A remains before production scaffolding.
 
 ## Next action
 
-Continue `spikes/S04-mcp.md` remaining blockers. The disposable environment is
-`/tmp/pcc-s04-20260919` with MCP SDK 2.2.0. Codex 0.155.0/0.154.0 read paths and protected-write
-canaries pass. A Foundation probe found a viable APFS `fileContentIdentifier` clone-family signal.
-Claude authentication passes, but the account limit blocks both required versions before
-inference/MCP. Rerun 2.1.267/2.1.266 after reset; complete every ADR-0013 host confinement/status
-probe, turn KI-019 into a pinned/adversarially tested bridge, and fill the `COMPATIBILITY.md` cells. Do
-not move to S05A while S04 is blocking.
+1. After 14:50 local on 2026-09-19 (Codex usage reset), run from `spikes/s04_mcp` with bash:
+   `run_host_canary.py --host codex --version {0.155.0,0.154.0} --mode {baseline,project-control,project-injection}`.
+   Pass = exit 0 on all six. Expected: baseline and control block every canary, while injection
+   succeeds on write/TCP/AF_UNIX with `project_config_injected=true`. Record the results in
+   `results/host-canary-matrix.json`, `S04-mcp.md`, `COMPATIBILITY.md` and the round-2 review file.
+2. Run focused review round 3 (independent agent). If it accepts, mark S04 PASS and move to S05A.
 
 ## This pass changed
 
 - S01 PASS (46 tests); findings F1–F3 → KI-016. S02 PASS (12 tests, offline); bytecode gap → KI-017.
 - S03 PASS (23 tests): frozen synthetic bilingual evidence selected deterministic 2–4-character CJK
   lexemes; holdout passed, while broad short-query noise and real-data generalization remain KI-018.
-- S04 WIP: local STDIO/policy/status harness 31 tests PASS; Codex 0.155.0/0.154.0 read paths and
-  protected-write canaries PASS (plus 0.153.4 annotation/candidate observations); Claude
-  2.1.267/2.1.266 BLOCKED_USAGE_LIMIT before any MCP call.
+- S04 relay (Claude, 2026-09-19): recorded the round-2 BLOCK and rebuilt the runner (pure `assess`/
+  `run_ok`, and timeout/malformed/quota classified as `host_blocked_external`). The Claude A/B rerun
+  passed with outer project-hook proof. The relay checker now skips gitignored `.claude/logs` (20
+  tests). Local harness: 54 tests PASS with 5 host-capability skips. Earlier notes: Codex
+  0.155.0/0.154.0 and Claude 2.1.267/2.1.266 read paths return `HOST_OK 61`; all block baseline
+  write/TCP/AF_UNIX. Project merge is proven in both hosts; trusted Codex project full access yields
+  independently observed unsafe effects. Native clone mapping fails closed on the host capability.
 - Security stream approved (report 14) after ADR-0013 simplification; its notes addressed in
   remediation 14 (approve service reachable only from the CLI; Codex escalation disclosed).
 - Maintainer decision (2026-09-18): honest host trust boundary + host confinement → ADR-0013; broker
