@@ -139,20 +139,23 @@ class AptuniService(SourceCommands):
     # ---------------------------------------------------------------- retrieval projection
     def index_status(self) -> ProjectionStatus:
         seq, _ = self.snapshot()
-        return SqliteProjection(self.workspace.state_dir).status(seq)
+        try:
+            return SqliteProjection(self.workspace.state_dir).status(seq)
+        except OSError as error:
+            raise AptuniError("projection_failed", "The search index status is unavailable.") from error
 
     def rebuild_index(self) -> ProjectionStatus:
         seq, records = self.snapshot()
         try:
             return SqliteProjection(self.workspace.state_dir).rebuild(documents_for(records.exposable()), seq)
-        except ProjectionError as error:
+        except (OSError, ProjectionError) as error:
             message = "The search index could not be rebuilt; canonical data is safe."
             raise AptuniError("projection_failed", message) from error
 
     def delete_index(self) -> None:
         try:
             SqliteProjection(self.workspace.state_dir).delete()
-        except ProjectionError as error:
+        except (OSError, ProjectionError) as error:
             raise AptuniError("projection_failed", "The derived search index could not be deleted.") from error
 
     def search(self, query: str, *, module: str | None = None, limit: int = 5) -> list[SearchHit]:
@@ -166,7 +169,7 @@ class AptuniService(SourceCommands):
             try:
                 projection.ensure(documents_for(records.exposable()), seq)
                 rows = projection.search(query, module=module, limit=limit)
-            except (ProjectionError, ValueError) as error:
+            except (OSError, ProjectionError, ValueError) as error:
                 message = "The search index is unavailable; canonical data is safe."
                 raise AptuniError("projection_failed", message) from error
             final_seq, final_records = self.snapshot()
