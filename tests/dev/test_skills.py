@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -41,6 +42,8 @@ def _frontmatter(text: str) -> dict[str, str]:
 
 
 def _expand(value: str, temporary: Path) -> str:
+    if value == ".tools/bin/uv":
+        return shutil.which("uv") or str(ROOT / value)
     return value.replace("{tmp}", str(temporary))
 
 
@@ -102,7 +105,7 @@ class SkillSmokeTests(unittest.TestCase):
                     )
                     subprocess.run(
                         [
-                            ".tools/bin/uv",
+                            _expand(".tools/bin/uv", temporary),
                             "run",
                             "python",
                             "tools/check_supply_chain.py",

@@ -105,9 +105,13 @@ class VerifyReport:
 
 
 def _full_fsync(fd: int) -> None:
+    full_fsync = getattr(fcntl, "F_FULLFSYNC", None)
+    if full_fsync is None:
+        os.fsync(fd)
+        return
     try:
-        fcntl.fcntl(fd, fcntl.F_FULLFSYNC)
-    except (AttributeError, OSError):
+        fcntl.fcntl(fd, full_fsync)
+    except OSError:
         os.fsync(fd)
 
 
