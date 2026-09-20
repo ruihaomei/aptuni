@@ -1,0 +1,11 @@
+{
+  "skill": "audit-licenses",
+  "prompt": "Audit licenses and dependency notices.",
+  "trigger": "audit licenses",
+  "commands": [
+    [".tools/bin/uv", "lock", "--check"],
+    [".tools/bin/uv", "run", "--no-sync", "python", "tools/check_supply_chain.py", "notices"],
+    [".tools/bin/uv", "run", "--no-sync", "python", "tools/check_supply_chain.py", "secrets"],
+    [".tools/bin/uv", "run", "--no-sync", "python", "tools/check_supply_chain.py", "workflow"]
+  ]
+}

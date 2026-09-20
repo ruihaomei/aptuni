@@ -1,0 +1,12 @@
+{
+  "skill": "release",
+  "prompt": "Prepare a local release dry-run without publishing.",
+  "trigger": "prepare a release",
+  "environment": {"SOURCE_DATE_EPOCH": "315532800"},
+  "commands": [
+    [".tools/bin/uv", "build", "--offline", "--no-build-isolation", "--out-dir", "{tmp}/build-a"],
+    [".tools/bin/uv", "build", "--offline", "--no-build-isolation", "--out-dir", "{tmp}/build-b"]
+  ],
+  "reproducible_dirs": ["{tmp}/build-a", "{tmp}/build-b"],
+  "artifact_dir": "{tmp}/build-a"
+}

@@ -1,0 +1,8 @@
+{
+  "skill": "add-source-provider",
+  "prompt": "Add a Zotero SourceProvider with bounded synthetic fixtures.",
+  "trigger": "add a source provider",
+  "commands": [
+    [".tools/bin/uv", "run", "pytest", "-q", "tests/integration/test_folder_sync.py", "tests/integration/test_github_sync.py"]
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "skill": "run-evals",
+  "prompt": "Run the evaluations and retain a manifest.",
+  "trigger": "run the evaluations",
+  "commands": [
+    [".tools/bin/uv", "run", "--no-sync", "python", "tools/run_evals.py", "--output", "{tmp}/eval-run.json"]
+  ],
+  "required_outputs": ["{tmp}/eval-run.json"]
+}

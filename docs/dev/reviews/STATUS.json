@@ -148,6 +148,14 @@
     "42-m1-evaluation-harness-review.md",
     "43-m1-evaluation-harness-rereview.md"
    ]
+  },
+  "m1-post-contract-skills": {
+   "kind": "review",
+   "current": "46-m1-post-contract-skills-rereview.md",
+   "verdict": "APPROVE",
+   "supersedes": [
+    "45-m1-post-contract-skills-review.md"
+   ]
   }
  }
 }
