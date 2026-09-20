@@ -4,8 +4,9 @@ Layout::
 
     <vault>/HEAD.json                  committed manifest (atomic rename), hash-chained
     <vault>/records/seg-NNNNNN-*.jsonl immutable canonical JSONL segments (one per commit)
+    <vault>/deletion-ledger.jsonl      irreversible id digests; canonical, so it travels with the Vault
+    <vault>/restore-intent.json        in-flight ledger + generation publication (normally absent)
     <state>/writer.lock                flock target (the kernel releases it when the holder dies)
-    <state>/deletion-ledger.jsonl      irreversible id digests, outside the Vault and its backups
 
 Commit (exclusive flock + optimistic ``expected_seq``): write segment tmp -> full fsync -> rename
 -> dir fsync -> write HEAD tmp -> full fsync -> rename -> dir fsync. A segment not listed in HEAD
@@ -21,7 +22,7 @@ import json
 import os
 import re
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -47,7 +48,18 @@ READ_RETRIES = 50
 HEAD_FORMAT = 2
 SUPPORTED_HEAD_FORMATS = (1, HEAD_FORMAT)
 SEGMENT_RE = re.compile(r"^seg-\d{6}-[0-9a-f]{8}\.jsonl$")
+DIGEST_RE = re.compile(DIGEST_PATTERN)
 TMP_SEGMENT_RE = re.compile(r"^\.tmp-seg-\d{6}-[0-9a-f]{8}\.jsonl$")
+
+
+def _restore_digests(value: object) -> tuple[str, ...]:
+    """Validate the content-free deletion set carried by a restore journal."""
+    if not isinstance(value, (list, tuple)):
+        raise ValueError
+    digests = tuple(value)
+    if any(not isinstance(item, str) or not DIGEST_RE.fullmatch(item) for item in digests):
+        raise ValueError
+    return digests
 
 
 class VaultDirNotEmptyError(FileExistsError):
@@ -186,6 +198,50 @@ class Vault:
         vault.recover()
         return vault
 
+    @property
+    def ledger_path(self) -> Path:
+        """In the Vault, not the state directory (ADR-0016).
+
+        A deletion is canonical truth about the owner's data, so it has to survive a wiped state
+        directory and travel with a backup. Keeping it in the disposable state directory let a
+        restore on another machine re-admit a purged record (KI-021), which contradicted ADR-0010's
+        own acceptance requirement.
+        """
+        return self.root / "deletion-ledger.jsonl"
+
+    def _legacy_ledger_path(self) -> Path:
+        return self.state_dir / "deletion-ledger.jsonl"
+
+    def _migrate_ledger_locked(self) -> None:
+        """Fold a pre-ADR-0016 state-directory ledger into the Vault. Idempotent and crash-safe.
+
+        Entries are durable in the Vault before the old file is unlinked, so a crash in between
+        leaves both present and the next pass simply unlinks the redundant copy.
+        """
+        legacy = self._legacy_ledger_path()
+        if legacy == self.ledger_path:
+            return  # a state directory inside the Vault: migrating would unlink the ledger (Review 35 N6)
+        if not legacy.is_file() or legacy.is_symlink():
+            return
+        _drop_torn_tail(legacy)
+        entries = [line for line in legacy.read_text(encoding="utf-8").splitlines() if line.strip()]
+        known = self._digests_in(self.ledger_path)
+        missing = []
+        for line in entries:
+            try:
+                digest = json.loads(line)["target_digest"]
+            except (json.JSONDecodeError, KeyError, TypeError) as error:
+                raise VaultIntegrityError(f"legacy deletion ledger entry is malformed: {error}") from error
+            if not isinstance(digest, str) or not DIGEST_RE.fullmatch(digest):
+                raise VaultIntegrityError(f"legacy deletion ledger digest is not a sha256 digest: {digest!r}")
+            if digest not in known:
+                missing.append(line)
+                known.add(digest)
+        if missing:
+            self._append_ledger_lines("".join(line + "\n" for line in missing))
+        legacy.unlink()
+        _fsync_dir(legacy.parent)
+
     def _crash(self, name: str) -> None:
         if self.crash_hook is not None:
             self.crash_hook(name)
@@ -303,6 +359,7 @@ class Vault:
         with source_operations_lock(self.state_dir), self.writer_lock():
             self._recover_restore_locked()
             self._migrate_head_format()
+            self._migrate_ledger_locked()
             self._remove_orphans(report)
             head = self.head()
             ledger = self.ledger_digests()
@@ -347,7 +404,21 @@ class Vault:
         self._write_head(Head(head.seq, head.segments, chain, head.chain))
 
     def _restore_journal_path(self) -> Path:
+        # This journal coordinates two canonical mutations (ledger + HEAD), so it must survive a
+        # wiped/replaced disposable state directory (Review 38 B1).
+        return self.root / "restore-intent.json"
+
+    def _legacy_restore_journal_path(self) -> Path:
         return self.state_dir / "restore-intent.json"
+
+    def _pending_restore_journal_path(self) -> Path:
+        canonical = self._restore_journal_path()
+        legacy = self._legacy_restore_journal_path()
+        if canonical == legacy:
+            return canonical
+        if canonical.exists() and legacy.exists():
+            raise VaultIntegrityError("both canonical and legacy restore journals exist")
+        return canonical if canonical.exists() else legacy
 
     def _write_restore_journal(self, value: dict[str, Any]) -> None:
         path = self._restore_journal_path()
@@ -358,13 +429,14 @@ class Vault:
         _fsync_dir(path.parent)
 
     def _recover_restore_locked(self) -> None:
-        path = self._restore_journal_path()
+        path = self._pending_restore_journal_path()
         if not path.exists():
             return
         try:
             value = json.loads(path.read_text(encoding="utf-8"))
-            if value.get("format") != 1:
+            if value.get("format") not in (1, 2):
                 raise ValueError
+            digests = _restore_digests(value.get("deletion_digests", ()))  # format 1 carried none
             old_seq = value["old_seq"]
             old_chain = value["old_chain"]
             if type(old_seq) is not int or old_seq < 0 or not isinstance(old_chain, str):
@@ -389,8 +461,12 @@ class Vault:
                 raise ValueError
         except (json.JSONDecodeError, KeyError, TypeError, ValueError) as error:
             raise VaultIntegrityError("restore journal is invalid or does not match the live Vault") from error
+        # Clear disposable replay state before either canonical mutation. A cleanup refusal leaves
+        # both the old HEAD and ledger intact; once the ledger is appended, HEAD is the immediate
+        # next durable operation so recovery cannot strand a deletion against the old generation.
         self._clear_source_state()
-        if self.head().chain != new_head.chain:
+        self._record_new_digests(digests)
+        if not (current.seq == new_head.seq and current.chain == new_head.chain):
             self._write_head(new_head)
         for name in old_segments:
             if isinstance(name, str) and SEGMENT_RE.fullmatch(name):
@@ -466,12 +542,11 @@ class Vault:
                                terminal_state="complete_managed",
                                per_copy=(CopyResult(copy_class="canonical", result="deleted"),))
 
-    def restore_from(self, backup: Path, expected_seq: int) -> Vault:
-        """Atomically publish a verified backup as a new chain-linked generation.
+    def check_restore_source(self, backup: Path) -> list[CanonicalRecord]:
+        """Every precondition ``restore_from`` enforces, with no side effect. Returns the records.
 
-        The live Vault is never removed. The replacement segment is durable before HEAD changes,
-        deletion-ledger digests are reapplied before publication, and source replay state is dropped
-        so it cannot contradict the restored canonical generation.
+        Callers verify with this *before* anything is mutated, so a restore Aptuni would refuse can
+        never leave the Vault or its ledger advanced (Review 35 B5, N4).
         """
         backup = backup.expanduser().resolve()
         root = self.root.resolve()
@@ -479,7 +554,7 @@ class Vault:
             raise VaultIntegrityError("restore backup must be separate from the live Vault")
         if (backup / "HEAD.json").is_symlink() or (backup / "records").is_symlink():
             raise VaultIntegrityError("restore backup cannot contain symlinked Vault control paths")
-        backup_vault = Vault(backup, self.state_dir)
+        backup_vault = Vault(backup, backup)
         backup_head = backup_vault.head()
         if any((backup / "records" / segment["name"]).is_symlink() for segment in backup_head.segments):
             raise VaultIntegrityError("restore backup cannot contain symlinked committed segments")
@@ -490,15 +565,35 @@ class Vault:
             backup_chain = _chain(backup_chain, segment["sha256"])
         if backup_chain != backup_head.chain and not self._legacy_purged_head(backup_head):
             raise VaultIntegrityError("restore backup hash chain does not match its committed segments")
+        return restored_records
+
+    def restore_from(self, backup: Path, expected_seq: int,
+                     extra_deletion_digests: frozenset[str] = frozenset()) -> Vault:
+        """Atomically publish a verified backup as a new chain-linked generation.
+
+        The live Vault is never removed. The replacement segment is durable before HEAD changes,
+        deletion-ledger digests are reapplied before publication, and source replay state is dropped
+        so it cannot contradict the restored canonical generation.
+
+        ``extra_deletion_digests`` are deletions the backup itself proves. They are recorded inside
+        this one critical section, after every precondition and the ``expected_seq`` gate, so a
+        refused restore cannot leave them behind for ``recover()`` to apply as an unconfirmed purge
+        (Review 35 B5).
+        """
+        restored_records = self.check_restore_source(backup)
+        backup = backup.expanduser().resolve()
 
         with source_operations_lock(self.state_dir), self.writer_lock():
             live_head = self.head()
             if live_head.seq != expected_seq:
                 raise ConflictError(f"expected seq {expected_seq}, vault is at {live_head.seq}")
-            ledger = self.ledger_digests()
+            ledger = self.ledger_digests() | set(extra_deletion_digests)
             doomed = {record.id for record in restored_records if sha256_text(record.id) in ledger}
             kept = [self._unlink(record, doomed) for record in restored_records if record.id not in doomed]
             RecordSet(kept).validate()
+            for digest in extra_deletion_digests:
+                if not DIGEST_RE.fullmatch(digest):
+                    raise VaultIntegrityError(f"deletion digest is not a sha256 digest: {digest!r}")
             old = [segment["name"] for segment in live_head.segments]
             if kept:
                 payload = ("\n".join(canonical_json(record) for record in kept) + "\n").encode("utf-8")
@@ -515,8 +610,9 @@ class Vault:
             else:
                 new_head = Head(live_head.seq + 1, (), live_head.chain, live_head.chain)
             self._write_restore_journal({
-                "format": 1, "old_seq": live_head.seq, "old_chain": live_head.chain,
+                "format": 2, "old_seq": live_head.seq, "old_chain": live_head.chain,
                 "old_segments": old,
+                "deletion_digests": sorted(extra_deletion_digests),
                 "new_head": {"seq": new_head.seq, "segments": list(new_head.segments),
                              "chain": new_head.chain, "chain_base": new_head.chain_base},
             })
@@ -551,20 +647,50 @@ class Vault:
             raise InvariantError(f"purge would orphan {record.id}; purge it too") from exc
 
     def _append_ledger(self, record_ids: set[str]) -> None:
-        lines = "".join(
+        self._append_ledger_lines("".join(
             canonical_json(DeletionLedgerEntry(id=new_id("led"), recorded_at=utc_now(),
                                                target_digest=sha256_text(rid))) + "\n"
             for rid in sorted(record_ids)
-        )
-        path = self.state_dir / "deletion-ledger.jsonl"
+        ))
+
+    def _append_ledger_lines(self, lines: str) -> None:
+        """Durable append, torn tail repaired first (Review 19 N1). Callers hold the writer lock."""
+        if not lines:
+            return
+        path = self.ledger_path
         _drop_torn_tail(path)
         with open(path, "a", encoding="utf-8") as handle:
             handle.write(lines)
             handle.flush()
             _full_fsync(handle.fileno())
+        os.chmod(path, 0o600)
+
+    def _record_new_digests(self, digests: Iterable[str]) -> int:
+        """Record deletions proven elsewhere, so a restore cannot re-admit them (ADR-0016, KI-021).
+
+        Takes digests rather than record ids because a portable backup manifest must stay
+        content-free: a one-way hash of an id proves a deletion without naming what was deleted.
+        Idempotent; the caller holds the writer lock. Returns how many were new.
+        """
+        known = self.ledger_digests()
+        new = sorted({digest for digest in digests if digest not in known})
+        if not new:
+            return 0
+        for digest in new:
+            if not DIGEST_RE.fullmatch(digest):
+                raise VaultIntegrityError(f"deletion digest is not a sha256 digest: {digest!r}")
+        self._append_ledger_lines("".join(
+            canonical_json(DeletionLedgerEntry(id=new_id("led"), recorded_at=utc_now(),
+                                               target_digest=digest)) + "\n"
+            for digest in new
+        ))
+        return len(new)
 
     def ledger_digests(self) -> set[str]:
-        path = self.state_dir / "deletion-ledger.jsonl"
+        """Every recorded deletion: the Vault's ledger, plus a not-yet-migrated legacy one."""
+        return self._digests_in(self.ledger_path) | self._digests_in(self._legacy_ledger_path())
+
+    def _digests_in(self, path: Path) -> set[str]:
         if not path.exists():
             return set()
         digests: set[str] = set()
@@ -579,11 +705,28 @@ class Vault:
         return digests
 
 
-def _drop_torn_tail(path: Path) -> None:
-    """Cut an interrupted final append back to the last newline so it cannot merge with new entries.
+def _is_ledger_entry(fragment: bytes) -> bool:
+    """True when an unterminated final line is a complete entry, not a torn fragment.
 
-    Called under the writer lock before every ledger append (review 19 N1). Complete lines are
-    never touched; only the fragment after the final newline is removed.
+    This predicate has to agree with :meth:`Vault._digests_in`, which honours such a line. When the
+    two disagreed, an append could truncate an entry the reader had already counted, so a purge whose
+    write lost only its trailing newline was forgotten and a later restore re-admitted the record
+    (Review 35 B1).
+    """
+    try:
+        value = json.loads(fragment)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return False
+    return isinstance(value, dict) and isinstance(value.get("target_digest"), str)
+
+
+def _drop_torn_tail(path: Path) -> None:
+    """Terminate or remove an interrupted final append so it cannot merge with new entries.
+
+    Called under the writer lock before every ledger append (review 19 N1). Complete lines are never
+    touched. A final line that parses as a whole entry only lost its newline: it is terminated, never
+    discarded, because a recorded deletion must survive (Review 35 B1). Anything else is a genuine
+    fragment and is removed.
     """
     try:
         data = path.read_bytes()
@@ -591,7 +734,14 @@ def _drop_torn_tail(path: Path) -> None:
         return
     if not data or data.endswith(b"\n"):
         return
-    os.truncate(path, data.rfind(b"\n") + 1)
+    cut = data.rfind(b"\n") + 1
+    if _is_ledger_entry(data[cut:]):
+        with open(path, "ab") as handle:
+            handle.write(b"\n")
+            handle.flush()
+            _full_fsync(handle.fileno())
+        return
+    os.truncate(path, cut)
     fd = os.open(path, os.O_RDONLY)
     try:
         _full_fsync(fd)

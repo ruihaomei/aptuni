@@ -35,5 +35,6 @@ community contributors' agents) must read the ADRs relevant to its task before e
 | [ADR-0012](ADR-0012-application-services-and-inference-boundary.md) | Put interfaces behind application services and inference ports | Accepted |
 | [ADR-0013](ADR-0013-honest-host-trust-boundary.md) | Treat shell-capable hosts as inside the trust boundary; require host confinement | Accepted |
 | [ADR-0014](ADR-0014-plugin-catalog-recipes-and-advisor.md) | Describe plugins and Recipes as bundled TOML and advise without side effects | Accepted |
-| [ADR-0015](ADR-0015-marginnote4-local-source.md) | Read MarginNote 4 directly and store a knowledge digest, not its text | Proposed |
+| [ADR-0015](ADR-0015-marginnote4-local-source.md) | Read MarginNote 4 directly and store a knowledge digest, not its text | Accepted |
+| [ADR-0016](ADR-0016-owner-backup-format-and-ledger-location.md) | Make the owner's backup a verified format and keep the deletion ledger in the Vault | Accepted |
 <!-- ADR-INDEX:END -->

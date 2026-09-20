@@ -88,3 +88,16 @@ a format-1 backup with that artifact so a backup taken after a legacy purge stay
 segment is still hash-verified and every record invariant still checked. A chain mismatch with no
 purge in the ledger remains a reported problem: that is corruption, not the legacy artifact
 (Review 31 F2).
+
+### 2026-09-20 — The deletion ledger moves into the Vault (ADR-0016)
+
+This ADR originally placed `deletion-ledger.jsonl` in the state directory, "outside the Vault and
+its backups". KI-021, reproduced 2026-09-20, showed that contradicts ADR-0010's own acceptance
+requirement: restoring a pre-purge Vault copy with a fresh state directory re-admitted a record the
+owner had purged (ledger entries seen 0, purged Fact restored), because the state directory is
+disposable while a deletion is not. The canonical layout now includes
+`<vault>/deletion-ledger.jsonl`. Entries remain one-way digests of record ids and never content, so
+the portable Vault discloses nothing new. `ledger_digests()` reads the union of the Vault ledger and
+any not-yet-migrated legacy file, so an old Vault is protected from the first read; `recover()` folds
+the legacy file in, durably before unlinking it, idempotently, tolerating a torn tail. ADR-0016 has
+the full rationale, the rejected alternatives and the verification.

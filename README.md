@@ -90,6 +90,7 @@ uv run aptuni adapter apply ACTION_ID     # you confirm in your own terminal
 | MCP server over local STDIO, permission-checked reads and quarantined memory proposals | ✅ |
 | Claude Code and Codex adapters | ✅ |
 | Plugin Advisor, Recipes, English / 简体中文 CLI | ✅ preview (`aptuni advise`) |
+| Verified backup and restore of the canonical Vault | ✅ |
 | MarginNote 4 source (macOS, direct read-only local sync, native IDs) | ✅ |
 | Obsidian source and UI, Mem0, hybrid retrieval, Graphiti | 🗺 Milestones 2–3 |
 
@@ -146,6 +147,24 @@ aptuni privacy purge cancel <action>   # abandon a confirmed purge that deleted 
 `privacy status` names external copies plainly — exports you made yourself, your original source
 files, and transcripts held by an agent's provider — because Aptuni cannot delete those and will
 not pretend otherwise. The purge receipt reports, per copy, what actually happened.
+
+## Backups you can actually restore
+
+`aptuni export` writes a readable copy of your current Profile. It is for reading, and it cannot be
+restored. The restorable copy is a backup:
+
+```sh
+aptuni backup create ~/aptuni-backups/2026-09-20   # a verified copy, outside your Vault
+aptuni backup verify ~/aptuni-backups/2026-09-20   # checks it without touching your Vault
+aptuni backup list   ~/aptuni-backups              # what you have, and whether each still verifies
+aptuni backup restore preview <path>               # exactly what a restore would replace, drop and keep
+aptuni backup restore confirm <action>             # only for that one preview
+```
+
+A backup is a complete unencrypted copy of your canonical records, including modules you have
+hidden, so where you keep it matters. Two things it will not do: it never resurrects a record you
+purged, on any machine, because deletions travel with your Vault; and it never overwrites a folder
+that already has files in it.
 
 ## Contributing
 

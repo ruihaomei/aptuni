@@ -17,6 +17,7 @@ from typing import Any, Literal, cast
 
 from pydantic import ValidationError
 
+from aptuni.application.backup import BackupSummary, create_backup, list_backups, verify_backup
 from aptuni.application.context import (
     MAX_BUDGET,
     MAX_QUERY_BYTES,
@@ -41,6 +42,15 @@ from aptuni.application.privacy import (
     confirm_purge,
     create_purge_preview,
     load_purge_preview,
+)
+from aptuni.application.restore import (
+    RestorePreview,
+    RestoreReceipt,
+    cancel_restore,
+    confirm_restore,
+    create_restore_preview,
+    load_restore_preview,
+    pending_restores,
 )
 from aptuni.application.source_commands import SourceCommands
 from aptuni.application.workspace import Workspace
@@ -220,6 +230,37 @@ class AptuniService(SourceCommands, MemoryCommands):
     def cancel_privacy_purge(self, action_id: str) -> None:
         """Release a committed intent that deleted nothing canonical (Review 31 F1)."""
         cancel_purge(self.vault(), self.workspace.state_dir, action_id)
+
+    # ---------------------------------------------------------------- backup and restore
+    def create_backup(self, destination: Path) -> BackupSummary:
+        """Write a verified restorable copy of the canonical Vault; `export` is not one."""
+        return create_backup(self.vault(), self.workspace.state_dir, destination)
+
+    @staticmethod
+    def verify_backup(path: Path) -> BackupSummary:
+        """Check a backup without touching the live Vault."""
+        return verify_backup(path)
+
+    @staticmethod
+    def list_backups(directory: Path) -> tuple[BackupSummary, ...]:
+        return list_backups(directory)
+
+    def restore_preview(self, path: Path) -> RestorePreview:
+        """Verify the backup and record one single-use preview; nothing is replaced yet."""
+        return create_restore_preview(self.vault(), self.workspace.state_dir, path)
+
+    def pending_restore(self, action_id: str) -> RestorePreview:
+        return load_restore_preview(self.workspace.state_dir, action_id)
+
+    def pending_restores(self) -> tuple[RestorePreview, ...]:
+        return pending_restores(self.workspace.state_dir)
+
+    def confirm_restore(self, action_id: str, confirmed_digest: str) -> RestoreReceipt:
+        """Publish the verified backup as the next generation; reachable only from the owner CLI."""
+        return confirm_restore(self.vault(), self.workspace.state_dir, action_id, confirmed_digest)
+
+    def cancel_restore(self, action_id: str) -> None:
+        cancel_restore(self.workspace.state_dir, action_id)
 
     # ---------------------------------------------------------------- retrieval projection
     def index_status(self) -> ProjectionStatus:

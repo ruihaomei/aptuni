@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
@@ -8,9 +8,9 @@ Milestone 1. Runnable: Vault/CLI core; Folder, GitHub and direct local MarginNot
 interaction memory with quarantined MCP proposals; bilingual SQLite/FTS; bounded Context API; MCP
 STDIO; Claude/Codex adapters; owner-readable Profile export; the Plugin Advisor; privacy
 inventory/purge with atomic chain-preserving restore; and digest-bound guided setup through doctor
-and smoke. Review 34 independently closed guided setup **APPROVE** after Review 33's six blockers and
-two follow-up crash/recovery defects were remediated. Slice 13 is checkpointed at `db7a5d9`.
-Nothing is pushed.
+and smoke; and verified owner backup/restore. Slice 14 is implementation-complete and Review 39 is
+**APPROVE** after fresh-state crash injection proved the canonical ledger and restore journal cannot
+diverge. Its local checkpoint is being recorded. Nothing is pushed.
 
 ## Read first
 
@@ -20,28 +20,22 @@ Nothing is pushed.
 
 ## Next action
 
-Implement **Slice 14 — owner backup and restore** from `docs/dev/plans/08-owner-backup-and-restore.md`:
-`aptuni backup create | verify | list | restore`. Acceptance case 2 is the point of the slice —
-**KI-021**, reproduced 2026-09-20: restoring a pre-purge Vault copy with a fresh state directory
-resurrects the purged record, because the deletion ledger lives in the state directory instead of
-travelling with the backup. Write that regression first. The slice touches deletion correctness, so it
-needs an independent review and ADR-0016 for the backup format (no canonical Vault schema change).
+Implement **Slice 15 — CI and supply-chain gates** from the accepted exit matrix: recorded
+unit/integration/lint/type checks, clean-wheel install, reproducible build, SBOM/license/vulnerability/
+secret checks, and Ubuntu LTS/ext4 S01 evidence. Do not claim Linux support until that runner passes.
 
 `docs/dev/plans/07-m1-exit-matrix.md` audits every remaining M1 exit clause and orders Slices 14–18.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
 
-Slice 13 adds `aptuni setup plan` and `aptuni setup apply ACTION_ID`: an immutable catalog- and
-answer-bound plan, exact Folder/GitHub/MarginNote source consent, complete egress and host-file
-disclosure, one honest terminal confirmation, journaled/resumable effects, adapter-bundle repair,
-doctor/smoke, and truthful cancellation that revokes only action-owned grants. `local_only` creates
-no host egress. Every confirmed step now renders numbered 1..n in both
-locales, so the surface the owner approves no longer mixes a numbered first step with unnumbered
-ones. The full gate is 395 tests plus 47 subtests, focused setup is 53 tests, ruff/strict mypy and
-`check_relay` are clean, and Review 34 is APPROVE with no remaining findings. Review 33 remains the
-historical BLOCK report and is superseded in `docs/dev/reviews/STATUS.json`. Dogfood at the
-checkpoint: `setup plan → APPLY → search → evidence → doctor` on a real folder source.
+Slice 14 adds manifest-verified `aptuni backup create | verify | list | restore`, exact expiring
+preview/confirm/cancel, canonical deletion-ledger migration and a canonical in-flight restore
+journal. Restore unions deletions from both sides and remains atomic even if the original disposable
+state directory disappears mid-publication. The full gate is 456 tests plus 47 subtests; backup +
+Vault focused suites are 84; ruff, strict mypy and relay validation are clean. Review 39 is
+**APPROVE**. Real CLI cross-machine dogfood restored a pre-purge backup without resurrecting the
+purged marker, kept the survivor and passed `doctor`.
 
 ## Known constraints
 

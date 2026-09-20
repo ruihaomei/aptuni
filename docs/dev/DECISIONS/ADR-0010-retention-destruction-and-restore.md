@@ -99,3 +99,17 @@ would otherwise disable deletion permanently, `aptuni privacy purge cancel` aban
 deleted nothing canonical. It refuses whenever the deletion ledger already records any record in the
 action's scope, where the only correct action is retry; the ledger is durable before any rewrite, so
 it stays authoritative even if the process stopped before the intent's own result was written. The receipt is kept as the audit record of the abandoned action (Review 31 F1).
+
+### 2026-09-20 — The ledger travels with the Vault, and backups are a format (ADR-0016)
+
+This ADR required proving that "a backup predating purge" cannot resurrect a record. KI-021 showed
+the guarantee held only on the machine that performed the purge, because the ledger lived in the
+disposable state directory. It is now part of the Vault, so it survives a wiped state directory and
+travels with a backup. `aptuni backup create | verify | list | restore` is the supported path: a
+backup carries `aptuni-backup.json` with the source generation, every segment digest, the record
+count and the deletion digests, all covered by one manifest digest. A folder with no manifest is
+refused as a restore input. `restore_from` validates the outcome, stages the replacement, then writes
+a canonical journal that binds the replacement HEAD to the manifest's deletion digests before
+publishing either half. A purge recorded on either side is therefore honoured even if disposable
+state is lost, and the preview states how many records the restore will drop. Restore still cannot
+undo a purge, which is the intended semantics.

@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
-import fcntl
 import json
 import os
 import re
-import secrets
 import shutil
-from collections.abc import Iterator
-from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from aptuni.application.confirmations import ACTION_RE, new_action_id, new_nonce
+from aptuni.application.confirmations import action_lock as _action_lock
+from aptuni.application.confirmations import preview_digest as _preview_digest
+from aptuni.application.confirmations import unlink_durable as _unlink_durable
+from aptuni.application.confirmations import write_private_json as _write_private_json
 from aptuni.application.errors import AptuniError
 from aptuni.domain.ids import ID_PATTERN, new_id, sha256_text
 from aptuni.domain.invariants import InvariantError, RecordSet
@@ -25,7 +26,6 @@ from aptuni.vault.locks import source_operations_lock
 from aptuni.vault.store import ConflictError, Vault
 
 PURGE_TTL = timedelta(minutes=10)
-ACTION_RE = re.compile(r"^act-[0-9a-f]{16}$")
 PURGEABLE_TYPES = frozenset({"fact", "evidence", "observation", "candidate_memory", "memory", "source_config"})
 
 
@@ -84,11 +84,6 @@ class PurgePreview:
         return asdict(self)
 
 
-def _preview_digest(value: dict[str, Any]) -> str:
-    body = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-    return sha256_text(body)
-
-
 def _preview_from_dict(value: dict[str, Any]) -> PurgePreview:
     try:
         schema_version = int(value["schema_version"])
@@ -126,44 +121,6 @@ def _preview_from_dict(value: dict[str, Any]) -> PurgePreview:
     return PurgePreview(schema_version, action_id, requested, record_ids, source_ids, vault_seq,
                         policy_epoch, nonce_id, expires_at, effects, managed_copy_ids, external_copies,
                         irreversible, external, digest)
-
-
-def _write_private_json(path: Path, value: object) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    os.chmod(path.parent, 0o700)
-    body = (json.dumps(value, ensure_ascii=False, sort_keys=True, indent=1) + "\n").encode("utf-8")
-    tmp = path.with_name(f".{path.name}.{os.getpid()}.{secrets.token_hex(4)}.tmp")
-    descriptor = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    try:
-        remaining = memoryview(body)
-        while remaining:
-            written = os.write(descriptor, remaining)
-            if written <= 0:
-                raise OSError("privacy_state_write_failed")
-            remaining = remaining[written:]
-        os.fsync(descriptor)
-    finally:
-        os.close(descriptor)
-    os.replace(tmp, path)
-    directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
-    try:
-        os.fsync(directory)
-    finally:
-        os.close(directory)
-
-
-@contextmanager
-def _privacy_lock(state_dir: Path) -> Iterator[None]:
-    root = state_dir / "privacy"
-    root.mkdir(parents=True, exist_ok=True, mode=0o700)
-    os.chmod(root, 0o700)
-    with open(root / "privacy.lock", "a+b") as handle:
-        os.chmod(root / "privacy.lock", 0o600)
-        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
-        try:
-            yield
-        finally:
-            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
 def _validate_requested(by_id: dict[str, Any], requested: tuple[str, ...]) -> None:
@@ -314,13 +271,13 @@ def create_purge_preview(
     ))
     fields: dict[str, Any] = {
         "schema_version": 1,
-        "action_id": "act-" + secrets.token_hex(8),
+        "action_id": new_action_id(),
         "requested_record_ids": tuple(requested),
         "record_ids": record_ids,
         "source_ids": source_ids,
         "vault_seq": vault_seq,
         "policy_epoch": policy_epoch,
-        "nonce_id": secrets.token_hex(16),
+        "nonce_id": new_nonce(),
         "expires_at": (utc_now() + PURGE_TTL).isoformat(),
         "copy_effects": (
             "canonical records: irreversible deletion with deletion-ledger digests",
@@ -406,18 +363,6 @@ def _load_receipt(state_dir: Path, action_id: str, digest: str) -> DeletionRecei
     if value.get("action_digest") != digest:
         raise AptuniError("confirmation_stale", "The confirmation does not match this privacy action.")
     return DeletionReceipt.model_validate(value["receipt"])
-
-
-def _unlink_durable(path: Path) -> None:
-    try:
-        path.unlink()
-    except FileNotFoundError:
-        return
-    descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
-    try:
-        os.fsync(descriptor)
-    finally:
-        os.close(descriptor)
 
 
 def _reap_terminal_intents(state_dir: Path) -> None:
@@ -547,7 +492,7 @@ def confirm_purge(
     vault: Vault, state_dir: Path, action_id: str, confirmed_digest: str,
 ) -> DeletionReceipt:
     _validate_action_id(action_id)
-    with _privacy_lock(state_dir):
+    with _action_lock(state_dir, "privacy"):
         prior = _load_receipt(state_dir, action_id, confirmed_digest)
         if prior is not None and prior.terminal_state != "incomplete_retryable":
             _unlink_durable(state_dir / "privacy" / "intents" / f"{action_id}.json")
@@ -584,7 +529,7 @@ def cancel_purge(vault: Vault, state_dir: Path, action_id: str) -> None:
     is durable before any rewrite (ADR-0010), so it is the authority here (Review 32 N2).
     """
     _validate_action_id(action_id)
-    with _privacy_lock(state_dir):
+    with _action_lock(state_dir, "privacy"):
         intent_path = state_dir / "privacy" / "intents" / f"{action_id}.json"
         if not intent_path.exists():
             raise AptuniError("privacy_action_not_found", "No committed privacy action with that id.")
@@ -680,7 +625,9 @@ def build_privacy_inventory(vault_root: Path, state_dir: Path, seq: int, records
                       canonical_modified, True, "canonical", "user_environment",
                       "managed_purge_with_deletion_ledger", "Profile, Memory, Evidence and history"),
         _managed_copy("source_state", "source_minimized", vault_root / "sources", "source_minimized",
-                      "included_with_vault", "managed_unlink_or_purge", "incremental source identity and replay"),
+                      "excluded", "managed_unlink_or_purge",
+                      "incremental source identity and replay; an Aptuni backup omits it and a restore "
+                      "clears it, so the next sync rebuilds it from the restored generation"),
         _managed_copy("retrieval_projection", "derived", state_dir / "projections" / "retrieval.sqlite", "derived",
                       "excluded", "delete_and_rebuild", "local search acceleration"),
         _managed_copy("adapter_grants", "grant", state_dir / "adapters" / "grants", "until_revoked", "excluded",
@@ -696,8 +643,9 @@ def build_privacy_inventory(vault_root: Path, state_dir: Path, seq: int, records
                       state_dir / "privacy" / "intents"),
         _managed_copy("privacy_receipts", "audit", state_dir / "privacy" / "receipts", "content_free_bounded",
                       "excluded", "retained_audit", "content-free per-copy purge outcomes"),
-        _managed_copy("deletion_ledger", "deletion_ledger", state_dir / "deletion-ledger.jsonl",
-                      "irreversible_identifier_digests", "excluded", "retained_to_prevent_resurrection",
+        _managed_copy("deletion_ledger", "deletion_ledger", vault_root / "deletion-ledger.jsonl",
+                      "irreversible_identifier_digests", "included_with_vault",
+                      "retained_to_prevent_resurrection",
                       "content-free purge history"),
         InventoryCopy("profile_exports", "unmanaged_export", "untracked", None, None, None, False,
                       "user_controlled", "user_environment", "user_must_delete", "readable Profile copies"),

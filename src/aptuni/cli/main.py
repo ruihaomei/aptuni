@@ -15,6 +15,7 @@ from aptuni.adapters.manager import AdapterManager
 from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService, Status
 from aptuni.application.workspace import DEFAULT_VAULT, Workspace
+from aptuni.cli.backup_commands import add_backup_commands, cmd_backup
 from aptuni.cli.marginnote_commands import MARGINNOTE_COMMANDS, add_marginnote_parsers, cmd_marginnote
 from aptuni.cli.memory_cli import add_memory_commands, cmd_memory, cmd_observe
 from aptuni.cli.render import delimited_untrusted
@@ -28,10 +29,11 @@ from aptuni.cli.setup_commands import (
 )
 from aptuni.domain.invariants import InvariantError
 from aptuni.domain.records import MODULES, SchemaVersionError
-from aptuni.vault.store import VaultIntegrityError
+from aptuni.vault.fsgate import UnsupportedFilesystemError
+from aptuni.vault.store import ConflictError, VaultIntegrityError
 
 UNSAFE_STATE_ERRORS = (VaultIntegrityError, InvariantError, SchemaVersionError, OSError, ValueError, TypeError,
-                       KeyError, AttributeError)
+                       KeyError, AttributeError, ConflictError, UnsupportedFilesystemError)
 
 
 def _on_off(value: str) -> bool:
@@ -195,6 +197,7 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("--json", action="store_true")
 
     _add_privacy_commands(sub)
+    add_backup_commands(sub)
 
     sub.add_parser("doctor", help="recover and fully verify the Vault")
     return parser
@@ -687,6 +690,7 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "memory": cmd_memory,
     "export": _cmd_export,
     "privacy": _cmd_privacy,
+    "backup": cmd_backup,
 }
 
 

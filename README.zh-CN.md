@@ -87,6 +87,7 @@ uv run aptuni adapter apply ACTION_ID    # 在你自己的终端里确认
 | Claude Code 与 Codex 适配器 | ✅ |
 | 插件顾问、配方、中英文命令行 | ✅ 预览（`aptuni advise`） |
 | MarginNote 4 来源（macOS，本地只读直连，原生 ID） | ✅ |
+| 规范 Vault 的可校验备份与恢复 | ✅ |
 | Obsidian 来源与界面、Mem0、混合检索、Graphiti | 🗺 里程碑 2–3 |
 
 运行 `aptuni plugin list --lang zh-CN` 和 `aptuni recipe list --lang zh-CN` 可以在命令行看到同样的信息。
@@ -137,6 +138,22 @@ aptuni privacy purge cancel <action>   # 放弃一次尚未删除任何内容的
 
 `privacy status` 会如实点名外部副本——你自己导出的文件、你的原始来源文件，以及由智能体提供方
 保存的对话记录。Aptuni 删不掉它们，也不会假装删得掉。清除回执会逐份说明每一份副本的真实结果。
+
+## 真正能恢复的备份
+
+`aptuni export` 写出的是当前 Profile 的可读副本，它用于阅读，无法用于恢复。可恢复的副本是备份：
+
+```sh
+aptuni backup create ~/aptuni-backups/2026-09-20   # 一份经过校验的副本，存放在 Vault 之外
+aptuni backup verify ~/aptuni-backups/2026-09-20   # 校验它，同时不触碰你的 Vault
+aptuni backup list   ~/aptuni-backups              # 你有哪些备份，以及它们是否仍然通过校验
+aptuni backup restore preview <path>               # 恢复会替换、丢弃和保留什么，逐项列出
+aptuni backup restore confirm <action>             # 只对这一份预览生效
+```
+
+备份是你规范记录的完整未加密副本，包含你已隐藏的模块，因此存放位置很重要。它有两件事绝不会做：
+在任何机器上都不会让你已清除的记录复活，因为删除记录随 Vault 一起迁移；也绝不会覆盖一个已经
+有文件的文件夹。
 
 ## 参与贡献
 

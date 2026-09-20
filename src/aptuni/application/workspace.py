@@ -1,7 +1,10 @@
 """Where the Vault and the local state live.
 
-The state directory (lock, deletion ledger, config) sits outside the Vault so that the ledger is
-never copied with Vault backups (ADR-0010). ``APTUNI_STATE_DIR`` overrides the default.
+The state directory holds only what is disposable or host-local: the writer lock, the config, the
+retrieval projection, pending confirmations and adapter grants. It can be deleted and rebuilt. The
+deletion ledger is *not* here — it is canonical and lives in the Vault, so a deletion survives a
+wiped state directory and travels with a backup (ADR-0016, which amends ADR-0010 after KI-021).
+``APTUNI_STATE_DIR`` overrides the default.
 """
 
 from __future__ import annotations

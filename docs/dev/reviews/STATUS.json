@@ -117,8 +117,19 @@
    "kind": "review",
    "current": "34-m1-guided-setup-apply-rereview.md",
    "verdict": "APPROVE",
+    "supersedes": [
+     "33-m1-guided-setup-apply-review.md"
+    ]
+  },
+  "m1-owner-backup-restore": {
+   "kind": "review",
+   "current": "39-m1-owner-backup-restore-atomicity-rereview.md",
+   "verdict": "APPROVE",
    "supersedes": [
-    "33-m1-guided-setup-apply-review.md"
+    "35-m1-owner-backup-restore-review.md",
+    "36-m1-owner-backup-restore-rereview.md",
+    "37-m1-owner-backup-restore-final-review.md",
+    "38-m1-owner-backup-restore-g1-g2-rereview.md"
    ]
   }
  }

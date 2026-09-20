@@ -243,7 +243,7 @@ class PurgeRestoreTests(VaultTestCase):
 
         self.assertTrue(source_state.exists())
         self.assertEqual(before, (self.vault_dir / "HEAD.json").read_bytes())
-        self.assertFalse((self.state_dir / "restore-intent.json").exists())
+        self.assertFalse((self.vault_dir / "restore-intent.json").exists())
 
     def test_restore_crash_after_journal_is_completed_by_open(self) -> None:
         self.vault.commit(golden_records(), expected_seq=0)
@@ -259,10 +259,10 @@ class PurgeRestoreTests(VaultTestCase):
             self.vault.restore_from(backup, expected_seq=1)
 
         self.assertFalse(source_state.exists())
-        self.assertTrue((self.state_dir / "restore-intent.json").exists())
+        self.assertTrue((self.vault_dir / "restore-intent.json").exists())
         recovered = Vault.open(self.vault_dir, self.state_dir)
         self.assertEqual(2, recovered.head().seq)
-        self.assertFalse((self.state_dir / "restore-intent.json").exists())
+        self.assertFalse((self.vault_dir / "restore-intent.json").exists())
         self.assertTrue(recovered.verify().ok)
 
 

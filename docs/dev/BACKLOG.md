@@ -31,3 +31,6 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | `src/aptuni/application/privacy.py` is past the 400-line guidance; split inventory, preview and confirm once the contract stops moving | Self-review 2026-09-20 | Privacy hardening |
 | An unreadable committed purge intent still wedges canonical writes with no in-product remedy | Review 32 N3 | Privacy hardening |
 | A wedged purge action id is not discoverable from any surface; `privacy status` should name the committed intent | Review 32 N6 | Privacy hardening |
+| Backup restore preview can still accept a manifest whose ledger-drop simulation is refused only at confirmation; align the claim or move the simulation earlier | Review 37 N17 | Backup/restore hardening |
+| Backup verification: pin symlinked `HEAD.json`/`records`/manifest tests, validate every digest read, tolerate Finder `.DS_Store`, and clarify source-folder versus replay-state wording | Review 36 N13/N15; Review 37 N18–N20 | Backup/restore hardening |
+| Resolve the sync-root filesystem gate against a resolved home path so a symlinked `HOME` cannot bypass it | Review 37 observation | Vault filesystem hardening |

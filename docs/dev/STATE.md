@@ -8,7 +8,7 @@ bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profi
 read-only Plugin Advisor are runnable. The repository has bilingual READMEs and community files for
 open-sourcing (not yet pushed or published).
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -126,6 +126,14 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   findings B1–B6 and follow-up crash/ownership counterexamples were remediated test-first; focused
   Review 34 is **APPROVE** with no remaining findings. Every confirmed step renders numbered
   1..n in both locales.
+- **Slice 14 — Owner backup and restore (runnable; checkpoint pending).** `aptuni backup create |
+  verify | list | restore` writes a private, manifest-verified canonical copy and restores only after
+  an expiring digest-bound preview. The deletion ledger and in-flight restore journal live in the
+  Vault, so a purge cannot be undone by an older backup, another machine, a wiped state directory,
+  or any crash point. Legacy ledger/journal state migrates on open. Reviews 35–38 found and drove
+  regressions for torn ledgers, confirmation honesty/binding, refused restores, empty generations,
+  destination safety and cross-state atomicity; Review 39 independently closed the stream
+  **APPROVE**.
 - **Retrieval fallback (`82ad8ee`).** All-terms FTS first, then stopword-filtered bm25 any-term
   matches above a relative floor, so task-shaped queries find context (ADR-0004 amendment).
 - **Vault hardening (`ec4ebbe`).** Torn deletion-ledger tail repaired before append (Review 19 N1);
@@ -135,7 +143,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- None. Slice 13 is checkpointed at `db7a5d9`; nothing is pushed.
+- Slice 14 implementation and Review 39 are complete; local checkpoint is being recorded. Nothing
+  is pushed.
 
 ## Awaiting maintainer decisions
 
@@ -145,23 +154,23 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. **Slice 14 — owner backup and restore** (`docs/dev/plans/08-owner-backup-and-restore.md`).
-   `aptuni backup create | verify | list | restore`. This closes the M1.1 backup/restore/migration
-   exit clause and the M1.5 rollback drill, and it fixes **KI-021**: a pre-purge Vault copy restored
-   with a fresh state directory currently resurrects the purged record, because the deletion ledger
-   lives in the state directory rather than in the portable backup. High risk (deletion correctness);
-   independent review required.
-2. Then Slice 15 (CI plus SBOM/license/secret and clean-install gates, which also unblocks the Linux
-   claim), Slice 16 (versioned evaluation harness), Slice 17 (real-host S12 probes, maintainer-gated),
-   Slice 18 (post-contract skills). Ordering and the full gate-by-gate audit are in
+1. **Slice 15 — CI and supply-chain gates.** Add recorded unit/integration/lint/type, clean-install,
+   reproducible-build, SBOM/license/vulnerability/secret and Ubuntu LTS/ext4 S01 gates. Only claim
+   Linux support after the exact runner evidence exists.
+2. Then Slice 16 (versioned evaluation harness), Slice 17 (real-host S12 probes, maintainer-gated),
+   and Slice 18 (post-contract skills). Ordering and the full gate-by-gate audit are in
    `docs/dev/plans/07-m1-exit-matrix.md`.
 3. Do not infer public-release authorization or claim Linux support before its exact runner evidence
    exists.
 
 ## Latest validation state
 
-- `.tools/bin/uv run pytest`: 395 passed, 47 subtests passed; `ruff check .` and strict `mypy src`:
-  clean (2026-09-20 guided-setup checkpoint gate).
+- `.tools/bin/uv run pytest`: 456 passed, 47 subtests passed; `ruff check .` and strict `mypy src`:
+  clean (2026-09-20 Slice 14 gate). Backup + Vault focused suites: 84 passed. Review 39 independently
+  fault-injected all four restore crash points with fresh state and verified legacy recovery.
+- Real CLI backup/privacy dogfood: machine A created pre/post-purge backups; machine B imported the
+  portable ledger, restored the older backup, dropped exactly one ledgered record, kept the survivor,
+  produced zero raw purged-marker hits and passed `doctor`.
 - Guided-setup focused suite: 53 passed. Review 34 reproduced a mid-bundle crash and verified that
   retry restores the complete Codex bundle, preserves grant ownership and shows the full
   recommendation plus exact effect plan before `APPLY`. Dogfood at the checkpoint: `setup plan →
