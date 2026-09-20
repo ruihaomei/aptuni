@@ -1,8 +1,13 @@
 # MVP Evaluation Plan
 
-**Status:** Proposed Gate for M1.3+
+**Status:** Accepted (2026-09-20, Review 44)
 Fixtures, judgments, metric code, thresholds, and holdouts must be checksummed/committed before the
 first scored run. Changing them requires a recorded rationale and a fresh baseline.
+
+`tools/run_evals.py` is the versioned scored harness for the frozen S03 retrieval corpus and the
+context-noise arithmetic example. Other rows below remain deterministic test-matrix gates; accepting
+this plan does not assert that every later milestone threshold has already passed. The harness never
+uses private profile data, and its synthetic result is not a population-quality claim.
 
 ## Automated release gates
 
@@ -57,7 +62,10 @@ evidence, not a population claim.
 - Use synthetic/licensed content plus sanitized maintainer fixtures; never commit private raw exports.
 - Include English, Simplified Chinese, mixed-language queries, CJK paths, conflicting authorities,
   stale policies, adversarial instructions, temporal corrections, and unsupported expertise claims.
-- Separate development and untouched holdout slices. Metric code exits non-zero on any automated gate.
+- Separate development and sealed holdout slices. A holdout stays untouched until its first scored
+  run; after opening, it remains immutable regression evidence but cannot support a new
+  generalization claim. Such a claim requires a newly checksummed, sealed holdout. Metric code exits
+  non-zero on any automated gate.
 - Store machine-readable run manifest: commit, schema versions, dependency lock/SBOM hash, OS/Python/
   SQLite/host versions, locale, seed, fixture checksum, thresholds, and outputs.
 - Any failed blocking metric keeps the milestone open; exceptions require an ADR/review, never a

@@ -44,17 +44,32 @@ STOPWORDS = frozenset({
 QueryMode = Literal["all", "any"]
 
 
+def _any_terms(text: str) -> tuple[list[str], list[str]]:
+    terms = [term for term in cjk_lexemes(text) if term]
+    filtered = [term for term in terms if term not in STOPWORDS
+                and not (_CJK.fullmatch(term)
+                         and any(term.startswith(word) for word in STOPWORDS if _CJK.fullmatch(word)))]
+    return terms, filtered
+
+
 def query_expression(text: str, mode: QueryMode = "all") -> str | None:
     """Build an FTS expression from data terms only; caller text is never parsed as FTS syntax.
 
     ``all`` requires every term (precise). ``any`` drops stopwords and CJK lexemes that contain a
     stopword prefix, then ORs the rest for bm25-ranked recall on task-shaped requests.
     """
-    terms = [term for term in cjk_lexemes(text) if term]
+    terms, filtered = _any_terms(text)
     if mode == "any":
-        terms = [term for term in terms if term not in STOPWORDS
-                 and not (_CJK.fullmatch(term) and any(term.startswith(w) for w in STOPWORDS if _CJK.fullmatch(w)))]
+        terms = filtered
     if not terms:
         return None
     joiner = " AND " if mode == "all" else " OR "
     return joiner.join('"' + term.replace('"', '""') + '"' for term in terms)
+
+
+def fallback_expression(text: str) -> str | None:
+    """Return an any-term expression only when task-language removal changed the query."""
+    terms, filtered = _any_terms(text)
+    if not filtered or filtered == terms:
+        return None
+    return " OR ".join('"' + term.replace('"', '""') + '"' for term in filtered)

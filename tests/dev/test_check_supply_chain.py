@@ -105,6 +105,30 @@ class SupplyChainTests(unittest.TestCase):
             self.assertTrue(any("persisted credentials" in error for error in errors))
             self.assertTrue(any("locked backend" in error for error in errors))
             self.assertTrue(any("audited hashes" in error for error in errors))
+            self.assertTrue(any("evaluation manifest" in error for error in errors))
+            self.assertTrue(any("threshold step fails" in error for error in errors))
+
+    def test_workflow_binds_failed_eval_retention_to_the_upload_step(self) -> None:
+        workflow = MODULE_PATH.parents[1] / ".github" / "workflows" / "ci.yml"
+        text = workflow.read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as raw:
+            mutated = Path(raw) / "ci.yml"
+            mutated.write_text(text.replace(
+                "path: artifacts/eval-run.json", "path: artifacts/not-the-eval.json",
+            ), encoding="utf-8")
+            self.assertTrue(any("threshold step fails" in error
+                                for error in gate.check_workflow(mutated)))
+
+            condition = "if: always() && hashFiles('artifacts/eval-run.json') != ''"
+            detached = text.replace(condition, "if: success()")
+            detached = detached.replace(
+                "      - name: Export runtime inventory and audit vulnerabilities",
+                f"      - name: No-op detached condition\n        {condition}\n        run: true\n"
+                "      - name: Export runtime inventory and audit vulnerabilities",
+            )
+            mutated.write_text(detached, encoding="utf-8")
+            self.assertTrue(any("threshold step fails" in error
+                                for error in gate.check_workflow(mutated)))
 
 
 if __name__ == "__main__":

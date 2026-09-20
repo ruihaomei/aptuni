@@ -142,6 +142,17 @@ def check_workflow(path: Path) -> list[str]:
         errors.append("CI clean-wheel smoke must install the audited hashes before the wheel")
     if "--no-install-project" not in text or "--all-groups --no-build-isolation" not in text:
         errors.append("CI sync must seed locked build tools before building the project")
+    if "tools/run_evals.py --sbom artifacts/aptuni.cdx.json" not in text:
+        errors.append("CI must retain a frozen evaluation manifest tied to the generated SBOM")
+    steps = re.split(r"(?m)(?=^      - )", text)
+    evaluation_upload = next((
+        step for step in steps
+        if "uses: actions/upload-artifact@" in step and "path: artifacts/eval-run.json" in step
+    ), None)
+    required_condition = "if: always() && hashFiles('artifacts/eval-run.json') != ''"
+    if (evaluation_upload is None or required_condition not in evaluation_upload
+            or "retention-days: 14" not in evaluation_upload):
+        errors.append("CI must upload a written evaluation manifest even when its threshold step fails")
     for reference in ACTION_USE.findall(text):
         if reference.startswith("./"):
             continue

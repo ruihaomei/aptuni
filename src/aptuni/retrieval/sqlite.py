@@ -7,12 +7,12 @@ import os
 import sqlite3
 import tempfile
 from collections.abc import Iterable, Iterator
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from aptuni.retrieval.lexical import LEXEME_VERSION, cjk_lexemes, query_expression
+from aptuni.retrieval.lexical import LEXEME_VERSION, cjk_lexemes, fallback_expression, query_expression
 
 PROJECTION_SCHEMA = 1
 
@@ -75,7 +75,7 @@ class SqliteProjection:
         if not self.path.exists():
             return ProjectionStatus(self.path, "missing", None, 0, 0, None, None)
         try:
-            with sqlite3.connect(self._read_uri(), uri=True) as connection:
+            with closing(sqlite3.connect(self._read_uri(), uri=True)) as connection:
                 metadata = dict(connection.execute("SELECT key, value FROM metadata"))
                 records = int(connection.execute("SELECT count(*) FROM records_fts").fetchone()[0])
             schema = int(metadata["schema_version"])
@@ -128,7 +128,7 @@ class SqliteProjection:
 
     @staticmethod
     def _build(path: Path, rows: list[ProjectionDocument], vault_seq: int) -> None:
-        with sqlite3.connect(path) as connection:
+        with closing(sqlite3.connect(path)) as connection, connection:
             connection.execute("PRAGMA journal_mode=DELETE")
             connection.execute("PRAGMA synchronous=FULL")
             connection.execute("CREATE TABLE metadata(key TEXT PRIMARY KEY, value TEXT NOT NULL)")
@@ -184,7 +184,7 @@ class SqliteProjection:
             # Task-shaped requests rarely contain every term of a record: fill the remaining slots with
             # ranked any-term matches, keeping only those within FALLBACK_RELATIVE_SCORE of the best.
             seen = {row.record_id for row in rows}
-            extra = [row for row in self._match(query_expression(query, "any"), filters, filter_parameters, limit)
+            extra = [row for row in self._match(fallback_expression(query), filters, filter_parameters, limit)
                      if row.record_id not in seen]
             if extra:
                 floor = extra[0].score * FALLBACK_RELATIVE_SCORE
@@ -200,7 +200,7 @@ class SqliteProjection:
         )
         parameters: list[Any] = [expression, *filter_parameters, limit]
         try:
-            with sqlite3.connect(self._read_uri(), uri=True) as connection:
+            with closing(sqlite3.connect(self._read_uri(), uri=True)) as connection:
                 return [SearchRow(str(row[0]), -float(row[1])) for row in connection.execute(statement, parameters)]
         except sqlite3.Error as error:
             raise ProjectionError("sqlite_projection_search_failed") from error

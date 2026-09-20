@@ -69,3 +69,14 @@ fills fewer than `limit` slots, adds bm25-ranked any-term (`OR`) matches over st
 lexemes, keeping those scoring at least 25% of the best fallback hit. The lexeme scheme is unchanged
 (S03 evidence stays valid); all-terms hits always rank first; permission filters and final hydration
 checks are unchanged. Broad-query noise remains tracked by KI-018 and needs dogfood judgments.
+
+### 2026-09-20 — Task-language-gated any-term fallback
+
+The first production run over S03's precommitted corpus found that applying the any-term fallback to
+every compact unmatched query raised dev false-positive rate to 0.286 against the frozen 0.10 gate:
+queries such as “金融危机” inherited unrelated finance records. The fallback now runs only when
+stopword/task-language removal actually changes the query. The two motivating natural requests
+(“help me prepare for …” and “教我…”) still fall back; compact unmatched queries stay on the precise
+all-term path. Production evaluation records dev false-positive rate 0.0, recall@5 0.992 and MRR
+1.0; holdout records 1.0 recall/MRR and 0.0 false positives. Review 44 approved the harness and this
+regression boundary; generalization beyond the synthetic corpus remains KI-018.

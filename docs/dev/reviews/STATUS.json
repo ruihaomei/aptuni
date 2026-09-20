@@ -139,6 +139,15 @@
    "supersedes": [
     "40-m1-ci-supply-chain-review.md"
    ]
+  },
+  "m1-evaluation-harness": {
+   "kind": "review",
+   "current": "44-m1-evaluation-harness-final-rereview.md",
+   "verdict": "APPROVE",
+   "supersedes": [
+    "42-m1-evaluation-harness-review.md",
+    "43-m1-evaluation-harness-rereview.md"
+   ]
   }
  }
 }

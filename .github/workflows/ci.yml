@@ -84,6 +84,18 @@ jobs:
           uv run --no-sync pip-audit --require-hashes --progress-spinner off \
             --format json --output artifacts/pip-audit.json \
             --requirement artifacts/runtime-requirements.txt
+      - name: Run frozen production evaluation
+        run: |
+          uv run --no-sync python tools/run_evals.py --sbom artifacts/aptuni.cdx.json \
+            --output artifacts/eval-run.json
+      - name: Retain evaluation evidence even when a threshold fails
+        if: always() && hashFiles('artifacts/eval-run.json') != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: aptuni-eval-${{ github.sha }}
+          path: artifacts/eval-run.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Build twice and prove reproducibility
         env:
           # ZIP's earliest representable timestamp: 1980-01-01T00:00:00Z.

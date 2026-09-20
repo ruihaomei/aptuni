@@ -137,3 +137,12 @@ def test_all_term_matches_rank_before_fallback_matches(tmp_path: Path) -> None:
     })
     assert next(row.record_id for row in projection.search("survival analysis")) == "fct_both"
     assert [row.record_id for row in projection.search("survival analysis", limit=1)] == ["fct_both"]
+
+
+def test_compact_unmatched_queries_do_not_degrade_to_any_term_noise(tmp_path: Path) -> None:
+    projection = _projection(tmp_path, {
+        "fct_finance": "学习量化金融与投资组合优化。",
+        "fct_game": "周末玩生存类游戏。",
+    })
+    assert projection.search("金融危机") == []
+    assert projection.search("生存游戏攻略") == []
