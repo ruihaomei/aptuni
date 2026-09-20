@@ -8,7 +8,7 @@ bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profi
 read-only Plugin Advisor are runnable. The repository has bilingual READMEs and community files for
 open-sourcing (not yet pushed or published).
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -151,6 +151,13 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   records dev recall@5 0.992, MRR 1.0 and FPR 0.0; holdout recall/MRR 1.0 and FPR 0.0. The gate
   narrowed any-term fallback to queries whose task-language removal changes the terms. Reviews
   42–43 drove evidence-retention and mutation-test fixes; Review 44 is **APPROVE**.
+- **Slice 18 — Post-contract skills (`884aabc`).** Repository-local `add-source-provider`,
+  `run-evals`, `audit-licenses`, and `release` skills encode the stabilized source, evaluation and
+  supply/release contracts. Four fixture smokes execute the real bounded commands; release builds
+  twice and verifies byte-identical legal-file-complete artifacts. Release remains a local dry-run
+  and explicitly cannot publish, tag, push, use credentials or infer maintainer approval. Review 45
+  caught implicit `uv run` synchronization; the instructions and fixtures now use `--no-sync` from
+  a prepared locked environment, and Review 46 is **APPROVE**.
 - **Retrieval fallback (`82ad8ee`).** All-terms FTS first, then stopword-filtered bm25 any-term
   matches above a relative floor, so task-shaped queries find context (ADR-0004 amendment).
 - **Vault hardening (`ec4ebbe`).** Torn deletion-ledger tail repaired before append (Review 19 N1);
@@ -163,27 +170,34 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 - Slice 15 is locally checkpointed at `ad661fc`; nothing is pushed and no remote is configured.
   The Ubuntu 24.04/ext4 run is the sole pending Slice 15 evidence item, so compatibility remains
   macOS/APFS only.
+- Slice 17 real-host evidence remains maintainer-gated. Installed Claude Code 2.1.87 is older than
+  the frozen 2.1.267/2.1.266 target, installed Codex 0.155.1 does not match 0.155.0/0.154.0, and no
+  host task, credential or quota consumption is authorized.
 
 ## Awaiting maintainer decisions
 
-- None. Product/repository name **Aptuni** and `@ruihaomei` as CODEOWNER are confirmed. Private
-  vulnerability reporting and GitHub/PyPI collision checks remain public-release checklist items,
-  not current engineering blockers. Brand vector masters/social assets remain non-blocking.
+- Authorization, matching host versions, credentials/quota and recorded daily tasks for the Slice 17
+  Claude Code/Codex probes.
+- A configured remote and maintainer push to collect the Slice 15 hosted Ubuntu evidence. Private
+  vulnerability reporting and GitHub/PyPI collision checks remain public-release checklist items.
 
 ## Next highest-priority task
 
 1. A maintainer must configure/push to a remote and record the successful Slice 15 Ubuntu 24.04
    workflow before any Linux/ext4 support claim. The agent must not push.
-2. **Slice 17 — real-host S12 probes** is next but maintainer-gated: it needs actual Claude Code and
-   Codex installations, credentials/quota and a recorded daily task in each.
-3. **Slice 18 — post-contract skills** is the next local implementation when Slice 17 authorization
-   or hosts are unavailable. Ordering and the full gate-by-gate audit are in
-   `docs/dev/plans/07-m1-exit-matrix.md`.
-4. Do not infer public-release authorization or claim Linux support before its exact runner evidence
+2. A maintainer must authorize **Slice 17 — real-host S12 probes**, provide matching current/prior
+   Claude Code and Codex versions plus credentials/quota, and name the recorded daily task for each.
+3. Slices 14–16 and 18 are locally complete. No further local Slice 14–18 implementation is known;
+   do not invent substitute evidence for the two external gates above.
+4. Do not infer public-release authorization or claim Linux/host support before its exact evidence
    exists.
 
 ## Latest validation state
 
+- Slice 18: 459 tests plus 47 subtests; ruff, strict mypy and 34 developer checks clean. The four
+  fixture smokes ran provider conformance tests, a frozen evaluation manifest, no-sync lock/notice/
+  secret/workflow checks, and two byte-identical offline builds whose wheel/sdist legal files pass.
+  Review 46 independently verified the no-sync remediation and returned **APPROVE**.
 - Slice 16: 459 tests plus 47 subtests; ruff, strict mypy, 32 developer checks, relay, workflow and
   secret contracts clean. The SBOM-bound real run reproduced dev recall@5 0.9921569 / MRR 1.0 /
   FPR 0.0 and holdout recall/MRR 1.0 / FPR 0.0; the context-noise example reproduced 328 total and
