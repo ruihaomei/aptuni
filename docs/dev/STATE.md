@@ -126,7 +126,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   findings B1–B6 and follow-up crash/ownership counterexamples were remediated test-first; focused
   Review 34 is **APPROVE** with no remaining findings. Every confirmed step renders numbered
   1..n in both locales.
-- **Slice 14 — Owner backup and restore (runnable; checkpoint pending).** `aptuni backup create |
+- **Slice 14 — Owner backup and restore (runnable, `7500d67`).** `aptuni backup create |
   verify | list | restore` writes a private, manifest-verified canonical copy and restores only after
   an expiring digest-bound preview. The deletion ledger and in-flight restore journal live in the
   Vault, so a purge cannot be undone by an older backup, another machine, a wiped state directory,
@@ -143,8 +143,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- Slice 14 implementation and Review 39 are complete; local checkpoint is being recorded. Nothing
-  is pushed.
+- None. Slice 14 is checkpointed at `7500d67`; nothing is pushed.
 
 ## Awaiting maintainer decisions
 

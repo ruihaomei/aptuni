@@ -10,7 +10,7 @@ STDIO; Claude/Codex adapters; owner-readable Profile export; the Plugin Advisor;
 inventory/purge with atomic chain-preserving restore; and digest-bound guided setup through doctor
 and smoke; and verified owner backup/restore. Slice 14 is implementation-complete and Review 39 is
 **APPROVE** after fresh-state crash injection proved the canonical ledger and restore journal cannot
-diverge. Its local checkpoint is being recorded. Nothing is pushed.
+diverge. Slice 14 is checkpointed at `7500d67`. Nothing is pushed.
 
 ## Read first
 
