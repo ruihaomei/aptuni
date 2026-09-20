@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_VERSION: "0.12.17"
+  PYTHON_VERSION: "3.13"
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: false
+      - name: Sync locked environment
+        run: |
+          uv sync --locked --all-groups --no-install-project
+          uv sync --locked --all-groups --no-build-isolation
+      - name: Test
+        run: uv run pytest
+      - name: Lint
+        run: uv run ruff check .
+      - name: Type check
+        run: uv run mypy src
+      - name: Repository contract checks
+        run: |
+          python tools/check_relay.py
+          python -m unittest discover -s tests/dev -v
+      - name: Ubuntu ext4 Vault durability gate
+        if: runner.os == 'Linux'
+        run: |
+          uv run pytest tests/integration/test_fsgate.py tests/integration/test_concurrency.py \
+            tests/integration/test_vault.py tests/integration/test_backup.py
+
+  supply-chain:
+    name: Build and supply chain
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: false
+      - name: Validate lock, notices and tracked secrets
+        run: |
+          uv lock --check
+          uv sync --locked --all-groups --no-install-project
+          uv sync --locked --all-groups --no-build-isolation
+          python tools/check_supply_chain.py notices
+          python tools/check_supply_chain.py secrets
+          python tools/check_supply_chain.py workflow
+      - name: Export runtime inventory and audit vulnerabilities
+        run: |
+          mkdir -p artifacts
+          uv export --locked --no-dev --no-emit-project --format requirements.txt \
+            --output-file artifacts/runtime-requirements.txt
+          uv export --locked --no-dev --no-emit-project --format cyclonedx1.5 \
+            --output-file artifacts/aptuni.cdx.json
+          uv run --no-sync pip-audit --require-hashes --progress-spinner off \
+            --format json --output artifacts/pip-audit.json \
+            --requirement artifacts/runtime-requirements.txt
+      - name: Build twice and prove reproducibility
+        env:
+          # ZIP's earliest representable timestamp: 1980-01-01T00:00:00Z.
+          SOURCE_DATE_EPOCH: "315532800"
+        run: |
+          uv build --offline --no-build-isolation --out-dir build-a
+          uv build --offline --no-build-isolation --out-dir build-b
+          (cd build-a && sha256sum *) > artifacts/build-a.sha256
+          (cd build-b && sha256sum *) > artifacts/build-b.sha256
+          diff -u artifacts/build-a.sha256 artifacts/build-b.sha256
+          python tools/check_supply_chain.py artifacts build-a/*
+      - name: Clean-wheel smoke
+        run: |
+          uv venv --python "${PYTHON_VERSION}" clean-wheel
+          uv pip install --python clean-wheel/bin/python --require-hashes \
+            --requirement artifacts/runtime-requirements.txt
+          uv pip install --python clean-wheel/bin/python --no-deps build-a/*.whl
+          clean-wheel/bin/aptuni --help >/dev/null
+          clean-wheel/bin/aptuni recipe list --lang zh-CN >/dev/null
+      - name: Collect verified artifacts
+        run: |
+          cp build-a/* artifacts/
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: aptuni-supply-chain-${{ github.sha }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 14

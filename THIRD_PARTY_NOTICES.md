@@ -32,6 +32,7 @@ Slice 1). Each entry records the package, version, license and source.
 | h11 | 0.16.0 | MIT | HTTP/Uvicorn dependency |
 | httpcore2 | 2.13.0 | BSD-3-Clause | HTTPX2 dependency |
 | httpx2 | 2.13.0 | BSD-3-Clause | MCP dependency |
+| httpx2-jsfetch | 1.0 | BSD-3-Clause | HTTPX2 Emscripten dependency |
 | idna | 3.20 | BSD-3-Clause | AnyIO/HTTPX2 dependency |
 | jsonschema | 4.26.0 | MIT | MCP dependency |
 | jsonschema-specifications | 2025.9.1 | MIT | JSON Schema dependency |
@@ -43,6 +44,7 @@ Slice 1). Each entry records the package, version, license and source.
 | pydantic-core | 2.46.5 | MIT | Pydantic dependency |
 | PyJWT | 2.14.0 | MIT | MCP dependency |
 | python-multipart | 0.0.32 | Apache-2.0 | MCP dependency |
+| pywin32 | 312 | PSF-2.0 | Windows-only MCP dependency |
 | referencing | 0.37.0 | MIT | JSON Schema dependency |
 | rpds-py | 2026.6.3 | MIT | JSON Schema dependency |
 | sse-starlette | 3.4.11 | BSD-3-Clause | MCP dependency; HTTP transport is disabled |

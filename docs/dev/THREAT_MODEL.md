@@ -119,6 +119,13 @@ Dependencies are locked and reviewed from the first scaffold. Builds are isolate
 install-time code, new network destinations, telemetry, vulnerabilities, licenses, SBOM changes,
 and hashes are review events.
 
+Slice 15 automates that review boundary: CI installs only from `uv.lock`, checks the full
+cross-platform runtime closure against `THIRD_PARTY_NOTICES.md`, scans tracked files for
+high-confidence private-key/provider-token shapes, audits the exported hash-locked runtime set,
+emits CycloneDX 1.5, and proves wheel/sdist byte reproducibility under a fixed ZIP-safe build epoch. The
+scanner is deliberately a high-confidence gate, not a claim that arbitrary secrets are detectable;
+GitHub repository secret scanning remains a release setting.
+
 ### Policy, egress, credentials, and diagnostics
 
 - Policy actions include ingest, raw retention, projection, retrieval, exposure, network egress,

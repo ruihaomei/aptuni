@@ -131,6 +131,14 @@
     "37-m1-owner-backup-restore-final-review.md",
     "38-m1-owner-backup-restore-g1-g2-rereview.md"
    ]
+  },
+  "m1-ci-supply-chain": {
+   "kind": "review",
+   "current": "41-m1-ci-supply-chain-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "40-m1-ci-supply-chain-review.md"
+   ]
   }
  }
 }
