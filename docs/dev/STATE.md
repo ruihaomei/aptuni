@@ -134,6 +134,15 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   regressions for torn ledgers, confirmation honesty/binding, refused restores, empty generations,
   destination safety and cross-state atomicity; Review 39 independently closed the stream
   **APPROVE**.
+- **Slice 15 — CI and supply-chain gates (local implementation, `ad661fc`).** A least-privilege,
+  immutable-action-pinned workflow runs the locked full gate on macOS 15 and Ubuntu 24.04, then
+  emits hash-locked runtime requirements, CycloneDX 1.5, pip-audit JSON, byte-identical offline
+  wheel/sdist builds and clean-wheel smokes. Dependency notices follow the extra-aware
+  cross-platform lock closure; build/audit tools are exact lock members; high-confidence tracked
+  credential shapes and artifact legal files fail locally and in CI. Linux resolves the deepest
+  `/proc/self/mountinfo` entry and admits only ext4, but Linux support is **not claimed** until the
+  hosted job records a pass. Review 40's local blockers were remediated; Review 41 is **APPROVE WITH
+  NON-BLOCKING NOTES**.
 - **Retrieval fallback (`82ad8ee`).** All-terms FTS first, then stopword-filtered bm25 any-term
   matches above a relative floor, so task-shaped queries find context (ADR-0004 amendment).
 - **Vault hardening (`ec4ebbe`).** Torn deletion-ledger tail repaired before append (Review 19 N1);
@@ -143,7 +152,9 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- None. Slice 14 is checkpointed at `7500d67`; nothing is pushed.
+- Slice 15 is locally checkpointed at `ad661fc`; nothing is pushed and no remote is configured.
+  The Ubuntu 24.04/ext4 run is the sole pending Slice 15 evidence item, so compatibility remains
+  macOS/APFS only. Slice 16 can proceed locally without weakening that evidence boundary.
 
 ## Awaiting maintainer decisions
 
@@ -153,17 +164,23 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. **Slice 15 — CI and supply-chain gates.** Add recorded unit/integration/lint/type, clean-install,
-   reproducible-build, SBOM/license/vulnerability/secret and Ubuntu LTS/ext4 S01 gates. Only claim
-   Linux support after the exact runner evidence exists.
-2. Then Slice 16 (versioned evaluation harness), Slice 17 (real-host S12 probes, maintainer-gated),
+1. A maintainer must configure/push to a remote and record the successful Slice 15 Ubuntu 24.04
+   workflow before any Linux/ext4 support claim. The agent must not push.
+2. **Slice 16 — versioned evaluation harness** is the next locally actionable implementation.
+3. Then Slice 17 (real-host S12 probes, maintainer-gated),
    and Slice 18 (post-contract skills). Ordering and the full gate-by-gate audit are in
    `docs/dev/plans/07-m1-exit-matrix.md`.
-3. Do not infer public-release authorization or claim Linux support before its exact runner evidence
+4. Do not infer public-release authorization or claim Linux support before its exact runner evidence
    exists.
 
 ## Latest validation state
 
+- Slice 15 local gate: 457 tests plus 47 subtests; ruff, strict mypy, 26 developer checks and relay
+  clean. Fresh two-stage locked sync, pip-audit (28 applicable dependencies, zero known
+  vulnerabilities), 30-component cross-platform SBOM, offline byte-identical wheel/sdist, artifact
+  legal files and audited clean-wheel smokes all passed. Review 41 independently mutation-tested
+  the three new credential formats and returned **APPROVE WITH NON-BLOCKING NOTES**. Hosted Ubuntu
+  evidence remains pending and is not inferred from the workflow file.
 - `.tools/bin/uv run pytest`: 456 passed, 47 subtests passed; `ruff check .` and strict `mypy src`:
   clean (2026-09-20 Slice 14 gate). Backup + Vault focused suites: 84 passed. Review 39 independently
   fault-injected all four restore crash points with fresh state and verified legacy recovery.

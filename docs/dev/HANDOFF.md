@@ -7,10 +7,11 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 Milestone 1. Runnable: Vault/CLI core; Folder, GitHub and direct local MarginNote 4 sources; builtin
 interaction memory with quarantined MCP proposals; bilingual SQLite/FTS; bounded Context API; MCP
 STDIO; Claude/Codex adapters; owner-readable Profile export; the Plugin Advisor; privacy
-inventory/purge with atomic chain-preserving restore; and digest-bound guided setup through doctor
-and smoke; and verified owner backup/restore. Slice 14 is implementation-complete and Review 39 is
-**APPROVE** after fresh-state crash injection proved the canonical ledger and restore journal cannot
-diverge. Slice 14 is checkpointed at `7500d67`. Nothing is pushed.
+inventory/purge with atomic chain-preserving restore; digest-bound guided setup through doctor and
+smoke; verified owner backup/restore; and locally reviewed CI/supply-chain gates. Slice 15 is
+checkpointed at `ad661fc`; Review 41 is **APPROVE WITH NON-BLOCKING NOTES** after locked/offline build,
+audit-input and secret-pattern remediation. Nothing is pushed and no remote is configured, so the
+Ubuntu 24.04/ext4 evidence remains pending and Linux support is not claimed.
 
 ## Read first
 
@@ -20,22 +21,20 @@ diverge. Slice 14 is checkpointed at `7500d67`. Nothing is pushed.
 
 ## Next action
 
-Implement **Slice 15 — CI and supply-chain gates** from the accepted exit matrix: recorded
-unit/integration/lint/type checks, clean-wheel install, reproducible build, SBOM/license/vulnerability/
-secret checks, and Ubuntu LTS/ext4 S01 evidence. Do not claim Linux support until that runner passes.
+Implement **Slice 16 — versioned evaluation harness**, the next locally actionable item in the
+accepted exit matrix. Separately, a maintainer must configure/push to a remote and record the
+successful Slice 15 Ubuntu 24.04/ext4 job before anyone claims Linux support; agents must not push.
 
 `docs/dev/plans/07-m1-exit-matrix.md` audits every remaining M1 exit clause and orders Slices 14–18.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
 
-Slice 14 adds manifest-verified `aptuni backup create | verify | list | restore`, exact expiring
-preview/confirm/cancel, canonical deletion-ledger migration and a canonical in-flight restore
-journal. Restore unions deletions from both sides and remains atomic even if the original disposable
-state directory disappears mid-publication. The full gate is 456 tests plus 47 subtests; backup +
-Vault focused suites are 84; ruff, strict mypy and relay validation are clean. Review 39 is
-**APPROVE**. Real CLI cross-machine dogfood restored a pre-purge backup without resurrecting the
-purged marker, kept the survivor and passed `doctor`.
+Slice 15 adds the pinned macOS/Ubuntu workflow, exact locked build/audit tools, extra-aware runtime
+notice drift, bounded secret scanning, hash-locked requirements, CycloneDX, recorded pip-audit,
+offline reproducible distributions and audited clean-wheel smokes. The local gate is 457 tests plus
+47 subtests; ruff, strict mypy, 26 developer checks and relay are clean. Review 41 is **APPROVE WITH
+NON-BLOCKING NOTES**; its only note is the deliberately pending hosted Ubuntu run.
 
 ## Known constraints
 
