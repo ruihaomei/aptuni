@@ -9,7 +9,8 @@ interaction memory with quarantined MCP proposals; bilingual SQLite/FTS; bounded
 STDIO; Claude/Codex adapters; owner-readable Profile export; the Plugin Advisor; privacy
 inventory/purge with atomic chain-preserving restore; and digest-bound guided setup through doctor
 and smoke. Review 34 independently closed guided setup **APPROVE** after Review 33's six blockers and
-two follow-up crash/recovery defects were remediated. Nothing is pushed.
+two follow-up crash/recovery defects were remediated. Slice 13 is checkpointed at `db7a5d9`.
+Nothing is pushed.
 
 ## Read first
 
@@ -31,9 +32,12 @@ Slice 13 adds `aptuni setup plan` and `aptuni setup apply ACTION_ID`: an immutab
 answer-bound plan, exact Folder/GitHub/MarginNote source consent, complete egress and host-file
 disclosure, one honest terminal confirmation, journaled/resumable effects, adapter-bundle repair,
 doctor/smoke, and truthful cancellation that revokes only action-owned grants. `local_only` creates
-no host egress. The full gate is 393 tests plus 47 subtests, focused setup is 51 tests, ruff/mypy are
-clean, and Review 34 is APPROVE with no remaining findings. Review 33 remains the historical BLOCK
-report and is superseded in `docs/dev/reviews/STATUS.json`.
+no host egress. Every confirmed step now renders numbered 1..n in both
+locales, so the surface the owner approves no longer mixes a numbered first step with unnumbered
+ones. The full gate is 395 tests plus 47 subtests, focused setup is 53 tests, ruff/strict mypy and
+`check_relay` are clean, and Review 34 is APPROVE with no remaining findings. Review 33 remains the
+historical BLOCK report and is superseded in `docs/dev/reviews/STATUS.json`. Dogfood at the
+checkpoint: `setup plan → APPLY → search → evidence → doctor` on a real folder source.
 
 ## Known constraints
 
