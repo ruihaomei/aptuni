@@ -8,10 +8,11 @@ Milestone 1. Runnable: Vault/CLI core; Folder, GitHub and direct local MarginNot
 interaction memory with quarantined MCP proposals; bilingual SQLite/FTS; bounded Context API; MCP
 STDIO; Claude/Codex adapters; owner-readable Profile export; the Plugin Advisor; privacy
 inventory/purge with atomic chain-preserving restore; digest-bound guided setup through doctor and
-smoke; verified owner backup/restore; and locally reviewed CI/supply-chain gates. Slice 15 is
-checkpointed at `ad661fc`; Review 41 is **APPROVE WITH NON-BLOCKING NOTES** after locked/offline build,
-audit-input and secret-pattern remediation. Nothing is pushed and no remote is configured, so the
-Ubuntu 24.04/ext4 evidence remains pending and Linux support is not claimed.
+smoke; verified owner backup/restore; locally reviewed CI/supply-chain gates; and the accepted
+versioned production evaluation harness. Slice 16 is checkpointed at `390aaf6`; Review 44 is
+**APPROVE** after frozen-input mutation and failure-evidence retention fixes. Nothing is pushed and
+no remote is configured, so the Slice 15 Ubuntu 24.04/ext4 evidence remains pending and Linux
+support is not claimed.
 
 ## Read first
 
@@ -21,20 +22,22 @@ Ubuntu 24.04/ext4 evidence remains pending and Linux support is not claimed.
 
 ## Next action
 
-Implement **Slice 16 — versioned evaluation harness**, the next locally actionable item in the
-accepted exit matrix. Separately, a maintainer must configure/push to a remote and record the
-successful Slice 15 Ubuntu 24.04/ext4 job before anyone claims Linux support; agents must not push.
+Run **Slice 17 — real-host S12 probes** only with maintainer-authorized Claude Code and Codex hosts,
+credentials/quota and a recorded daily task. If that external gate is unavailable, implement
+**Slice 18 — post-contract skills**, whose backup/eval/supply contracts are now stable. Separately, a
+maintainer must configure/push to a remote and record the successful Slice 15 Ubuntu job before any
+Linux support claim; agents must not push.
 
 `docs/dev/plans/07-m1-exit-matrix.md` audits every remaining M1 exit clause and orders Slices 14–18.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
 
-Slice 15 adds the pinned macOS/Ubuntu workflow, exact locked build/audit tools, extra-aware runtime
-notice drift, bounded secret scanning, hash-locked requirements, CycloneDX, recorded pip-audit,
-offline reproducible distributions and audited clean-wheel smokes. The local gate is 457 tests plus
-47 subtests; ruff, strict mypy, 26 developer checks and relay are clean. Review 41 is **APPROVE WITH
-NON-BLOCKING NOTES**; its only note is the deliberately pending hosted Ubuntu run.
+Slice 16 adds `tools/run_evals.py`, frozen-input and checksum mutations, SBOM-bound run manifests,
+failure-safe CI evidence retention and a task-language-gated retrieval fallback. The real synthetic
+run passes dev and holdout relevance/FPR gates; the context-noise arithmetic reproduces exactly.
+The full gate is 459 tests plus 47 subtests; ruff, strict mypy, 32 developer checks and relay are
+clean. Review 44 is **APPROVE**.
 
 ## Known constraints
 

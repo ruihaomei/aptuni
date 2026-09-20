@@ -143,6 +143,14 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   `/proc/self/mountinfo` entry and admits only ext4, but Linux support is **not claimed** until the
   hosted job records a pass. Review 40's local blockers were remediated; Review 41 is **APPROVE WITH
   NON-BLOCKING NOTES**.
+- **Slice 16 — Versioned evaluation harness (`390aaf6`).** `tools/run_evals.py` verifies every
+  checksummed S03 input, scores the production SQLite retriever on separate dev/regression-holdout
+  splits, reproduces the frozen context-noise arithmetic, and writes an atomic manifest containing
+  commit/runtime/schema/lock/SBOM/input hashes, thresholds and ranked outputs without private
+  profile content. CI retains the manifest even when a threshold fails. The first production run
+  records dev recall@5 0.992, MRR 1.0 and FPR 0.0; holdout recall/MRR 1.0 and FPR 0.0. The gate
+  narrowed any-term fallback to queries whose task-language removal changes the terms. Reviews
+  42–43 drove evidence-retention and mutation-test fixes; Review 44 is **APPROVE**.
 - **Retrieval fallback (`82ad8ee`).** All-terms FTS first, then stopword-filtered bm25 any-term
   matches above a relative floor, so task-shaped queries find context (ADR-0004 amendment).
 - **Vault hardening (`ec4ebbe`).** Torn deletion-ledger tail repaired before append (Review 19 N1);
@@ -154,7 +162,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 - Slice 15 is locally checkpointed at `ad661fc`; nothing is pushed and no remote is configured.
   The Ubuntu 24.04/ext4 run is the sole pending Slice 15 evidence item, so compatibility remains
-  macOS/APFS only. Slice 16 can proceed locally without weakening that evidence boundary.
+  macOS/APFS only.
 
 ## Awaiting maintainer decisions
 
@@ -166,15 +174,21 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 1. A maintainer must configure/push to a remote and record the successful Slice 15 Ubuntu 24.04
    workflow before any Linux/ext4 support claim. The agent must not push.
-2. **Slice 16 — versioned evaluation harness** is the next locally actionable implementation.
-3. Then Slice 17 (real-host S12 probes, maintainer-gated),
-   and Slice 18 (post-contract skills). Ordering and the full gate-by-gate audit are in
+2. **Slice 17 — real-host S12 probes** is next but maintainer-gated: it needs actual Claude Code and
+   Codex installations, credentials/quota and a recorded daily task in each.
+3. **Slice 18 — post-contract skills** is the next local implementation when Slice 17 authorization
+   or hosts are unavailable. Ordering and the full gate-by-gate audit are in
    `docs/dev/plans/07-m1-exit-matrix.md`.
 4. Do not infer public-release authorization or claim Linux support before its exact runner evidence
    exists.
 
 ## Latest validation state
 
+- Slice 16: 459 tests plus 47 subtests; ruff, strict mypy, 32 developer checks, relay, workflow and
+  secret contracts clean. The SBOM-bound real run reproduced dev recall@5 0.9921569 / MRR 1.0 /
+  FPR 0.0 and holdout recall/MRR 1.0 / FPR 0.0; the context-noise example reproduced 328 total and
+  82 irrelevant units. Review 44 independently mutation-tested freeze and workflow-retention
+  boundaries and returned **APPROVE**.
 - Slice 15 local gate: 457 tests plus 47 subtests; ruff, strict mypy, 26 developer checks and relay
   clean. Fresh two-stage locked sync, pip-audit (28 applicable dependencies, zero known
   vulnerabilities), 30-component cross-platform SBOM, offline byte-identical wheel/sdist, artifact
