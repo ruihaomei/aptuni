@@ -20,10 +20,14 @@ Nothing is pushed.
 
 ## Next action
 
-Audit the remaining M1.1/M1.3/M1.4/M1.5 exit matrix and write the accepted TDD plan that maps every
-open binary gate to evidence or one bounded vertical slice. Then execute the first dependency-ready
-slice. The known gaps are backup/restore/migration drills, the versioned evaluation harness, S12
-real-host probes, clean artifact/SBOM/license/security gates, and the four post-contract skills.
+Implement **Slice 14 — owner backup and restore** from `docs/dev/plans/08-owner-backup-and-restore.md`:
+`aptuni backup create | verify | list | restore`. Acceptance case 2 is the point of the slice —
+**KI-021**, reproduced 2026-09-20: restoring a pre-purge Vault copy with a fresh state directory
+resurrects the purged record, because the deletion ledger lives in the state directory instead of
+travelling with the backup. Write that regression first. The slice touches deletion correctness, so it
+needs an independent review and ADR-0016 for the backup format (no canonical Vault schema change).
+
+`docs/dev/plans/07-m1-exit-matrix.md` audits every remaining M1 exit clause and orders Slices 14–18.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed

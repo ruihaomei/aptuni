@@ -145,12 +145,18 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. **Close and order the remaining M1 exit matrix.** Produce an accepted TDD plan that maps each
-   still-open M1.1/M1.3/M1.4/M1.5 binary exit gate to current evidence or one bounded implementation
-   slice. The known gaps are backup/restore/migration drills, the versioned evaluation harness, S12
-   real-host probes, clean artifact/SBOM/license/security gates, and four post-contract skills.
-2. Execute the first dependency-ready vertical slice from that plan; do not infer public-release
-   authorization or claim Linux support before its exact runner evidence exists.
+1. **Slice 14 — owner backup and restore** (`docs/dev/plans/08-owner-backup-and-restore.md`).
+   `aptuni backup create | verify | list | restore`. This closes the M1.1 backup/restore/migration
+   exit clause and the M1.5 rollback drill, and it fixes **KI-021**: a pre-purge Vault copy restored
+   with a fresh state directory currently resurrects the purged record, because the deletion ledger
+   lives in the state directory rather than in the portable backup. High risk (deletion correctness);
+   independent review required.
+2. Then Slice 15 (CI plus SBOM/license/secret and clean-install gates, which also unblocks the Linux
+   claim), Slice 16 (versioned evaluation harness), Slice 17 (real-host S12 probes, maintainer-gated),
+   Slice 18 (post-contract skills). Ordering and the full gate-by-gate audit are in
+   `docs/dev/plans/07-m1-exit-matrix.md`.
+3. Do not infer public-release authorization or claim Linux support before its exact runner evidence
+   exists.
 
 ## Latest validation state
 
