@@ -97,7 +97,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   with a warning, excludes pending/rejected/revoked and every `full_content` record, escapes tainted
   Markdown, uses mode 0700/0600 and same-parent atomic publication, and explicitly says it is not a
   restorable backup. Review 27 **APPROVE WITH NON-BLOCKING NOTES**.
-- **Slice 12 — Privacy inventory and purge (runnable).** `aptuni privacy status` lists every
+- **Slice 12 — Privacy inventory and purge (runnable, `0b0eabf`+`2440e6e`).** `aptuni privacy status` lists every
   managed copy class and names the ones Aptuni cannot delete — exports, original sources and host
   provider transcripts — with retention, backup inclusion and deletion control per copy, and never
   any record content. `aptuni privacy purge preview | confirm | cancel` performs an exact,

@@ -26,7 +26,8 @@ STATE "Next highest-priority task". Keep all MarginNote access read-only; never 
 
 ### What just landed
 
-The privacy inventory/purge slice (`aptuni privacy status | purge preview | confirm | cancel`) plus
+The privacy inventory/purge slice at `2440e6e` (`aptuni privacy status | purge preview |
+confirm | cancel`) plus
 atomic journaled `Vault.restore_from` and HEAD format 2 (`chain_base`, ADR-0001 amendment; format 1
 migrates on open). Reviews 29–31 all returned BLOCK; every finding was remediated test-first and 32
 approved it. Non-blocking notes from 31 and 32 are in `BACKLOG.md` — the two worth doing early are
