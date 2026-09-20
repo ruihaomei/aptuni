@@ -26,6 +26,7 @@ from aptuni.application.ingest import (
     SyncReport,
     review_entries,
     review_operations,
+    source_has_committed_purge,
     summarize,
 )
 from aptuni.application.marginnote_ingest import MarginNoteIngest, MarginNoteSourceSpec, MarginNoteSpecError
@@ -41,6 +42,7 @@ from aptuni.sources.marginnote4 import PARSER as MARGINNOTE_PARSER
 from aptuni.sources.marginnote4 import MarginNoteStoreError, probe
 from aptuni.sources.marginnote4.store import CONTAINER
 from aptuni.sources.records import Operation
+from aptuni.vault.locks import source_operations_lock
 from aptuni.vault.store import Vault
 
 MARGINNOTE_MESSAGES = {
@@ -181,7 +183,10 @@ class SourceCommands:
 
     # ---------------------------------------------------------------- sync
     def sync(self, source_id: str) -> SyncReport:
-        with SourceSyncLock(self.workspace.state_dir, source_id):
+        self.vault()  # open/recover before taking the global source-operation lock
+        with source_operations_lock(self.workspace.state_dir), SourceSyncLock(self.workspace.state_dir, source_id):
+            if source_has_committed_purge(self.workspace.state_dir, source_id):
+                raise AptuniError("privacy_action_in_progress", "A committed privacy purge owns this source.")
             return self._sync_locked(source_id)
 
     def _sync_locked(self, source_id: str) -> SyncReport:

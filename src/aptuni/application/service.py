@@ -32,12 +32,30 @@ from aptuni.application.context import (
 from aptuni.application.errors import AptuniError
 from aptuni.application.export import ExportReport, export_profile
 from aptuni.application.memory_commands import MemoryCommands
-from aptuni.application.privacy import PrivacyInventory, build_privacy_inventory
+from aptuni.application.privacy import (
+    PrivacyInventory,
+    PurgePreview,
+    build_privacy_inventory,
+    cancel_purge,
+    committed_purge_intent,
+    confirm_purge,
+    create_purge_preview,
+    load_purge_preview,
+)
 from aptuni.application.source_commands import SourceCommands
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
 from aptuni.domain.invariants import InvariantError, RecordSet
-from aptuni.domain.records import MODULES, Fact, Module, ModulePolicy, Provenance, RetentionLabel, SchemaVersionError
+from aptuni.domain.records import (
+    MODULES,
+    DeletionReceipt,
+    Fact,
+    Module,
+    ModulePolicy,
+    Provenance,
+    RetentionLabel,
+    SchemaVersionError,
+)
 from aptuni.domain.temporal import utc_now
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
 from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SearchRow, SqliteProjection, documents_for
@@ -183,6 +201,25 @@ class AptuniService(SourceCommands, MemoryCommands):
         """Return owner-visible copy metadata only; never record content."""
         seq, records = self.snapshot()
         return build_privacy_inventory(self.vault().root, self.workspace.state_dir, seq, records)
+
+    def privacy_purge_preview(self, record_ids: tuple[str, ...]) -> PurgePreview:
+        """Create a single-use exact preview; no canonical or derived copy is changed."""
+        seq, records = self.snapshot()
+        return create_purge_preview(
+            self.vault().root, self.workspace.state_dir, records, seq, self.policy_of(records).epoch, record_ids
+        )
+
+    def pending_privacy_purge(self, action_id: str) -> PurgePreview:
+        """Load one exact pending preview for terminal confirmation."""
+        return load_purge_preview(self.workspace.state_dir, action_id)
+
+    def confirm_privacy_purge(self, action_id: str, confirmed_digest: str) -> DeletionReceipt:
+        """Commit/resume the durable purge intent; reachable only from the owner CLI."""
+        return confirm_purge(self.vault(), self.workspace.state_dir, action_id, confirmed_digest)
+
+    def cancel_privacy_purge(self, action_id: str) -> None:
+        """Release a committed intent that deleted nothing canonical (Review 31 F1)."""
+        cancel_purge(self.vault(), self.workspace.state_dir, action_id)
 
     # ---------------------------------------------------------------- retrieval projection
     def index_status(self) -> ProjectionStatus:
@@ -484,6 +521,9 @@ class AptuniService(SourceCommands, MemoryCommands):
             raise AptuniError("invalid_record", f"Invalid fact: {error}") from error
 
     def _commit(self, records: list[Any], expected_seq: int) -> None:
+        if committed_purge_intent(self.workspace.state_dir):
+            message = "A confirmed privacy purge is in progress; retry or cancel it before writing."
+            raise AptuniError("privacy_action_in_progress", message)
         try:
             self.vault().commit(records, expected_seq=expected_seq)
         except ConflictError as error:

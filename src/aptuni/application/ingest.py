@@ -163,7 +163,6 @@ class SourceStateStore:
             os.fsync(directory_fd)
         finally:
             os.close(directory_fd)
-
     @staticmethod
     def _write(path: Path, value: dict[str, Any]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -186,6 +185,22 @@ class SourceStateStore:
             os.fsync(directory_fd)
         finally:
             os.close(directory_fd)
+
+
+def source_has_committed_purge(state_dir: Path, source_id: str) -> bool:
+    """Fail closed when a durable purge intent owns this source across a process restart."""
+    intents = state_dir / "privacy" / "intents"
+    if not intents.is_dir():
+        return False
+    for path in intents.glob("act-*.json"):
+        try:
+            value = json.loads(path.read_text(encoding="utf-8"))
+            sources = value["preview"]["source_ids"]
+            if isinstance(sources, list) and source_id in sources:
+                return True
+        except (OSError, json.JSONDecodeError, KeyError, TypeError):
+            return True  # an unreadable committed intent must stop sync, never be skipped
+    return False
 
 
 @dataclass(frozen=True)

@@ -5,7 +5,6 @@ Pick an item up when its owning slice starts; do not open a review round for the
 
 | Item | Source | Owning slice |
 |---|---|---|
-| Atomic restore that never deletes the live Vault first and never re-baselines the chain | Review 15 F2; ADR-0010/0013 amendments | M1 privacy/restore slice |
 | Out-of-band-edit path: quarantine and diff a hash mismatch instead of a read refusal | S01 F2; ADR-0013 item 5 | M1 Vault hardening |
 | Segment compaction (chain-preserving rewrite) | S01 F1 | M1 Vault hardening |
 | ADR-0001 untested items: same-valid-time conflict, out-of-order observation, export/import round-trip | Review 15 F4 | M1 ingestion + export slices |
@@ -14,9 +13,6 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Re-run S01 in a fresh pinned venv to refresh its recorded run | Review 15 F1 | optional |
 | OPML/Folder held-item review loop, stale review items, held growth | S05A rounds 2–3 | Review workflow slice |
 | Pending-review ops may also flag dependent facts | S05A round 3 note 2 | Review workflow slice |
-| Preserve verifiable chain semantics after a privacy purge instead of disabling the chain check once any ledger entry exists | Review 16 F6 | M1 privacy/restore slice |
-| Purging a superseding correction/retraction must not silently reactivate the older record | Review 16 F7 | M1 privacy/restore slice |
-| Purging a deterministic-ID source Evidence makes later syncs of that source fail with `invariant_violation` | Review 19 N3 | M1 privacy/restore slice |
 | Tests for bad locator values, `records/` and state-directory permissions, and revoking a memory candidate | Review 19 N4 | Next Vault slice |
 | Manifest schema: strict typing (`contract_version = true` coerces), duplicate egress/recipe entries, file name must equal `id`, orphan message keys, `suggested_sources` vocabulary | Review 20 N3 | Plugin activation slice |
 | `minimize_cloud` behaves like `quality`; give it a real budget/module difference or merge the answers | Review 20 N8 | Guided-setup apply slice |
@@ -30,3 +26,12 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | MarginNote: permanent no-parent-stat TCC pre-probe test; deterministic multi-parent ordering; refresh Evidence on locator-only drift; source-specific crash/replay test | Review 25 R1–R3 | MarginNote hardening |
 | Profile export: injected render/rename/race tests, broader adversarial Markdown/control characters, explicit corrected/retracted Fact and withdrawn Evidence chains | Review 27 N2–N5 | Export hardening |
 | Memory proposals: extend high-confidence protected-pattern corpus and keep errors/logs content-free; preserve forced concurrent-idempotency regression | Review 28 N3–N4 | Memory hardening |
+| Restore journal: fold segment-read failure into journal validation, and tell "journal not applicable, keep the old generation" apart from genuine corruption | Review 31 N1 | Vault hardening |
+| Route `source list` and the `source add-folder` / `add-github` echoes through `_delimited_untrusted()` as `privacy status` now does | Review 31 N2 | Source UX hardening |
+| Narrow the confusable flag to real confusable/bidi characters so ordinary CJK or accented names are not labelled | Review 31 N6 | i18n pass |
+| Strict schema validation for stored purge previews and intent result values (`_preview_from_dict` still coerces) | Review 30, Review 31 | Privacy hardening |
+| Make `_owned_child()` and the deletion that follows descriptor-relative (`dir_fd`, no-follow) before broadening the threat claim | Review 30, Review 31 | Privacy hardening |
+| `privacy status` column widths overflow for long control labels | Self-review 2026-09-20 | i18n/CLI polish |
+| `src/aptuni/application/privacy.py` is past the 400-line guidance; split inventory, preview and confirm once the contract stops moving | Self-review 2026-09-20 | Privacy hardening |
+| An unreadable committed purge intent still wedges canonical writes with no in-product remedy | Review 32 N3 | Privacy hardening |
+| A wedged purge action id is not discoverable from any surface; `privacy status` should name the committed intent | Review 32 N6 | Privacy hardening |

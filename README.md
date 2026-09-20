@@ -117,6 +117,19 @@ expose, within a budget, and the adapter preview tells you exactly what leaves y
 example, context an agent reads is processed by that agent's model provider). See
 [`SECURITY.md`](SECURITY.md) and the [threat model](docs/dev/THREAT_MODEL.md).
 
+These commands make that concrete:
+
+```sh
+aptuni privacy status                  # every copy Aptuni manages, and the ones it cannot delete for you
+aptuni privacy purge preview <id>      # the exact records and copies a deletion would remove
+aptuni privacy purge confirm <action>  # irreversible, and only for that one preview
+aptuni privacy purge cancel <action>   # abandon a confirmed purge that deleted nothing
+```
+
+`privacy status` names external copies plainly — exports you made yourself, your original source
+files, and transcripts held by an agent's provider — because Aptuni cannot delete those and will
+not pretend otherwise. The purge receipt reports, per copy, what actually happened.
+
 ## Contributing
 
 Plugins, recipes, translations and bug reports are welcome. Start with

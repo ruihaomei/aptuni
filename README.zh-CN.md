@@ -110,6 +110,18 @@ Aptuni 不会主动扫描你的电脑；发现某个来源并不等于获得读�
 （例如，智能体读取的上下文会由该智能体的模型提供方处理）。详见 [`SECURITY.md`](SECURITY.md)
 与[威胁模型](docs/dev/THREAT_MODEL.md)。
 
+这几条命令让这一点变得具体：
+
+```sh
+aptuni privacy status                  # 列出 Aptuni 管理的每一份副本，以及它无法替你删除的那些
+aptuni privacy purge preview <id>      # 预览这次删除会移除哪些记录和副本
+aptuni privacy purge confirm <action>  # 不可逆，且只对这一份预览生效
+aptuni privacy purge cancel <action>   # 放弃一次尚未删除任何内容的已确认清除
+```
+
+`privacy status` 会如实点名外部副本——你自己导出的文件、你的原始来源文件，以及由智能体提供方
+保存的对话记录。Aptuni 删不掉它们，也不会假装删得掉。清除回执会逐份说明每一份副本的真实结果。
+
 ## 参与贡献
 
 欢迎贡献插件、配方、翻译和问题报告，请先阅读 [`CONTRIBUTING.md`](CONTRIBUTING.md)。

@@ -118,6 +118,24 @@ def _add_adapter_commands(sub: Any) -> None:
     l0.add_argument("--budget", type=int, default=512)
 
 
+def _add_privacy_commands(sub: Any) -> None:
+    privacy = sub.add_parser("privacy", help="inspect where personal data copies may exist")
+    privacy_sub = privacy.add_subparsers(dest="privacy_command", required=True, metavar="ACTION")
+    privacy_status = privacy_sub.add_parser("status", help="list managed and external copy locations")
+    privacy_status.add_argument("--json", action="store_true")
+    privacy_purge = privacy_sub.add_parser("purge", help="preview or confirm irreversible privacy deletion")
+    purge_sub = privacy_purge.add_subparsers(dest="purge_command", required=True, metavar="ACTION")
+    purge_preview = purge_sub.add_parser("preview", help="create an exact purge preview")
+    purge_preview.add_argument("record_ids", nargs="+")
+    purge_preview.add_argument("--json", action="store_true")
+    purge_confirm = purge_sub.add_parser("confirm", help="confirm one exact core-generated purge action")
+    purge_confirm.add_argument("action_id")
+    purge_confirm.add_argument("--confirm-digest", help="exact digest from the preview, for scripted use")
+    purge_confirm.add_argument("--json", action="store_true")
+    purge_cancel = purge_sub.add_parser("cancel", help="abandon a confirmed purge that deleted nothing canonical")
+    purge_cancel.add_argument("action_id")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="aptuni", description="Aptuni — context, attuned to you.")
     parser.add_argument("--version", action="version", version=f"aptuni {__version__}")
@@ -167,10 +185,7 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("path", type=Path)
     export.add_argument("--json", action="store_true")
 
-    privacy = sub.add_parser("privacy", help="inspect where personal data copies may exist")
-    privacy_sub = privacy.add_subparsers(dest="privacy_command", required=True, metavar="ACTION")
-    privacy_status = privacy_sub.add_parser("status", help="list managed and external copy locations")
-    privacy_status.add_argument("--json", action="store_true")
+    _add_privacy_commands(sub)
 
     sub.add_parser("doctor", help="recover and fully verify the Vault")
     return parser
@@ -562,17 +577,93 @@ def _cmd_export(args: argparse.Namespace, service: AptuniService) -> int:
 
 
 def _cmd_privacy(args: argparse.Namespace, service: AptuniService) -> int:
+    if args.privacy_command == "purge":
+        return _cmd_privacy_purge(args, service)
     inventory = service.privacy_inventory()
     if args.json:
         _print_json(inventory.to_dict())
         return 0
     print(f"Privacy inventory at Vault commit {inventory.vault_seq}")
     print(f"{'copy':<34} {'control':<31} location")
-    for item in inventory.copies:
-        present = "unknown" if item.present is None else (str(item.bytes) + " B" if item.present else "absent")
-        print(f"{item.id:<34} {item.deletion_control:<31} {item.location} ({present})")
+    for inventory_item in inventory.copies:
+        present = "unknown" if inventory_item.present is None else (
+            str(inventory_item.bytes) + " B" if inventory_item.present else "absent"
+        )
+        # Source roots and host destinations are user/provider controlled; never print them raw.
+        location = inventory_item.location if inventory_item.managed else _delimited_untrusted(
+            inventory_item.location)
+        print(f"{inventory_item.id:<34} {inventory_item.deletion_control:<31} {location} ({present})")
     print("Exports and host/provider transcripts are not tracked copies; Aptuni cannot delete them for you.")
     return 0
+
+
+def _cmd_privacy_purge(args: argparse.Namespace, service: AptuniService) -> int:
+    if args.purge_command == "cancel":
+        service.cancel_privacy_purge(args.action_id)
+        print(f"Cancelled purge {args.action_id}. No canonical record was deleted by it; derived copies "
+              "it had already removed stay removed. Preview again to delete anything.")
+        return 0
+    if args.purge_command == "preview":
+        preview = service.privacy_purge_preview(tuple(args.record_ids))
+        if args.json:
+            _print_json(preview.to_dict())
+        else:
+            _print_purge_preview(preview)
+            print(f"Confirm only after review: aptuni privacy purge confirm {preview.action_id}")
+        return 0
+    if args.confirm_digest is None:
+        preview = service.pending_privacy_purge(args.action_id)
+        _print_purge_preview(preview)
+        if input("Type PURGE to irreversibly delete these managed copies: ").strip() != "PURGE":
+            print("Cancelled. Nothing was changed.")
+            return 1
+        digest = preview.digest
+    else:
+        digest = args.confirm_digest
+    receipt = service.confirm_privacy_purge(args.action_id, digest)
+    if args.json:
+        _print_json(receipt.model_dump(mode="json"))
+    else:
+        print(f"Purge {receipt.purge_id}: {receipt.terminal_state}")
+        for receipt_item in receipt.per_copy:
+            print(f"  {receipt_item.copy_class}: {receipt_item.result}")
+            if receipt_item.provider is not None:
+                print(f"    provider={receipt_item.provider} data_class={receipt_item.data_class} "
+                      f"destination={_delimited_untrusted(receipt_item.destination or 'unknown')}")
+    return 2 if receipt.terminal_state == "incomplete_retryable" else 0
+
+
+def _print_purge_preview(preview: Any) -> None:
+    print(f"Purge action: {preview.action_id}\nVault commit: {preview.vault_seq}\n"
+          f"Policy epoch: {preview.policy_epoch}\nRequested records: {len(preview.requested_record_ids)}\n"
+          f"Records after non-resurrection expansion: {len(preview.record_ids)}")
+    for record_id in preview.record_ids:
+        print(f"  {record_id}")
+    print("Effects:")
+    for effect in preview.copy_effects:
+        print(f"  - {effect}")
+    print(f"Managed copies in this exact action: {len(preview.managed_copy_ids)}")
+    for copy_id in preview.managed_copy_ids:
+        print(f"  {copy_id}")
+    print(f"External copies requiring user action: {len(preview.external_copies)}")
+    for external in preview.external_copies:
+        print(f"  {external['copy_id']}  provider={external['provider']}  data_class={external['data_class']}  "
+              f"destination={_delimited_untrusted(external['destination'])}")
+    print(f"Nonce: {preview.nonce_id}\nExpires: {preview.expires_at}\nDigest: {preview.digest}")
+
+
+def _delimited_untrusted(value: str) -> str:
+    """Render source-controlled names as bounded escaped data, never terminal structure."""
+    bounded = value[:500]
+    rendered = json.dumps(bounded, ensure_ascii=True)
+    flags = []
+    if any(ord(character) < 32 or ord(character) == 127 for character in bounded):
+        flags.append("control-escaped")
+    if any(ord(character) > 127 for character in bounded):
+        flags.append("non-ascii/confusable-escaped")
+    if len(value) > len(bounded):
+        flags.append("truncated")
+    return rendered + (" [" + ", ".join(flags) + "]" if flags else "")
 
 
 COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {

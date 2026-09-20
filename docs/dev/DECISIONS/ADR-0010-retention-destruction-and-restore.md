@@ -83,3 +83,19 @@ resurrection. Fault-inject every purge step and prove safe retry/status.
 ### 2026-09-19 — Gate 0 acceptance
 
 Accepted with S01 F3: the deletion-ledger entry is durable before any rewrite, and `recover()` runs at every process start before any read. Restore reapplies the ledger, must be atomic (never delete the live Vault before the replacement is in place) and must not re-baseline the change log (ADR-0013 item 5). Power loss was not tested (F4).
+
+### 2026-09-20 — Implemented purge contract
+
+Per-copy receipt results carry optional structured `provider`, `destination` and `data_class`
+fields for externally controlled copies, so the confirmation surface and the persisted receipt can
+meet ADR-0013 item 2 without flattening user-controlled names into prose (Review 30 R3). Owner
+surfaces render those names bounded, escaped and delimited, with confusables flagged.
+
+A confirmed purge freezes an exact scope, so while a durable intent exists every canonical writer
+fails closed with `privacy_action_in_progress`, not only source sync. A frozen scope that a
+dependent record has made unsatisfiable resolves to the `incomplete_retryable` terminal state with a
+content-free result, never an escaping invariant error. Because an intent that can never succeed
+would otherwise disable deletion permanently, `aptuni privacy purge cancel` abandons an intent that
+deleted nothing canonical. It refuses whenever the deletion ledger already records any record in the
+action's scope, where the only correct action is retry; the ledger is durable before any rewrite, so
+it stays authoritative even if the process stopped before the intent's own result was written. The receipt is kept as the audit record of the abandoned action (Review 31 F1).

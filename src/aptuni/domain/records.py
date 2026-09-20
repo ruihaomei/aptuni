@@ -298,7 +298,11 @@ class PendingAction(Frozen):
 
 class CopyResult(Frozen):
     copy_class: str = Field(min_length=1)
-    result: Literal["deleted", "not_present", "external_action_needed", "failed_retryable"]
+    result: Literal["deleted", "not_present", "retained", "external_action_needed", "failed_retryable"]
+    details: str | None = None
+    provider: str | None = None
+    destination: str | None = None
+    data_class: str | None = None
 
 
 class DeletionReceipt(Frozen):

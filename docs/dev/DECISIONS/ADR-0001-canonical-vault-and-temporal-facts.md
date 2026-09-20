@@ -70,3 +70,21 @@ derived fields.
 ### 2026-09-19 — Gate 0 acceptance
 
 Accepted with the S01 protocol. Layout: `HEAD.json` manifest (seq, segment list with SHA-256 and count, hash chain) plus immutable `records/seg-NNNNNN-*.jsonl` segments; commit under an exclusive `flock` with `expected_seq`, `F_FULLFSYNC` and directory fsync at each rename; readers take no lock. The chain detects uninformed edits only (HEAD is self-attesting). S01 F1: commits validate incrementally (new records against the full index) and segment compaction is required; full revalidation lives in `doctor`. S01 F2: a hash mismatch becomes an out-of-band-change path (quarantine and propose), never a permanent read refusal. `episode` is carried in `provenance`; `observed_at`/`ingested_at` are record-type fields (Evidence/Fact). Still-untested verification items (same-valid-time conflict, out-of-order observation, projection delete/rebuild, export/import round-trip) are M1.1 work.
+
+### 2026-09-20 — HEAD format 2 (`chain_base`)
+
+The M1 privacy/restore slice adds `chain_base` to the `HEAD.json` manifest and moves the format from
+1 to 2. Before this, a purge re-anchored `chain` onto the pre-purge value without recording the
+anchor, so the chain of a purged Vault could not be verified and `verify()` had to excuse the check
+whenever the deletion ledger was non-empty (Review 16 F6). Recording the anchor makes a purged
+Vault's chain verifiable again, and `restore_from` publishes the replacement as a new generation
+anchored at the live chain instead of re-baselining it (ADR-0010 amendment, ADR-0013 item 5).
+
+Compatibility is explicit, not silent. Format 1 stays readable. `recover()` migrates it on open: a
+HEAD that verifies from GENESIS is restamped as format 2 unchanged, and a legacy *purged* HEAD --
+whose anchor is unrecoverable by construction -- keeps its recorded chain as the new anchor, which
+is the same re-anchoring the current purge performs, except now written down. `restore_from` accepts
+a format-1 backup with that artifact so a backup taken after a legacy purge stays restorable; every
+segment is still hash-verified and every record invariant still checked. A chain mismatch with no
+purge in the ledger remains a reported problem: that is corruption, not the legacy artifact
+(Review 31 F2).

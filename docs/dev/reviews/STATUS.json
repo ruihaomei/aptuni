@@ -1,107 +1,117 @@
 {
-  "version": 2,
-  "streams": {
-    "architecture": {
-      "kind": "review",
-      "current": "07-architecture-rereview.md",
-      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": [
-        "01-architecture-review.md"
-      ]
-    },
-    "execution": {
-      "kind": "review",
-      "current": "10-execution-test-third-rereview.md",
-      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": [
-        "03-execution-test-review.md",
-        "08-execution-test-rereview.md"
-      ]
-    },
-    "relay-claude-code": {
-      "kind": "drill",
-      "current": "11-cold-claude-relay-drill.md",
-      "verdict": "PASS",
-      "supersedes": []
-    },
-    "relay-codex": {
-      "kind": "drill",
-      "current": "05-cold-codex-relay-drill.md",
-      "verdict": "PASS",
-      "supersedes": []
-    },
-    "security": {
-      "kind": "review",
-      "current": "14-security-privacy-sixth-rereview.md",
-      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": [
-        "02-security-privacy-review.md",
-        "04-security-privacy-rereview.md",
-        "06-security-privacy-second-rereview.md",
-        "09-security-privacy-third-rereview.md",
-        "12-security-privacy-fourth-rereview.md",
-        "13-security-privacy-fifth-rereview.md"
-      ]
-    },
-    "gate0-exit": {
-      "kind": "review",
-      "current": "15-gate0-exit-review.md",
-      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": []
-    },
-    "m1-slice1": {
-      "kind": "review",
-      "current": "19-m1-slice1-core-rereview.md",
-      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": [
-        "16-m1-slice1-core-review.md"
-      ]
-    },
-    "m1-github-source": {
-      "kind": "review",
-      "current": "18-m1-github-source-rereview.md",
-      "verdict": "APPROVE",
-      "supersedes": [
-        "17-m1-github-source-review.md"
-      ]
-    },
-    "m1-advisor-catalog": {
-      "kind": "review",
-      "current": "21-m1-advisor-catalog-rereview.md",
-      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": [
-        "20-m1-advisor-catalog-review.md"
-      ]
-    },
-    "s05b-marginnote-reconciler": {
-      "kind": "review",
-      "current": "23-s05b-marginnote-reconciler-rereview.md",
-      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": [
-        "22-s05b-marginnote-reconciler-review.md"
-      ]
-    },
-    "m1-marginnote4-source": {
-      "kind": "review",
-      "current": "25-m1-marginnote4-source-rereview.md",
-      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": [
-        "24-m1-marginnote4-source-review.md"
-      ]
-    },
-    "m1-memory-lifecycle": {
-      "kind": "review",
-      "current": "28-m1-memory-lifecycle-rereview.md",
-      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": [
-        "26-m1-memory-lifecycle-review.md"
-      ]
-    },
-    "m1-profile-export": {
-      "kind": "review",
-      "current": "27-m1-profile-export-review.md",
-      "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-      "supersedes": []
-    }
+ "version": 2,
+ "streams": {
+  "architecture": {
+   "kind": "review",
+   "current": "07-architecture-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "01-architecture-review.md"
+   ]
+  },
+  "execution": {
+   "kind": "review",
+   "current": "10-execution-test-third-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "03-execution-test-review.md",
+    "08-execution-test-rereview.md"
+   ]
+  },
+  "relay-claude-code": {
+   "kind": "drill",
+   "current": "11-cold-claude-relay-drill.md",
+   "verdict": "PASS",
+   "supersedes": []
+  },
+  "relay-codex": {
+   "kind": "drill",
+   "current": "05-cold-codex-relay-drill.md",
+   "verdict": "PASS",
+   "supersedes": []
+  },
+  "security": {
+   "kind": "review",
+   "current": "14-security-privacy-sixth-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "02-security-privacy-review.md",
+    "04-security-privacy-rereview.md",
+    "06-security-privacy-second-rereview.md",
+    "09-security-privacy-third-rereview.md",
+    "12-security-privacy-fourth-rereview.md",
+    "13-security-privacy-fifth-rereview.md"
+   ]
+  },
+  "gate0-exit": {
+   "kind": "review",
+   "current": "15-gate0-exit-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
+  "m1-slice1": {
+   "kind": "review",
+   "current": "19-m1-slice1-core-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "16-m1-slice1-core-review.md"
+   ]
+  },
+  "m1-github-source": {
+   "kind": "review",
+   "current": "18-m1-github-source-rereview.md",
+   "verdict": "APPROVE",
+   "supersedes": [
+    "17-m1-github-source-review.md"
+   ]
+  },
+  "m1-advisor-catalog": {
+   "kind": "review",
+   "current": "21-m1-advisor-catalog-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "20-m1-advisor-catalog-review.md"
+   ]
+  },
+  "s05b-marginnote-reconciler": {
+   "kind": "review",
+   "current": "23-s05b-marginnote-reconciler-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "22-s05b-marginnote-reconciler-review.md"
+   ]
+  },
+  "m1-marginnote4-source": {
+   "kind": "review",
+   "current": "25-m1-marginnote4-source-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "24-m1-marginnote4-source-review.md"
+   ]
+  },
+  "m1-memory-lifecycle": {
+   "kind": "review",
+   "current": "28-m1-memory-lifecycle-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "26-m1-memory-lifecycle-review.md"
+   ]
+  },
+  "m1-profile-export": {
+   "kind": "review",
+   "current": "27-m1-profile-export-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
+  "m1-privacy-purge": {
+   "kind": "review",
+   "current": "32-m1-privacy-purge-f1-f2-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "29-m1-privacy-purge-review.md",
+    "30-m1-privacy-purge-rereview.md",
+    "31-m1-privacy-purge-final-review.md"
+   ]
   }
+ }
 }

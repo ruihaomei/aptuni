@@ -72,5 +72,6 @@ def test_privacy_status_cli_is_scriptable(tmp_path: Path) -> None:
     assert payload["vault_seq"] == 1
     assert {copy["id"] for copy in payload["copies"]} >= {
         "canonical_vault", "source_state", "retrieval_projection", "adapter_grants",
-        "adapter_bundles", "pending_actions", "memory_confirmations", "deletion_ledger", "profile_exports",
+        "adapter_bundles", "pending_actions", "memory_confirmations", "privacy_actions",
+        "privacy_receipts", "deletion_ledger", "profile_exports",
     }

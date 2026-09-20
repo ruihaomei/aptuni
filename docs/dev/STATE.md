@@ -8,7 +8,7 @@ bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profi
 read-only Plugin Advisor are runnable. The repository has bilingual READMEs and community files for
 open-sourcing (not yet pushed or published).
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -97,6 +97,23 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   with a warning, excludes pending/rejected/revoked and every `full_content` record, escapes tainted
   Markdown, uses mode 0700/0600 and same-parent atomic publication, and explicitly says it is not a
   restorable backup. Review 27 **APPROVE WITH NON-BLOCKING NOTES**.
+- **Slice 12 — Privacy inventory and purge (runnable).** `aptuni privacy status` lists every
+  managed copy class and names the ones Aptuni cannot delete — exports, original sources and host
+  provider transcripts — with retention, backup inclusion and deletion control per copy, and never
+  any record content. `aptuni privacy purge preview | confirm | cancel` performs an exact,
+  digest-bound, expiring, nonce-confirmed deletion: canonical records go with deletion-ledger
+  digests, source replay state and adapter grants/bundles/pending plans in the frozen set are
+  removed, the retrieval projection is always invalidated, and the receipt reports per copy what
+  actually happened with structured provider/destination/data-class fields for external copies.
+  A committed intent freezes the scope, so every canonical writer fails closed until the action is
+  terminal or cancelled; an unsatisfiable scope becomes `incomplete_retryable`, never an escaping
+  error. `Vault.restore_from` stages the replacement and a durable journal that `recover()` replays,
+  so restore is atomic, chain-preserving and never destroys replay state first. HEAD moves to
+  format 2 with a recorded `chain_base` (ADR-0001 amendment) and format 1 migrates on open, keeping
+  a legacy purged Vault verifiable and its backups restorable. Reviews 29, 30 and 31 each returned
+  BLOCK (B1–B7, R1–R3, F1–F2); every finding was remediated test-first and focused re-review 32 is
+  **APPROVE WITH NON-BLOCKING NOTES**. Backlog items Review 15 F2, Review 16 F6/F7 and Review 19 N3
+  are closed by this slice.
 - **Retrieval fallback (`82ad8ee`).** All-terms FTS first, then stopword-filtered bm25 any-term
   matches above a relative floor, so task-shaped queries find context (ADR-0004 amendment).
 - **Vault hardening (`ec4ebbe`).** Torn deletion-ledger tail repaired before append (Review 19 N1);
@@ -106,7 +123,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- Privacy inventory/purge application work is next after the current checkpoint.
+- None. The privacy inventory/purge slice is checkpointed; guided-setup apply is next.
 
 ## Awaiting maintainer decisions
 
@@ -116,11 +133,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. **Privacy inventory and purge application slice (ADR-0010/0013).** Add an owner-visible inventory
-   of every managed copy, grant and externally controlled host copy; then expose exact previewed,
-   nonce-confirmed purge with derived-index/source-state cleanup and honest receipts. Preserve the
-   deletion ledger's non-resurrection guarantee and fix the Review 16/19 purge backlog cases first.
-2. **Guided-setup apply step (plan 02 steps 1, 4, 5).** Freeze `SetupPlan`, bind one terminal
+1. **Guided-setup apply step (plan 02 steps 1, 4, 5).** Freeze `SetupPlan`, bind one terminal
    confirmation to advisor answers/catalog version, apply only shipped components, then run doctor
    and a smoke task. Cancellation must leave no Vault, grant or bundle.
 3. Reassess the remaining M1.1/M1.3/M1.4/M1.5 exit matrix: backup/restore/migration drills,
@@ -129,8 +142,13 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Latest validation state
 
-- `.tools/bin/uv run pytest`: 307 passed, 47 subtests passed; `ruff check .` and strict `mypy src`:
-  clean (2026-09-20 checkpoint gate).
+- `.tools/bin/uv run pytest`: 339 passed, 47 subtests passed; `ruff check .` and strict `mypy src`:
+  clean (2026-09-20 privacy-purge checkpoint gate).
+- Privacy purge dogfood: `init → remember → search → privacy status → purge preview → confirm`
+  deleted the target Fact, removed the projection, and a raw byte scan of the *rebuilt* SQLite
+  confirmed the purged text is absent while the surviving Fact is still searchable; `doctor` passed.
+  A source root containing an ESC sequence and a newline renders in `privacy status` as one bounded,
+  escaped, flagged token and cannot forge a row.
 - Clean-wheel `aptuni advise --json` and `aptuni recipe list --lang zh-CN`: pass (22 TOML data files ship).
 - README quickstart (`init → remember → add-folder → sync → context --evidence`) run end to end.
 - `python3.13 tools/check_relay.py`: pass (Markdown link, ADR-index and workspace-text checks).
