@@ -111,6 +111,14 @@
     "29-m1-privacy-purge-review.md",
     "30-m1-privacy-purge-rereview.md",
     "31-m1-privacy-purge-final-review.md"
+    ]
+  },
+  "m1-guided-setup": {
+   "kind": "review",
+   "current": "34-m1-guided-setup-apply-rereview.md",
+   "verdict": "APPROVE",
+   "supersedes": [
+    "33-m1-guided-setup-apply-review.md"
    ]
   }
  }

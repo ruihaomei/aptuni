@@ -7,6 +7,8 @@ content.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import tomllib
 from dataclasses import dataclass
 from importlib import resources
@@ -31,6 +33,25 @@ class Catalog:
         """A recipe is installable only when every required plugin is shipped and supported."""
         recipe = self.recipes[recipe_id]
         return all(self.plugins[pid].maturity == "builtin" for pid in recipe.plugins)
+
+    def version_digest(self) -> str:
+        """A stable identifier for exactly this catalog, so a confirmation cannot outlive it."""
+        body = json.dumps(
+            {
+                "plugins": {
+                    pid: plugin.model_dump(mode="json")
+                    for pid, plugin in sorted(self.plugins.items())
+                },
+                "recipes": {
+                    rid: recipe.model_dump(mode="json")
+                    for rid, recipe in sorted(self.recipes.items())
+                },
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        return hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
 
     def message_keys(self) -> set[str]:
         keys: set[str] = set()

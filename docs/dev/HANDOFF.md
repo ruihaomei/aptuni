@@ -1,14 +1,15 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
 Milestone 1. Runnable: Vault/CLI core; Folder, GitHub and direct local MarginNote 4 sources; builtin
 interaction memory with quarantined MCP proposals; bilingual SQLite/FTS; bounded Context API; MCP
-STDIO; Claude/Codex adapters; owner-readable Profile export; the Plugin Advisor; and the privacy
-inventory/purge slice with atomic chain-preserving restore. Re-review 32 closed the privacy stream
-**APPROVE WITH NON-BLOCKING NOTES** after three BLOCK rounds. Nothing is pushed.
+STDIO; Claude/Codex adapters; owner-readable Profile export; the Plugin Advisor; privacy
+inventory/purge with atomic chain-preserving restore; and digest-bound guided setup through doctor
+and smoke. Review 34 independently closed guided setup **APPROVE** after Review 33's six blockers and
+two follow-up crash/recovery defects were remediated. Nothing is pushed.
 
 ## Read first
 
@@ -18,21 +19,21 @@ inventory/purge slice with atomic chain-preserving restore. Re-review 32 closed 
 
 ## Next action
 
-Implement the guided-setup apply step (plan 02 steps 1, 4, 5): freeze `SetupPlan`, bind one terminal
-confirmation to the advisor answers and catalog version, apply only shipped components, then run
-doctor and a smoke task; cancellation must leave no Vault, grant or bundle. Four `BACKLOG.md` items
-are already owned by that slice (Review 20 N8–N11). Details and the remaining M1 exit gates are in
-STATE "Next highest-priority task". Keep all MarginNote access read-only; never commit note text.
+Audit the remaining M1.1/M1.3/M1.4/M1.5 exit matrix and write the accepted TDD plan that maps every
+open binary gate to evidence or one bounded vertical slice. Then execute the first dependency-ready
+slice. The known gaps are backup/restore/migration drills, the versioned evaluation harness, S12
+real-host probes, clean artifact/SBOM/license/security gates, and the four post-contract skills.
+Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
 
-The privacy inventory/purge slice at `2440e6e` (`aptuni privacy status | purge preview |
-confirm | cancel`) plus
-atomic journaled `Vault.restore_from` and HEAD format 2 (`chain_base`, ADR-0001 amendment; format 1
-migrates on open). Reviews 29–31 all returned BLOCK; every finding was remediated test-first and 32
-approved it. Non-blocking notes from 31 and 32 are in `BACKLOG.md` — the two worth doing early are
-Review 32 N3 (an unreadable intent still wedges writes with no in-product remedy) and N6 (a wedged
-action id is not discoverable from any surface).
+Slice 13 adds `aptuni setup plan` and `aptuni setup apply ACTION_ID`: an immutable catalog- and
+answer-bound plan, exact Folder/GitHub/MarginNote source consent, complete egress and host-file
+disclosure, one honest terminal confirmation, journaled/resumable effects, adapter-bundle repair,
+doctor/smoke, and truthful cancellation that revokes only action-owned grants. `local_only` creates
+no host egress. The full gate is 393 tests plus 47 subtests, focused setup is 51 tests, ruff/mypy are
+clean, and Review 34 is APPROVE with no remaining findings. Review 33 remains the historical BLOCK
+report and is superseded in `docs/dev/reviews/STATUS.json`.
 
 ## Known constraints
 

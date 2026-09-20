@@ -126,3 +126,11 @@ def test_pathologically_nested_toml_fails_closed(tmp_path: Path) -> None:
     root = _write(tmp_path, plugin="x = " + "[" * 5000 + "]" * 5000)
     with pytest.raises(CatalogError):
         load_catalog(root)
+
+
+def test_catalog_digest_covers_manifest_content_not_only_ids_and_maturity(tmp_path: Path) -> None:
+    first = load_catalog(_write(tmp_path / "first"))
+    changed = PLUGIN.replace('retention = "source_minimized"', 'retention = "canonical"')
+    second = load_catalog(_write(tmp_path / "second", plugin=changed))
+
+    assert first.version_digest() != second.version_digest()

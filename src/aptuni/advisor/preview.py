@@ -17,7 +17,7 @@ def _items(catalog: Catalog, choices: tuple[Choice, ...], locale: str) -> list[s
               plugin_id=c.plugin_id, reason=t(c.reason, locale)) for c in choices]
 
 
-def render_preview(rec: Recommendation, catalog: Catalog, locale: str) -> list[str]:
+def render_preview(rec: Recommendation, catalog: Catalog, locale: str, *, footer: bool = True) -> list[str]:
     recipe = catalog.recipes[rec.recipe_id]
     lines = [t("advisor.preview.title", locale), "",
              t("advisor.preview.recipe", locale, name=t(recipe.name, locale), recipe_id=recipe.id,
@@ -60,5 +60,7 @@ def render_preview(rec: Recommendation, catalog: Catalog, locale: str) -> list[s
     if rec.notes:
         lines += ["", t("advisor.preview.notes", locale),
                   *(t("advisor.preview.note", locale, text=t(key, locale)) for key in rec.notes)]
-    lines += ["", t("advisor.preview.digest", locale, digest=rec.digest), t("advisor.preview.nothing_changed", locale)]
+    lines += ["", t("advisor.preview.digest", locale, digest=rec.digest)]
+    if footer:
+        lines.append(t("advisor.preview.nothing_changed", locale))
     return lines

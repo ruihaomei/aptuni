@@ -90,3 +90,26 @@ def test_exact_ids_only_and_grant_drives_real_stdio(tmp_path: Path) -> None:
             assert result.structured_content["items"][0]["text"] == "Prefers concise answers"
 
     anyio.run(exercise)
+
+
+def test_revoke_removes_a_bundle_symlink_without_following_it(tmp_path: Path) -> None:
+    workspace, _, manager = _ready(tmp_path)
+    grant_id = "grant-" + "a" * 16
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    marker = outside / "keep.txt"
+    marker.write_text("keep", encoding="utf-8")
+    bundle = workspace.state_dir / "adapters" / "bundles" / grant_id
+    bundle.parent.mkdir(parents=True)
+    bundle.symlink_to(outside, target_is_directory=True)
+
+    assert manager.revoke(grant_id)
+    assert not bundle.is_symlink()
+    assert marker.read_text(encoding="utf-8") == "keep"
+
+
+def test_adapter_ids_are_ascii_lowercase_hex_only(tmp_path: Path) -> None:
+    _, _, manager = _ready(tmp_path)
+    for invalid in ("grant-" + "A" * 16, "grant-" + "٠" * 16, "grant-" + "g" * 16):
+        with pytest.raises(AptuniError, match="exact core-generated"):
+            manager.revoke(invalid)

@@ -33,10 +33,27 @@ Open this repository in Claude Code or Codex and say:
 
 > Read this repository and set up Aptuni for me.
 
-The agent reads [`AGENTS.md`](AGENTS.md), asks which language you prefer, and walks through
-`aptuni advise`: what sources you have, how you want to be remembered, and whether cloud models may
-process your data. It shows the plan, including API keys, setup time, privacy and trade-offs,
-before anything is installed.
+The agent reads [`AGENTS.md`](AGENTS.md), asks which language you prefer, then walks through what
+sources you have, how you want to be remembered, and whether cloud models may process your data.
+
+You can drive the same flow yourself. It is two commands, and the first one creates only a private,
+expiring plan record — no Vault, source, grant, or host bundle:
+
+```sh
+uv run aptuni setup plan --folder ~/Documents/notes --host claude_code
+uv run aptuni setup apply ACTION_ID       # you type APPLY in your own terminal
+```
+
+`setup plan` prints the recommended components and why, the API keys and setup time, **exactly
+which of your modules an agent will be able to read and which operator receives them**, the exact
+folders it will read, **every file it will write and where**, and the exact ordered steps — then
+stops. None of those effects happens until you confirm that one plan, and the confirmation is bound
+to its digest, so an edited plan can never be applied.
+
+Aptuni writes the agent integration into its own directory and does **not** modify your host's
+configuration; you point the host at it yourself. If a step fails, the run stops there and resumes
+where it left off. `aptuni setup cancel ACTION_ID` revokes the agent access it granted and tells you
+exactly what remains — your Vault, sources and evidence are never deleted for you.
 
 ## 60-second manual quickstart
 
@@ -46,7 +63,7 @@ Requires Python 3.13 and [uv](https://docs.astral.sh/uv/).
 git clone <this repository> aptuni && cd aptuni
 uv sync
 uv run aptuni advise                      # a few plain-language questions; changes nothing
-uv run aptuni init ~/Aptuni               # create your Profile Vault
+uv run aptuni init ~/Aptuni               # create your Profile Vault (or let `setup apply` do it)
 uv run aptuni remember "Prefers concise, structured technical explanations." --module preferences
 uv run aptuni source add-folder ~/Documents/cv --module experience --role application-materials
 uv run aptuni sync SOURCE_ID              # minimized evidence from files you approved

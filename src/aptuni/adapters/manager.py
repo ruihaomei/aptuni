@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
+import shutil
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -16,6 +18,24 @@ from aptuni.application.workspace import Workspace
 from aptuni.domain.records import MODULES
 
 Host = Literal["claude", "codex"]
+# Exactly what ``apply`` writes into the bundle for each host. Any preview that promises a file set
+# reads it from here, so the promise cannot drift from the code that writes the files.
+BUNDLE_FILES: dict[str, tuple[str, ...]] = {
+    "claude": (".mcp.json", "hooks.json"),
+    "codex": ("config.toml", "AGENTS.md"),
+}
+OPERATOR = {"claude": "Anthropic", "codex": "OpenAI"}
+DESTINATION = {"claude": "Claude Code configured model endpoint",
+               "codex": "Codex configured model endpoint"}
+RETENTION = "externally_controlled_unknown"
+EXACT_ID_SUFFIX = re.compile(r"^[0-9a-f]{16}$")
+
+
+def host_disclosure(host: str) -> dict[str, str]:
+    """The operator, destination and retention an owner must see before consenting to egress."""
+    if host not in OPERATOR:
+        raise AptuniError("unknown_host", "Choose claude or codex.")
+    return {"operator": OPERATOR[host], "destination": DESTINATION[host], "retention": RETENTION}
 SCOPES = ("identity.read", "context.read", "evidence.read")
 PROPOSE_SCOPE = "memory.propose"  # quarantined proposals only; approval stays in the owner's terminal
 
@@ -83,8 +103,8 @@ class AdapterManager:
                 "host_model_egress_required",
                 "Claude Code and Codex are remote/unknown; personal access needs informed host-model egress consent.",
             )
-        operator = "Anthropic" if host == "claude" else "OpenAI"
-        destination = "Claude Code configured model endpoint" if host == "claude" else "Codex configured model endpoint"
+        operator = OPERATOR[host]
+        destination = DESTINATION[host]
         host_value = cast(Host, host)
         scopes = (*SCOPES, PROPOSE_SCOPE) if allow_memory_proposals else SCOPES
         payload = {
@@ -93,13 +113,13 @@ class AdapterManager:
             "modules": unique,
             "operator": operator,
             "destination": destination,
-            "retention": "externally_controlled_unknown",
+            "retention": RETENTION,
             "scopes": scopes,
         }
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
         plan = AdapterPlan(
             "act-" + digest[:16], digest, host_value, f"{host}-adapter", unique, scopes, True,
-            operator, destination, "externally_controlled_unknown",
+            operator, destination, RETENTION,
         )
         self._write_json(self.root / "pending" / f"{plan.action_id}.json", asdict(plan), mode=0o600)
         return plan
@@ -123,6 +143,8 @@ class AdapterManager:
         )
         grant_path = self.root / "grants" / f"{grant.grant_id}.json"
         bundle = self.root / "bundles" / grant.grant_id
+        if bundle.is_symlink() or (bundle.exists() and not bundle.is_dir()):
+            raise AptuniError("unsafe_adapter_bundle", "The adapter bundle path is not a private directory.")
         self._write_json(grant_path, asdict(grant), mode=0o600)
         bundle.mkdir(parents=True, exist_ok=True, mode=0o700)
         command = sys.executable
@@ -152,6 +174,24 @@ class AdapterManager:
             )
         return grant, bundle
 
+    def discard_pending(self, action_id: str) -> None:
+        """Remove an exact pending adapter plan after a containing setup journal owns the effect."""
+        self._exact_id(action_id, "act-")
+        (self.root / "pending" / f"{action_id}.json").unlink(missing_ok=True)
+
+    def revoke(self, grant_id: str) -> bool:
+        """Remove one exact grant and its generated bundle; report whether anything was there."""
+        self._exact_id(grant_id, "grant-")
+        grant_path = self.root / "grants" / f"{grant_id}.json"
+        bundle = self.root / "bundles" / grant_id
+        found = grant_path.exists() or bundle.exists() or bundle.is_symlink()
+        grant_path.unlink(missing_ok=True)
+        if bundle.is_symlink():
+            bundle.unlink()
+        elif bundle.is_dir():
+            shutil.rmtree(bundle)
+        return found
+
     def load_grant(self, grant_id: str) -> AdapterGrant:
         self._exact_id(grant_id, "grant-")
         try:
@@ -177,7 +217,7 @@ class AdapterManager:
 
     @staticmethod
     def _exact_id(value: str, prefix: str) -> None:
-        if not value.startswith(prefix) or len(value) != len(prefix) + 16 or not value[len(prefix):].isalnum():
+        if not value.startswith(prefix) or EXACT_ID_SUFFIX.fullmatch(value[len(prefix):]) is None:
             raise AptuniError("invalid_adapter_id", "An exact core-generated adapter ID is required.")
 
     @staticmethod

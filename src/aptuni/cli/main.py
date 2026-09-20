@@ -17,7 +17,15 @@ from aptuni.application.service import AptuniService, Status
 from aptuni.application.workspace import DEFAULT_VAULT, Workspace
 from aptuni.cli.marginnote_commands import MARGINNOTE_COMMANDS, add_marginnote_parsers, cmd_marginnote
 from aptuni.cli.memory_cli import add_memory_commands, cmd_memory, cmd_observe
-from aptuni.cli.setup_commands import add_setup_commands, cmd_advise, cmd_plugin, cmd_recipe
+from aptuni.cli.render import delimited_untrusted
+from aptuni.cli.setup_commands import (
+    add_guided_setup_command,
+    add_setup_commands,
+    cmd_advise,
+    cmd_plugin,
+    cmd_recipe,
+    cmd_setup,
+)
 from aptuni.domain.invariants import InvariantError
 from aptuni.domain.records import MODULES, SchemaVersionError
 from aptuni.vault.store import VaultIntegrityError
@@ -179,6 +187,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_context_commands(sub)
     _add_adapter_commands(sub)
     add_setup_commands(sub)
+    add_guided_setup_command(sub)
     add_memory_commands(sub)
 
     export = sub.add_parser("export", help="write a private, readable copy of your current Profile")
@@ -590,7 +599,7 @@ def _cmd_privacy(args: argparse.Namespace, service: AptuniService) -> int:
             str(inventory_item.bytes) + " B" if inventory_item.present else "absent"
         )
         # Source roots and host destinations are user/provider controlled; never print them raw.
-        location = inventory_item.location if inventory_item.managed else _delimited_untrusted(
+        location = inventory_item.location if inventory_item.managed else delimited_untrusted(
             inventory_item.location)
         print(f"{inventory_item.id:<34} {inventory_item.deletion_control:<31} {location} ({present})")
     print("Exports and host/provider transcripts are not tracked copies; Aptuni cannot delete them for you.")
@@ -629,7 +638,7 @@ def _cmd_privacy_purge(args: argparse.Namespace, service: AptuniService) -> int:
             print(f"  {receipt_item.copy_class}: {receipt_item.result}")
             if receipt_item.provider is not None:
                 print(f"    provider={receipt_item.provider} data_class={receipt_item.data_class} "
-                      f"destination={_delimited_untrusted(receipt_item.destination or 'unknown')}")
+                      f"destination={delimited_untrusted(receipt_item.destination or 'unknown')}")
     return 2 if receipt.terminal_state == "incomplete_retryable" else 0
 
 
@@ -648,22 +657,8 @@ def _print_purge_preview(preview: Any) -> None:
     print(f"External copies requiring user action: {len(preview.external_copies)}")
     for external in preview.external_copies:
         print(f"  {external['copy_id']}  provider={external['provider']}  data_class={external['data_class']}  "
-              f"destination={_delimited_untrusted(external['destination'])}")
+              f"destination={delimited_untrusted(external['destination'])}")
     print(f"Nonce: {preview.nonce_id}\nExpires: {preview.expires_at}\nDigest: {preview.digest}")
-
-
-def _delimited_untrusted(value: str) -> str:
-    """Render source-controlled names as bounded escaped data, never terminal structure."""
-    bounded = value[:500]
-    rendered = json.dumps(bounded, ensure_ascii=True)
-    flags = []
-    if any(ord(character) < 32 or ord(character) == 127 for character in bounded):
-        flags.append("control-escaped")
-    if any(ord(character) > 127 for character in bounded):
-        flags.append("non-ascii/confusable-escaped")
-    if len(value) > len(bounded):
-        flags.append("truncated")
-    return rendered + (" [" + ", ".join(flags) + "]" if flags else "")
 
 
 COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
@@ -687,6 +682,7 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "plugin": cmd_plugin,
     "recipe": cmd_recipe,
     "advise": cmd_advise,
+    "setup": cmd_setup,
     "observe": cmd_observe,
     "memory": cmd_memory,
     "export": _cmd_export,

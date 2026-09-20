@@ -8,7 +8,7 @@ bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profi
 read-only Plugin Advisor are runnable. The repository has bilingual READMEs and community files for
 open-sourcing (not yet pushed or published).
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -114,6 +114,17 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   BLOCK (B1–B7, R1–R3, F1–F2); every finding was remediated test-first and focused re-review 32 is
   **APPROVE WITH NON-BLOCKING NOTES**. Backlog items Review 15 F2, Review 16 F6/F7 and Review 19 N3
   are closed by this slice.
+- **Slice 13 — Digest-bound guided setup (runnable; checkpoint pending).** `aptuni setup plan`
+  freezes the advisor answers, full catalog version, exact Folder/GitHub/MarginNote source
+  configuration, selected modules, host egress disclosure and every adapter bundle file without
+  creating the Vault, source, grant or bundle. `aptuni setup apply ACTION_ID` revalidates that
+  recommendation, repeats the complete advisor and effect preview, accepts terminal `APPLY`, and
+  journals each application-service effect through doctor and a bounded smoke task. Failure stops
+  later effects; retries repair partial adapter bundles without duplicating or stealing ownership of
+  grants; completed actions are idempotent; cancel revokes only grants this action created and names
+  the Vault/source data it deliberately keeps. `local_only` creates no host egress. Review 33 BLOCK
+  findings B1–B6 and follow-up crash/ownership counterexamples were remediated test-first; focused
+  Review 34 is **APPROVE** with no remaining findings.
 - **Retrieval fallback (`82ad8ee`).** All-terms FTS first, then stopword-filtered bm25 any-term
   matches above a relative floor, so task-shaped queries find context (ADR-0004 amendment).
 - **Vault hardening (`ec4ebbe`).** Torn deletion-ledger tail repaired before append (Review 19 N1);
@@ -123,7 +134,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- None. The privacy inventory/purge slice is checkpointed; guided-setup apply is next.
+- Slice 13 is validated and awaiting its local checkpoint commit; nothing is pushed.
 
 ## Awaiting maintainer decisions
 
@@ -133,17 +144,20 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. **Guided-setup apply step (plan 02 steps 1, 4, 5).** Freeze `SetupPlan`, bind one terminal
-   confirmation to advisor answers/catalog version, apply only shipped components, then run doctor
-   and a smoke task. Cancellation must leave no Vault, grant or bundle.
-3. Reassess the remaining M1.1/M1.3/M1.4/M1.5 exit matrix: backup/restore/migration drills,
-   evaluation harness, S12 real-host probes, clean artifact/SBOM/license/security gates, and the four
-   post-contract skills.
+1. **Close and order the remaining M1 exit matrix.** Produce an accepted TDD plan that maps each
+   still-open M1.1/M1.3/M1.4/M1.5 binary exit gate to current evidence or one bounded implementation
+   slice. The known gaps are backup/restore/migration drills, the versioned evaluation harness, S12
+   real-host probes, clean artifact/SBOM/license/security gates, and four post-contract skills.
+2. Execute the first dependency-ready vertical slice from that plan; do not infer public-release
+   authorization or claim Linux support before its exact runner evidence exists.
 
 ## Latest validation state
 
-- `.tools/bin/uv run pytest`: 339 passed, 47 subtests passed; `ruff check .` and strict `mypy src`:
-  clean (2026-09-20 privacy-purge checkpoint gate).
+- `.tools/bin/uv run pytest`: 393 passed, 47 subtests passed; `ruff check .` and strict `mypy src`:
+  clean (2026-09-20 guided-setup gate).
+- Guided-setup focused suite: 51 passed. Review 34 reproduced a mid-bundle crash and verified that
+  retry restores the complete Codex bundle, preserves grant ownership and shows the full
+  recommendation plus exact effect plan before `APPLY`.
 - Privacy purge dogfood: `init → remember → search → privacy status → purge preview → confirm`
   deleted the target Fact, removed the projection, and a raw byte scan of the *rebuilt* SQLite
   confirmed the purged text is absent while the surviving Fact is still searchable; `doctor` passed.

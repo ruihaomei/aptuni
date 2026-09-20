@@ -31,9 +31,25 @@
 
 > 阅读这个仓库，帮我配置好 Aptuni。
 
-智能体会阅读 [`AGENTS.md`](AGENTS.md)，先询问你使用哪种语言，再通过 `aptuni advise` 了解：
-你有哪些资料来源、希望它如何记住你、个人数据能否交给云端模型处理。安装任何东西之前，
-它都会先展示方案，包括 API 密钥、配置时间、隐私影响与取舍。
+智能体会阅读 [`AGENTS.md`](AGENTS.md)，先询问你使用哪种语言，再了解：你有哪些资料来源、
+希望它如何记住你、个人数据能否交给云端模型处理。
+
+你也可以自己执行同一套流程。只要两条命令；第一条只创建一份私有、会过期的方案记录，
+不会创建 Vault、来源、授权或宿主 bundle：
+
+```sh
+uv run aptuni setup plan --lang zh-CN --folder ~/Documents/笔记 --host claude_code
+uv run aptuni setup apply ACTION_ID      # 由你在自己的终端输入 APPLY
+```
+
+`setup plan` 会打印推荐的组件及其理由、所需 API 密钥与配置时间、**智能体究竟能读取你的哪些模块
+以及由哪家运营方接收**、将要读取的确切文件夹、**将要写入的每一个文件及其位置**，以及确切的步骤
+顺序——然后停下。在你确认这一份方案之前不会发生上述任何效果；确认绑定该方案的摘要，因此被
+改动过的方案永远无法被执行。
+
+Aptuni 会把智能体集成写入它自己的目录，**不会**修改宿主自身的配置；需要你自行让宿主指向它。
+若某一步失败，执行会就地停止，并可从断点续跑。`aptuni setup cancel ACTION_ID` 会撤销它授予的
+智能体访问权限，并如实告诉你还剩下什么——你的 Vault、来源和证据永远不会被替你删除。
 
 ## 60 秒手动上手
 
@@ -43,7 +59,7 @@
 git clone <本仓库地址> aptuni && cd aptuni
 uv sync
 uv run aptuni advise --lang zh-CN        # 回答几个简单问题；不会修改任何内容
-uv run aptuni init ~/Aptuni              # 创建你的 Profile Vault
+uv run aptuni init ~/Aptuni              # 创建你的 Profile Vault（也可交给 `setup apply`）
 uv run aptuni remember "偏好简洁、结构化的技术解释。" --module preferences
 uv run aptuni source add-folder ~/Documents/简历 --module experience --role application-materials
 uv run aptuni sync SOURCE_ID             # 从你批准的文件中提取最小化证据
