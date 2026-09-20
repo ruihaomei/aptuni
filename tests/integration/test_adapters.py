@@ -44,7 +44,10 @@ def test_plan_apply_generates_deterministic_private_grant_and_bundle(tmp_path: P
         hooks = json.loads((bundle / "hooks.json").read_text())
         assert "SessionStart" in hooks["hooks"]
     else:
-        assert grant.grant_id in (bundle / "config.toml").read_text()
+        codex_config = (bundle / "config.toml").read_text()
+        assert grant.grant_id in codex_config
+        assert 'env_vars = ["APTUNI_STATE_DIR"]' in codex_config
+        assert "required = true" in codex_config
         assert "quoted data" in (bundle / "AGENTS.md").read_text()
 
 

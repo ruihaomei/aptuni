@@ -21,21 +21,21 @@ run 35520369299 passed on macOS 15, Ubuntu 24.04/ext4 and the supply-chain job, 
 
 ## Next action
 
-Continue the authorized **Slice 17 — real-host S12 probes** from `spikes/s12_hosts/run_daily_task.py`
-and `docs/dev/plans/12-real-host-s12.md`. Exact frozen packages are resolved through npm without
-replacing global installs; sessions are non-persistent and data is synthetic. Diagnose the current
-Claude nonzero exit and Codex missing tool evidence as launch/prompt/MCP-contract failures unless a
-reproduction identifies an Aptuni defect. Persist only sanitized booleans, versions and reason codes.
+Continue **Slice 17 — real-host S12 probes** with the focused Claude built-in Read/Write and Apple
+Event observations. The four-version daily-task matrix already passes and is recorded at
+`spikes/s12_hosts/results/daily-task-matrix.json`. Persist only sanitized booleans, versions and
+reason codes; never retain auth material, raw host output or private Vault content.
 
 `docs/dev/plans/07-m1-exit-matrix.md` audits every remaining M1 exit clause and orders Slices 14–18.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
 
-Slice 15 hosted run 35520369299 passed at `c86e861`: 459 tests plus 47 subtests on Ubuntu, strict
-typing and 34 developer checks, the 91-test/11-subtest ext4 durability gate, macOS 15, and the
-supply-chain job are green. The two failures in initial run 35520200838 were portability defects in
-the Darwin-only fsync constant typing and a repo-local `uv` fixture assumption; `c86e861` fixed both.
+Slice 17's frozen daily-task matrix passes on Claude Code 2.1.267/2.1.266 and Codex
+0.155.0/0.154.0. Fixes preserve `USER` for Claude keychain discovery, hide expected tokens from the
+prompt, require structured Codex tool evidence, and make the Codex MCP server required with only
+`APTUNI_STATE_DIR` forwarded. Full local gate: 459 tests plus 47 subtests, ruff, mypy, relay and 34
+developer checks clean.
 
 ## Known constraints
 

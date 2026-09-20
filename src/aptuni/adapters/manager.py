@@ -166,6 +166,8 @@ class AdapterManager:
                 "[mcp_servers.aptuni]\n"
                 f"command = {json.dumps(command)}\n"
                 f"args = {json.dumps(args)}\n"
+                'env_vars = ["APTUNI_STATE_DIR"]\n'
+                "required = true\n"
             )
             self._write_text(bundle / "config.toml", config)
             self._write_text(

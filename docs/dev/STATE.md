@@ -168,11 +168,11 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- Slice 17 real-host evidence is authorized and underway with exact npm-resolved Claude Code
-  2.1.267/2.1.266 and Codex 0.155.0/0.154.0 packages, non-persistent sessions, synthetic data and a
-  sanitized runner. The first Claude launch exited nonzero; the first Codex launch completed without
-  the required tool evidence. These are launch/prompt/MCP-contract failures unless reproduction
-  identifies an Aptuni defect.
+- Slice 17 real-host evidence is authorized and underway. The exact npm-resolved Claude Code
+  2.1.267/2.1.266 and Codex 0.155.0/0.154.0 daily-task matrix passes with non-persistent sessions,
+  synthetic data and sanitized evidence: every host called both bounded tools, observed the handoff
+  marker and received `mcp_module_denied`. Remaining: the focused Claude built-in file-tool/Apple
+  Event observations and independent host/privacy review.
 
 ## Awaiting maintainer decisions
 
@@ -205,6 +205,9 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   explicit ext4 filesystem/concurrency/Vault/backup gate recorded 91 tests plus 11 subtests. The
   supply-chain job retained the frozen evaluation and verified locked audit, reproducible artifacts,
   legal files and a clean-wheel smoke. Review 41 remains **APPROVE WITH NON-BLOCKING NOTES**.
+- Slice 17 daily-task checkpoint: all four frozen host versions passed the synthetic L0 handoff and
+  exact denied-module journey. The full local gate is 459 tests plus 47 subtests; ruff, strict mypy,
+  relay and 34 developer checks are clean. Raw host output and sessions were not persisted.
 - `.tools/bin/uv run pytest`: 456 passed, 47 subtests passed; `ruff check .` and strict `mypy src`:
   clean (2026-09-20 Slice 14 gate). Backup + Vault focused suites: 84 passed. Review 39 independently
   fault-injected all four restore crash points with fresh state and verified legacy recovery.

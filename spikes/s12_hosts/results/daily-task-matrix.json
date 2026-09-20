@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "date": "2026-09-21",
+  "task": "synthetic Aptuni handoff and ungranted-module denial",
+  "versions": [
+    {
+      "host": "claude",
+      "version": "2.1.267",
+      "host_exit_code": 0,
+      "identity_tool_called": true,
+      "identity_marker_present": true,
+      "search_tool_called": true,
+      "ungranted_module_denied": true,
+      "passed": true
+    },
+    {
+      "host": "claude",
+      "version": "2.1.266",
+      "host_exit_code": 0,
+      "identity_tool_called": true,
+      "identity_marker_present": true,
+      "search_tool_called": true,
+      "ungranted_module_denied": true,
+      "passed": true
+    },
+    {
+      "host": "codex",
+      "version": "0.155.0",
+      "host_exit_code": 0,
+      "identity_tool_called": true,
+      "identity_marker_present": true,
+      "search_tool_called": true,
+      "ungranted_module_denied": true,
+      "passed": true
+    },
+    {
+      "host": "codex",
+      "version": "0.154.0",
+      "host_exit_code": 0,
+      "identity_tool_called": true,
+      "identity_marker_present": true,
+      "search_tool_called": true,
+      "ungranted_module_denied": true,
+      "passed": true
+    }
+  ],
+  "approval_policy": {
+    "claude": "dontAsk",
+    "codex": "never"
+  },
+  "session_persisted": false,
+  "raw_output_persisted": false,
+  "data": "synthetic"
+}

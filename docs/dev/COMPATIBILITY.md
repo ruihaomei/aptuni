@@ -75,6 +75,12 @@ confinement as proven.
 | Codex 0.155.0 + 0.154.0 | Config/profiles | no profile/`-c`/trusted-project override weakens the above; `~/.codex` and bundled adapter path outside writable roots | Isolated A/B (temporary `CODEX_HOME` with one trust entry, identical in every mode): a trusted control with no `.codex/` blocked write/TCP/AF_UNIX, while the project `.codex/config.toml` alone selected `danger-full-access` and made all three succeed. Outer observers confirmed each effect in both versions. Core project-file scanning yields `escape_setting_visible` for the visible `sandbox_mode`, and the successful effects add write/socket reasons. |
 | Any | Install path | installed package outside every writable root (never a project `.venv`) | pending |
 
+The S12 daily-task matrix now passes on all four frozen versions from an Aptuni wheel installed in a
+private temporary runtime outside the project. Each non-persistent host session called the bounded
+identity tool, observed the synthetic handoff marker, called context for an ungranted module and
+received `mcp_module_denied`. This closes the daily MCP journey only; the Claude built-in file-tool
+and Apple Event rows remain pending.
+
 Session evidence uses the Claude `SessionStart` hook session ID when the packaged hook is present;
 the MCP process lifetime is the fallback and the Codex key. Real Claude 2.1.267/2.1.266
 project hooks received a non-empty `session_id` (sanitized to a boolean), so the capture path exists;
