@@ -10,8 +10,8 @@ STDIO; Claude/Codex adapters; owner-readable Profile export; the Plugin Advisor;
 inventory/purge with atomic chain-preserving restore; digest-bound guided setup through doctor and
 smoke; verified owner backup/restore; locally reviewed CI/supply-chain gates; the accepted versioned
 production evaluation harness; and four executable post-contract agent skills. Slice 18 is
-checkpointed at `884aabc`; Review 46 is **APPROVE**. Nothing is pushed and no remote is configured,
-so the Slice 15 Ubuntu 24.04/ext4 evidence remains pending and Linux support is not claimed.
+checkpointed at `884aabc`; Review 46 is **APPROVE**. Public `origin/main` is at `c86e861`. Hosted
+run 35520369299 passed on macOS 15, Ubuntu 24.04/ext4 and the supply-chain job, closing Slice 15.
 
 ## Read first
 
@@ -21,27 +21,26 @@ so the Slice 15 Ubuntu 24.04/ext4 evidence remains pending and Linux support is 
 
 ## Next action
 
-Two external gates remain. A maintainer must configure/push to a remote and record the successful
-Slice 15 Ubuntu job before any Linux support claim; agents must not push. A maintainer must also
-authorize **Slice 17 — real-host S12 probes**, provide matching current/prior Claude Code and Codex
-versions plus credentials/quota, and name a recorded daily task for each. Installed Claude Code
-2.1.87 and Codex 0.155.1 do not match the frozen target pairs. Do not launch substitute probes or
-consume host quota without that authorization.
+Continue the authorized **Slice 17 — real-host S12 probes** from `spikes/s12_hosts/run_daily_task.py`
+and `docs/dev/plans/12-real-host-s12.md`. Exact frozen packages are resolved through npm without
+replacing global installs; sessions are non-persistent and data is synthetic. Diagnose the current
+Claude nonzero exit and Codex missing tool evidence as launch/prompt/MCP-contract failures unless a
+reproduction identifies an Aptuni defect. Persist only sanitized booleans, versions and reason codes.
 
 `docs/dev/plans/07-m1-exit-matrix.md` audits every remaining M1 exit clause and orders Slices 14–18.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
 
-Slice 18 adds repository-local `add-source-provider`, `run-evals`, `audit-licenses`, and `release`
-skills plus fixture-driven executable smokes. The release workflow is explicitly local-only and
-cannot publish, tag, push or infer approval. The full gate is 459 tests plus 47 subtests; ruff,
-strict mypy and 34 developer checks are clean. Review 46 is **APPROVE** after closing implicit
-environment synchronization in the audit/evaluation commands.
+Slice 15 hosted run 35520369299 passed at `c86e861`: 459 tests plus 47 subtests on Ubuntu, strict
+typing and 34 developer checks, the 91-test/11-subtest ext4 durability gate, macOS 15, and the
+supply-chain job are green. The two failures in initial run 35520200838 were portability defects in
+the Darwin-only fsync constant typing and a repo-local `uv` fixture assumption; `c86e861` fixed both.
 
 ## Known constraints
 
-- Commits are local only; never push. Toolchain: `.tools/bin/uv` (bootstrap in AGENTS.md).
+- Do not push new commits without a fresh maintainer instruction. Toolchain: `.tools/bin/uv`
+  (bootstrap in AGENTS.md).
 - `Prompt_PRD.txt` and the design-history file are maintainer-private and gitignored;
   `docs/product/PRD.md` is canonical.
 - Product/repository name Aptuni and `@ruihaomei` CODEOWNER are fixed. Private vulnerability

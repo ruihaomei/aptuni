@@ -1,12 +1,12 @@
 # Project State
 
-**Updated:** 2026-09-20
+**Updated:** 2026-09-21
 **Current gate:** Milestone 1 — Portable Personal Context Core (Gate 0 closed 2026-09-19, review 15)
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub and MarginNote 4 sources, builtin interaction memory, bilingual SQLite/FTS projection,
 bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profile export, and the
-read-only Plugin Advisor are runnable. The repository has bilingual READMEs and community files for
-open-sourcing (not yet pushed or published).
+read-only Plugin Advisor are runnable. The public repository is
+`https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
 Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
@@ -134,15 +134,16 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   regressions for torn ledgers, confirmation honesty/binding, refused restores, empty generations,
   destination safety and cross-state atomicity; Review 39 independently closed the stream
   **APPROVE**.
-- **Slice 15 — CI and supply-chain gates (local implementation, `ad661fc`).** A least-privilege,
+- **Slice 15 — CI and supply-chain gates (hosted closure, `ad661fc` + `c86e861`).** A least-privilege,
   immutable-action-pinned workflow runs the locked full gate on macOS 15 and Ubuntu 24.04, then
   emits hash-locked runtime requirements, CycloneDX 1.5, pip-audit JSON, byte-identical offline
   wheel/sdist builds and clean-wheel smokes. Dependency notices follow the extra-aware
   cross-platform lock closure; build/audit tools are exact lock members; high-confidence tracked
   credential shapes and artifact legal files fail locally and in CI. Linux resolves the deepest
-  `/proc/self/mountinfo` entry and admits only ext4, but Linux support is **not claimed** until the
-  hosted job records a pass. Review 40's local blockers were remediated; Review 41 is **APPROVE WITH
-  NON-BLOCKING NOTES**.
+  `/proc/self/mountinfo` entry and admits only ext4. Hosted run 35520369299 at `c86e861` passed on
+  macOS 15 and Ubuntu 24.04, including strict typing, repository contracts and the explicit ext4
+  durability gate (91 tests plus 11 subtests); the supply-chain job also passed. Review 40's local
+  blockers were remediated; Review 41 is **APPROVE WITH NON-BLOCKING NOTES**.
 - **Slice 16 — Versioned evaluation harness (`390aaf6`).** `tools/run_evals.py` verifies every
   checksummed S03 input, scores the production SQLite retriever on separate dev/regression-holdout
   splits, reproduces the frozen context-noise arithmetic, and writes an atomic manifest containing
@@ -167,30 +168,26 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- Slice 15 is locally checkpointed at `ad661fc`; nothing is pushed and no remote is configured.
-  The Ubuntu 24.04/ext4 run is the sole pending Slice 15 evidence item, so compatibility remains
-  macOS/APFS only.
-- Slice 17 real-host evidence remains maintainer-gated. Installed Claude Code 2.1.87 is older than
-  the frozen 2.1.267/2.1.266 target, installed Codex 0.155.1 does not match 0.155.0/0.154.0, and no
-  host task, credential or quota consumption is authorized.
+- Slice 17 real-host evidence is authorized and underway with exact npm-resolved Claude Code
+  2.1.267/2.1.266 and Codex 0.155.0/0.154.0 packages, non-persistent sessions, synthetic data and a
+  sanitized runner. The first Claude launch exited nonzero; the first Codex launch completed without
+  the required tool evidence. These are launch/prompt/MCP-contract failures unless reproduction
+  identifies an Aptuni defect.
 
 ## Awaiting maintainer decisions
 
-- Authorization, matching host versions, credentials/quota and recorded daily tasks for the Slice 17
-  Claude Code/Codex probes.
-- A configured remote and maintainer push to collect the Slice 15 hosted Ubuntu evidence. Private
-  vulnerability reporting and GitHub/PyPI collision checks remain public-release checklist items.
+- No decision blocks the authorized Slice 17 probes. Private vulnerability reporting, publication,
+  release tagging and GitHub/PyPI collision checks remain explicit future release gates.
 
 ## Next highest-priority task
 
-1. A maintainer must configure/push to a remote and record the successful Slice 15 Ubuntu 24.04
-   workflow before any Linux/ext4 support claim. The agent must not push.
-2. A maintainer must authorize **Slice 17 — real-host S12 probes**, provide matching current/prior
-   Claude Code and Codex versions plus credentials/quota, and name the recorded daily task for each.
-3. Slices 14–16 and 18 are locally complete. No further local Slice 14–18 implementation is known;
-   do not invent substitute evidence for the two external gates above.
-4. Do not infer public-release authorization or claim Linux/host support before its exact evidence
-   exists.
+1. Repair the preserved Slice 17 runner's Claude/Codex launch and MCP invocation contracts using
+   sanitized diagnostics; do not redesign the framework.
+2. Run the smallest real frozen-host matrix that proves the synthetic L0 handoff and exact
+   `mcp_module_denied` response, then the focused Claude file-tool/Apple Event observations.
+3. Fix only reproduced defects, run focused checks and the full gate, obtain the required focused
+   privacy/host-confinement review, and checkpoint the evidence.
+4. Do not infer release authorization or host support beyond the exact recorded versions and cases.
 
 ## Latest validation state
 
@@ -203,12 +200,11 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   FPR 0.0 and holdout recall/MRR 1.0 / FPR 0.0; the context-noise example reproduced 328 total and
   82 irrelevant units. Review 44 independently mutation-tested freeze and workflow-retention
   boundaries and returned **APPROVE**.
-- Slice 15 local gate: 457 tests plus 47 subtests; ruff, strict mypy, 26 developer checks and relay
-  clean. Fresh two-stage locked sync, pip-audit (28 applicable dependencies, zero known
-  vulnerabilities), 30-component cross-platform SBOM, offline byte-identical wheel/sdist, artifact
-  legal files and audited clean-wheel smokes all passed. Review 41 independently mutation-tested
-  the three new credential formats and returned **APPROVE WITH NON-BLOCKING NOTES**. Hosted Ubuntu
-  evidence remains pending and is not inferred from the workflow file.
+- Slice 15 hosted run 35520369299 at `c86e861`: macOS 15, Ubuntu 24.04 and supply-chain jobs passed.
+  Ubuntu recorded 459 tests plus 47 subtests, ruff, strict mypy, relay and 34 developer checks; the
+  explicit ext4 filesystem/concurrency/Vault/backup gate recorded 91 tests plus 11 subtests. The
+  supply-chain job retained the frozen evaluation and verified locked audit, reproducible artifacts,
+  legal files and a clean-wheel smoke. Review 41 remains **APPROVE WITH NON-BLOCKING NOTES**.
 - `.tools/bin/uv run pytest`: 456 passed, 47 subtests passed; `ruff check .` and strict `mypy src`:
   clean (2026-09-20 Slice 14 gate). Backup + Vault focused suites: 84 passed. Review 39 independently
   fault-injected all four restore crash points with fresh state and verified legacy recovery.

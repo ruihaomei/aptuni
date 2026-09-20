@@ -1,7 +1,7 @@
 # MVP Compatibility and Locale Matrix
 
-**Status:** Draft; S03 fixed the SQLite baseline. S04 is in progress and S12/the first scaffold still
-fill release versions before acceptance.
+**Status:** Draft; S03 fixed the SQLite baseline and hosted run 35520369299 closed the Ubuntu
+24.04/ext4 gate. S12 still fills the real-host rows before host acceptance.
 
 Gate 0/S01 proof baseline on 2026-09-18: macOS 26.2 (build 25C56), local APFS **data** volume
 (`/System/Volumes/Data`, where user files live; the root volume is sealed/read-only), CPython 3.13.3
@@ -17,7 +17,7 @@ or synchronized filesystems fail closed until separately admitted.
 | Surface | Milestone 1 support |
 |---|---|
 | Python | CPython 3.11, 3.12, 3.13 |
-| OS/filesystem | Gate 0: macOS 26.2/APFS. M1.1 adds an exact Ubuntu LTS/ext4 CI runner before claiming Linux support. |
+| OS/filesystem | macOS 26.2/APFS plus Ubuntu 24.04/ext4; hosted run 35520369299 passed the real filesystem admission and durability gate at `c86e861`. Other filesystems remain unadmitted. |
 | SQLite | bundled Python SQLite with FTS5; minimum exact version established by S03 |
 | Hosts | Claude Code and Codex versions proven by S04/S12. S04 records the current and the preceding stable version per host before any host journey runs; both must pass. A missing preceding version is release-blocking unless a `KNOWN_ISSUES.md` waiver records the attempted source, reason, and reviewer approval |
 | Locale | `en` and `zh-CN`; deterministic English fallback for unknown locale |
@@ -27,6 +27,15 @@ or synchronized filesystems fail closed until separately admitted.
 Every release records exact CI and host versions. A host/SQLite/Python version outside the matrix is
 an explicit diagnostic gap, not a silent pass. Upgrades rerun capability, telemetry/egress, schema,
 L0, and daily-task probes; downgrade reads older supported schemas or fails with migration guidance.
+
+## Hosted filesystem evidence
+
+GitHub Actions run 35520369299 at `c86e861` completed successfully on 2026-09-20. Its Ubuntu 24.04
+job passed the full 459-test/47-subtest suite, ruff, strict mypy, relay and 34 developer checks. The
+separate ext4 durability step passed 91 tests plus 11 subtests across filesystem admission,
+concurrency, Vault and backup behavior. The real-baseline admission test resolves the runner's
+temporary path through `/proc/self/mountinfo`, requires `fstypename == "ext4"` and `is_local`, and
+then exercises `check_vault_filesystem`; it is not inferred from the runner label.
 
 ## Required locale/host scenarios
 
