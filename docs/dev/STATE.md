@@ -179,7 +179,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Implemented (Milestone 2)
 
-- **S10 — Mem0 2.0.20 admission.** The isolated hash-locked harness admits only a disposable local
+- **S10 — Mem0 2.0.20 admission (`84a3a8e`).** The isolated hash-locked harness admits only a disposable local
   projection populated with accepted canonical records and `infer=False`. Mem0-owned inference is
   rejected because it retains raw input in history. Record-level `Memory.delete()` leaves bytes in
   Qdrant/history, so privacy deletion requires closing and removing the entire managed provider root

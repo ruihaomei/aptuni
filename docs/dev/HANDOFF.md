@@ -36,7 +36,7 @@ Keep all MarginNote access read-only; never commit note text, and do not infer r
 
 ### What just landed
 
-S10 isolated Mem0 2.0.20 with a hash-locked runtime and a bounded synthetic fixture. Exact restart
+S10 (`84a3a8e`) isolated Mem0 2.0.20 with a hash-locked runtime and a bounded synthetic fixture. Exact restart
 and fresh-root rebuild passed with `infer=False`, guarded execution observed no non-loopback network
 attempts, and canonical fixture bytes stayed unchanged. The adverse paths are now binding product
 constraints: inference retained raw messages, and record deletion retained marker bytes in
