@@ -1,7 +1,7 @@
 # MVP Compatibility and Locale Matrix
 
-**Status:** Draft; S03 fixed the SQLite baseline and hosted run 35520369299 closed the Ubuntu
-24.04/ext4 gate. S12 still fills the real-host rows before host acceptance.
+**Status:** Aptuni 0.1.0 release matrix. S03 fixed the SQLite baseline, hosted runs closed the Ubuntu
+24.04/ext4 gate, and S12 completed the frozen real-host rows.
 
 Gate 0/S01 proof baseline on 2026-09-18: macOS 26.2 (build 25C56), local APFS **data** volume
 (`/System/Volumes/Data`, where user files live; the root volume is sealed/read-only), CPython 3.13.3
@@ -16,7 +16,7 @@ or synchronized filesystems fail closed until separately admitted.
 
 | Surface | Milestone 1 support |
 |---|---|
-| Python | CPython 3.11, 3.12, 3.13 |
+| Python | CPython 3.13 |
 | OS/filesystem | macOS 26.2/APFS plus Ubuntu 24.04/ext4; hosted run 35520369299 passed the real filesystem admission and durability gate at `c86e861`. Other filesystems remain unadmitted. |
 | SQLite | bundled Python SQLite with FTS5; minimum exact version established by S03 |
 | Hosts | Claude Code and Codex versions proven by S04/S12. S04 records the current and the preceding stable version per host before any host journey runs; both must pass. A missing preceding version is release-blocking unless a `KNOWN_ISSUES.md` waiver records the attempted source, reason, and reviewer approval |

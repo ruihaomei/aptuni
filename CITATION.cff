@@ -10,8 +10,8 @@ authors:
   - family-names: Mei
     given-names: Ruihao
 license: Apache-2.0
-version: 0.1.0.dev0
-date-released: 2026-09-19
+version: 0.1.0
+date-released: 2026-09-21
 keywords:
   - personal context
   - agent memory

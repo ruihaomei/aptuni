@@ -8,7 +8,7 @@ bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profi
 read-only Plugin Advisor are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -174,22 +174,24 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- Milestone 1 engineering Slices 14–18 are complete. The three authorized checkpoints are on
-  `origin/main` at `1f14e29`; hosted CI run `35550733889` passed macOS, Ubuntu/ext4 and build/
-  supply-chain jobs. No release publication, tag or package upload is authorized.
+- Aptuni 0.1.0 is the authorized first public release candidate. Version, changelog, security and
+  compatibility metadata are aligned; the tag-only PyPI OIDC workflow is locally gated. The full
+  pre-release gate and independent Review 49 passed. Publication and public-install verification
+  remain.
 
 ## Awaiting maintainer decisions
 
-- Publication, release tagging, package upload and any release declaration require maintainer
-  authorization. The read-only release gates are clean: `aptuni` is unclaimed on PyPI and npm, the
-  project is the only exact-name GitHub repository, and private vulnerability reporting is enabled.
+- None. The maintainer authorized the first public release across the configured channels. PyPI
+  still requires account authentication to register the pending GitHub OIDC publisher.
 
 ## Next highest-priority task
 
-1. Await explicit maintainer authorization for any publication, release tag, package upload or
-   release declaration.
-2. If authorization is granted, recheck package-name availability immediately before publication;
-   the 2026-09-21 read-only audit is only a point-in-time result.
+1. Register the pending PyPI trusted publisher for `ruihaomei/aptuni`, workflow `release.yml`,
+   environment `pypi`.
+2. Commit and push the exact 0.1.0 release candidate, require the hosted `main` gate to pass, then
+   create and push `v0.1.0`.
+3. Verify the tag workflow, PyPI and GitHub Release artifacts, run fresh public-install smokes, and
+   obtain the independent post-publication final release review.
 
 ## Latest validation state
 

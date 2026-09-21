@@ -130,6 +130,23 @@ class SupplyChainTests(unittest.TestCase):
             self.assertTrue(any("threshold step fails" in error
                                 for error in gate.check_workflow(mutated)))
 
+    def test_release_workflow_limits_publish_authority_and_reproducibly_builds(self) -> None:
+        workflow = MODULE_PATH.parents[1] / ".github" / "workflows" / "release.yml"
+        self.assertEqual([], gate.check_release_workflow(workflow))
+
+        text = workflow.read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as raw:
+            mutated = Path(raw) / "release.yml"
+            mutated.write_text(text.replace("id-token: write", "contents: write"), encoding="utf-8")
+            self.assertTrue(any("sole OIDC permission" in error
+                                for error in gate.check_release_workflow(mutated)))
+
+            mutated.write_text(text.replace(
+                '      - "v[0-9]+.[0-9]+.[0-9]+"', "      - main",
+            ), encoding="utf-8")
+            self.assertTrue(any("semantic-version tag" in error
+                                for error in gate.check_release_workflow(mutated)))
+
 
 if __name__ == "__main__":
     unittest.main()

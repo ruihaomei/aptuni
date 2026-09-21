@@ -4,11 +4,12 @@ Aptuni holds personal context, so security and privacy reports get priority.
 
 ## Supported versions
 
-Aptuni is **pre-alpha**. Only the latest commit on the default branch is supported. There are no
-released versions yet; this table will list them once releases begin.
+Aptuni is **pre-alpha**. Only the latest `0.1.x` release and the latest commit on the default branch
+are supported.
 
 | Version | Supported |
 |---|---|
+| `0.1.x` | ✅ |
 | `main` (pre-alpha) | ✅ |
 
 ## Reporting a vulnerability

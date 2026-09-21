@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
@@ -21,9 +21,9 @@ Claude/Codex real-host S12 journeys. Slice 17 is complete and Review 48 is **APP
 
 ## Next action
 
-Await a maintainer decision. Publication, release tagging, package upload and any release
-declaration remain unauthorized. If release work is authorized, repeat the point-in-time package
-name checks immediately before publishing.
+Complete the authorized 0.1.0 publication: register the pending PyPI trusted publisher, push the
+reviewed release commit, wait for hosted `main` CI, create/push `v0.1.0`, verify the PyPI OIDC tag
+workflow, create the GitHub Release, run public-install smokes, and obtain final independent review.
 
 `docs/dev/plans/07-m1-exit-matrix.md` audits every remaining M1 exit clause and orders Slices 14–18.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
@@ -40,6 +40,11 @@ The pushed checkpoint passed hosted macOS, Ubuntu (including ext4 durability) an
 jobs. A 2026-09-21 read-only audit found no `aptuni` package on PyPI or npm, found only
 `ruihaomei/aptuni` as an exact-name GitHub repository, and confirmed private vulnerability reporting
 is enabled. No registry or repository setting was changed.
+
+The 0.1.0 release candidate aligns version, changelog, citation, security, compatibility and public
+installation surfaces. Its tag-only OIDC workflow builds twice, audits and smokes the exact artifact
+before granting only the isolated `pypi` job a short-lived publish identity. Full local gates passed;
+independent Review 49 is **APPROVE**.
 
 ## Known constraints
 

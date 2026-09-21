@@ -161,6 +161,31 @@ def check_workflow(path: Path) -> list[str]:
     return errors
 
 
+def check_release_workflow(path: Path) -> list[str]:
+    text = path.read_text(encoding="utf-8")
+    errors: list[str] = []
+    if not re.search(r"(?m)^permissions:\n  contents: read$", text):
+        errors.append("release workflow must default to read-only contents permission")
+    if '      - "v[0-9]+.[0-9]+.[0-9]+"' not in text or "workflow_dispatch" in text:
+        errors.append("release workflow must publish only from semantic-version tag pushes")
+    if "persist-credentials: false" not in text:
+        errors.append("release checkout must disable persisted credentials")
+    if text.count("id-token: write") != 1 or "environment:\n      name: pypi" not in text:
+        errors.append("release publish job must have the sole OIDC permission in the pypi environment")
+    if text.count("uv build --offline --no-build-isolation") < 2:
+        errors.append("release artifacts must be built twice with the locked offline backend")
+    if "python tools/check_supply_chain.py artifacts build-a/*" not in text:
+        errors.append("release workflow must check artifact legal files")
+    if "uv publish dist/*.whl dist/*.tar.gz" not in text:
+        errors.append("release workflow must publish only wheel and sdist artifacts")
+    for reference in ACTION_USE.findall(text):
+        if reference.startswith("./"):
+            continue
+        if "@" not in reference or not COMMIT_SHA.fullmatch(reference.rsplit("@", 1)[1]):
+            errors.append(f"release action is not pinned to an immutable commit: {reference}")
+    return errors
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("notices", "secrets", "workflow", "artifacts", "all"))
@@ -175,6 +200,7 @@ def main(argv: list[str] | None = None) -> int:
         errors.extend(check_secrets(tracked_files(root), root))
     if args.command in ("workflow", "all"):
         errors.extend(check_workflow(root / ".github" / "workflows" / "ci.yml"))
+        errors.extend(check_release_workflow(root / ".github" / "workflows" / "release.yml"))
     if args.command in ("artifacts", "all"):
         if not args.paths:
             errors.append("artifact paths are required")

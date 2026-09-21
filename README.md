@@ -1,9 +1,9 @@
-<p align="center"><img src="assets/brand/logo/aptuni-icon.svg" width="120" alt="Aptuni"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/ruihaomei/aptuni/v0.1.0/assets/brand/logo/aptuni-icon.svg" width="120" alt="Aptuni"></p>
 
 <h1 align="center">Aptuni</h1>
 <p align="center"><b>Context, attuned to you.</b></p>
 <p align="center">Personal context · Memory · MCP · Local-first</p>
-<p align="center"><a href="README.zh-CN.md">简体中文</a> · <a href="LICENSE">Apache-2.0</a> · pre-alpha</p>
+<p align="center"><a href="https://github.com/ruihaomei/aptuni/blob/v0.1.0/README.zh-CN.md">简体中文</a> · <a href="https://github.com/ruihaomei/aptuni/blob/v0.1.0/LICENSE">Apache-2.0</a> · v0.1.0 pre-alpha</p>
 
 **Aptuni gives AI agents the right personal context without giving them everything about you.**
 The more you use it, the better it understands what matters.
@@ -11,8 +11,9 @@ The more you use it, the better it understands what matters.
 You stop re-explaining yourself to every agent. Your agent gets a small, relevant, verifiable slice
 of who you are for the task at hand, and you keep the whole thing in open files you own.
 
-> **Status: pre-alpha (Milestone 1).** The core runs end to end on macOS today. Interfaces will
-> still change. See [what works now](#what-works-today) and [the roadmap](docs/dev/ROADMAP.md).
+> **Status: pre-alpha (Milestone 1).** The core runs end to end on supported macOS and Ubuntu
+> 24.04/ext4 systems. Interfaces will still change. See [what works now](#what-works-today) and the
+> [roadmap](https://github.com/ruihaomei/aptuni/blob/v0.1.0/docs/dev/ROADMAP.md).
 
 ## Why Aptuni
 
@@ -29,19 +30,26 @@ of who you are for the task at hand, and you keep the whole thing in open files 
 
 ## Install with your agent
 
+Install the public package with Python 3.13 and [uv](https://docs.astral.sh/uv/):
+
+```sh
+uv tool install aptuni==0.1.0
+aptuni --version
+```
+
 Open this repository in Claude Code or Codex and say:
 
 > Read this repository and set up Aptuni for me.
 
-The agent reads [`AGENTS.md`](AGENTS.md), asks which language you prefer, then walks through what
+The agent reads [`AGENTS.md`](https://github.com/ruihaomei/aptuni/blob/v0.1.0/AGENTS.md), asks which language you prefer, then walks through what
 sources you have, how you want to be remembered, and whether cloud models may process your data.
 
 You can drive the same flow yourself. It is two commands, and the first one creates only a private,
 expiring plan record — no Vault, source, grant, or host bundle:
 
 ```sh
-uv run aptuni setup plan --folder ~/Documents/notes --host claude_code
-uv run aptuni setup apply ACTION_ID       # you type APPLY in your own terminal
+aptuni setup plan --folder ~/Documents/notes --host claude_code
+aptuni setup apply ACTION_ID       # you type APPLY in your own terminal
 ```
 
 `setup plan` prints the recommended components and why, the API keys and setup time, **exactly
@@ -57,24 +65,22 @@ exactly what remains — your Vault, sources and evidence are never deleted for 
 
 ## 60-second manual quickstart
 
-Requires Python 3.13 and [uv](https://docs.astral.sh/uv/).
+Requires the installed Python 3.13 package above.
 
 ```sh
-git clone <this repository> aptuni && cd aptuni
-uv sync
-uv run aptuni advise                      # a few plain-language questions; changes nothing
-uv run aptuni init ~/Aptuni               # create your Profile Vault (or let `setup apply` do it)
-uv run aptuni remember "Prefers concise, structured technical explanations." --module preferences
-uv run aptuni source add-folder ~/Documents/cv --module experience --role application-materials
-uv run aptuni sync SOURCE_ID              # minimized evidence from files you approved
-uv run aptuni context "help me prepare for a data science interview" --module experience --evidence --budget 1500
+aptuni advise                      # a few plain-language questions; changes nothing
+aptuni init ~/Aptuni               # create your Profile Vault (or let `setup apply` do it)
+aptuni remember "Prefers concise, structured technical explanations." --module preferences
+aptuni source add-folder ~/Documents/cv --module experience --role application-materials
+aptuni sync SOURCE_ID              # minimized evidence from files you approved
+aptuni context "help me prepare for a data science interview" --module experience --evidence --budget 1500
 ```
 
 Then connect an agent:
 
 ```sh
-uv run aptuni adapter plan claude --module identity --module preferences --allow-host-model-egress
-uv run aptuni adapter apply ACTION_ID     # you confirm in your own terminal
+aptuni adapter plan claude --module identity --module preferences --allow-host-model-egress
+aptuni adapter apply ACTION_ID     # you confirm in your own terminal
 ```
 
 ## What works today
@@ -112,8 +118,8 @@ Sources ──► Evidence ──► Profile + Memory ──► Context ──�
 - **Sources change safely.** Every sync is an immutable snapshot plus a reviewable delta. A deleted
   file withdraws evidence; it never silently rewrites history. Ambiguous changes wait for you.
 
-Design decisions live in [`docs/dev/DECISIONS/`](docs/dev/DECISIONS/README.md), and the product
-requirements in [`docs/product/PRD.md`](docs/product/PRD.md).
+Design decisions live in [`docs/dev/DECISIONS/`](https://github.com/ruihaomei/aptuni/blob/v0.1.0/docs/dev/DECISIONS/README.md), and the product
+requirements in [`docs/product/PRD.md`](https://github.com/ruihaomei/aptuni/blob/v0.1.0/docs/product/PRD.md).
 
 ## Recipes
 
@@ -133,7 +139,7 @@ Aptuni never scans your machine on its own, and discovering a source does not me
 permission to read it. Raw conversations are not kept by default. Agents see only modules you
 expose, within a budget, and the adapter preview tells you exactly what leaves your device (for
 example, context an agent reads is processed by that agent's model provider). See
-[`SECURITY.md`](SECURITY.md) and the [threat model](docs/dev/THREAT_MODEL.md).
+[`SECURITY.md`](https://github.com/ruihaomei/aptuni/blob/v0.1.0/SECURITY.md) and the [threat model](https://github.com/ruihaomei/aptuni/blob/v0.1.0/docs/dev/THREAT_MODEL.md).
 
 These commands make that concrete:
 
@@ -169,9 +175,9 @@ that already has files in it.
 ## Contributing
 
 Plugins, recipes, translations and bug reports are welcome. Start with
-[`CONTRIBUTING.md`](CONTRIBUTING.md). Adding a plugin to the Advisor catalog is one TOML file
+[`CONTRIBUTING.md`](https://github.com/ruihaomei/aptuni/blob/v0.1.0/CONTRIBUTING.md). Adding a plugin to the Advisor catalog is one TOML file
 plus two message lines.
 
 ## License
 
-[Apache-2.0](LICENSE). Third-party notices are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+[Apache-2.0](https://github.com/ruihaomei/aptuni/blob/v0.1.0/LICENSE). Third-party notices are in [`THIRD_PARTY_NOTICES.md`](https://github.com/ruihaomei/aptuni/blob/v0.1.0/THIRD_PARTY_NOTICES.md).

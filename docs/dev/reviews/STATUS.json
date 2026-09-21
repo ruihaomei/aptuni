@@ -164,6 +164,12 @@
    "supersedes": [
     "47-m1-real-host-s12-review.md"
    ]
+  },
+  "release": {
+   "kind": "review",
+   "current": "49-release-candidate-review.md",
+   "verdict": "APPROVE",
+   "supersedes": []
   }
  }
 }
