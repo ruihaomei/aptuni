@@ -171,30 +171,34 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   unsafe-state failures end in a fixed CLI message, `APTUNI_DEBUG=1` re-raises (N2).
 - **Open-source readiness (`048556b`).** README/README.zh-CN (verified quickstart), CONTRIBUTING,
   SECURITY, CODE_OF_CONDUCT, CHANGELOG, CITATION.cff, `.github/CODEOWNERS`.
+- **First public release (`v0.1.0`, `33ea08a`).** PyPI and the GitHub Release carry the exact
+  reproducible wheel/sdist; tag workflow 35619712980 and release-commit CI 35572245440 passed. A
+  fresh PyPI-only install completed CLI, setup/context and MCP safety smokes. Review 50 independently
+  inspected the public result and returned **APPROVE**. Exact URLs, hashes and evidence are in
+  `docs/dev/releases/0.1.0.md`.
 
 ## In progress
 
-- Aptuni 0.1.0 is the authorized first public release candidate. Version, changelog, security and
-  compatibility metadata are aligned; the tag-only PyPI OIDC workflow is locally gated. The full
-  pre-release gate and independent Review 49 passed. Publication and public-install verification
-  remain.
+- Milestone 1 and its first public release are complete. No release remediation is in progress.
 
 ## Awaiting maintainer decisions
 
-- None. The maintainer authorized the first public release across the configured channels. PyPI
-  still requires account authentication to register the pending GitHub OIDC publisher.
+- None for the 0.1.0 release.
 
 ## Next highest-priority task
 
-1. Register the pending PyPI trusted publisher for `ruihaomei/aptuni`, workflow `release.yml`,
-   environment `pypi`.
-2. Commit and push the exact 0.1.0 release candidate, require the hosted `main` gate to pass, then
-   create and push `v0.1.0`.
-3. Verify the tag workflow, PyPI and GitHub Release artifacts, run fresh public-install smokes, and
-   obtain the independent post-publication final release review.
+1. Open Milestone 2 with its prerequisite Mem0 local privacy/retention/export isolation work from
+   KI-008/S10, starting with an accepted TDD plan and a bounded fixture rather than an adapter.
+2. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
 
+- Aptuni 0.1.0 public release: tag workflow 35619712980 and release-commit CI 35572245440 passed.
+  Fresh PyPI-only Python 3.13 import/version, CLI, synthetic Vault/search/context/doctor, local-only
+  setup plan and MCP health/default-deny/EOF/network-confinement smokes passed. Fresh exact-tag,
+  hosted, PyPI and GitHub Release artifacts are byte-identical at the hashes recorded in
+  `docs/dev/releases/0.1.0.md`; the hosted audit found zero vulnerabilities. Review 50 is
+  **APPROVE**.
 - Slice 18: 459 tests plus 47 subtests; ruff, strict mypy and 34 developer checks clean. The four
   fixture smokes ran provider conformance tests, a frozen evaluation manifest, no-sync lock/notice/
   secret/workflow checks, and two byte-identical offline builds whose wheel/sdist legal files pass.

@@ -167,9 +167,11 @@
   },
   "release": {
    "kind": "review",
-   "current": "49-release-candidate-review.md",
+   "current": "50-release-final-review.md",
    "verdict": "APPROVE",
-   "supersedes": []
+   "supersedes": [
+    "49-release-candidate-review.md"
+   ]
   }
  }
 }
