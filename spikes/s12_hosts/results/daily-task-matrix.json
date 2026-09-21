@@ -6,6 +6,8 @@
     {
       "host": "claude",
       "version": "2.1.267",
+      "resolved_version": "2.1.267",
+      "exact_version": true,
       "host_exit_code": 0,
       "identity_tool_called": true,
       "identity_marker_present": true,
@@ -16,6 +18,8 @@
     {
       "host": "claude",
       "version": "2.1.266",
+      "resolved_version": "2.1.266",
+      "exact_version": true,
       "host_exit_code": 0,
       "identity_tool_called": true,
       "identity_marker_present": true,
@@ -26,6 +30,8 @@
     {
       "host": "codex",
       "version": "0.155.0",
+      "resolved_version": "0.155.0",
+      "exact_version": true,
       "host_exit_code": 0,
       "identity_tool_called": true,
       "identity_marker_present": true,
@@ -36,6 +42,8 @@
     {
       "host": "codex",
       "version": "0.154.0",
+      "resolved_version": "0.154.0",
+      "exact_version": true,
       "host_exit_code": 0,
       "identity_tool_called": true,
       "identity_marker_present": true,
@@ -47,6 +55,13 @@
   "approval_policy": {
     "claude": "dontAsk",
     "codex": "never"
+  },
+  "runtime": {
+    "built_wheel_importable": true,
+    "interpreter_outside_project": true,
+    "package_outside_project": true,
+    "project_venv_used": false,
+    "location_classification": "private_temporary_runtime_outside_project"
   },
   "session_persisted": false,
   "raw_output_persisted": false,

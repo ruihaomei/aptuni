@@ -156,6 +156,14 @@
    "supersedes": [
     "45-m1-post-contract-skills-review.md"
    ]
+  },
+  "m1-real-host-s12": {
+   "kind": "review",
+   "current": "48-m1-real-host-s12-rereview.md",
+   "verdict": "APPROVE",
+   "supersedes": [
+    "47-m1-real-host-s12-review.md"
+   ]
   }
  }
 }

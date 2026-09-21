@@ -1,6 +1,6 @@
 # Slice 17 — Real-host S12 journeys
 
-**Status:** Implementing (2026-09-21); frozen daily-task matrix PASS, focused Claude probe pending
+**Status:** Complete (2026-09-21); both matrices PASS, Review 48 APPROVE
 **Owns:** M1.4 fresh-machine Claude Code/Codex setup, one real daily task per frozen host version,
 and the remaining ADR-0013 real-host observations.
 
@@ -11,8 +11,14 @@ and the remaining ADR-0013 real-host observations.
 - Invocation remediation: preserve only the ordinary `USER` variable needed for Claude's macOS
   keychain lookup; keep expected evidence tokens out of the model prompt; require structured Codex
   MCP events; mark the Codex server required and explicitly forward only `APTUNI_STATE_DIR`.
-- Remaining: focused Claude built-in Read/Write and Apple Event observations, full gate and focused
-  privacy/host-confinement review.
+- `spikes/s12_hosts/results/claude-confinement-matrix.json`: both Claude versions loaded exact
+  absolute Read/Edit protected-path rules in session-bound runs. Claude did not emit either file
+  tool call, so no file-tool denial is claimed; the outer marker remained unchanged and the random
+  token was absent. Both versions emitted the exact Apple Event attempt and produced no outer
+  effect. Profile and confinement therefore remain `unverified`.
+- Full local gate: 459 tests plus 47 subtests, ruff, strict mypy, relay and 34 developer checks pass.
+- Review 48 independently verified privacy, host-confinement non-claims, exact-version enforcement,
+  external built-wheel runtime classification and the full gate: **APPROVE**.
 
 ## Runnable outcome
 

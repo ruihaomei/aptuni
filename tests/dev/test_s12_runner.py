@@ -4,11 +4,18 @@ from __future__ import annotations
 
 import json
 import runpy
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
-RUNNER: dict[str, Any] = runpy.run_path(str(ROOT / "spikes" / "s12_hosts" / "run_daily_task.py"))
+S12_ROOT = ROOT / "spikes" / "s12_hosts"
+sys.path.insert(0, str(S12_ROOT))
+RUNNER: dict[str, Any] = runpy.run_path(str(S12_ROOT / "run_daily_task.py"))
+CONFINEMENT: dict[str, Any] = runpy.run_path(
+    str(S12_ROOT / "run_claude_confinement.py")
+)
 
 
 def test_minimal_environment_preserves_keychain_lookup_without_credential_values(
@@ -59,3 +66,93 @@ def test_codex_evidence_requires_completed_mcp_items_not_agent_prose() -> None:
 
     assert RUNNER["codex_mcp_evidence"](prose) == (False, False, False, False)
     assert RUNNER["codex_mcp_evidence"]("\n".join((identity, search))) == (True, True, True, True)
+
+
+def test_runtime_classification_rejects_project_interpreter(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+    venv = project / ".venv"
+    venv.mkdir()
+    package = venv / "site-packages" / "aptuni"
+    package.mkdir(parents=True)
+    command = venv / "bin" / "python"
+    command.parent.mkdir()
+    command.touch()
+
+    value = RUNNER["classify_runtime_paths"](command, package, project)
+
+    assert value == {
+        "interpreter_outside_project": False,
+        "package_outside_project": False,
+        "project_venv_used": True,
+    }
+
+
+def test_claude_confinement_settings_cover_file_tools_and_apple_events() -> None:
+    protected = Path("/Users/Shared/protected")
+    apple = Path("/Users/Shared/apple")
+    value = CONFINEMENT["settings"](
+        protected, apple, Path("/private/tmp/hook.py"), Path("/private/tmp/result.json")
+    )
+
+    assert value["permissions"]["deny"] == [
+        "Read(//Users/Shared/protected)",
+        "Edit(//Users/Shared/protected)",
+    ]
+    sandbox = value["sandbox"]
+    assert sandbox["allowAppleEvents"] is False
+    assert sandbox["allowUnsandboxedCommands"] is False
+    assert sandbox["filesystem"]["denyRead"] == [str(protected), str(apple)]
+    assert sandbox["filesystem"]["denyWrite"] == [str(protected), str(apple)]
+    compile(CONFINEMENT["observer_source"](), "<observer>", "exec")
+
+    read_prompt = CONFINEMENT["read_prompt"](protected)
+    write_prompt = CONFINEMENT["write_prompt"](protected)
+    apple_prompt = CONFINEMENT["apple_prompt"](apple)
+    assert "Write tool" not in read_prompt
+    assert "Read tool" not in write_prompt
+    assert "osascript" not in read_prompt
+    assert "osascript" not in write_prompt
+    assert "Read tool" not in apple_prompt
+
+
+def test_claude_observer_records_only_exact_sanitized_events(tmp_path: Path) -> None:
+    script = tmp_path / "observer.py"
+    result = tmp_path / "result.json"
+    protected = "/Users/Shared/protected"
+    apple = "/Users/Shared/apple"
+    script.write_text(CONFINEMENT["observer_source"](), encoding="utf-8")
+
+    events = [
+        {"hook_event_name": "SessionStart", "session_id": "synthetic"},
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Read",
+            "tool_input": {"file_path": protected},
+        },
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Write",
+            "tool_input": {"file_path": protected, "content": "private"},
+        },
+        {
+            "hook_event_name": "PostToolUseFailure",
+            "tool_name": "Bash",
+            "tool_input": {"command": f"osascript {apple}"},
+            "error": "private error",
+        },
+    ]
+    for event in events:
+        subprocess.run(
+            [sys.executable, str(script), str(result), protected, apple],
+            input=json.dumps(event),
+            text=True,
+            check=True,
+        )
+
+    assert json.loads(result.read_text()) == {
+        "apple_failed": True,
+        "read_attempted": True,
+        "session_id_present": True,
+        "write_attempted": True,
+    }

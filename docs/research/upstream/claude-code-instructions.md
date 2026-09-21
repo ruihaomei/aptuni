@@ -234,3 +234,13 @@ our-product-plugin/
 - SessionStart matchers: `startup`, `resume`, `clear`, `compact`, `fork`.
 - No documented size limit for SessionStart-injected context and no documented Stop-block cap
   (the "max 8 blocks" claim above is unverified) — keep the L0 card small by design (budget in ADR-0009).
+
+### Verified in Slice 17 (Claude Code 2.1.267/2.1.266, 2026-09-21)
+
+- File permission rules use `Read` and `Edit`; path-scoped `Write(path)` is accepted but not
+  consulted. `Read` also covers Write on the same path in these versions.
+- `//path` is filesystem-root absolute. A single `/path` anchors at the settings source, so generated
+  absolute protected-path rules must use `Read(//...)` / `Edit(//...)`.
+- `PreToolUse` can record an exact attempted tool input without retaining contents; `PostToolUse`
+  and `PostToolUseFailure` distinguish success/failure. A model that emits no call supplies no
+  denial evidence, so the result remains `unverified`.

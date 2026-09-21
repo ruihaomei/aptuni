@@ -9,12 +9,14 @@ import os
 import shutil
 import subprocess
 import tempfile
+import tomllib
 from pathlib import Path
 from typing import Any
 
 TIMEOUT_SECONDS = 240
 HANDOFF_MARKER = "S12_HANDOFF_ALPHA"
 DENIED_CODE = "mcp_module_denied"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def minimal_environment(state_dir: Path, codex_home: Path | None = None) -> dict[str, str]:
@@ -43,6 +45,46 @@ def resolved_version(host: str, version: str) -> str:
         env=minimal_environment(Path("/nonexistent")),
     )
     return completed.stdout.strip().replace("codex-cli ", "").split()[0]
+
+
+def classify_runtime_paths(command: Path, package: Path, project_root: Path) -> dict[str, bool]:
+    root = project_root.resolve()
+    project_venv = (root / ".venv").resolve()
+    command = command.resolve()
+    package = package.resolve()
+    return {
+        "interpreter_outside_project": not command.is_relative_to(root),
+        "package_outside_project": not package.is_relative_to(root),
+        "project_venv_used": command.is_relative_to(project_venv)
+        or package.is_relative_to(project_venv),
+    }
+
+
+def runtime_classification(host: str, bundle: Path, project_root: Path) -> dict[str, bool]:
+    if host == "claude":
+        value = json.loads((bundle / ".mcp.json").read_text(encoding="utf-8"))
+        command = Path(value["mcpServers"]["aptuni"]["command"]).resolve()
+    else:
+        value = tomllib.loads((bundle / "config.toml").read_text(encoding="utf-8"))
+        command = Path(value["mcp_servers"]["aptuni"]["command"]).resolve()
+    completed = subprocess.run(
+        [
+            str(command),
+            "-I",
+            "-c",
+            "from pathlib import Path; import aptuni; print(Path(aptuni.__file__).resolve())",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=TIMEOUT_SECONDS,
+        env=minimal_environment(Path("/nonexistent")),
+    )
+    package = Path(completed.stdout.strip()).resolve() if completed.returncode == 0 else project_root
+    return {
+        "built_wheel_importable": completed.returncode == 0,
+        **classify_runtime_paths(command, package, project_root),
+    }
 
 
 def prompt() -> str:
@@ -102,6 +144,9 @@ def codex_mcp_evidence(stdout: str) -> tuple[bool, bool, bool, bool]:
 
 
 def run_host(host: str, version: str, state_dir: Path, bundle: Path) -> dict[str, object]:
+    requested_version = version
+    actual_version = resolved_version(host, requested_version)
+    runtime = runtime_classification(host, bundle, PROJECT_ROOT)
     with tempfile.TemporaryDirectory(prefix=f"aptuni-s12-{host}-") as raw:
         temporary = Path(raw)
         last_message = temporary / "last-message.txt"
@@ -176,8 +221,10 @@ def run_host(host: str, version: str, state_dir: Path, bundle: Path) -> dict[str
             denial_present = search_called
         return {
             "host": host,
-            "version": version,
-            "resolved_version": resolved_version(host, version),
+            "version": requested_version,
+            "resolved_version": actual_version,
+            "exact_version": actual_version == requested_version,
+            **runtime,
             "host_exit_code": exit_code,
             "status": status,
             "identity_tool_called": identity_called,
@@ -189,6 +236,11 @@ def run_host(host: str, version: str, state_dir: Path, bundle: Path) -> dict[str
             "raw_output_persisted": False,
             "passed": (
                 exit_code == 0
+                and actual_version == requested_version
+                and runtime["built_wheel_importable"]
+                and runtime["interpreter_outside_project"]
+                and runtime["package_outside_project"]
+                and not runtime["project_venv_used"]
                 and identity_called
                 and search_called
                 and marker_present

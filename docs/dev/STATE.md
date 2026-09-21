@@ -8,7 +8,7 @@ bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profi
 read-only Plugin Advisor are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -152,6 +152,12 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   records dev recall@5 0.992, MRR 1.0 and FPR 0.0; holdout recall/MRR 1.0 and FPR 0.0. The gate
   narrowed any-term fallback to queries whose task-language removal changes the terms. Reviews
   42–43 drove evidence-retention and mutation-test fixes; Review 44 is **APPROVE**.
+- **Slice 17 — Real-host S12 journeys.** Exact frozen Claude Code 2.1.267/2.1.266 and Codex
+  0.155.0/0.154.0 non-persistent sessions completed the synthetic handoff and exact ungranted-module
+  denial. Focused Claude sessions loaded exact absolute file rules; the model emitted no file calls,
+  so no denial is claimed, while both exact Apple Event attempts produced no outer effect. The
+  runner enforces resolved versions and an external built-wheel runtime, and persists only sanitized
+  classifications. Review 48 is **APPROVE**; status remains honestly `unverified`.
 - **Slice 18 — Post-contract skills (`884aabc`).** Repository-local `add-source-provider`,
   `run-evals`, `audit-licenses`, and `release` skills encode the stabilized source, evaluation and
   supply/release contracts. Four fixture smokes execute the real bounded commands; release builds
@@ -168,26 +174,22 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- Slice 17 real-host evidence is authorized and underway. The exact npm-resolved Claude Code
-  2.1.267/2.1.266 and Codex 0.155.0/0.154.0 daily-task matrix passes with non-persistent sessions,
-  synthetic data and sanitized evidence: every host called both bounded tools, observed the handoff
-  marker and received `mcp_module_denied`. Remaining: the focused Claude built-in file-tool/Apple
-  Event observations and independent host/privacy review.
+- Milestone 1 engineering Slices 14–18 are complete. The Slice 17 checkpoint is ready to push and
+  verify in hosted CI; no release publication, tag or package upload is authorized.
 
 ## Awaiting maintainer decisions
 
-- No decision blocks the authorized Slice 17 probes. Private vulnerability reporting, publication,
-  release tagging and GitHub/PyPI collision checks remain explicit future release gates.
+- Publication, release tagging, package upload and any release declaration require maintainer
+  authorization. Private vulnerability reporting and public package-name collision rechecks remain
+  release gates.
 
 ## Next highest-priority task
 
-1. Repair the preserved Slice 17 runner's Claude/Codex launch and MCP invocation contracts using
-   sanitized diagnostics; do not redesign the framework.
-2. Run the smallest real frozen-host matrix that proves the synthetic L0 handoff and exact
-   `mcp_module_denied` response, then the focused Claude file-tool/Apple Event observations.
-3. Fix only reproduced defects, run focused checks and the full gate, obtain the required focused
-   privacy/host-confinement review, and checkpoint the evidence.
-4. Do not infer release authorization or host support beyond the exact recorded versions and cases.
+1. Push the three local checkpoints authorized for `origin/main`, then verify the hosted workflow.
+2. Perform the read-only Milestone 1 release-readiness audit: recheck public `aptuni` name collisions
+   and inspect whether GitHub private vulnerability reporting is enabled. Do not publish, tag,
+   upload packages or mutate repository settings without explicit maintainer authorization.
+3. If hosted CI and read-only release gates are clean, report the remaining maintainer-only actions.
 
 ## Latest validation state
 
@@ -205,9 +207,10 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   explicit ext4 filesystem/concurrency/Vault/backup gate recorded 91 tests plus 11 subtests. The
   supply-chain job retained the frozen evaluation and verified locked audit, reproducible artifacts,
   legal files and a clean-wheel smoke. Review 41 remains **APPROVE WITH NON-BLOCKING NOTES**.
-- Slice 17 daily-task checkpoint: all four frozen host versions passed the synthetic L0 handoff and
-  exact denied-module journey. The full local gate is 459 tests plus 47 subtests; ruff, strict mypy,
-  relay and 34 developer checks are clean. Raw host output and sessions were not persisted.
+- Slice 17 closure: all four frozen host versions passed the synthetic L0 handoff and exact
+  denied-module journey; both Claude versions completed the focused conservative observations.
+  The full local gate is 459 tests plus 47 subtests; ruff, strict mypy, relay and 34 developer checks
+  are clean. Review 48 is **APPROVE**. Raw host output and sessions were not persisted.
 - `.tools/bin/uv run pytest`: 456 passed, 47 subtests passed; `ruff check .` and strict `mypy src`:
   clean (2026-09-20 Slice 14 gate). Backup + Vault focused suites: 84 passed. Review 39 independently
   fault-injected all four restore crash points with fresh state and verified legacy recovery.
