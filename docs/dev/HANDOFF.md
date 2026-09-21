@@ -11,7 +11,7 @@ inventory/purge with atomic chain-preserving restore; digest-bound guided setup 
 smoke; verified owner backup/restore; hosted CI/supply-chain gates; the accepted versioned
 production evaluation harness; four executable post-contract agent skills; and the exact frozen
 Claude/Codex real-host S12 journeys. Slice 17 is complete and Review 48 is **APPROVE**. Public
-`origin/main` remains at `c86e861` until the authorized three-checkpoint push.
+`origin/main` is at `1f14e29`; hosted CI run `35550733889` is green.
 
 ## Read first
 
@@ -21,9 +21,9 @@ Claude/Codex real-host S12 journeys. Slice 17 is complete and Review 48 is **APP
 
 ## Next action
 
-Commit the final Slice 17 checkpoint, push the three local commits to `origin/main`, and verify the
-hosted workflow. Then perform only the read-only release-readiness checks named in `STATE.md`; do not
-publish, tag, upload packages or mutate repository settings without maintainer authorization.
+Await a maintainer decision. Publication, release tagging, package upload and any release
+declaration remain unauthorized. If release work is authorized, repeat the point-in-time package
+name checks immediately before publishing.
 
 `docs/dev/plans/07-m1-exit-matrix.md` audits every remaining M1 exit clause and orders Slices 14–18.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
@@ -35,6 +35,11 @@ Slice 17's daily-task and focused matrices pass on Claude Code 2.1.267/2.1.266 a
 did not emit focused file-tool calls, so no denial is claimed; both Apple Event attempts produced no
 outer effect and status remains `unverified`. Full local gate: 459 tests plus 47 subtests, ruff,
 strict mypy, relay and 34 developer checks clean. Review 48 is **APPROVE**.
+
+The pushed checkpoint passed hosted macOS, Ubuntu (including ext4 durability) and build/supply-chain
+jobs. A 2026-09-21 read-only audit found no `aptuni` package on PyPI or npm, found only
+`ruihaomei/aptuni` as an exact-name GitHub repository, and confirmed private vulnerability reporting
+is enabled. No registry or repository setting was changed.
 
 ## Known constraints
 

@@ -174,22 +174,22 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- Milestone 1 engineering Slices 14–18 are complete. The Slice 17 checkpoint is ready to push and
-  verify in hosted CI; no release publication, tag or package upload is authorized.
+- Milestone 1 engineering Slices 14–18 are complete. The three authorized checkpoints are on
+  `origin/main` at `1f14e29`; hosted CI run `35550733889` passed macOS, Ubuntu/ext4 and build/
+  supply-chain jobs. No release publication, tag or package upload is authorized.
 
 ## Awaiting maintainer decisions
 
 - Publication, release tagging, package upload and any release declaration require maintainer
-  authorization. Private vulnerability reporting and public package-name collision rechecks remain
-  release gates.
+  authorization. The read-only release gates are clean: `aptuni` is unclaimed on PyPI and npm, the
+  project is the only exact-name GitHub repository, and private vulnerability reporting is enabled.
 
 ## Next highest-priority task
 
-1. Push the three local checkpoints authorized for `origin/main`, then verify the hosted workflow.
-2. Perform the read-only Milestone 1 release-readiness audit: recheck public `aptuni` name collisions
-   and inspect whether GitHub private vulnerability reporting is enabled. Do not publish, tag,
-   upload packages or mutate repository settings without explicit maintainer authorization.
-3. If hosted CI and read-only release gates are clean, report the remaining maintainer-only actions.
+1. Await explicit maintainer authorization for any publication, release tag, package upload or
+   release declaration.
+2. If authorization is granted, recheck package-name availability immediately before publication;
+   the 2026-09-21 read-only audit is only a point-in-time result.
 
 ## Latest validation state
 
