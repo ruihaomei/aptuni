@@ -63,3 +63,14 @@ canonical diffs; assert undeclared raw retention and telemetry are absent.
 ### 2026-09-19 — Gate 0 acceptance
 
 Accepted. No spike contradicts it; S01 supports the canonical lifecycle with quarantined proposals. Mem0 (M2) and Graphiti (M3) stay gated by their own admission spikes; verification is an M1 conformance obligation.
+
+### 2026-09-22 — Mem0 2.0.20 conditional admission
+
+S10 admits Mem0 only as a disposable, local derived projection populated from accepted canonical
+records with `infer=False`. Mem0-owned interaction inference is rejected because the exercised path
+retains raw messages in its history store. Record-level `Memory.delete()` is not an Aptuni privacy
+deletion primitive: the adapter must close and remove the entire managed provider root, then rebuild
+the active projection from the Vault. The adapter must force telemetry off before importing Mem0,
+keep every provider path inside one managed root, expose the limitation through capabilities and
+health, and never treat Mem0 enumeration or history as a portable backup. S10 Review 52 is
+**APPROVE WITH NON-BLOCKING NOTES**.

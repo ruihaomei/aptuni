@@ -165,6 +165,14 @@
     "47-m1-real-host-s12-review.md"
    ]
   },
+  "m2-mem0-admission": {
+   "kind": "review",
+   "current": "52-m2-s10-mem0-admission-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "51-m2-s10-mem0-admission-review.md"
+   ]
+  },
   "release": {
    "kind": "review",
    "current": "50-release-final-review.md",

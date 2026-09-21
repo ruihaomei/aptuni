@@ -1,14 +1,14 @@
 # Project State
 
-**Updated:** 2026-09-21
-**Current gate:** Milestone 1 — Portable Personal Context Core (Gate 0 closed 2026-09-19, review 15)
+**Updated:** 2026-09-22
+**Current gate:** Milestone 2 — provider hardening; S10 Mem0 admission complete (Review 52)
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub and MarginNote 4 sources, builtin interaction memory, bilingual SQLite/FTS projection,
 bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profile export, and the
 read-only Plugin Advisor are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -177,9 +177,21 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   inspected the public result and returned **APPROVE**. Exact URLs, hashes and evidence are in
   `docs/dev/releases/0.1.0.md`.
 
+## Implemented (Milestone 2)
+
+- **S10 — Mem0 2.0.20 admission.** The isolated hash-locked harness admits only a disposable local
+  projection populated with accepted canonical records and `infer=False`. Mem0-owned inference is
+  rejected because it retains raw input in history. Record-level `Memory.delete()` leaves bytes in
+  Qdrant/history, so privacy deletion requires closing and removing the entire managed provider root
+  and rebuilding active records from the Vault. Restart, fresh-root rebuild, exact projection
+  equality, canonical-byte isolation, managed-root purge and guarded network paths passed. The
+  focused suite passes 15/15 in the isolated runtime; Review 52 is **APPROVE WITH NON-BLOCKING
+  NOTES**.
+
 ## In progress
 
-- Milestone 1 and its first public release are complete. No release remediation is in progress.
+- Milestone 1 and its first public release are complete. Milestone 2 is open; S10 is complete and
+  the production projection-only Mem0 adapter is the active slice.
 
 ## Awaiting maintainer decisions
 
@@ -187,12 +199,20 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. Open Milestone 2 with its prerequisite Mem0 local privacy/retention/export isolation work from
-   KI-008/S10, starting with an accepted TDD plan and a bounded fixture rather than an adapter.
-2. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
+1. Implement the production Mem0 adapter behind the existing provider-neutral boundary: optional
+   isolated dependency, `infer=False` only, telemetry disabled before import, one managed root,
+   exact canonical metadata, and whole-store remove/rebuild for deletion.
+2. Expose truthful capability/health/purge diagnostics and inject failed add/delete/rebuild paths;
+   never route raw conversations or provider inference through the adapter.
+3. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
 
+- S10 Mem0 admission: 15/15 focused tests pass in the isolated Mem0 2.0.20 runtime; the standard
+  product runtime passes 13 with 2 honest dependency skips. Fresh fixture and Mem0 evidence runs
+  reproduce their checked-in JSON byte-for-byte. Full repository gate: 459 tests plus 47 subtests;
+  Ruff and strict mypy clean. Review 52 independently reproduced the evidence and returned
+  **APPROVE WITH NON-BLOCKING NOTES**.
 - Aptuni 0.1.0 public release: tag workflow 35619712980 and release-commit CI 35572245440 passed.
   Fresh PyPI-only Python 3.13 import/version, CLI, synthetic Vault/search/context/doctor, local-only
   setup plan and MCP health/default-deny/EOF/network-confinement smokes passed. Fresh exact-tag,

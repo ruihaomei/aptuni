@@ -336,3 +336,25 @@ Provider initialization should set `MEM0_TELEMETRY=false` by default. If users o
 ## Recommended planning conclusion
 
 Proceed with `memory-mem0` as a Milestone 2 provider seam and dogfooding option, not an MVP canonical store. In Milestone 1, implement the built-in file/SQLite memory and the provider-neutral contract/export/rebuild tests first. Run M0-1, M0-2 and M0-3 before accepting any Mem0-specific production dependency. The coding-agent adapter may borrow Mem0's focused search tool and local durable queue design, but must use this project's own retention, provenance and consent rules.
+
+## 2026-09-22 S10 admission evidence (Mem0 2.0.20)
+
+The executable S10 harness in `spikes/s10_mem0/` resolved the production boundary more narrowly
+than the earlier source review:
+
+- A fresh-process, telemetry-disabled local run populated exact canonical IDs, scopes, schema
+  versions and current text with `infer=False`; restart and a separate fresh-root rebuild reproduced
+  the exact active projection without changing the canonical fixture bytes.
+- Mem0-owned inference retained the synthetic raw input in `history.db.messages`. Aptuni therefore
+  rejects that path rather than treating local execution as sufficient privacy isolation.
+- A single-record `Memory.delete()` left the tombstoned marker in embedded Qdrant bytes and history.
+  Aptuni deletion must consequently remove the entire managed provider root and rebuild active
+  records from canonical truth.
+- The guarded process observed no non-loopback network attempt across exercised name-resolution,
+  bind, connect and send paths. This is bounded application evidence, not an OS-wide sandbox claim.
+- Public enumeration is not a backup/export contract. Canonical Vault records remain the only
+  portable rebuild input; provider scores, history and embeddings remain disposable.
+
+The decision artifact is `spikes/s10_mem0/results/S10-mem0-2.0.20-result.json`; Review 52 approved
+only this projection-only admission. Production work must retain `infer=False`, managed-root
+confinement, telemetry-off-before-import, exact projection checks and whole-store rebuild deletion.

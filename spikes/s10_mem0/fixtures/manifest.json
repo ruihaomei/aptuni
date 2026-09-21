@@ -1,0 +1,7 @@
+{
+  "fixture": "canonical-v1.json",
+  "fixture_schema_version": 1,
+  "max_bytes": 8192,
+  "max_records": 8,
+  "sha256": "a9fe75576839bea7c3f109d4afa50a55099817d4f8d72400990a6d181c497fd8"
+}

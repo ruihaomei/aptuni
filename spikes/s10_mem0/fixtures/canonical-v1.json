@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "canonical_id": "memory_01JY7W9A0AA000000000000001",
+      "scope": "learning",
+      "status": "active",
+      "current_text": "S10_MARKER_ALPHA prefers compact worked examples",
+      "revisions": [],
+      "updated_at": "2026-09-22T00:00:00Z"
+    },
+    {
+      "canonical_id": "memory_01JY7W9A0AA000000000000002",
+      "scope": "workflow",
+      "status": "active",
+      "current_text": "S10_MARKER_BRAVO_NEW uses review before promotion",
+      "revisions": [
+        "S10_MARKER_BRAVO_OLD used immediate promotion"
+      ],
+      "updated_at": "2026-09-22T00:01:00Z"
+    },
+    {
+      "canonical_id": "memory_01JY7W9A0AA000000000000003",
+      "scope": "workflow",
+      "status": "tombstoned",
+      "current_text": "S10_MARKER_CHARLIE must never be rebuilt",
+      "revisions": [],
+      "updated_at": "2026-09-22T00:02:00Z"
+    }
+  ]
+}

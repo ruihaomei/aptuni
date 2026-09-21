@@ -2,7 +2,6 @@
 
 | ID | Severity | Issue | Disposition |
 |---|---|---|---|
-| KI-008 | Deferred | Mem0 local privacy/retention/export behavior needs isolation testing. | S10 before Milestone 2 adapter. |
 | KI-009 | Deferred | Graphiti projection loses canonical semantics and needs a ledger. | S11 before Milestone 3 adapter. |
 | KI-016 | High | S01 findings F1–F3: whole-Vault revalidation per commit, integrity mismatch blocks all reads, purge needs startup `recover()`. | Mandatory M1.1 Slice 3 requirements (incremental validation + compaction; out-of-band edits → quarantine; recover before serving); fold into ADR-0001/0010 on acceptance. |
 | KI-017 | High | S02 F1: pip RECORD does not hash `.pyc`; a forged bytecode file passes closure verification and executes. | M1.1 sets `sys.pycache_prefix` to a core-owned directory before importing plugins (proven in S02) and adds F2/F3 (manifest placement; lockfile artifact hashes). |
@@ -13,6 +12,12 @@ Resolved issues move to an appended history section; do not silently delete them
 
 ## Resolved history
 
+- **KI-008 (2026-09-22):** S10 isolated Mem0 2.0.20 and conditionally admitted only a disposable
+  local projection populated with `infer=False`. Upstream inference retains raw messages and is
+  rejected. `Memory.delete()` leaves marker bytes in Qdrant/history, so privacy deletion must close
+  and remove the entire provider root and rebuild active records from the canonical Vault. Fresh
+  rebuild, exact projection equality, canonical-byte isolation, guarded network paths and complete
+  managed-root purge passed; focused Review 52 approved the boundary with non-blocking notes.
 - **KI-014 (2026-09-21):** Slice 17 completed the exact frozen Claude Code 2.1.267/2.1.266 and
   Codex 0.155.0/0.154.0 daily-task matrix plus focused Claude file-tool and Apple Event
   observations. The file-tool calls were not emitted, so no denial is claimed; both Apple Event

@@ -1,0 +1,91 @@
+{
+  "checks": {
+    "canonical_unchanged": true,
+    "files_after_reset": 0,
+    "files_before_reset": 6,
+    "lifecycle_event_counts": {
+      "ADD": 3,
+      "DELETE": 1,
+      "UPDATE": 1
+    },
+    "markers_found_after_reset": 0,
+    "markers_found_before_reset": 9,
+    "network_attempts": 0,
+    "network_guard_paths": [
+      "bind",
+      "connect",
+      "connect_ex",
+      "getaddrinfo",
+      "send",
+      "sendall",
+      "sendmsg",
+      "sendto"
+    ],
+    "provider_preloaded_before_network_guard": false,
+    "raw_interaction_persisted": false,
+    "rebuild_projection_matches": true,
+    "restart_projection_matches": true,
+    "telemetry_disabled_before_initialize": true,
+    "unknown_copies": 0
+  },
+  "driver": {
+    "name": "mem0",
+    "version": "2.0.20"
+  },
+  "export": {
+    "lossless": false,
+    "missing_fields": [
+      "canonical_revision_history",
+      "tombstones",
+      "embedding_rebuild_instructions"
+    ],
+    "public_count": 2
+  },
+  "fixture": {
+    "active_count": 2,
+    "record_count": 3,
+    "sha256": "a9fe75576839bea7c3f109d4afa50a55099817d4f8d72400990a6d181c497fd8",
+    "tombstone_count": 1
+  },
+  "raw_retention_probe": {
+    "message_rows": 1,
+    "model_runtime": "deterministic_local_test_double",
+    "network_attempts": 0,
+    "raw_marker_present_after_purge": false,
+    "raw_marker_present_before_purge": true,
+    "verdict": "FAIL_RAW_RETENTION"
+  },
+  "retention": {
+    "after_correction": {
+      "corrected_current": {
+        "current_projection": 1,
+        "history": 1
+      },
+      "corrected_old": {
+        "history": 2
+      }
+    },
+    "after_fresh_rebuild": {
+      "corrected_current": {
+        "current_projection": 1,
+        "history": 1
+      },
+      "corrected_old": {},
+      "tombstoned": {}
+    },
+    "after_tombstone": {
+      "tombstoned": {
+        "current_projection": 1,
+        "history": 2
+      }
+    },
+    "record_delete_removes_all_copies": false,
+    "required_delete_strategy": "whole_store_rebuild"
+  },
+  "runtime": {
+    "python": "3.13.3",
+    "requirements_lock_sha256": "237dd322f395826dfe31ccaa0b88cd40d6e60715a5ac7544d62f483f675991a8"
+  },
+  "schema_version": 1,
+  "verdict": "REJECT_RAW_RETENTION"
+}
