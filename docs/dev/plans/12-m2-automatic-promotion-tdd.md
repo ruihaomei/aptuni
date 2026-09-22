@@ -63,8 +63,8 @@ proof that MCP cannot promote, accept, edit, reject or pin.
 6. `parse_record` accepts `ReviewEvent` v1 and v2, rejects v3, and still rejects v2 for every other
    record type. The error stays `SchemaVersionError` with the migration message.
 7. `actor="policy_auto"` and `decision="pin"` are rejected at v1 and accepted at v2.
-8. Each eligibility rule, failed alone, produces its documented outcome: rule 2 leaves the
-   candidate quarantined and silent; rules 3 and 4 route it to confirmation; rules 1 and 5 fail
+8. Each eligibility rule, failed alone, produces its documented outcome: rule 2 (a host
+   proposal) routes to confirmation; rules 3 and 4 route to confirmation; rules 1 and 5 fail
    closed. All five passing promotes.
 9. "Currently in force" for rule 3 excludes already-revoked memories and superseded facts, so a
    contradiction with a retracted claim does not block promotion.

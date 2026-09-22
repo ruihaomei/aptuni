@@ -7,8 +7,8 @@ import os
 import time
 
 CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
-ID_PREFIXES = ("fct", "evd", "obs", "cnd", "mem", "rev", "src", "pol", "rcp", "led")
-ID_PATTERN = r"^(fct|evd|obs|cnd|mem|rev|src|pol|rcp|led)_[0-9A-HJKMNP-TV-Z]{26}$"
+ID_PREFIXES = ("fct", "evd", "obs", "cnd", "mem", "rev", "src", "pol", "rcp", "led", "rvp")
+ID_PATTERN = r"^(fct|evd|obs|cnd|mem|rev|src|pol|rcp|led|rvp)_[0-9A-HJKMNP-TV-Z]{26}$"
 DIGEST_PATTERN = r"^sha256:[0-9a-f]{64}$"
 
 

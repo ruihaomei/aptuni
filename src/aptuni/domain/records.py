@@ -199,17 +199,45 @@ class Memory(Envelope):
 
 
 class ReviewEvent(Frozen):
+    """An append-only review decision (ADR-0011, extended by ADR-0018).
+
+    `target_id` is the *candidate* id for `accept`/`reject`/`promote` on a proposal, and the
+    *memory* id for `accept`/`reject`/`revoke`/`pin` on an existing Memory (ADR-0018 §2b).
+    """
+
     record_type: Literal["review_event"]
     id: RecordId
-    schema_version: Literal[1]
+    schema_version: Literal[1, 2]
     recorded_at: AwareDatetime
     target_id: RecordId
-    decision: Literal["accept", "reject", "revoke", "promote"]
-    actor: Literal["user_cli"]
+    decision: Literal["accept", "reject", "revoke", "promote", "pin"]
+    actor: Literal["user_cli", "policy_auto"]
     action_digest: Digest
     policy_epoch: int = Field(ge=0)
     rationale_code: str = Field(pattern=r"^[a-z_]+$")
     nonce_id: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _version_gates_new_values(self) -> ReviewEvent:
+        """`policy_auto` and `pin` exist only at v2, so a v1 reader never sees them (ADR-0018 §7)."""
+        if self.schema_version < 2 and (self.actor == "policy_auto" or self.decision == "pin"):
+            raise ValueError("actor 'policy_auto' and decision 'pin' require review_event schema_version 2")
+        return self
+
+
+class ReviewPolicy(Frozen):
+    """How eagerly Aptuni promotes, and how gently it reminds (ADR-0018 §2, §6)."""
+
+    record_type: Literal["review_policy"]
+    id: RecordId
+    schema_version: Literal[1]
+    recorded_at: AwareDatetime
+    epoch: int = Field(ge=0)
+    auto_promotion_enabled: bool = True
+    sensitive_modules: tuple[Module, ...] = ("identity", "relationships", "behavior")
+    pending_threshold: int = Field(default=10, ge=1, le=10_000)
+    interval_days: int = Field(default=15, ge=1, le=3650)
+    snooze_days: int = Field(default=15, ge=1, le=3650)
 
 
 class AuthorityPolicy(Frozen):
@@ -250,18 +278,32 @@ class ModulePolicy(Frozen):
         return self
 
 
-CanonicalRecord = Evidence | Fact | Observation | CandidateMemory | Memory | ReviewEvent | SourceConfig | ModulePolicy
+CanonicalRecord = (Evidence | Fact | Observation | CandidateMemory | Memory | ReviewEvent
+                   | SourceConfig | ModulePolicy | ReviewPolicy)
 _RECORD_ADAPTER: TypeAdapter[CanonicalRecord] = TypeAdapter(
     Annotated[CanonicalRecord, Field(discriminator="record_type")]
 )
 
 
+#: Versions this build can read, per record type. Only ``review_event`` has ever needed a second
+#: version (ADR-0018 §7); bumping one type does not rewrite the version of any other.
+SUPPORTED_SCHEMA_VERSIONS: dict[str, tuple[int, ...]] = {"review_event": (1, 2)}
+
+
+def supported_versions(record_type: Any) -> tuple[int, ...]:
+    if not isinstance(record_type, str):
+        return (SCHEMA_VERSION,)
+    return SUPPORTED_SCHEMA_VERSIONS.get(record_type, (SCHEMA_VERSION,))
+
+
 def parse_record(raw: dict[str, Any]) -> CanonicalRecord:
-    """Validate one raw record; unknown schema versions raise ``SchemaVersionError``."""
+    """Validate one raw record; unsupported schema versions raise ``SchemaVersionError``."""
     version = raw.get("schema_version")
-    if type(version) is not int or version != SCHEMA_VERSION:
+    allowed = supported_versions(raw.get("record_type"))
+    if type(version) is not int or version not in allowed:
+        supported = ", ".join(str(value) for value in allowed)
         raise SchemaVersionError(
-            f"unsupported schema_version {version!r} (supported: {SCHEMA_VERSION}); "
+            f"unsupported schema_version {version!r} (supported: {supported}); "
             "run the documented migration instead of loading this record"
         )
     return _RECORD_ADAPTER.validate_python(raw)

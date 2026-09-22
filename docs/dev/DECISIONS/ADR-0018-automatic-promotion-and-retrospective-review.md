@@ -45,8 +45,19 @@ policy evaluated over canonical records, never a source, a model, or a host.
 ### 2. Eligibility (all must hold)
 
 1. The candidate's module has `ingest_enabled`.
-2. **Stability.** The candidate is supported by at least two distinct Observations, or by one
-   Observation whose trust is `user_declared` and whose origin is `cli`.
+2. **Stability.** Every supporting Observation has `trust="user_declared"` and episode `cli` —
+   that is, the owner said it themselves. A candidate supported by any `host_proposal`
+   Observation is never auto-promoted and keeps the ADR-0013 confirmation.
+
+   The first draft of this rule said "at least two distinct Observations, or one
+   `user_declared` CLI Observation". Implementation showed the first branch is unreachable:
+   `observe()` is idempotent on `(episode, module, about, statement)`, so repeating a statement
+   returns the *existing* candidate instead of adding a second supporting Observation, and
+   `derived_from` is always a single id. Corroboration across episodes would need `observe()` to
+   link a repeat into the existing candidate and supersede it — a change to a path that Reviews 26
+   and 28 hardened, and a separate decision. Until then the rule names only what the system can
+   actually express. The effect is the one the maintainer asked for: the owner's own `aptuni
+   observe` stops costing a confirmation, while the untrusted host path keeps its guard.
 3. **No contradiction.** The candidate does not `contradict` any Memory or Fact that is currently
    in force.
 4. **Not sensitive.** The candidate's module is not in the configured sensitive set
@@ -149,8 +160,10 @@ promotion runs inside the `observe`/`sync` commit path, not through an approval 
   the reminder. The revocation-rule change in §4 touches shipped code paths, including ones added
   the same day, so it is the highest-risk part of this ADR and needs explicit regressions. A Vault
   written after this change cannot be read by 0.1.0.
-- **Follow-ups:** the Obsidian review interface consumes this state machine and is deliberately
-  *not* designed here. Per-module promotion thresholds, and promotion of Memory into Fact (this ADR
+- **Follow-ups:** corroboration linking, so a statement observed in two different episodes
+  strengthens one candidate instead of creating two, which would let a repeated host proposal
+  become stable (see rule 2). The Obsidian review interface consumes this state machine and is
+  deliberately *not* designed here. Per-module promotion thresholds, and promotion of Memory into Fact (this ADR
   covers Candidate into Memory), are separate decisions.
 
 ## Verification
