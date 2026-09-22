@@ -52,7 +52,7 @@ from aptuni.application.restore import (
     load_restore_preview,
     pending_restores,
 )
-from aptuni.application.review_commands import ReviewCommands
+from aptuni.application.review_commands import ReviewCommands, ReviewReminder
 from aptuni.application.source_commands import SourceCommands
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
@@ -71,7 +71,7 @@ from aptuni.domain.temporal import utc_now
 from aptuni.memory.mem0_local import create_local_mem0_client
 from aptuni.memory.provider import Mem0Projection
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
-from aptuni.policy.promotion import review_state_of
+from aptuni.policy.promotion import pending_review_memories, review_policy_of, review_state_of
 from aptuni.retrieval.hybrid import reciprocal_rank_fusion
 from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SearchRow, SqliteProjection, documents_for
 from aptuni.vault.fsgate import UnsupportedFilesystemError
@@ -113,6 +113,15 @@ class HostContextAccess:
     modules: frozenset[str]
     host_class: Literal["remote_unknown", "proven_local"]
     host_model_egress: bool
+
+
+@dataclass(frozen=True)
+class MemoryReviewFeed:
+    """One stable, permission-filtered MCP view of retrospective review state."""
+
+    context: ContextResponse
+    pending: int
+    reminder: ReviewReminder
 
 
 class AptuniService(SourceCommands, MemoryCommands, ReviewCommands):
@@ -533,6 +542,51 @@ class AptuniService(SourceCommands, MemoryCommands, ReviewCommands):
             if self.snapshot()[0] == seq:
                 return response
         raise AptuniError("concurrent_write", "The Vault kept changing during context creation; run it again.")
+
+    def memory_review_feed(
+        self,
+        *,
+        budget: int = 1500,
+        limit: int = 20,
+        access: HostContextAccess | None = None,
+    ) -> MemoryReviewFeed:
+        """Return the pending retrospective-review set without exposing owner decision methods.
+
+        The queue and reminder are filtered to the grant's modules and the current exposure policy.
+        A final sequence check makes a concurrent policy change discard the entire response.
+        """
+        self._check_context_request(budget, "host_mcp", limit)
+        granted_modules = tuple(sorted(access.modules)) if access is not None else ()
+        self._authorize_host(access, scope="memory.review.read", modules=granted_modules)
+        for _ in range(3):
+            seq, records = self.snapshot()
+            exposable = {record.id for record in records.exposable()}
+            waiting = sorted(
+                (
+                    memory for memory in pending_review_memories(records)
+                    if memory.id in exposable and memory.module in granted_modules
+                ),
+                key=lambda memory: (memory.recorded_at, memory.id),
+            )
+            policy = self.policy_of(records)
+            review_policy = review_policy_of(records)
+            candidates = tuple(
+                record_unit(memory, review_state_of(memory, records))
+                for memory in waiting[:limit]
+            )
+            packed = pack_units(candidates, budget)
+            response = response_from(
+                packed,
+                budget=budget,
+                vault_seq=seq,
+                policy_epoch=policy.epoch,
+                more_results=len(waiting) > limit,
+                audience="host_mcp",
+            )
+            reminder = self._review_reminder_for(waiting, review_policy)
+            if self.snapshot()[0] == seq:
+                return MemoryReviewFeed(response, len(waiting), reminder)
+        raise AptuniError("concurrent_write", "The Vault kept changing during review read; run it again.")
 
     # ---------------------------------------------------------------- commands
     def remember(self, statement: str, module: str, valid_from: str | None = None,

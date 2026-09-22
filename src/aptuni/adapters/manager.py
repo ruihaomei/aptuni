@@ -36,7 +36,7 @@ def host_disclosure(host: str) -> dict[str, str]:
     if host not in OPERATOR:
         raise AptuniError("unknown_host", "Choose claude or codex.")
     return {"operator": OPERATOR[host], "destination": DESTINATION[host], "retention": RETENTION}
-SCOPES = ("identity.read", "context.read", "evidence.read")
+SCOPES = ("identity.read", "context.read", "evidence.read", "memory.review.read")
 PROPOSE_SCOPE = "memory.propose"  # quarantined proposals only; approval stays in the owner's terminal
 
 

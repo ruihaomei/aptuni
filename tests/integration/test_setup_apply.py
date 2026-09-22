@@ -386,7 +386,8 @@ def test_b2_the_confirmation_discloses_operator_destination_and_retention(
     assert "OpenAI" in out, "the operator receiving personal context must be named"
     assert "Codex configured model endpoint" in out
     assert "externally_controlled_unknown" in out
-    assert "3 scopes" in out
+    assert "4 scopes" in out
+    assert "memory.review.read" in out
     assert "identity.read, context.read, evidence.read" in out
     assert "Vault, sources, and evidence remain" in out
 

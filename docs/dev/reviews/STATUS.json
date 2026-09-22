@@ -134,9 +134,11 @@
   },
   "m2-automatic-promotion": {
    "kind": "review",
-   "current": "56-m2-automatic-promotion-review.md",
+   "current": "57-m2-automatic-promotion-slice-d-review.md",
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-   "supersedes": []
+   "supersedes": [
+    "56-m2-automatic-promotion-review.md"
+   ]
   },
   "m2-hybrid-retrieval": {
    "kind": "review",

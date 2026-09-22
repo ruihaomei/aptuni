@@ -103,6 +103,28 @@ def create_server(
             raise ToolError(error.code) from error
         return _context_json(response)
 
+    @server.tool(name="aptuni_get_memory_review", annotations=READ_ONLY)
+    def get_memory_review(
+        max_units: Annotated[int, Field(ge=32, le=100_000)] = 1500,
+        limit: Annotated[int, Field(ge=1, le=100)] = 20,
+    ) -> dict[str, object]:
+        """Return the bounded pending retrospective-review set and reminder state."""
+        try:
+            feed = application.memory_review_feed(budget=max_units, limit=limit, access=access)
+        except AptuniError as error:
+            raise ToolError(error.code) from error
+        reminder = feed.reminder
+        return _context_json(feed.context) | {
+            "pending": feed.pending,
+            "reminder": {
+                "pending": reminder.pending,
+                "due": reminder.due,
+                "reason": reminder.reason,
+                "threshold": reminder.threshold,
+                "next_due_at": reminder.next_due_at.isoformat() if reminder.next_due_at else None,
+            },
+        }
+
     @server.tool(name="aptuni_propose_memory", annotations=PROPOSE)
     def propose_memory(
         statement: Annotated[str, Field(min_length=1, max_length=280)],

@@ -211,9 +211,24 @@ class ReviewCommands:
         which measures how long the *oldest pending memory* has been waiting rather than how long
         since some last notification: there is nothing to remind about before anything is pending.
         """
+        return self._review_reminder_for(
+            self.review_pending(), self.review_policy(), now=now, waiting_since=waiting_since,
+        )
+
+    def _review_reminder_for(
+        self,
+        waiting: Sequence[Any],
+        policy: ReviewPolicy,
+        *,
+        now: datetime | None = None,
+        waiting_since: datetime | None = None,
+    ) -> ReviewReminder:
+        """Apply the reminder policy to an already permission-filtered pending set.
+
+        Owner reads pass the complete set. MCP reads pass only records visible to that principal,
+        so neither the count nor the due state leaks a hidden module through reminder metadata.
+        """
         now = now or utc_now()
-        policy = self.review_policy()
-        waiting = self.review_pending()
         suppressed = self._suppressed_until()
         oldest = waiting_since or min((m.recorded_at for m in waiting), default=None)
         interval_due = oldest + timedelta(days=policy.interval_days) if oldest else None
