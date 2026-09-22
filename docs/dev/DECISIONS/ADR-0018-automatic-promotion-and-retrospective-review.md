@@ -124,10 +124,17 @@ Over a Memory, from the CLI and (read plus propose only) from MCP:
 A new canonical `ReviewPolicy` record holds `auto_promotion_enabled` (default true),
 `sensitive_modules`, `pending_threshold` (default 10), `interval_days` (default 15) and
 `snooze_days` (default 15). A reminder is *due* when the pending count reaches the threshold, or
-when `interval_days` have passed since the last reminder was shown or snoozed — whichever comes
-first. Pinned memories never count. A reminder is a line in `aptuni status` and `aptuni doctor` and
-a dedicated `aptuni review reminders`; it is never a blocking prompt, and `aptuni review snooze`
-defers it by `snooze_days`.
+when `interval_days` have passed since the **oldest pending memory** was promoted. Pinned memories
+never count. A reminder is a line in `aptuni status` and `aptuni doctor` and a dedicated
+`aptuni memory review reminders`; it is never a blocking prompt, and `aptuni memory review snooze`
+defers it by `snooze_days`, with `aptuni memory review snooze --clear` to undo that.
+
+Two clarifications from implementation. The interval is measured from the oldest pending memory
+rather than from "the last reminder shown", because before anything is pending there is nothing to
+remind about and no sensible clock to start. And a snooze is checked *before* the threshold, so
+deferring a reminder defers it whatever triggered it — otherwise a queue that keeps growing would
+nag straight through the snooze the owner just asked for. The commands live under `memory` because
+top-level `aptuni review` already means "resolve held source changes".
 
 ### 7. Schema versioning: per-record-type, no data migration
 
@@ -137,7 +144,10 @@ rewritten. `parse_record` resolves the allowed versions per `record_type` instea
 global constant.
 
 An Aptuni 0.1.0 install reading a Vault that contains a v2 `ReviewEvent` therefore raises the
-existing `SchemaVersionError`, whose message already says to run the documented migration. That is
+existing `SchemaVersionError`, whose message already says to run the documented migration. The new
+`review_policy` record type does **not** get that clean signal: it passes 0.1.0's version gate and
+fails in the discriminated union as an ordinary validation error. Reserving unknown `record_type`
+for `SchemaVersionError` is a follow-up; the failure is still closed, just less legible. That is
 a clean fail-closed signal rather than a pydantic validation crash, and it is why this is preferred
 over widening the v1 literal in place. A global `SCHEMA_VERSION` bump was rejected: it would rewrite
 the version of every record type for a change that affects one.

@@ -27,6 +27,7 @@ REPO = Path(__file__).resolve().parents[2]
 def _service(tmp_path: Path) -> AptuniService:
     service = AptuniService(Workspace(tmp_path / "state"))
     service.init(tmp_path / "Aptuni")
+    service.set_review_policy(auto_promotion_enabled=False)  # ADR-0018: this suite freezes a pending candidate decision
     return service
 
 

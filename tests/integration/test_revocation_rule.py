@@ -33,8 +33,7 @@ def service(tmp_path: Path) -> AptuniService:
 
 def _accepted_memory(service: AptuniService, statement: str, module: str = "knowledge") -> str:
     proposal = service.observe(statement, module)
-    preview = service.memory_preview(proposal.candidate_id)
-    memory_id = service.decide_memory(proposal.candidate_id, "accept", preview.digest("accept"))
+    memory_id = proposal.memory_id  # ADR-0018: an owner observation is promoted on the spot
     assert memory_id is not None
     return memory_id
 
@@ -161,6 +160,7 @@ def test_the_hybrid_semantic_lane_uses_the_same_revoked_set_as_the_service(
 
 def test_candidate_decisions_keep_their_current_meaning(service: AptuniService) -> None:
     """Splitting the rule must not change what 'this candidate is still pending' means."""
+    service.set_review_policy(auto_promotion_enabled=False)  # this is about the confirmation path
     first = service.observe("Prefers reproducible experiment pipelines.", "knowledge")
     second = service.observe("Prefers written design notes.", "knowledge")
     assert {p.candidate_id for p in service.pending_memories()} == {first.candidate_id, second.candidate_id}
@@ -171,3 +171,21 @@ def test_candidate_decisions_keep_their_current_meaning(service: AptuniService) 
     service.decide_memory(second.candidate_id, "reject", rejected.digest("reject"))
 
     assert service.pending_memories() == []
+
+
+def test_a_purge_scope_includes_accept_and_pin_events_on_the_memory(
+    service: AptuniService, tmp_path: Path,
+) -> None:
+    """ADR-0018 §4 asks for a regression per consumer; the purge scope had none (Review 56 N6)."""
+    promoted = service.observe("Prefers reproducible experiment pipelines.", "knowledge")
+    service.review_memory(promoted.memory_id, "pin")
+    service.review_memory(promoted.memory_id, "accept")
+
+    preview = service.privacy_purge_preview((promoted.memory_id,))
+
+    scoped = set(preview.record_ids)
+    events = [r for r in service.records().records()
+              if r.record_type == "review_event" and r.target_id == promoted.memory_id]
+    assert len(events) == 2
+    assert {e.id for e in events} <= scoped, "a purge must take the decisions with the memory"
+    assert promoted.memory_id in scoped

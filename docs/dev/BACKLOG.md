@@ -41,3 +41,6 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Obsidian: add an `obsidian://` deep link to `_open_url` so vault evidence can be opened in Obsidian | Review 55 N11 | Obsidian follow-up |
 | A note or file that vanishes mid-walk raises an unwrapped `FileNotFoundError` from `path.stat()`; pre-existing in `folder.py` and shared by `obsidian.py` | Review 55 N12 | Source hardening |
 | Folder/GitHub `_observe`-equivalent reads are not descriptor-relative the way Obsidian's now is; a parent-directory symlink swap remains possible for all three | Review 55 N2 | Source hardening |
+| Automatic promotion: direct tests for a promotion racing a module-policy change, and for crash-replay idempotence beyond the same-statement case | Review 56 N8 | M2 promotion |
+| Reserve an unknown `record_type` for `SchemaVersionError` so a newer record type fails legibly on an older install instead of as a pydantic validation error | Review 56 N4 | Schema compatibility |
+| Corroboration linking so a statement observed in two episodes strengthens one candidate instead of creating two, which would let a repeated host proposal become stable | ADR-0018 rule 2 follow-up | M2 promotion |

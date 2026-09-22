@@ -30,17 +30,18 @@ def service(tmp_path: Path) -> AptuniService:
 
 def _accept(app: AptuniService, statement: str) -> str:
     proposal = app.observe(statement, "preferences")
-    preview = app.memory_preview(proposal.candidate_id)
-    memory_id = app.decide_memory(proposal.candidate_id, "accept", preview.digest("accept"))
+    memory_id = proposal.memory_id  # ADR-0018: an owner observation is promoted on the spot
     assert memory_id is not None
     return memory_id
 
 
 def test_export_is_current_private_and_readable(service: AptuniService, tmp_path: Path) -> None:
     service.remember("Likes **derivations** <script>.", "preferences")
-    service.set_module("preferences", expose=False)
+    # The memories exist first: ADR-0018 deliberately refuses to promote into a hidden module, and
+    # this test is about exporting one that was hidden afterwards.
     kept = _accept(service, "Prefers equations before library calls.")
     forgotten = _accept(service, "Temporary preference that should disappear.")
+    service.set_module("preferences", expose=False)
     forget = service.memory_forget_preview(forgotten)
     service.forget_memory_confirmed(forgotten, forget.digest())
     service.observe("Pending proposal that must remain quarantined.", "preferences")

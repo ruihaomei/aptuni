@@ -100,13 +100,14 @@ class RecordSet:
     def _check_memory_lifecycle(self, checked: list[Any]) -> None:
         reviews = self._of_type("review_event")
         for memory in (r for r in checked if r.record_type == "memory"):
-            accepted = any(
-                e.decision == "accept" and e.target_id == memory.candidate_id
+            # ADR-0018: a policy promotion admits a memory exactly as an owner acceptance does.
+            admitted = any(
+                e.decision in ("accept", "promote") and e.target_id == memory.candidate_id
                 and e.recorded_at <= memory.recorded_at
                 for e in reviews
             )
-            if not accepted:
-                raise InvariantError(f"{memory.id} has no prior accept review for its candidate")
+            if not admitted:
+                raise InvariantError(f"{memory.id} has no prior accept or promote review for its candidate")
             if self._by_id[memory.candidate_id].record_type != "candidate_memory":
                 raise InvariantError(f"{memory.id} candidate_id is not a candidate_memory")
         for candidate in (r for r in checked if r.record_type == "candidate_memory"):
@@ -211,7 +212,7 @@ class RecordSet:
         superseded = self._superseding_kinds(known)
         reviews = [r for r in known if r.record_type == "review_event"]
         withdrawn = {e.target_id for e in reviews if e.decision in ("reject", "revoke")}
-        accepted = {e.target_id for e in reviews if e.decision == "accept"}
+        accepted = {e.target_id for e in reviews if e.decision in ("accept", "promote")}
         result = []
         for record in known:
             if record.record_type not in EXPOSABLE_TYPES or record.id in superseded or record.id in withdrawn:

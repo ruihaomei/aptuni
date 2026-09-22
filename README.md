@@ -206,6 +206,35 @@ excerpted — as it would from any source.) Links and
 tags inside code blocks are not treated as structure, and unusual frontmatter is reported rather
 than guessed at. See `docs/dev/DECISIONS/ADR-0017-obsidian-vault-source.md`.
 
+## It learns without interrupting you
+
+Telling Aptuni something about yourself does not open a queue you have to work through:
+
+```sh
+aptuni observe "Prefers deterministic reproducible experiment pipelines." --module knowledge
+# Noted and in use as mem_… — Aptuni added this on its own because you said it yourself.
+```
+
+The memory is active immediately, and it is marked as one Aptuni added on its own. You review it
+when you feel like it, not before it counts:
+
+```sh
+aptuni memory review list                  # what Aptuni learned on its own
+aptuni memory review accept  MEMORY_ID     # keep it
+aptuni memory review edit    MEMORY_ID "…" # correct it; the original stays in your history
+aptuni memory review reject  MEMORY_ID     # stop using it
+aptuni memory review pin     MEMORY_ID     # keep it and stop reminding me about it
+```
+
+Three things are still **asked before** they take effect, not after: anything an agent proposes
+rather than you, anything in a sensitive module (`identity`, `relationships`, `behavior` by
+default), and anything that contradicts a record still standing. Those keep the typed confirmation.
+
+Reminders are a line of text, never a prompt — by default when ten are waiting or after fifteen
+days, whichever comes first, and `aptuni memory review snooze` defers it. Turn the whole thing off
+with `aptuni memory review policy --auto-promotion off`. See
+`docs/dev/DECISIONS/ADR-0018-automatic-promotion-and-retrospective-review.md`.
+
 ## Backups you can actually restore
 
 `aptuni export` writes a readable copy of your current Profile. It is for reading, and it cannot be

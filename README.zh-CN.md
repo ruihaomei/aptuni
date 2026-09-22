@@ -190,6 +190,33 @@ aptuni evidence --source SOURCE_ID
 不常见的 frontmatter 会被如实报告而不是猜测。详见
 `docs/dev/DECISIONS/ADR-0017-obsidian-vault-source.md`。
 
+## 它会自己学习，而不打断你
+
+把关于你自己的事情告诉 Aptuni，不会因此多出一个必须逐条处理的队列：
+
+```sh
+aptuni observe "偏好确定性可复现的实验流水线。" --module knowledge
+# 已记录并立即生效：mem_… —— 因为这是你自己说的，Aptuni 直接采用了它。
+```
+
+这条记忆立刻生效，并被标记为“Aptuni 自行添加”。你可以在方便的时候再回头审阅，而不必在它生效前审阅：
+
+```sh
+aptuni memory review list                  # 查看 Aptuni 自行学到的内容
+aptuni memory review accept  MEMORY_ID     # 保留
+aptuni memory review edit    MEMORY_ID "…" # 修正；原记录保留在历史中
+aptuni memory review reject  MEMORY_ID     # 停止使用
+aptuni memory review pin     MEMORY_ID     # 保留，并不再提醒
+```
+
+有三类情况仍然**先询问再生效**：由智能体而非你本人提出的内容、敏感模块（默认为 `identity`、
+`relationships`、`behavior`）中的内容，以及与仍然有效的记录相互矛盾的内容。它们保留输入确认的流程。
+
+提醒只是一行文字，不是弹窗——默认在积压十条或满十五天时出现（以先到者为准），
+`aptuni memory review snooze` 可以推迟。用
+`aptuni memory review policy --auto-promotion off` 可以完全关闭该功能。详见
+`docs/dev/DECISIONS/ADR-0018-automatic-promotion-and-retrospective-review.md`。
+
 ## 真正能恢复的备份
 
 `aptuni export` 写出的是当前 Profile 的可读副本，它用于阅读，无法用于恢复。可恢复的副本是备份：

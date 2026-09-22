@@ -20,6 +20,15 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- **Automatic promotion (ADR-0018).** An observation you make yourself through the CLI now becomes
+  an active memory immediately instead of waiting in a review queue. It is marked
+  `auto_promoted_pending_review` and reviewed retrospectively with
+  `aptuni memory review list|accept|edit|reject|pin`. Host proposals, sensitive modules
+  (`identity`, `relationships`, `behavior`) and anything contradicting a record still standing keep
+  the typed confirmation. Reminders default to ten pending or fifteen days and are never blocking;
+  `aptuni memory review policy --auto-promotion off` restores the old behaviour. `ReviewEvent`
+  gains schema version 2, so a Vault written after this change cannot be read by 0.1.0.
+- `aptuni memory list` no longer shows a memory that a correction has replaced.
 - `aptuni evidence` and `aptuni source add-folder` now render source paths as bounded, escaped,
   delimited data rather than raw terminal text, so a crafted filename cannot forge an output row.
   The `--json` output of both commands is unchanged.

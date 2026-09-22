@@ -1,14 +1,14 @@
 # Project State
 
 **Updated:** 2026-09-22
-**Current gate:** Milestone 2 — Obsidian source complete (Review 55); GitHub Deep mode next
+**Current gate:** Milestone 2 — automatic promotion slices A–C complete (Review 56); slice D (MCP read surface) next
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub and MarginNote 4 sources, builtin interaction memory, bilingual SQLite/FTS projection,
 bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profile export, and the
 read-only Plugin Advisor are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -229,12 +229,33 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   evidence row; and the plugin manifest denied reading note bodies while storing an indexed
   280-character body excerpt. All three were remediated test-first with mutation-verified
   regressions, and the final verdict is **APPROVE WITH NON-BLOCKING NOTES**.
+- **Automatic promotion and retrospective review, slices A–C (runnable).** An observation the owner
+  makes through the CLI now becomes an active memory in the same commit instead of waiting for a
+  confirmation. It is marked `auto_promoted_pending_review` — derived from the ledger, not stored —
+  and reviewed afterwards with `aptuni memory review list|accept|edit|reject|pin`. Host proposals,
+  sensitive modules (`identity`, `relationships`, `behavior`) and anything contradicting a record
+  still standing keep the ADR-0013 confirmation; a module that cannot ingest or cannot expose is
+  denied outright rather than asked about. Reminders are a line in `status`, `doctor` and
+  `aptuni memory review reminders`, never a prompt, defaulting to ten pending or fifteen days from
+  the oldest pending memory, with `snooze` and `snooze --clear`.
+  `aptuni memory review policy --auto-promotion off` restores the old behaviour entirely.
+  Slice A corrected a shared derivation first: "revoked" was "any review event targeting a memory",
+  which would have silently hidden memories from four subsystems once `accept`/`pin` could target
+  one. `ReviewEvent` gains schema v2 (`policy_auto`, `pin`) resolved per record type, so no
+  existing record migrates and a 0.1.0 install fails closed with `SchemaVersionError`. ADR-0018 is
+  accepted. Review 56 returned **BLOCK** on six findings — a superseded memory left in the Profile
+  export, non-idempotent decisions on a pinned memory, a reminder marker that could crash or
+  silence reminders forever, the reminder missing from `status`/`doctor`, no `review_state` in the
+  Context API, and `edit` ignoring `ingest_enabled` — all remediated test-first, and the final
+  verdict is **APPROVE WITH NON-BLOCKING NOTES**. Slice D (the MCP read surface and the ADR-0013
+  item 1 regression) is **not implemented**.
 
 ## In progress
 
 - Milestone 1 and its first public release are complete. Milestone 2 is open; S10, the Mem0
-  projection preview, the opt-in hybrid retrieval preview and the Obsidian vault source are
-  complete. GitHub Deep mode is the next active slice.
+  projection preview, the opt-in hybrid retrieval preview, the Obsidian vault source and slices
+  A–C of automatic promotion are complete. Slice D of automatic promotion is the next active
+  slice, with GitHub Deep mode queued behind it.
 
 ## Awaiting maintainer decisions
 
@@ -242,22 +263,38 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. Open the GitHub Deep mode slice from the M2 roadmap with an accepted bounded TDD plan. Standard
-   mode (`0190cf6`, Review 18 APPROVE) is the contract to extend, not replace; decide and record
-   what Deep mode reads beyond bounded text/code scope, and what new rate-limit, size and
-   truncation bounds it needs before writing code.
-2. Two review lessons from the Obsidian slice apply to any new provider: write injection tests with
-   **real** control bytes (the literal text of an escape sequence proves nothing), and make every
-   owner-facing token that comes from outside the core pass through `sanitize_token` or
-   `delimited_untrusted` at the point it is stored or rendered.
-3. Keep every source read-only, keep `ingest_enabled`/`expose_enabled` independent, and emit
+1. Finish automatic promotion with slice D from `docs/dev/plans/12-m2-automatic-promotion-tdd.md`:
+   the MCP read surface for the pending set and the reminder state under an exact read scope, plus
+   the negative regression proving the approve/commit service is unreachable from any MCP handler
+   (ADR-0013 item 1). The reviewer verified by inspection that MCP cannot promote today and a
+   structural gate now keeps that true, but the regression that pins it is still owed.
+2. Then open GitHub Deep mode with an accepted bounded TDD plan. Standard mode (`0190cf6`,
+   Review 18 APPROVE) is the contract to extend, not replace. The maintainer has already fixed the
+   scope: "Standard tells Aptuni what the repository contains; Deep tells Aptuni what the user
+   actually contributed" — the owner's authored activity (commits, pull requests, reviews), and
+   *not* issue/discussion threads, full-history file lifecycle or cross-repo account signals, each
+   of which needs its own decision.
+3. Review lessons that carry forward: write injection tests with **real** control bytes (the
+   literal text of an escape sequence proves nothing); route every outside-controlled token through
+   `sanitize_token` where stored or `delimited_untrusted` where rendered; and when a rule about
+   "current records" changes, check *every* view of it — Review 56 found the same supersession gap
+   in export, the Mem0 projection and the repeat-observation path after `memories()` was fixed.
+4. Keep every source read-only, keep `ingest_enabled`/`expose_enabled` independent, and emit
    minimized Evidence through the common snapshot/delta pipeline with crash/replay coverage.
-4. Do not add a remote model or embedding key to any default path; keep provider scores derived and
+5. Do not add a remote model or embedding key to any default path; keep provider scores derived and
    policy-check every hydrated result.
-5. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
+6. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
 
+- Automatic promotion slices A–C: full repository gate 598 passed, 3 optional-runtime skips and 47
+  subtests; Ruff, strict mypy (74 source files), relay and the notices/secrets/workflow
+  supply-chain checks clean; the frozen evaluation passes with unchanged metrics. CLI dogfood:
+  `observe` reports the memory as already in use and names the undo command, `status` and `doctor`
+  both show the reminder when due and fall silent after `snooze` until `snooze --clear`, `edit`
+  leaves exactly the correction in `memory list`, and `--auto-promotion off` restores the
+  confirmation path. Review 56 is **APPROVE WITH NON-BLOCKING NOTES** after six remediated
+  blockers.
 - Obsidian vault source: full repository gate 542 passed, 3 optional-runtime skips and 47 subtests;
   Ruff, strict mypy (72 source files), relay and the notices/secrets/workflow supply-chain checks
   clean; the frozen evaluation still passes with unchanged lexical and hybrid metrics. Three

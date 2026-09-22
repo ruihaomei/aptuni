@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
@@ -18,7 +18,9 @@ approved the boundary with non-blocking notes. The rebuild-only production previ
 Review 53 approved it with non-blocking notes. The opt-in hybrid retrieval preview is now runnable
 and Review 54 approved it with non-blocking notes and no blocking findings. The Obsidian vault
 source is runnable; Review 55 blocked on three findings, all remediated test-first, and then
-approved with non-blocking notes.
+approved with non-blocking notes. Automatic promotion slices A–C are runnable; Review 56
+blocked on six findings, all remediated test-first, and then approved with non-blocking notes.
+Slice D of that plan — the MCP read surface — is **not implemented**.
 
 ## Read first
 
@@ -28,7 +30,12 @@ approved with non-blocking notes.
 
 ## Next action
 
-Open the GitHub Deep mode slice from the M2 roadmap (`ROADMAP.md` M2 order: Mem0 adapter -> hybrid
+Finish automatic promotion with slice D of `docs/dev/plans/12-m2-automatic-promotion-tdd.md`: the
+MCP read surface for the pending set and the reminder under an exact read scope, plus the negative
+regression proving the approve/commit service is unreachable from any MCP handler (ADR-0013
+item 1). Review 56 verified by inspection that MCP cannot promote and a structural gate now keeps
+that true, but the regression that pins it is owed. Then open the GitHub Deep mode slice from the
+M2 roadmap (`ROADMAP.md` M2 order: Mem0 adapter -> hybrid
 retrieval -> Obsidian source/interface -> GitHub Deep mode; the source half of Obsidian is done and
 `interface.obsidian`, the in-Obsidian review UI, remains a separate planned plugin). Start with an
 accepted bounded TDD plan: Standard mode (`0190cf6`, Review 18 APPROVE) is the contract to extend,
@@ -45,6 +52,26 @@ concrete public defect requires a patch release.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
+
+Automatic promotion (ADR-0018, slices A–C). An observation the owner makes through the CLI becomes
+an active memory in the same commit rather than waiting in a queue; it is marked
+`auto_promoted_pending_review`, derived from the ledger rather than stored, and reviewed afterwards
+with `aptuni memory review list|accept|edit|reject|pin`. Host proposals, sensitive modules and
+anything contradicting a record still standing keep the ADR-0013 confirmation. Reminders appear in
+`status`, `doctor` and `aptuni memory review reminders`, never as a prompt.
+
+Slice A landed first on its own and was deliberately behaviour-preserving: "revoked" had meant
+"any review event targeting a memory", which was only ever correct because a revocation was the
+one event that could target one. `accept` and `pin` break that, and the new test shows an `accept`
+event removing a memory from `memories()`, the Mem0 rebuild and the hybrid lane while `exposable()`
+and export kept it.
+
+Review 56 BLOCKed on six findings, all remediated test-first: a superseded memory left in the
+Profile export, non-idempotent decisions once a memory was pinned, a reminder marker that could
+crash the command or silence reminders forever, the reminder missing from `status`/`doctor`, no
+`review_state` in the Context API, and `edit` ignoring `ingest_enabled`. The two highest-risk
+claims held under direct attack: nothing can be promoted that the ADR says must be confirmed, and
+MCP cannot promote. Full gate: 598 passed, 3 optional skips, 47 subtests.
 
 The Obsidian vault source (`342de4e`) adds `aptuni source add-obsidian` and runs through the ordinary sync
 pipeline. Only a directory holding a real `.obsidian/` counts as a vault; `.obsidian/`, `.trash/`

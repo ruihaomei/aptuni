@@ -85,11 +85,15 @@ def export_profile(records: RecordSet, seq: int, target: Path) -> ExportReport:
         raise FileExistsError("export_target_not_empty")
     policy = records.policy()
     reviews = records.records()
-    accepted = {r.target_id for r in reviews if r.record_type == "review_event" and r.decision == "accept"}
+    accepted = {r.target_id for r in reviews if r.record_type == "review_event"
+                and r.decision in ("accept", "promote")}
     withdrawn = {r.target_id for r in reviews if r.record_type == "review_event"
                  and r.decision in ("reject", "revoke")}
+    # A correction supersedes the memory it replaces, so the replaced text must not appear here
+    # either. `exposable()` and `memories()` already drop it; this view has to agree (Review 56 B1).
     current_memories = [r for r in records.records() if r.record_type == "memory" and r.id not in withdrawn
-                        and r.candidate_id in accepted and r.candidate_id not in withdrawn]
+                        and r.candidate_id in accepted and r.candidate_id not in withdrawn
+                        and records.superseded_by(r.id) is None]
     current_facts = records.current_facts()
     current_evidence = [e for e in records.current_evidence() if e.change_kind != "retraction"]
     facts = [f for f in current_facts if not f.retention.full_content]

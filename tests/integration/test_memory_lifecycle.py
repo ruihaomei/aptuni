@@ -28,6 +28,9 @@ REPO = Path(__file__).resolve().parents[2]
 def service(tmp_path: Path) -> AptuniService:
     app = AptuniService(Workspace(tmp_path / "state"))
     app.init(tmp_path / "Aptuni")
+    # This suite is about the ADR-0013 confirmation ceremony itself, so it opts out of ADR-0018
+    # automatic promotion. `test_auto_promotion.py` covers the promoted path.
+    app.set_review_policy(auto_promotion_enabled=False)
     return app
 
 
@@ -181,10 +184,10 @@ def test_cli_forget_requires_exact_terminal_confirmation(tmp_path: Path) -> None
 
     assert run("init", str(tmp_path / "Aptuni")).returncode == 0
     proposed = run("observe", STATEMENT, "--module", "preferences", "--json")
-    candidate_id = json.loads(proposed.stdout)["candidate_id"]
-    accepted = run("memory", "accept", candidate_id, reply="ACCEPT\n")
-    assert accepted.returncode == 0, accepted.stderr
-    memory_id = accepted.stdout.split("Accepted as ", 1)[1].split(".", 1)[0]
+    # ADR-0018: the owner's own observation is promoted on the spot, so there is nothing to accept.
+    observed = json.loads(proposed.stdout)
+    assert observed["review_state"] == "auto_promoted_pending_review"
+    memory_id = observed["memory_id"]
 
     cancelled = run("memory", "forget", memory_id, reply="NO\n")
     assert cancelled.returncode == 1 and "Cancelled" in cancelled.stdout

@@ -60,8 +60,7 @@ def _service(tmp_path: Path) -> AptuniService:
 
 def _accepted(service: AptuniService, statement: str = "Prefers exact derivations.") -> str:
     candidate = service.observe(statement, "preferences")
-    preview = service.memory_preview(candidate.candidate_id)
-    memory_id = service.decide_memory(candidate.candidate_id, "accept", preview.digest("accept"))
+    memory_id = candidate.memory_id  # ADR-0018: an owner observation is promoted on the spot
     assert memory_id is not None
     return memory_id
 

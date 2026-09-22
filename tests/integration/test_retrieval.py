@@ -150,8 +150,7 @@ def test_compact_unmatched_queries_do_not_degrade_to_any_term_noise(tmp_path: Pa
 
 def _accepted_memory(service: AptuniService, statement: str, module: str = "knowledge") -> str:
     proposal = service.observe(statement, module)
-    preview = service.memory_preview(proposal.candidate_id)
-    memory_id = service.decide_memory(proposal.candidate_id, "accept", preview.digest("accept"))
+    memory_id = proposal.memory_id  # ADR-0018: an owner observation is promoted on the spot
     assert memory_id is not None
     return memory_id
 

@@ -22,6 +22,7 @@ from typing import Any, Literal
 from pydantic import ValidationError
 
 from aptuni.application.errors import AptuniError
+from aptuni.application.review_commands import promotion_records
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
 from aptuni.domain.invariants import RecordSet
@@ -38,6 +39,7 @@ from aptuni.domain.temporal import utc_now
 from aptuni.memory.mem0_local import create_local_mem0_client
 from aptuni.memory.provider import ClientFactory, Mem0Projection, ProjectionStatus, RebuildReport
 from aptuni.policy.modules import can_ingest
+from aptuni.policy.promotion import review_state_of
 from aptuni.vault.locks import source_operations_lock
 
 MEMORY_RETENTION = RetentionLabel(retention_class="canonical", purpose="interaction_memory", expires_at=None,
@@ -61,8 +63,12 @@ _HOST_PROTECTED_PATTERNS = (
 
 @dataclass(frozen=True)
 class Proposal:
+    """What `observe` did. `memory_id` is set only when the policy promoted it (ADR-0018)."""
+
     candidate_id: str
     created: bool
+    memory_id: str | None = None
+    review_state: str | None = None
 
 
 @dataclass(frozen=True)
@@ -126,7 +132,12 @@ class MemoryCommands:
     # ---------------------------------------------------------------- propose
     def observe(self, statement: str, module: str, *, origin: Origin = "cli", principal: str | None = None,
                 about: str = "self", idempotency_key: str | None = None) -> Proposal:
-        """Record an observation and a quarantined candidate memory; nothing becomes visible yet."""
+        """Record an observation and a candidate memory, promoting it when policy allows.
+
+        Something you say yourself through the CLI becomes an active memory in this same commit
+        (ADR-0018); anything a host proposes, anything in a sensitive module, and anything that
+        contradicts a record still standing stays quarantined for the ADR-0013 confirmation.
+        """
         self._check_module(module)
         statement = " ".join(statement.split())
         if not 1 <= len(statement) <= 280:
@@ -145,7 +156,7 @@ class MemoryCommands:
             raise AptuniError("module_ingest_disabled", f"Module '{module}' is not accepting new information.")
         existing = self._candidate_for_key(records, key, module, normalized_about, statement)
         if existing is not None:
-            return Proposal(existing, created=False)
+            return self._proposal_for(records, existing, created=False)
         if origin == "host" and len(self._pending(records, episode)) >= MAX_PENDING_PER_ORIGIN:
             raise AptuniError("memory_queue_full", "Too many proposals await review; review them first.")
         trust = "user_declared" if origin == "cli" else "host_proposal"
@@ -165,8 +176,14 @@ class MemoryCommands:
                                         **common)
         except (ValidationError, ValueError) as error:
             raise AptuniError("invalid_observation", "The observation is not valid.") from error
+        # ADR-0018: promotion is part of this commit, so a memory can never exist without the
+        # event that admitted it, and a crash cannot leave the candidate half-promoted. A host
+        # proposal never even reaches the evaluator: §8 says MCP never triggers one, and a
+        # structural gate keeps that true without depending on two field values (Review 56 N5).
+        promoted = (promotion_records(candidate, records, policy.epoch, (observation, candidate))
+                    if origin == "cli" else [])
         try:
-            self._commit([observation, candidate], seq)
+            self._commit([observation, candidate, *promoted], seq)
         except AptuniError as error:
             if error.code != "concurrent_write":
                 raise
@@ -174,8 +191,21 @@ class MemoryCommands:
             winner = self._candidate_for_key(current, key, module, normalized_about, statement)
             if winner is None:
                 raise
-            return Proposal(winner, created=False)
-        return Proposal(candidate.id, created=True)
+            return self._proposal_for(current, winner, created=False)
+        memory = next((r for r in promoted if r.record_type == "memory"), None)
+        return Proposal(candidate.id, created=True,
+                        memory_id=memory.id if memory else None,
+                        review_state="auto_promoted_pending_review" if memory else None)
+
+    def _proposal_for(self, records: RecordSet, candidate_id: str, *, created: bool) -> Proposal:
+        """Describe an existing candidate, including the memory a promotion already created."""
+        memory = next((r for r in records.records()
+                       if r.record_type == "memory" and r.candidate_id == candidate_id
+                       and records.superseded_by(r.id) is None), None)
+        if memory is None:
+            return Proposal(candidate_id, created=created)
+        return Proposal(candidate_id, created=created, memory_id=memory.id,
+                        review_state=review_state_of(memory, records))
 
     def propose_from_host(self, statement: str, module: str, access: Any, idempotency_key: str | None = None
                           ) -> Proposal:
@@ -259,9 +289,16 @@ class MemoryCommands:
         self._clear_confirmation("memory", memory_id)
 
     def memories(self) -> list[Any]:
+        """Current memories: not withdrawn, and not replaced by a correction (ADR-0018 §5).
+
+        `exposable()` already dropped superseded records; this list has to agree with it, or
+        `memory list` would show an edited memory next to the correction that replaced it.
+        """
         records = self.records()
         revoked = self._revoked(records)
-        return [r for r in records.records() if r.record_type == "memory" and r.id not in revoked]
+        return [r for r in records.records()
+                if r.record_type == "memory" and r.id not in revoked
+                and records.superseded_by(r.id) is None]
 
     # ------------------------------------------------------- provider projection
     def memory_provider_status(self) -> ProjectionStatus:
@@ -281,6 +318,7 @@ class MemoryCommands:
             memories = [
                 record for record in records.records()
                 if record.record_type == "memory" and record.id not in revoked
+                and records.superseded_by(record.id) is None  # Review 56 N2
             ]
             return Mem0Projection(self.workspace.state_dir, client_factory).rebuild(memories, seq)
 

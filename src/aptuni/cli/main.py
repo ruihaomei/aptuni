@@ -231,16 +231,36 @@ def _cmd_init(args: argparse.Namespace, service: AptuniService) -> int:
     return 0
 
 
+def _review_line(service: AptuniService) -> str | None:
+    """One line about the review queue, or nothing (ADR-0018 §6).
+
+    A reminder is never a prompt and never changes an exit code; it just has to be somewhere the
+    owner already looks, which is why it lives here and not only in its own command.
+    """
+    reminder = service.review_reminder()
+    if not reminder.due:
+        return None
+    return (f"{reminder.pending} memory(ies) Aptuni added on its own are waiting for review. "
+            "See them with: aptuni memory review list")
+
+
 def _cmd_status(args: argparse.Namespace, service: AptuniService) -> int:
     status = service.status()
+    reminder = service.review_reminder()
     if args.json:
         _print_json({"vault": str(status.vault_path), "state_dir": str(status.state_dir), "seq": status.seq,
-                     "policy_epoch": status.policy_epoch, "counts": status.counts, "modules": _modules_json(status)})
+                     "policy_epoch": status.policy_epoch, "counts": status.counts,
+                     "modules": _modules_json(status),
+                     "review": {"pending": reminder.pending, "due": reminder.due,
+                                "reason": reminder.reason}})
         return 0
     print(f"Vault: {status.vault_path}  (commit {status.seq}, policy epoch {status.policy_epoch})")
     print("Records: " + (", ".join(f"{k}={v}" for k, v in sorted(status.counts.items())) or "none"))
     hidden = [m for m, (_, expose) in status.modules.items() if not expose]
     print("Hidden from agents: " + (", ".join(hidden) or "nothing"))
+    line = _review_line(service)
+    if line:
+        print(line)
     return 0
 
 
@@ -578,6 +598,9 @@ def _cmd_doctor(args: argparse.Namespace, service: AptuniService) -> int:
     report = service.doctor()
     if report.ok:
         print(f"Vault healthy: commit {report.seq}, {report.records} records, all invariants hold.")
+        line = _review_line(service)
+        if line:
+            print(line)
         return 0
     print("Vault problems found:")
     for problem in report.problems:

@@ -52,6 +52,7 @@ from aptuni.application.restore import (
     load_restore_preview,
     pending_restores,
 )
+from aptuni.application.review_commands import ReviewCommands
 from aptuni.application.source_commands import SourceCommands
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
@@ -70,6 +71,7 @@ from aptuni.domain.temporal import utc_now
 from aptuni.memory.mem0_local import create_local_mem0_client
 from aptuni.memory.provider import Mem0Projection
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
+from aptuni.policy.promotion import review_state_of
 from aptuni.retrieval.hybrid import reciprocal_rank_fusion
 from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SearchRow, SqliteProjection, documents_for
 from aptuni.vault.fsgate import UnsupportedFilesystemError
@@ -113,7 +115,7 @@ class HostContextAccess:
     host_model_egress: bool
 
 
-class AptuniService(SourceCommands, MemoryCommands):
+class AptuniService(SourceCommands, MemoryCommands, ReviewCommands):
     def __init__(self, workspace: Workspace) -> None:
         self.workspace = workspace
         self._vault: Vault | None = None
@@ -507,7 +509,11 @@ class AptuniService(SourceCommands, MemoryCommands):
             )
             modules_text = "selected modules: " + (", ".join(selected_modules) if selected_modules else "none")
             record_candidates = sorted(
-                (record_unit(record) for record in matched),
+                # ADR-0018 §3: a memory carries how it got here, so an agent can tell an
+                # auto-promoted one the owner has not reviewed from one they confirmed.
+                (record_unit(record,
+                             review_state_of(record, records) if record.record_type == "memory" else None)
+                 for record in matched),
                 key=lambda item: 3 if item.layer == "L3" else 4,
             )
             candidates = (

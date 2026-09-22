@@ -11,11 +11,11 @@ promote is not lost: it keeps the ADR-0013 confirmation path it has today.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any, Literal
 
 from aptuni.domain.invariants import RecordSet
 from aptuni.domain.records import ReviewPolicy
-from aptuni.domain.temporal import utc_now
 
 PromotionAction = Literal["promote", "confirm", "deny"]
 ReviewState = Literal["accepted", "auto_promoted_pending_review", "pinned", "revoked"]
@@ -24,7 +24,9 @@ ReviewState = Literal["accepted", "auto_promoted_pending_review", "pinned", "rev
 #: single source of these numbers, so the defaults cannot drift between the schema and the policy.
 DEFAULT_REVIEW_POLICY = ReviewPolicy(
     record_type="review_policy", id="rvp_00000000000000000000000000",
-    schema_version=1, recorded_at=utc_now(), epoch=0,
+    # A fixed timestamp: this is a constant, not a record, and it is never committed. Capturing
+    # `utc_now()` at import would make a module-level value differ between processes.
+    schema_version=1, recorded_at=datetime(2026, 1, 1, tzinfo=UTC), epoch=0,
 )
 
 

@@ -27,6 +27,9 @@ class ContextUnit:
     tainted: bool
     signals: tuple[str, ...]
     canonical_ids: tuple[str, ...] = ()
+    #: ADR-0018 §3: an agent must be able to tell an auto-promoted memory that the
+    #: owner has not looked at yet from one they confirmed.
+    review_state: str | None = None
 
     def payload(self) -> dict[str, Any]:
         return {
@@ -40,6 +43,7 @@ class ContextUnit:
             "tainted": self.tainted,
             "text": self.text,
             "trust": self.trust,
+            **({"review_state": self.review_state} if self.review_state else {}),
         }
 
     @property
@@ -67,6 +71,11 @@ class ContextResponse:
     items: tuple[ContextUnit, ...]
     vault_seq: int
     policy_epoch: int
+
+    @property
+    def units(self) -> tuple[ContextUnit, ...]:
+        """Readable alias for `items`; ADR-0005 and ADR-0018 both call these units."""
+        return self.items
 
 
 def unit_cost(item: ContextUnit) -> int:
@@ -117,7 +126,7 @@ def section(layer: Layer, kind: str, text: str, *, canonical_ids: tuple[str, ...
     return ContextUnit(layer, kind, None, None, text, None, None, False, (), canonical_ids)
 
 
-def record_unit(record: Any) -> ContextUnit:
+def record_unit(record: Any, review_state: str | None = None) -> ContextUnit:
     is_evidence = record.record_type == "evidence"
     text = getattr(record, "statement", None) or getattr(record, "excerpt", None) or record.subject
     trust = str(record.trust)
@@ -131,4 +140,5 @@ def record_unit(record: Any) -> ContextUnit:
         trust=trust,
         tainted=trust in ("untrusted_source", "host_proposal"),
         signals=tuple(getattr(record, "signals", ())),
+        review_state=review_state,
     )

@@ -31,10 +31,10 @@ def _candidate(service: AptuniService, statement: str, module: str = "knowledge"
 
 
 def _accept(service: AptuniService, candidate_id: str) -> str:
-    preview = service.memory_preview(candidate_id)
-    memory_id = service.decide_memory(candidate_id, "accept", preview.digest("accept"))
-    assert memory_id is not None
-    return memory_id
+    """The memory `observe` already promoted for this candidate (ADR-0018)."""
+    memory = next(r for r in service.records().records()
+                  if r.record_type == "memory" and r.candidate_id == candidate_id)
+    return str(memory.id)
 
 
 class TestEligibility:
@@ -134,13 +134,22 @@ class TestReviewPolicyResolution:
 
 
 class TestDerivedReviewState:
-    def test_a_manually_accepted_memory_is_accepted(self, service: AptuniService) -> None:
+    def test_an_automatically_promoted_memory_is_pending_review(self, service: AptuniService) -> None:
         candidate, _ = _candidate(service, "Prefers reproducible experiment pipelines.")
         memory_id = _accept(service, candidate.id)
         records = service.records()
-        memory = records.get(memory_id)
 
-        assert review_state_of(memory, records) == "accepted"
+        assert review_state_of(records.get(memory_id), records) == "auto_promoted_pending_review"
+
+    def test_a_manually_confirmed_memory_is_accepted_not_pending(self, service: AptuniService) -> None:
+        service.set_review_policy(auto_promotion_enabled=False)
+        candidate, _ = _candidate(service, "Prefers reproducible experiment pipelines.")
+        preview = service.memory_preview(candidate.id)
+        memory_id = service.decide_memory(candidate.id, "accept", preview.digest("accept"))
+        records = service.records()
+
+        assert memory_id is not None
+        assert review_state_of(records.get(memory_id), records) == "accepted"
 
     def test_a_revoked_memory_is_revoked(self, service: AptuniService) -> None:
         candidate, _ = _candidate(service, "Prefers reproducible experiment pipelines.")
