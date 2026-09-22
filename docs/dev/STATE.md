@@ -1,7 +1,7 @@
 # Project State
 
 **Updated:** 2026-09-22
-**Current gate:** Milestone 2 — automatic promotion slices A–C complete (Review 56); slice D (MCP read surface) next
+**Current gate:** Milestone 2 — automatic promotion slices A–D complete (Review 57); GitHub Deep plan next
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub and MarginNote 4 sources, builtin interaction memory, bilingual SQLite/FTS projection,
 bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profile export, and the
@@ -229,7 +229,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   evidence row; and the plugin manifest denied reading note bodies while storing an indexed
   280-character body excerpt. All three were remediated test-first with mutation-verified
   regressions, and the final verdict is **APPROVE WITH NON-BLOCKING NOTES**.
-- **Automatic promotion and retrospective review, slices A–C (runnable, `123ebdd`).** An observation the owner
+- **Automatic promotion and retrospective review, slices A–D (runnable, `123ebdd` + `6d936f3`).** An observation the owner
   makes through the CLI now becomes an active memory in the same commit instead of waiting for a
   confirmation. It is marked `auto_promoted_pending_review` — derived from the ledger, not stored —
   and reviewed afterwards with `aptuni memory review list|accept|edit|reject|pin`. Host proposals,
@@ -247,15 +247,19 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   export, non-idempotent decisions on a pinned memory, a reminder marker that could crash or
   silence reminders forever, the reminder missing from `status`/`doctor`, no `review_state` in the
   Context API, and `edit` ignoring `ingest_enabled` — all remediated test-first, and the final
-  verdict is **APPROVE WITH NON-BLOCKING NOTES**. Slice D (the MCP read surface and the ADR-0013
-  item 1 regression) is **not implemented**.
+  verdict is **APPROVE WITH NON-BLOCKING NOTES**. Slice D adds bounded
+  `aptuni_get_memory_review` access to the permitted pending set and reminder under the exact
+  `memory.review.read` scope. The feed reuses module/exposure/egress gates and a final canonical
+  sequence check. Its structural regression pins both the MCP handler allowlist and transitive
+  service/mixin reachability from every MCP read facade, so promotion, owner decisions and commit
+  sinks cannot enter a read path silently. Review 57 initially blocked the direct-only proof, then
+  approved the transitive remediation with one non-blocking disposable-snooze race note.
 
 ## In progress
 
 - Milestone 1 and its first public release are complete. Milestone 2 is open; S10, the Mem0
   projection preview, the opt-in hybrid retrieval preview, the Obsidian vault source and slices
-  A–C of automatic promotion are complete. Slice D of automatic promotion is the next active
-  slice, with GitHub Deep mode queued behind it.
+  A–D of automatic promotion are complete. GitHub Deep mode is the next active slice.
 
 ## Awaiting maintainer decisions
 
@@ -263,29 +267,30 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. Finish automatic promotion with slice D from `docs/dev/plans/12-m2-automatic-promotion-tdd.md`:
-   the MCP read surface for the pending set and the reminder state under an exact read scope, plus
-   the negative regression proving the approve/commit service is unreachable from any MCP handler
-   (ADR-0013 item 1). The reviewer verified by inspection that MCP cannot promote today and a
-   structural gate now keeps that true, but the regression that pins it is still owed.
-2. Then open GitHub Deep mode with an accepted bounded TDD plan. Standard mode (`0190cf6`,
+1. Open GitHub Deep mode with an accepted bounded TDD plan. Standard mode (`0190cf6`,
    Review 18 APPROVE) is the contract to extend, not replace. The maintainer has already fixed the
    scope: "Standard tells Aptuni what the repository contains; Deep tells Aptuni what the user
    actually contributed" — the owner's authored activity (commits, pull requests, reviews), and
    *not* issue/discussion threads, full-history file lifecycle or cross-repo account signals, each
    of which needs its own decision.
-3. Review lessons that carry forward: write injection tests with **real** control bytes (the
+2. Review lessons that carry forward: write injection tests with **real** control bytes (the
    literal text of an escape sequence proves nothing); route every outside-controlled token through
    `sanitize_token` where stored or `delimited_untrusted` where rendered; and when a rule about
    "current records" changes, check *every* view of it — Review 56 found the same supersession gap
    in export, the Mem0 projection and the repeat-observation path after `memories()` was fixed.
-4. Keep every source read-only, keep `ingest_enabled`/`expose_enabled` independent, and emit
+3. Keep every source read-only, keep `ingest_enabled`/`expose_enabled` independent, and emit
    minimized Evidence through the common snapshot/delta pipeline with crash/replay coverage.
-5. Do not add a remote model or embedding key to any default path; keep provider scores derived and
+4. Do not add a remote model or embedding key to any default path; keep provider scores derived and
    policy-check every hydrated result.
-6. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
+5. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
+
+- Automatic promotion slice D: full repository gate 600 passed, 3 optional-runtime skips and 47
+  subtests; Ruff, strict mypy (74 source files), relay and the notices/secrets/workflow
+  supply-chain checks clean; the frozen evaluation passes with unchanged lexical and hybrid
+  metrics. Review 57 is **APPROVE WITH NON-BLOCKING NOTES** after its transitive-boundary blocker
+  was remediated; the only remaining note is a harmless marker-only race in disposable snooze state.
 
 - Automatic promotion slices A–C: full repository gate 598 passed, 3 optional-runtime skips and 47
   subtests; Ruff, strict mypy (74 source files), relay and the notices/secrets/workflow

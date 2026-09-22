@@ -1,6 +1,6 @@
 # Milestone 2 Automatic Promotion and Retrospective Review Plan (TDD)
 
-**Status:** Accepted (2026-09-22)
+**Status:** Complete (2026-09-22, `123ebdd` + `6d936f3`; Reviews 56–57)
 **Owner:** single owner. This touches the canonical record envelope and the revocation rule, both
 shared architecture, so no parallel contract work while it is open.
 **Contract:** ADR-0018.

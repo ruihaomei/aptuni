@@ -18,9 +18,9 @@ approved the boundary with non-blocking notes. The rebuild-only production previ
 Review 53 approved it with non-blocking notes. The opt-in hybrid retrieval preview is now runnable
 and Review 54 approved it with non-blocking notes and no blocking findings. The Obsidian vault
 source is runnable; Review 55 blocked on three findings, all remediated test-first, and then
-approved with non-blocking notes. Automatic promotion slices A–C are runnable; Review 56
-blocked on six findings, all remediated test-first, and then approved with non-blocking notes.
-Slice D of that plan — the MCP read surface — is **not implemented**.
+approved with non-blocking notes. Automatic promotion slices A–D are runnable. Slice D is
+checkpointed at `6d936f3`; Review 57 initially blocked its direct-only structural proof, then
+approved the transitive remediation with non-blocking notes.
 
 ## Read first
 
@@ -30,12 +30,7 @@ Slice D of that plan — the MCP read surface — is **not implemented**.
 
 ## Next action
 
-Finish automatic promotion with slice D of `docs/dev/plans/12-m2-automatic-promotion-tdd.md`: the
-MCP read surface for the pending set and the reminder under an exact read scope, plus the negative
-regression proving the approve/commit service is unreachable from any MCP handler (ADR-0013
-item 1). Review 56 verified by inspection that MCP cannot promote and a structural gate now keeps
-that true, but the regression that pins it is owed. Then open the GitHub Deep mode slice from the
-M2 roadmap (`ROADMAP.md` M2 order: Mem0 adapter -> hybrid
+Open the GitHub Deep mode slice from the M2 roadmap (`ROADMAP.md` M2 order: Mem0 adapter -> hybrid
 retrieval -> Obsidian source/interface -> GitHub Deep mode; the source half of Obsidian is done and
 `interface.obsidian`, the in-Obsidian review UI, remains a separate planned plugin). Start with an
 accepted bounded TDD plan: Standard mode (`0190cf6`, Review 18 APPROVE) is the contract to extend,
@@ -52,6 +47,17 @@ concrete public defect requires a patch release.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
+
+Automatic promotion Slice D (`6d936f3`) adds the read-only `aptuni_get_memory_review` MCP tool.
+The exact `memory.review.read` scope is disclosed in new adapter plans; old grants fail closed.
+The bounded feed filters pending memories through current exposure and granted modules, derives the
+reminder over that filtered set, enforces host/model egress, and discards a response after a
+concurrent canonical change. The ADR-0013 item 1 regression keeps a direct MCP handler allowlist
+and traverses the read-service call graph across all application mixins, rejecting promotion,
+owner-decision and commit sinks. Review 57's initial BLOCK found the first direct-only proof was not
+transitive; the remediation passed 61 focused tests and the final review is **APPROVE WITH
+NON-BLOCKING NOTES**. Full gate: 600 passed, 3 optional skips, 47 subtests; Ruff, strict mypy,
+relay, supply-chain checks and frozen evaluation are green.
 
 Automatic promotion (ADR-0018, slices A–C, `123ebdd`). An observation the owner makes through the CLI becomes
 an active memory in the same commit rather than waiting in a queue; it is marked
