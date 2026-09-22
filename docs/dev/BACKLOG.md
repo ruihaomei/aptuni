@@ -44,3 +44,4 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Automatic promotion: direct tests for a promotion racing a module-policy change, and for crash-replay idempotence beyond the same-statement case | Review 56 N8 | M2 promotion |
 | Reserve an unknown `record_type` for `SchemaVersionError` so a newer record type fails legibly on an older install instead of as a pydantic validation error | Review 56 N4 | Schema compatibility |
 | Corroboration linking so a statement observed in two episodes strengthens one candidate instead of creating two, which would let a repeated host proposal become stable | ADR-0018 rule 2 follow-up | M2 promotion |
+| Add a direct mocked-`UrllibGitHubTransport` regression for a 2,000,001-byte Deep response; the integration suite already proves the 2,000,000-byte request bound and durable no-change consequence after `github_response_too_large` | Review 58 W3 | GitHub source hardening |

@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
@@ -20,7 +20,8 @@ and Review 54 approved it with non-blocking notes and no blocking findings. The 
 source is runnable; Review 55 blocked on three findings, all remediated test-first, and then
 approved with non-blocking notes. Automatic promotion slices A–D are runnable. Slice D is
 checkpointed at `6d936f3`; Review 57 initially blocked its direct-only structural proof, then
-approved the transitive remediation with non-blocking notes.
+approved the transitive remediation with non-blocking notes. GitHub Deep is runnable at `f994446`;
+Review 58 approved the final exact-actor, bounded authored-activity source with non-blocking notes.
 
 ## Read first
 
@@ -30,12 +31,11 @@ approved the transitive remediation with non-blocking notes.
 
 ## Next action
 
-Open the GitHub Deep mode slice from the M2 roadmap (`ROADMAP.md` M2 order: Mem0 adapter -> hybrid
-retrieval -> Obsidian source/interface -> GitHub Deep mode; the source half of Obsidian is done and
-`interface.obsidian`, the in-Obsidian review UI, remains a separate planned plugin). Start with an
-accepted bounded TDD plan: Standard mode (`0190cf6`, Review 18 APPROVE) is the contract to extend,
-not replace, and the plan must state up front what Deep mode reads beyond bounded text/code scope
-and what rate-limit, size and truncation bounds that needs.
+Ask the maintainer to select the next M2 track. The remaining roadmap work is not one implied
+continuation of GitHub Deep: automatic Profile promotion needs its own slower policy/ADR;
+`interface.obsidian` is a separate plugin/UI scope; and full personal setup plus longitudinal
+quality evaluation needs maintainer participation and data. Do not reopen ADR-0019 or expand Deep
+into issue/discussion threads, file lifecycle or cross-repository signals without a new decision.
 
 Two Review 55 lessons carry forward to any provider work: write injection tests with **real**
 control bytes — the literal text of an escape sequence asserts nothing and left a whole mutation
@@ -47,6 +47,20 @@ concrete public defect requires a patch release.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
+
+GitHub Deep (`f994446`) is an additive `github_deep` source created with `aptuni source add-github
+... --deep-actor LOGIN`. It keeps GitHub Standard unchanged and records minimized Evidence only for
+exact linked-login authored commits, opened pull requests and submitted reviews inside the approved
+repository. ADR-0019 and `github.activity@1` bind the public contract. Deep never reads or retains
+blobs, diffs, bodies, comments, emails, issue/discussion threads, file lifecycle or cross-repository
+activity. Commits/PR search stop at five 100-item pages; reviews stop at 100 candidate PRs, two pages
+per PR, 100 requests and 500 admitted items; every response is capped at 2,000,000 bytes. Exhausted
+or changing search bounds make the whole snapshot partial, while malformed identity, rate limits
+and overruns fail without durable change. Review 58 first blocked three contract/test gaps; exact
+positive repository IDs are now enforced at API, scan and locator intake, the undeclared field was
+removed, and below/at-cap regressions prove prior Evidence cannot be withdrawn. Full gate: 627
+passed, 3 optional skips, 47 subtests; Ruff, strict mypy, relay, supply-chain and frozen evaluation
+green. Final verdict: **APPROVE WITH NON-BLOCKING NOTES**.
 
 Automatic promotion Slice D (`6d936f3`) adds the read-only `aptuni_get_memory_review` MCP tool.
 The exact `memory.review.read` scope is disclosed in new adapter plans; old grants fail closed.

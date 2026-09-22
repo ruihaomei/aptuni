@@ -166,4 +166,4 @@ including partial-withdrawal protection. Both earlier warnings were addressed. T
 transport-test suggestion does not change the verified production behavior or the source's durable
 failure semantics.
 
-**Verdict:** **APPROVE WITH NON-BLOCKING NOTE**
+**Verdict:** **APPROVE WITH NON-BLOCKING NOTES**

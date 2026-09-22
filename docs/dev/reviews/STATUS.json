@@ -140,6 +140,12 @@
     "56-m2-automatic-promotion-review.md"
    ]
   },
+  "m2-github-deep": {
+   "kind": "review",
+   "current": "58-m2-github-deep-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "m2-hybrid-retrieval": {
    "kind": "review",
    "current": "54-m2-hybrid-retrieval-review.md",
