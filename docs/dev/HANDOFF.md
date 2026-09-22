@@ -46,7 +46,7 @@ Keep all MarginNote access read-only; never commit note text, and do not infer r
 
 ### What just landed
 
-The Obsidian vault source adds `aptuni source add-obsidian` and runs through the ordinary sync
+The Obsidian vault source (`342de4e`) adds `aptuni source add-obsidian` and runs through the ordinary sync
 pipeline. Only a directory holding a real `.obsidian/` counts as a vault; `.obsidian/`, `.trash/`
 and every attachment are excluded before any read. Identity is the vault-relative path reconciled
 by the existing `reconcile_keyed`, so a rename stays a `move`. `obsidian.locator@1` carries bounded

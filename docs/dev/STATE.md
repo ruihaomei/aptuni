@@ -210,7 +210,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   (no semantic relevance floor, now KI-021), N2, N3, N4, N6, N7, N8, N9 and N10 were applied in the
   checkpoint and N5 (test fidelity) is in `BACKLOG.md`.
 
-- **Obsidian vault source (runnable).** `aptuni source add-obsidian PATH --module M` plus the
+- **Obsidian vault source (runnable, `342de4e`).** `aptuni source add-obsidian PATH --module M` plus the
   ordinary `sync`/`evidence`/`review`/`search` pipeline. Only a directory holding a real
   `.obsidian/` is a vault; a plain folder is refused and pointed at `add-folder`. The vault's own
   `.obsidian/` and `.trash/` are excluded by name at the root, and only regular non-symlinked
