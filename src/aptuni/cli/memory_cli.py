@@ -31,6 +31,15 @@ def add_memory_commands(sub: Any) -> None:
     forget = memory_sub.add_parser("forget", help="stop using a memory (history is kept; not a deletion)")
     forget.add_argument("memory_id")
     forget.add_argument("--confirm-digest", help="exact digest from the preview, for scripted review")
+    provider = memory_sub.add_parser("provider", help="inspect or manage the optional Mem0 projection")
+    provider_sub = provider.add_subparsers(dest="provider_command", required=True, metavar="ACTION")
+    for name, text in (
+        ("status", "show content-free Mem0 projection health and capabilities"),
+        ("rebuild", "rebuild Mem0 from current accepted canonical memories"),
+        ("delete", "delete the entire derived Mem0 projection"),
+    ):
+        parser = provider_sub.add_parser(name, help=text)
+        parser.add_argument("--json", action="store_true")
 
 
 def _dump(value: Any) -> None:
@@ -70,6 +79,8 @@ def _cmd_forget(args: argparse.Namespace, service: Any) -> int:
 
 def cmd_memory(args: argparse.Namespace, service: Any) -> int:
     action = args.memory_command
+    if action == "provider":
+        return _cmd_provider(args, service)
     if action == "pending":
         items = service.pending_memories()
         if args.json:
@@ -105,4 +116,40 @@ def cmd_memory(args: argparse.Namespace, service: Any) -> int:
         raise AptuniError("confirmation_stale", "The digest does not match this preview; nothing was changed.")
     memory_id = service.decide_memory(args.candidate_id, action, digest)
     print(f"Accepted as {memory_id}." if memory_id else "Rejected. It will never be used.")
+    return 0
+
+
+def _cmd_provider(args: argparse.Namespace, service: Any) -> int:
+    action = args.provider_command
+    if action == "delete":
+        removed = service.delete_memory_provider()
+        value = {"provider": "mem0", "removed": removed, "canonical_changed": False}
+        if args.json:
+            _dump(value)
+        else:
+            print("Deleted the derived Mem0 projection; the canonical Vault was not changed."
+                  if removed else "No Mem0 projection was present; the canonical Vault was not changed.")
+        return 0
+    if action == "rebuild":
+        report = service.rebuild_memory_provider()
+        value = {
+            "provider": report.provider,
+            "records": report.records,
+            "vault_seq": report.vault_seq,
+            "generation": report.generation,
+            "cleanup_pending": report.cleanup_pending,
+        }
+        if args.json:
+            _dump(value)
+        else:
+            cleanup = " cleanup_required" if report.cleanup_pending else ""
+            print(f"Rebuilt Mem0 projection: records={report.records} vault_seq={report.vault_seq}{cleanup}")
+        return 0
+    status = service.memory_provider_status()
+    if args.json:
+        _dump(status.to_dict())
+    else:
+        print(f"Mem0 projection: {status.state}  records={status.records}  "
+              f"dependency={'available' if status.dependency_available else 'missing'}")
+        print("Inference: disabled; deletion: whole-store rebuild; portable export: no")
     return 0

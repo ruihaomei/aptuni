@@ -54,6 +54,16 @@ Slice 1). Each entry records the package, version, license and source.
 | typing-inspection | 0.4.4 | MIT | Pydantic/MCP dependency |
 | uvicorn | 0.53.0 | BSD-3-Clause | MCP dependency; Aptuni starts STDIO only |
 
+## Optional preview dependencies
+
+These packages are not installed by default and are not bundled into Aptuni artifacts. They are
+available through the explicit `mem0` extra; `uv.lock` records their complete resolved closure.
+
+| Package | Version | License | Notes |
+|---|---|---|---|
+| mem0ai | 2.0.20 | Apache-2.0 | Optional local derived-memory projection; inference disabled |
+| ollama | 0.6.2 | MIT | Optional loopback client; Aptuni never pulls a missing model |
+
 ## Development-only tools and spike dependencies
 
 Spike environments under `spikes/` are used only to produce evidence. MCP Python SDK 2.2.0 has now

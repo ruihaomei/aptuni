@@ -8,7 +8,7 @@ bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profi
 read-only Plugin Advisor are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -187,11 +187,19 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   equality, canonical-byte isolation, managed-root purge and guarded network paths passed. The
   focused suite passes 15/15 in the isolated runtime; Review 52 is **APPROVE WITH NON-BLOCKING
   NOTES**.
+- **Mem0 projection adapter preview.** `aptuni memory provider status|rebuild|delete` materializes
+  current accepted canonical memories into an exact fresh Mem0 generation with `infer=False`, then
+  atomically selects it. Mem0 2.0.20 and Ollama 0.6.2 are optional exact pins; the client accepts
+  numeric loopback only, ignores environment proxies, refuses redirects and never pulls a model.
+  Privacy purge and explicit delete remove the whole managed root, and rebuild is serialized with
+  purge to prevent resurrection. Malformed enumeration and every tested pre/post-publication
+  failure fail closed or surface `cleanup_required`. Review 53 is **APPROVE WITH NON-BLOCKING
+  NOTES**.
 
 ## In progress
 
-- Milestone 1 and its first public release are complete. Milestone 2 is open; S10 is complete and
-  the production projection-only Mem0 adapter is the active slice.
+- Milestone 1 and its first public release are complete. Milestone 2 is open; S10 and the Mem0
+  projection preview are complete. Hybrid retrieval is the next active slice.
 
 ## Awaiting maintainer decisions
 
@@ -199,15 +207,20 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. Implement the production Mem0 adapter behind the existing provider-neutral boundary: optional
-   isolated dependency, `infer=False` only, telemetry disabled before import, one managed root,
-   exact canonical metadata, and whole-store remove/rebuild for deletion.
-2. Expose truthful capability/health/purge diagnostics and inject failed add/delete/rebuild paths;
-   never route raw conversations or provider inference through the adapter.
+1. Open the hybrid-retrieval slice from the M2 roadmap with an accepted bounded TDD plan and frozen
+   evaluation additions; preserve SQLite/FTS as the deterministic fallback and canonical hydrator.
+2. Keep provider scores derived and policy-check every hydrated result; do not add a remote model or
+   embedding key to the default path.
 3. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
 
+- Mem0 projection preview: full repository gate 479 passed, 3 optional-runtime skips and 47
+  subtests; Ruff, strict mypy (68 source files), 35 developer checks, relay, lock/notices/secrets and
+  diff checks clean. The pinned isolated Mem0/Ollama runtime passes all 23 focused tests, including
+  real provider rebuild, redirect refusal, purge/rebuild concurrency and publication failures.
+  Offline wheel/sdist build exposes only the explicit `mem0` extra. Review 53 is **APPROVE WITH
+  NON-BLOCKING NOTES**.
 - S10 Mem0 admission: 15/15 focused tests pass in the isolated Mem0 2.0.20 runtime; the standard
   product runtime passes 13 with 2 honest dependency skips. Fresh fixture and Mem0 evidence runs
   reproduce their checked-in JSON byte-for-byte. Full repository gate: 459 tests plus 47 subtests;

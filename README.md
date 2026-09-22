@@ -98,7 +98,8 @@ aptuni adapter apply ACTION_ID     # you confirm in your own terminal
 | Plugin Advisor, Recipes, English / 简体中文 CLI | ✅ preview (`aptuni advise`) |
 | Verified backup and restore of the canonical Vault | ✅ |
 | MarginNote 4 source (macOS, direct read-only local sync, native IDs) | ✅ |
-| Obsidian source and UI, Mem0, hybrid retrieval, Graphiti | 🗺 Milestones 2–3 |
+| Mem0 local projection (`infer=False`, whole-store rebuild deletion) | ✅ preview |
+| Obsidian source and UI, hybrid retrieval, Graphiti | 🗺 Milestones 2–3 |
 
 Run `aptuni plugin list` and `aptuni recipe list` to see the same picture from the CLI.
 
@@ -153,6 +154,23 @@ aptuni privacy purge cancel <action>   # abandon a confirmed purge that deleted 
 `privacy status` names external copies plainly — exports you made yourself, your original source
 files, and transcripts held by an agent's provider — because Aptuni cannot delete those and will
 not pretend otherwise. The purge receipt reports, per copy, what actually happened.
+
+### Optional Mem0 projection preview
+
+Mem0 is a disposable local projection of memories you have already accepted in Aptuni; it never
+owns Profile truth and does not receive raw conversations. Install the `mem0` extra, run a local
+Ollama embedding model, then manage the projection explicitly:
+
+```sh
+aptuni memory provider status
+aptuni memory provider rebuild
+aptuni memory provider delete
+```
+
+Rebuilds always use `infer=False`. Privacy deletion never relies on Mem0's record-level delete:
+Aptuni removes the whole managed projection immediately. Forgetting marks the projection stale and
+excludes the revoked memory on the next explicit rebuild. The preview is not selected automatically
+by setup or Recipes.
 
 ## Backups you can actually restore
 

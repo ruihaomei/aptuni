@@ -173,6 +173,12 @@
     "51-m2-s10-mem0-admission-review.md"
    ]
   },
+  "m2-mem0-projection-adapter": {
+   "kind": "review",
+   "current": "53-m2-mem0-projection-adapter-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "release": {
    "kind": "review",
    "current": "50-release-final-review.md",

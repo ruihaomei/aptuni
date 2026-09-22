@@ -74,3 +74,15 @@ the active projection from the Vault. The adapter must force telemetry off befor
 keep every provider path inside one managed root, expose the limitation through capabilities and
 health, and never treat Mem0 enumeration or history as a portable backup. S10 Review 52 is
 **APPROVE WITH NON-BLOCKING NOTES**.
+
+### 2026-09-22 — Rebuild-only preview adapter
+
+The first production adapter is deliberately narrower than the original generic upsert/delete
+shape. It projects only current accepted canonical `Memory` records, writes a fresh generation,
+checks exact public enumeration, closes the provider, and atomically selects that generation.
+Revocation and privacy deletion never call Mem0 record deletion; they invalidate the whole managed
+root and require a canonical rebuild. The optional `mem0` extra pins `mem0ai==2.0.20` and
+`ollama==0.6.2`; neither is part of the default installation. Activation remains an explicit preview
+command and is not selected by setup, Advisor recommendations, or Recipes. Only a plain loopback
+Ollama endpoint is accepted, Aptuni never pulls a missing model, and telemetry is disabled before
+the first Mem0 import.

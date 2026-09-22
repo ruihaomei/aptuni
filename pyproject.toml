@@ -19,6 +19,12 @@ dependencies = [
     "pydantic>=2.11,<3",
 ]
 
+[project.optional-dependencies]
+mem0 = [
+    "mem0ai==2.0.20",
+    "ollama==0.6.2",
+]
+
 [project.urls]
 Homepage = "https://github.com/ruihaomei/aptuni"
 Repository = "https://github.com/ruihaomei/aptuni"

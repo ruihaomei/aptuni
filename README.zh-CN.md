@@ -94,7 +94,8 @@ aptuni adapter apply ACTION_ID    # 在你自己的终端里确认
 | 插件顾问、配方、中英文命令行 | ✅ 预览（`aptuni advise`） |
 | MarginNote 4 来源（macOS，本地只读直连，原生 ID） | ✅ |
 | 规范 Vault 的可校验备份与恢复 | ✅ |
-| Obsidian 来源与界面、Mem0、混合检索、Graphiti | 🗺 里程碑 2–3 |
+| Mem0 本地投影（`infer=False`，删除时重建整个存储） | ✅ 预览 |
+| Obsidian 来源与界面、混合检索、Graphiti | 🗺 里程碑 2–3 |
 
 运行 `aptuni plugin list --lang zh-CN` 和 `aptuni recipe list --lang zh-CN` 可以在命令行看到同样的信息。
 
@@ -144,6 +145,21 @@ aptuni privacy purge cancel <action>   # 放弃一次尚未删除任何内容的
 
 `privacy status` 会如实点名外部副本——你自己导出的文件、你的原始来源文件，以及由智能体提供方
 保存的对话记录。Aptuni 删不掉它们，也不会假装删得掉。清除回执会逐份说明每一份副本的真实结果。
+
+### 可选的 Mem0 投影预览
+
+Mem0 只是由你在 Aptuni 中已接受记忆构建的本地派生投影；它不拥有 Profile 真相，也不会收到原始
+对话。安装 `mem0` 可选依赖并运行本地 Ollama 嵌入模型后，可以显式管理这一投影：
+
+```sh
+aptuni memory provider status
+aptuni memory provider rebuild
+aptuni memory provider delete
+```
+
+重建始终使用 `infer=False`。隐私清除不依赖 Mem0 的单条删除，而是立即移除整个托管投影。忘记
+记忆会把现有投影标为过期，并在下一次显式重建时排除已撤销记忆。设置流程和配方不会自动选择
+这一预览功能。
 
 ## 真正能恢复的备份
 

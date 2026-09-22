@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
@@ -14,7 +14,8 @@ Claude/Codex real-host S12 journeys. Milestone 1 is complete. Aptuni 0.1.0 is pu
 GitHub Release from exact commit `33ea08a`; tag workflow 35619712980 and release-commit CI
 35572245440 are green. Review 50 independently approved the final public result. S10 has now
 conditionally admitted Mem0 2.0.20 only as a disposable `infer=False` projection; Review 52
-approved the boundary with non-blocking notes.
+approved the boundary with non-blocking notes. The rebuild-only production preview is now runnable
+and Review 53 approved it with non-blocking notes.
 
 ## Read first
 
@@ -24,17 +25,23 @@ approved the boundary with non-blocking notes.
 
 ## Next action
 
-Implement the production Mem0 adapter behind the existing provider-neutral contract. It must use
-`infer=False`, disable telemetry before import, confine all state to one managed root, preserve
-exact canonical metadata, and implement privacy deletion as whole-root removal plus canonical
-rebuild. Add capability/health/purge diagnostics and provider-failure regression tests. Never pass
-raw conversations to Mem0 inference. Do not mutate the 0.1.0 tag or artifacts; a concrete public
-defect requires a patch release.
+Open the hybrid-retrieval slice from the M2 roadmap. Start with an accepted bounded TDD plan and
+frozen evaluation additions; keep SQLite/FTS as the deterministic fallback and canonical hydrator,
+keep all scores derived, and preserve policy rechecks before exposure. Do not mutate the 0.1.0 tag
+or artifacts; a concrete public defect requires a patch release.
 
 `docs/dev/plans/07-m1-exit-matrix.md` audits every remaining M1 exit clause and orders Slices 14–18.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
+
+The Mem0 projection preview adds `aptuni memory provider status|rebuild|delete`. It projects only
+current accepted canonical memories, always uses `infer=False`, validates exact public enumeration,
+and publishes fresh generations atomically. The optional runtime is exactly Mem0 2.0.20 plus Ollama
+0.6.2; only numeric loopback is accepted, redirects/proxies are disabled, and models are never
+pulled. Privacy purge removes the whole root and shares a lock with rebuild. Full gate: 479 passed,
+3 optional skips and 47 subtests; the isolated runtime passes all 23 focused tests. Review 53 is
+**APPROVE WITH NON-BLOCKING NOTES**.
 
 S10 (`84a3a8e`) isolated Mem0 2.0.20 with a hash-locked runtime and a bounded synthetic fixture. Exact restart
 and fresh-root rebuild passed with `infer=False`, guarded execution observed no non-loopback network

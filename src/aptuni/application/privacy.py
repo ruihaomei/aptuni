@@ -245,6 +245,8 @@ def _snapshot_copy_scope(
                 tokens.append(f"source_state:{source_id}:{label}")
     _owned_child(state_dir, "projections", "retrieval.sqlite")
     tokens.append("retrieval_projection")  # always-run invalidation covers creation after preview
+    _owned_child(state_dir, "projections", "memory", "mem0")
+    tokens.append("memory_provider_projection")  # S10 requires whole-root invalidation
     grants = _direct_names(state_dir, "adapters", "grants")
     tokens.extend(f"adapter_grant:{name}" for name in grants)
     tokens.extend(f"adapter_bundle:{name}" for name in _direct_names(state_dir, "adapters", "bundles"))
@@ -284,6 +286,7 @@ def create_purge_preview(
             "managed copies: exactly the ones listed below are deleted, and nothing else",
             "source replay state: deleted for every affected source; the original source is untouched",
             "retrieval projection: always invalidated, so a later rebuild excludes purged records",
+            "Mem0 projection: entire managed root is deleted; later use requires a canonical rebuild",
             "adapter grants/bundles/pending plans listed below: revoked and deleted",
             "host transcripts, original sources and exported copies: user action required",
         ),
@@ -434,6 +437,8 @@ def _delete_projection(state_dir: Path) -> bool:
 def _remove_managed_copy(vault: Vault, state_dir: Path, token: str) -> bool:
     if token == "retrieval_projection":
         return _delete_projection(state_dir)
+    if token == "memory_provider_projection":
+        return _remove_owned(state_dir, "projections", "memory", "mem0")
     kind, _, name = token.partition(":")
     if kind == "source_state":
         source_id, _, state_kind = name.partition(":")
@@ -630,6 +635,10 @@ def build_privacy_inventory(vault_root: Path, state_dir: Path, seq: int, records
                       "clears it, so the next sync rebuilds it from the restored generation"),
         _managed_copy("retrieval_projection", "derived", state_dir / "projections" / "retrieval.sqlite", "derived",
                       "excluded", "delete_and_rebuild", "local search acceleration"),
+        _managed_copy("memory_provider_projection", "derived",
+                      state_dir / "projections" / "memory" / "mem0", "derived", "excluded",
+                      "whole_store_remove_then_canonical_rebuild",
+                      "optional Mem0 projection; inference disabled"),
         _managed_copy("adapter_grants", "grant", state_dir / "adapters" / "grants", "until_revoked", "excluded",
                       "managed_revoke", "host/module/scope egress authorization"),
         _managed_copy("adapter_bundles", "configuration", state_dir / "adapters" / "bundles", "until_uninstall",

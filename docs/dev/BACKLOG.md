@@ -35,3 +35,4 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Resolve the sync-root filesystem gate against a resolved home path so a symlinked `HOME` cannot bypass it | Review 37 observation | Vault filesystem hardening |
 | Mem0 projection adapter: inject failed add/delete/rebuild operations and emit bounded structured failure evidence with cleanup | Review 51 note | M2 Mem0 adapter |
 | Qdrant Client 1.19.1 opens a temporary in-memory SQLite connection without explicit close on Python 3.13; recheck on any pinned upgrade | S10/Review 51 follow-up | M2 Mem0 adapter |
+| Mem0 provider status: bound the final old-generation scan and distinguish exact-version incompatibility from missing optional modules | Review 53 notes | M2 Mem0 hardening |

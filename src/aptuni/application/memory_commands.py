@@ -35,7 +35,10 @@ from aptuni.domain.records import (
     ReviewEvent,
 )
 from aptuni.domain.temporal import utc_now
+from aptuni.memory.mem0_local import create_local_mem0_client
+from aptuni.memory.provider import ClientFactory, Mem0Projection, ProjectionStatus, RebuildReport
 from aptuni.policy.modules import can_ingest
+from aptuni.vault.locks import source_operations_lock
 
 MEMORY_RETENTION = RetentionLabel(retention_class="canonical", purpose="interaction_memory", expires_at=None,
                                   full_content=False)
@@ -259,6 +262,31 @@ class MemoryCommands:
         records = self.records()
         revoked = self._decided(records)
         return [r for r in records.records() if r.record_type == "memory" and r.id not in revoked]
+
+    # ------------------------------------------------------- provider projection
+    def memory_provider_status(self) -> ProjectionStatus:
+        status = Mem0Projection(self.workspace.state_dir).status()
+        seq, _ = self.snapshot()
+        if status.state in {"ready", "cleanup_required"} and status.vault_seq != seq:
+            return ProjectionStatus(status.provider, "stale", status.records, status.vault_seq,
+                                    status.dependency_available, status.capabilities)
+        return status
+
+    def rebuild_memory_provider(self, client_factory: ClientFactory | None = None) -> RebuildReport:
+        if client_factory is None:
+            client_factory = create_local_mem0_client
+        with source_operations_lock(self.workspace.state_dir):
+            seq, records = self.snapshot()
+            revoked = self._decided(records)
+            memories = [
+                record for record in records.records()
+                if record.record_type == "memory" and record.id not in revoked
+            ]
+            return Mem0Projection(self.workspace.state_dir, client_factory).rebuild(memories, seq)
+
+    def delete_memory_provider(self) -> bool:
+        with source_operations_lock(self.workspace.state_dir):
+            return Mem0Projection(self.workspace.state_dir).delete()
 
     def cancel_memory_confirmation(self, kind: Literal["candidate", "memory"], target_id: str) -> None:
         """Invalidate an explicitly cancelled owner confirmation preview."""

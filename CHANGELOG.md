@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Preview-only local Mem0 2.0.20 projection commands: content-free status, exact fresh-generation
+  rebuild from accepted canonical memories, and whole-store deletion. Inference and raw-conversation
+  ingestion are disabled; Mem0/Ollama remain an optional extra.
+
 ## [0.1.0] — 2026-09-21
 
 First public pre-alpha release of the Milestone 1 personal context core.
