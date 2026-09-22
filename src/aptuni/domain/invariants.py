@@ -184,6 +184,24 @@ class RecordSet:
         policies = [r for r in self._known(as_known_at) if r.record_type == "module_policy"]
         return max(policies, key=lambda p: (p.epoch, p.recorded_at)) if policies else None
 
+    def revoked_ids(self) -> set[str]:
+        """Ids withdrawn by review (ADR-0018 §4).
+
+        A record is withdrawn only by `revoke` or `reject`, never by *any* review event. Before
+        ADR-0018 the only event that could target a memory was a revocation, so the looser rule
+        happened to agree; it stops agreeing as soon as `accept` or `pin` can target a memory.
+        Every consumer shares this one derivation so none of them can drift.
+        """
+        return {r.target_id for r in self._of_type("review_event") if r.decision in ("reject", "revoke")}
+
+    def decided_candidate_ids(self) -> set[str]:
+        """Candidate ids that already have a review decision, so they are no longer pending.
+
+        Deliberately distinct from `revoked_ids`: any decision settles a candidate, while only a
+        withdrawal hides a record.
+        """
+        return {r.target_id for r in self._of_type("review_event")}
+
     def exposable(self, as_known_at: datetime | None = None) -> list[Any]:
         """Records a host may see: current, accepted, not revoked, module exposed (fail closed)."""
         known = self._known(as_known_at)

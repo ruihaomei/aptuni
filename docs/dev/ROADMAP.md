@@ -96,6 +96,11 @@ probes deferred from S04 pass for each adapter version.
 ## Milestone 2 — Daily Driver — future after M1 evidence
 
 - Mem0 adapter after S10; hybrid retrieval; Obsidian source/interface; GitHub Deep mode.
+  **GitHub Deep mode scope (maintainer, 2026-09-22):** "Standard tells Aptuni what the
+  repository contains; Deep tells Aptuni what the user actually contributed." Deep mode reads
+  the owner's *authored activity* — commits authored, pull requests opened, reviews given —
+  and not issue/discussion threads, full-history file lifecycle, or cross-repo account
+  signals, each of which would need its own decision. Queued behind automatic promotion.
 - ADR/spike for risk-tiered automatic CandidateMemory acceptance (MVP deliberately requires the
   ADR-0013 confirmation, overriding PRD §16 for MVP); automatic Profile promotion remains separate and
   slower.

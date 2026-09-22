@@ -260,7 +260,7 @@ class MemoryCommands:
 
     def memories(self) -> list[Any]:
         records = self.records()
-        revoked = self._decided(records)
+        revoked = self._revoked(records)
         return [r for r in records.records() if r.record_type == "memory" and r.id not in revoked]
 
     # ------------------------------------------------------- provider projection
@@ -277,7 +277,7 @@ class MemoryCommands:
             client_factory = create_local_mem0_client
         with source_operations_lock(self.workspace.state_dir):
             seq, records = self.snapshot()
-            revoked = self._decided(records)
+            revoked = self._revoked(records)
             memories = [
                 record for record in records.records()
                 if record.record_type == "memory" and record.id not in revoked
@@ -295,7 +295,13 @@ class MemoryCommands:
     # ---------------------------------------------------------------- helpers
     @staticmethod
     def _decided(records: RecordSet) -> set[str]:
-        return {r.target_id for r in records.records() if r.record_type == "review_event"}
+        """Candidates that already have a decision. Not a revocation test — see `_revoked`."""
+        return records.decided_candidate_ids()
+
+    @staticmethod
+    def _revoked(records: RecordSet) -> set[str]:
+        """Memories withdrawn by `revoke`/`reject` (ADR-0018 §4)."""
+        return records.revoked_ids()
 
     def _pending(self, records: RecordSet, episode: str | None) -> list[Any]:
         decided = self._decided(records)
@@ -334,10 +340,10 @@ class MemoryCommands:
                            nonce_id=nonce_id)
 
     def _current_memory(self, records: RecordSet, memory_id: str) -> Any:
-        decided = self._decided(records)
+        revoked = self._revoked(records)
         current = next((memory for memory in records.records()
                         if memory.record_type == "memory" and memory.id == memory_id
-                        and memory.id not in decided), None)
+                        and memory.id not in revoked), None)
         if current is None:
             raise AptuniError("memory_not_current", f"No current memory with id {memory_id}.")
         return current

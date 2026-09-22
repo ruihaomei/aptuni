@@ -360,10 +360,7 @@ class AptuniService(SourceCommands, MemoryCommands):
                 projection.ensure(documents_for(exposable), seq)
                 lexical = projection.search(query, module=module, limit=candidate_limit)
                 semantic = self._semantic_search(query, limit=candidate_limit, vault_seq=seq)
-                revoked = {
-                    record.target_id for record in records.records()
-                    if record.record_type == "review_event"
-                }
+                revoked = records.revoked_ids()  # ADR-0018 §4: shared derivation, never re-derived here
                 allowed_memories = {
                     record.id for record in exposable
                     if record.record_type == "memory"

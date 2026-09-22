@@ -38,4 +38,5 @@ community contributors' agents) must read the ADRs relevant to its task before e
 | [ADR-0015](ADR-0015-marginnote4-local-source.md) | Read MarginNote 4 directly and store a knowledge digest, not its text | Accepted |
 | [ADR-0016](ADR-0016-owner-backup-format-and-ledger-location.md) | Make the owner's backup a verified format and keep the deletion ledger in the Vault | Accepted |
 | [ADR-0017](ADR-0017-obsidian-vault-source.md) | Read an Obsidian vault as topology, not as a folder of Markdown | Accepted |
+| [ADR-0018](ADR-0018-automatic-promotion-and-retrospective-review.md) | Promote stable memories automatically and review them retrospectively | Accepted |
 <!-- ADR-INDEX:END -->
