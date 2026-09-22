@@ -85,8 +85,15 @@ def test_case_d_no_host_is_cli_only() -> None:
 
 def test_unshipped_sources_are_deferred_not_silently_dropped() -> None:
     rec = recommend(answers(sources=frozenset({"obsidian", "notion", "folder"})), load_catalog())
-    assert {"source.obsidian", "source.notion"} <= deferred(rec)
-    assert "source.folder" in selected(rec)
+    assert "source.notion" in deferred(rec)
+    assert {"source.folder", "source.obsidian"} <= selected(rec)  # both ship as builtin (ADR-0017)
+
+
+def test_the_obsidian_interface_stays_deferred_while_its_source_ships() -> None:
+    """Reading a vault is shipped; the in-Obsidian review UI is a separate, still-planned plugin."""
+    rec = recommend(answers(sources=frozenset({"obsidian"})), load_catalog())
+    assert "source.obsidian" in selected(rec)
+    assert "interface.obsidian" in deferred(rec)
 
 
 def test_automatic_memory_falls_back_to_available_recipe_and_says_why() -> None:

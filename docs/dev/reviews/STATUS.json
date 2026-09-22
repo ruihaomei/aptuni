@@ -152,6 +152,12 @@
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   },
+  "m2-obsidian-source": {
+   "kind": "review",
+   "current": "55-m2-obsidian-source-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "relay-claude-code": {
    "kind": "drill",
    "current": "11-cold-claude-relay-drill.md",

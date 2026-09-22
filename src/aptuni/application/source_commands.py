@@ -30,6 +30,7 @@ from aptuni.application.ingest import (
     summarize,
 )
 from aptuni.application.marginnote_ingest import MarginNoteIngest, MarginNoteSourceSpec, MarginNoteSpecError
+from aptuni.application.obsidian_ingest import OBSIDIAN_PARSER, ObsidianIngest
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
 from aptuni.domain.invariants import RecordSet
@@ -41,6 +42,7 @@ from aptuni.sources.github import GitHubApi, GitHubApiError, GitHubSourceSpec, S
 from aptuni.sources.marginnote4 import PARSER as MARGINNOTE_PARSER
 from aptuni.sources.marginnote4 import MarginNoteStoreError, probe
 from aptuni.sources.marginnote4.store import CONTAINER
+from aptuni.sources.obsidian import VaultUnavailableError, is_vault
 from aptuni.sources.records import Operation
 from aptuni.vault.locks import source_operations_lock
 from aptuni.vault.store import Vault
@@ -89,18 +91,8 @@ class SourceCommands:
     def add_folder_source(self, root: Path, modules: tuple[str, ...], role: str,
                           primary_for: tuple[str, ...] = ()) -> SourceConfig:
         """Approve a folder as a source. Discovery is not permission: only this root is read."""
-        root = root.expanduser().resolve()
-        if not root.is_dir():
-            raise AptuniError("source_not_found", f"Not a folder: {root}")
-        vault_root = self.vault().root.resolve()
-        state_dir = self.workspace.state_dir.expanduser().resolve()
-        for protected in (vault_root, state_dir):
-            if root == protected or protected in root.parents or root in protected.parents:
-                raise AptuniError("source_inside_vault", "A source folder must not overlap the Vault or its state.")
-        if not modules:
-            raise AptuniError("modules_required", "Choose at least one module for this source.")
-        for module in modules:
-            self._check_module(module)
+        root = self._approved_local_root(root)
+        self._check_modules(modules)
         seq, _ = self.snapshot()
         try:
             config = SourceConfig(record_type="source_config", id=new_id("src"), schema_version=1,
@@ -111,6 +103,46 @@ class SourceCommands:
             raise AptuniError("invalid_source", f"Invalid source configuration: {error}") from error
         self._commit([config], seq)
         return config
+
+    def add_obsidian_source(self, root: Path, modules: tuple[str, ...], role: str,
+                            primary_for: tuple[str, ...] = ()) -> SourceConfig:
+        """Approve one Obsidian vault. A plain folder is deliberately not a vault (ADR-0017)."""
+        root = self._approved_local_root(root)
+        if not is_vault(root):
+            raise AptuniError(
+                "source_not_a_vault",
+                "That folder is not an Obsidian vault (no .obsidian directory). "
+                "Use `aptuni source add-folder` for ordinary Markdown folders.",
+            )
+        self._check_modules(modules)
+        seq, _ = self.snapshot()
+        try:
+            config = SourceConfig(record_type="source_config", id=new_id("src"), schema_version=1,
+                                  recorded_at=utc_now(), source_type="obsidian", roots=(str(root),),
+                                  semantic_role=role, module_mapping=modules,
+                                  authority=AuthorityPolicy(version=1, primary_for=primary_for))
+        except (ValidationError, ValueError) as error:
+            raise AptuniError("invalid_source", f"Invalid source configuration: {error}") from error
+        self._commit([config], seq)
+        return config
+
+    def _approved_local_root(self, root: Path) -> Path:
+        """Resolve one approved local root and refuse any overlap with the Vault or its state."""
+        root = root.expanduser().resolve()
+        if not root.is_dir():
+            raise AptuniError("source_not_found", f"Not a folder: {root}")
+        vault_root = self.vault().root.resolve()
+        state_dir = self.workspace.state_dir.expanduser().resolve()
+        for protected in (vault_root, state_dir):
+            if root == protected or protected in root.parents or root in protected.parents:
+                raise AptuniError("source_inside_vault", "A source folder must not overlap the Vault or its state.")
+        return root
+
+    def _check_modules(self, modules: tuple[str, ...]) -> None:
+        if not modules:
+            raise AptuniError("modules_required", "Choose at least one module for this source.")
+        for module in modules:
+            self._check_module(module)
 
     def add_github_source(
         self,
@@ -196,7 +228,7 @@ class SourceCommands:
         module = config.module_mapping[0]
         if not can_ingest(policy, module):
             raise AptuniError("module_ingest_disabled", f"Module '{module}' is not accepting new information.")
-        if config.source_type not in {"folder", "github", "marginnote4"}:
+        if config.source_type not in {"folder", "github", "marginnote4", "obsidian"}:
             raise AptuniError("source_type_unsupported", f"Source type '{config.source_type}' is not runnable.")
         store = SourceStateStore(self.vault().root, config.id)
         state = store.load()
@@ -210,6 +242,12 @@ class SourceCommands:
                 provider_data = {"repository_id": scan.repository_id}  # type: ignore[union-attr]
         except (GitHubApiError, SourceIdentityError) as error:
             raise AptuniError("github_sync_failed", f"GitHub sync stopped safely ({error}).") from error
+        except VaultUnavailableError as error:
+            raise AptuniError(
+                "obsidian_vault_unavailable",
+                "The Obsidian vault is not reachable right now (is the folder mounted and synced?). "
+                "Nothing was withdrawn; sync again once it is back.",
+            ) from error
         except MarginNoteStoreError as error:
             message = MARGINNOTE_MESSAGES.get(str(error), "MarginNote sync stopped safely.")
             raise AptuniError(str(error), message) from error
@@ -260,11 +298,14 @@ class SourceCommands:
         return state
 
     def _ingest_for(self, config: SourceConfig, module: str, epoch: int, current: dict[str, Any],
-                    ids: set[str]) -> tuple[FolderIngest | GitHubIngest | MarginNoteIngest, tuple[str, str]]:
+                    ids: set[str]) -> tuple[FolderIngest | GitHubIngest | MarginNoteIngest | ObsidianIngest,
+                                             tuple[str, str]]:
         if config.source_type == "marginnote4":
             return self._marginnote_ingest(config, module, epoch, current, ids), MARGINNOTE_PARSER
         if config.source_type == "folder":
             return FolderIngest(config, module, epoch, current, existing_ids=ids), FOLDER_PARSER
+        if config.source_type == "obsidian":
+            return ObsidianIngest(config, module, epoch, current, existing_ids=ids), OBSIDIAN_PARSER
         try:
             spec = GitHubSourceSpec.from_roots(config.roots)
         except SourceIdentityError as error:

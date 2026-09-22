@@ -93,10 +93,11 @@ aptuni adapter apply ACTION_ID    # 在你自己的终端里确认
 | Claude Code 与 Codex 适配器 | ✅ |
 | 插件顾问、配方、中英文命令行 | ✅ 预览（`aptuni advise`） |
 | MarginNote 4 来源（macOS，本地只读直连，原生 ID） | ✅ |
+| Obsidian 来源（识别仓库，把双链与属性名保留为结构） | ✅ |
 | 规范 Vault 的可校验备份与恢复 | ✅ |
 | Mem0 本地投影（`infer=False`，删除时重建整个存储） | ✅ 预览 |
 | 显式混合检索（SQLite + 已接受记忆的 Mem0 排名） | ✅ 预览 |
-| Obsidian 来源与界面、Graphiti | 🗺 里程碑 2–3 |
+| Obsidian 评审界面、Graphiti | 🗺 里程碑 2–3 |
 
 运行 `aptuni plugin list --lang zh-CN` 和 `aptuni recipe list --lang zh-CN` 可以在命令行看到同样的信息。
 
@@ -167,6 +168,27 @@ aptuni memory provider delete
 预览阶段有两点需要留意。语义通道目前没有相关性下限，即使查询没有任何关键词命中，也可能返回
 最多 `--limit` 条已接受记忆，请自行判断结果而不要直接采信。此外，返回的 `score` 只在同一次
 调用内可比较：普通检索与 `--hybrid` 使用的是不同量纲。
+
+## 把 Obsidian 仓库当作结构来读
+
+Obsidian 仓库不只是一堆 Markdown 文件，因此 Aptuni 按图谱来读取它：
+
+```sh
+aptuni source add-obsidian ~/Vault --module knowledge
+aptuni sync SOURCE_ID
+aptuni evidence --source SOURCE_ID
+```
+
+只有包含 `.obsidian/` 的目录才算仓库，其他目录会被拒绝并提示改用 `add-folder`。仓库自身的
+`.obsidian/` 配置与 `.trash/` 在任何读取之前就被排除，并且只打开 `.md` 文件——图片、PDF 等附件
+只做计数，从不解析。
+
+每条笔记贡献的是**结构**而不是正文：笔记名、所在文件夹、双链目标、标签与别名，以及 frontmatter
+属性的**名称**。属性的**取值**保持私密：frontmatter 区块永远不作为摘录的来源，属性取值也不会进入存储的定位符，
+因此日记里的 `employer:` 或 `salary:` 不会经由属性区块进入智能体的上下文。（若你同时把该取值写进
+正文，被摘录的就是正文——任何来源都是如此。）代码块内的双链与标签不算结构，
+不常见的 frontmatter 会被如实报告而不是猜测。详见
+`docs/dev/DECISIONS/ADR-0017-obsidian-vault-source.md`。
 
 ## 真正能恢复的备份
 

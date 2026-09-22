@@ -98,9 +98,10 @@ aptuni adapter apply ACTION_ID     # you confirm in your own terminal
 | Plugin Advisor, Recipes, English / 简体中文 CLI | ✅ preview (`aptuni advise`) |
 | Verified backup and restore of the canonical Vault | ✅ |
 | MarginNote 4 source (macOS, direct read-only local sync, native IDs) | ✅ |
+| Obsidian source (vault-aware, wikilinks and property names as structure) | ✅ |
 | Mem0 local projection (`infer=False`, whole-store rebuild deletion) | ✅ preview |
 | Opt-in hybrid search (SQLite + accepted-memory Mem0 ranks) | ✅ preview |
-| Obsidian source and UI, Graphiti | 🗺 Milestones 2–3 |
+| Obsidian review UI, Graphiti | 🗺 Milestones 2–3 |
 
 Run `aptuni plugin list` and `aptuni recipe list` to see the same picture from the CLI.
 
@@ -180,6 +181,30 @@ Two preview limits are worth knowing. The semantic lane has no relevance floor y
 no keyword match can still return accepted memories up to `--limit`; judge the results, do not
 assume them. And the reported `score` is only comparable within one invocation — plain search and
 `--hybrid` use different scales.
+
+## Your Obsidian vault, as structure
+
+An Obsidian vault is more than a folder of Markdown, so Aptuni reads it as a graph:
+
+```sh
+aptuni source add-obsidian ~/Vault --module knowledge
+aptuni sync SOURCE_ID
+aptuni evidence --source SOURCE_ID
+```
+
+A folder is only a vault if it contains `.obsidian/`; anything else is refused and pointed at
+`add-folder`. The vault's own `.obsidian/` configuration and `.trash/` are excluded before
+anything is read, and only `.md` files are opened — images, PDFs and other attachments are
+counted, never parsed.
+
+Each note contributes its **structure**, not its prose: the note name, its folder, its wikilink
+targets, its tags and aliases, and the *names* of its frontmatter properties. Property **values**
+stay private: the frontmatter block is never a source of excerpt text, and no property value
+enters the stored locator, so an `employer:` or `salary:` property cannot reach an agent's context
+through the property block. (If you also write that value in the note's body, the body is what gets
+excerpted — as it would from any source.) Links and
+tags inside code blocks are not treated as structure, and unusual frontmatter is reported rather
+than guessed at. See `docs/dev/DECISIONS/ADR-0017-obsidian-vault-source.md`.
 
 ## Backups you can actually restore
 

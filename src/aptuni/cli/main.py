@@ -61,6 +61,12 @@ def _add_source_commands(sub: Any) -> None:
                             help="GitHub API origin (GitHub Enterprise must use same-host /api/v3)")
     github_add.add_argument("--primary-for", action="append", default=[], metavar="DIMENSION")
     github_add.add_argument("--json", action="store_true")
+    obsidian_add = source_sub.add_parser("add-obsidian", help="approve one Obsidian vault as a source")
+    obsidian_add.add_argument("path", type=Path)
+    obsidian_add.add_argument("--module", action="append", required=True, choices=MODULES, dest="modules")
+    obsidian_add.add_argument("--role", default="notes", help="what this vault means (default: notes)")
+    obsidian_add.add_argument("--primary-for", action="append", default=[], metavar="DIMENSION")
+    obsidian_add.add_argument("--json", action="store_true")
     add_marginnote_parsers(source_sub)
     source_list = source_sub.add_parser("list", help="list approved sources")
     source_list.add_argument("--json", action="store_true")
@@ -291,19 +297,27 @@ def _source_json(source: Any) -> dict[str, Any]:
     }
 
 
+def _cmd_add_local_source(args: argparse.Namespace, service: AptuniService) -> int:
+    """Approve one local directory: a plain folder, or an Obsidian vault (ADR-0017)."""
+    obsidian = args.source_command == "add-obsidian"
+    add = service.add_obsidian_source if obsidian else service.add_folder_source
+    source = add(
+        args.path,
+        modules=tuple(args.modules),
+        role=args.role,
+        primary_for=tuple(args.primary_for),
+    )
+    if args.json:
+        _print_json(_source_json(source))
+    else:
+        label = "Obsidian" if obsidian else "folder"
+        print(f"Approved {label} source {source.id}: {delimited_untrusted(source.roots[0])}")
+    return 0
+
+
 def _cmd_source(args: argparse.Namespace, service: AptuniService) -> int:
-    if args.source_command == "add-folder":
-        source = service.add_folder_source(
-            args.path,
-            modules=tuple(args.modules),
-            role=args.role,
-            primary_for=tuple(args.primary_for),
-        )
-        if args.json:
-            _print_json(_source_json(source))
-        else:
-            print(f"Approved folder source {source.id}: {source.roots[0]}")
-        return 0
+    if args.source_command in ("add-folder", "add-obsidian"):
+        return _cmd_add_local_source(args, service)
     if args.source_command == "add-github":
         source = service.add_github_source(
             args.repository_url,
@@ -381,7 +395,10 @@ def _cmd_evidence(args: argparse.Namespace, service: AptuniService) -> int:
         print("No current evidence.")
     else:
         for item in values:
-            where = item["relative_path"] or item["subject"]
+            # A source path is owner-controlled data, never terminal structure: a filename holding
+            # an ESC sequence and a newline could otherwise forge a whole evidence row (ADR-0013
+            # item 2, Review 55 B2).
+            where = delimited_untrusted(item["relative_path"] or item["subject"] or "")
             print(f"{item['id']}  [{item['module']}]  {where}  {', '.join(item['signals'])}")
     return 0
 

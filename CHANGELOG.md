@@ -11,6 +11,18 @@ All notable changes to this project are documented here. The format follows
 - Preview-only local Mem0 2.0.20 projection commands: content-free status, exact fresh-generation
   rebuild from accepted canonical memories, and whole-store deletion. Inference and raw-conversation
   ingestion are disabled; Mem0/Ollama remain an optional extra.
+- Obsidian vault source: `aptuni source add-obsidian` plus the ordinary sync pipeline. Only a
+  directory holding `.obsidian/` is a vault; `.obsidian/`, `.trash/` and every attachment are
+  excluded before any read. Each note contributes bounded topology (note name, folder, wikilink
+  targets, tags, aliases, frontmatter property *names*) in `obsidian.locator@1`, and the Evidence
+  excerpt is taken after the frontmatter block is removed, so property values never reach the
+  locator, the excerpt or the search index (ADR-0017).
+
+### Changed
+
+- `aptuni evidence` and `aptuni source add-folder` now render source paths as bounded, escaped,
+  delimited data rather than raw terminal text, so a crafted filename cannot forge an output row.
+  The `--json` output of both commands is unchanged.
 - Opt-in `aptuni search --hybrid` preview with deterministic rank-only fusion across SQLite/FTS and
   the fresh local Mem0 accepted-memory projection; default search and Context API remain lexical.
 

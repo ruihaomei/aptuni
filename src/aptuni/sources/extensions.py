@@ -72,6 +72,15 @@ def default_registry() -> ExtensionRegistry:
         ),
     )
     registry.register(
+        "obsidian.locator",
+        1,
+        ExtensionSpec(
+            frozenset({"relative_path", "note_name", "folder_path"}),
+            frozenset({"tags", "aliases", "outbound_links", "property_keys", "heading_count",
+                       "truncated"}),
+        ),
+    )
+    registry.register(
         "github.locator",
         1,
         ExtensionSpec(

@@ -1,14 +1,14 @@
 # Project State
 
 **Updated:** 2026-09-22
-**Current gate:** Milestone 2 — hybrid retrieval preview complete (Review 54); Obsidian source next
+**Current gate:** Milestone 2 — Obsidian source complete (Review 55); GitHub Deep mode next
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub and MarginNote 4 sources, builtin interaction memory, bilingual SQLite/FTS projection,
 bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profile export, and the
 read-only Plugin Advisor are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -210,11 +210,31 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   (no semantic relevance floor, now KI-021), N2, N3, N4, N6, N7, N8, N9 and N10 were applied in the
   checkpoint and N5 (test fidelity) is in `BACKLOG.md`.
 
+- **Obsidian vault source (runnable).** `aptuni source add-obsidian PATH --module M` plus the
+  ordinary `sync`/`evidence`/`review`/`search` pipeline. Only a directory holding a real
+  `.obsidian/` is a vault; a plain folder is refused and pointed at `add-folder`. The vault's own
+  `.obsidian/` and `.trash/` are excluded by name at the root, and only regular non-symlinked
+  `*.md` files are opened — attachments are counted, never parsed. Identity is the vault-relative
+  path reconciled by the existing `reconcile_keyed`, so a rename is a `move`. `obsidian.locator@1`
+  carries bounded topology: note name, folder, wikilink targets, tags, aliases, frontmatter
+  property *names*, heading count. Property *values* are dropped: the Evidence excerpt is taken
+  after the frontmatter block is removed, so they reach neither the locator, the excerpt, nor the
+  search index. The frontmatter grammar is a clean-room subset with no YAML dependency; anything
+  outside it admits the note and reports `frontmatter_unsupported`. A vault that stops being a
+  vault mid-scan fails closed instead of retracting every note. ADR-0017 is accepted and
+  `source.obsidian` moves from `planned` to `builtin`. Review 55 returned **BLOCK** on three
+  findings — a UTF-8 BOM and a `...` line defeated frontmatter minimization and put property
+  values into the indexed excerpt; the injection tests were vacuous while `note_name`,
+  `folder_path` and the CLI evidence row were unsanitized, so a crafted filename forged an
+  evidence row; and the plugin manifest denied reading note bodies while storing an indexed
+  280-character body excerpt. All three were remediated test-first with mutation-verified
+  regressions, and the final verdict is **APPROVE WITH NON-BLOCKING NOTES**.
+
 ## In progress
 
 - Milestone 1 and its first public release are complete. Milestone 2 is open; S10, the Mem0
-  projection preview and the opt-in hybrid retrieval preview are complete. The Obsidian source is
-  the next active slice.
+  projection preview, the opt-in hybrid retrieval preview and the Obsidian vault source are
+  complete. GitHub Deep mode is the next active slice.
 
 ## Awaiting maintainer decisions
 
@@ -222,18 +242,33 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. Open the Obsidian source slice from the M2 roadmap with an accepted bounded TDD plan. Reuse the
-   stabilized source-provider contract (`docs/dev/plans` + the `add-source-provider` skill) rather
-   than inventing a fourth ingestion shape; vault identity, wikilinks, frontmatter and attachment
-   exclusion are the new problems.
-2. Keep Obsidian access read-only, keep `ingest_enabled`/`expose_enabled` independent, and emit
+1. Open the GitHub Deep mode slice from the M2 roadmap with an accepted bounded TDD plan. Standard
+   mode (`0190cf6`, Review 18 APPROVE) is the contract to extend, not replace; decide and record
+   what Deep mode reads beyond bounded text/code scope, and what new rate-limit, size and
+   truncation bounds it needs before writing code.
+2. Two review lessons from the Obsidian slice apply to any new provider: write injection tests with
+   **real** control bytes (the literal text of an escape sequence proves nothing), and make every
+   owner-facing token that comes from outside the core pass through `sanitize_token` or
+   `delimited_untrusted` at the point it is stored or rendered.
+3. Keep every source read-only, keep `ingest_enabled`/`expose_enabled` independent, and emit
    minimized Evidence through the common snapshot/delta pipeline with crash/replay coverage.
-3. Do not add a remote model or embedding key to any default path; keep provider scores derived and
+4. Do not add a remote model or embedding key to any default path; keep provider scores derived and
    policy-check every hydrated result.
-4. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
+5. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
 
+- Obsidian vault source: full repository gate 542 passed, 3 optional-runtime skips and 47 subtests;
+  Ruff, strict mypy (72 source files), relay and the notices/secrets/workflow supply-chain checks
+  clean; the frozen evaluation still passes with unchanged lexical and hybrid metrics. Three
+  mutation probes confirm the Review 55 blockers are now caught (removing `sanitize_token`'s
+  scrubbing fails 4 tests; restoring BOM blindness and the `...` terminator fails 2; un-sanitizing
+  `note_name` with a raw CLI row fails 1). Real-vault dogfood: 5,750 Markdown files, 3,814
+  admitted, 7.8 s initial sync, 4.0 s deterministic no-op re-sync, `doctor` passed. An
+  aggregate-only audit checked all 1,597 non-tag/alias property values against every excerpt and
+  every frontmatter-derived locator field: zero reached either, and zero control characters reached
+  any sanitized field. That vault has 64 BOM notes holding 101 property values, which is exactly
+  what Review 55 B1 would have exposed. No note content was recorded in any artifact.
 - Hybrid retrieval preview: full repository gate 501 passed, 3 optional-runtime skips and 47
   subtests; Ruff, strict mypy (69 source files), relay and the notices/secrets/workflow supply-chain
   checks clean. The frozen evaluation run passes with unchanged lexical metrics (dev recall@5

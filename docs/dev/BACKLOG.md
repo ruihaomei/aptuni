@@ -37,3 +37,7 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Qdrant Client 1.19.1 opens a temporary in-memory SQLite connection without explicit close on Python 3.13; recheck on any pinned upgrade | S10/Review 51 follow-up | M2 Mem0 adapter |
 | Mem0 provider status: bound the final old-generation scan and distinguish exact-version incompatibility from missing optional modules | Review 53 notes | M2 Mem0 hardening |
 | Hybrid service tests monkeypatch `AptuniService._semantic_search`, bypassing the lock, the freshness gate and `Mem0Projection.search`; move the module-filter, policy-race and non-memory-id cases to factory-level doubles as the CLI test already does | Review 54 N5 | M2 hybrid hardening |
+| Obsidian: deduplicate the `SourceConfig` construction shared by `add_folder_source` and `add_obsidian_source` | Review 55 N8 | Source hardening |
+| Obsidian: add an `obsidian://` deep link to `_open_url` so vault evidence can be opened in Obsidian | Review 55 N11 | Obsidian follow-up |
+| A note or file that vanishes mid-walk raises an unwrapped `FileNotFoundError` from `path.stat()`; pre-existing in `folder.py` and shared by `obsidian.py` | Review 55 N12 | Source hardening |
+| Folder/GitHub `_observe`-equivalent reads are not descriptor-relative the way Obsidian's now is; a parent-directory symlink swap remains possible for all three | Review 55 N2 | Source hardening |

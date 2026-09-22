@@ -66,8 +66,9 @@ def test_bundled_catalog_is_valid_and_contains_m1_recipes() -> None:
 def test_bundled_catalog_matches_shipped_code() -> None:
     catalog = load_catalog()
     builtin = {pid for pid, plugin in catalog.plugins.items() if plugin.maturity == "builtin"}
-    assert builtin == {"source.folder", "source.github", "source.marginnote", "memory.builtin",
-                       "retrieval.sqlite_fts", "agent.mcp", "agent.claude_code", "agent.codex", "interface.cli"}
+    assert builtin == {"source.folder", "source.github", "source.marginnote", "source.obsidian",
+                       "memory.builtin", "retrieval.sqlite_fts", "agent.mcp", "agent.claude_code",
+                       "agent.codex", "interface.cli"}
     for preview in ("memory.mem0", "retrieval.hybrid"):
         assert catalog.plugins[preview].maturity == "preview"
     for planned in ("memory.graphiti", "interface.obsidian"):

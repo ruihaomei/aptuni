@@ -37,4 +37,5 @@ community contributors' agents) must read the ADRs relevant to its task before e
 | [ADR-0014](ADR-0014-plugin-catalog-recipes-and-advisor.md) | Describe plugins and Recipes as bundled TOML and advise without side effects | Accepted |
 | [ADR-0015](ADR-0015-marginnote4-local-source.md) | Read MarginNote 4 directly and store a knowledge digest, not its text | Accepted |
 | [ADR-0016](ADR-0016-owner-backup-format-and-ledger-location.md) | Make the owner's backup a verified format and keep the deletion ledger in the Vault | Accepted |
+| [ADR-0017](ADR-0017-obsidian-vault-source.md) | Read an Obsidian vault as topology, not as a folder of Markdown | Accepted |
 <!-- ADR-INDEX:END -->
