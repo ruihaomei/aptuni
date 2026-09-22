@@ -71,6 +71,7 @@ from aptuni.domain.temporal import utc_now
 from aptuni.memory.mem0_local import create_local_mem0_client
 from aptuni.memory.provider import Mem0Projection
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
+from aptuni.policy.profile_promotion import profile_review_state_of
 from aptuni.policy.promotion import pending_review_memories, review_policy_of, review_state_of
 from aptuni.retrieval.hybrid import reciprocal_rank_fusion
 from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SearchRow, SqliteProjection, documents_for
@@ -520,8 +521,14 @@ class AptuniService(SourceCommands, MemoryCommands, ReviewCommands):
             record_candidates = sorted(
                 # ADR-0018 §3: a memory carries how it got here, so an agent can tell an
                 # auto-promoted one the owner has not reviewed from one they confirmed.
-                (record_unit(record,
-                             review_state_of(record, records) if record.record_type == "memory" else None)
+                (record_unit(
+                    record,
+                    review_state_of(record, records) if record.record_type == "memory" else (
+                        profile_review_state_of(record, records)
+                        if record.record_type == "fact" and record.type == "profile.promoted_memory"
+                        else None
+                    ),
+                )
                  for record in matched),
                 key=lambda item: 3 if item.layer == "L3" else 4,
             )

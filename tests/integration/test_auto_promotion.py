@@ -252,7 +252,9 @@ class TestReviewFindings:
 
         events = [r for r in service.records().records()
                   if r.record_type == "review_event" and r.target_id == promoted.memory_id]
-        assert [e.decision for e in events] == ["pin", "accept"]
+        # ADR-0020 adds the policy `promote` event targeting the pinned Memory; repeats still add
+        # only one owner `accept` event.
+        assert [e.decision for e in events] == ["pin", "promote", "accept"]
         assert service.review_state(promoted.memory_id) == "pinned"
 
     def test_a_naive_or_hostile_reminder_marker_does_not_crash_or_silence_forever(

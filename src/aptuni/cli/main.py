@@ -18,6 +18,7 @@ from aptuni.application.workspace import DEFAULT_VAULT, Workspace
 from aptuni.cli.backup_commands import add_backup_commands, cmd_backup
 from aptuni.cli.marginnote_commands import MARGINNOTE_COMMANDS, add_marginnote_parsers, cmd_marginnote
 from aptuni.cli.memory_cli import add_memory_commands, cmd_memory, cmd_observe
+from aptuni.cli.profile_cli import add_profile_commands, cmd_profile
 from aptuni.cli.render import delimited_untrusted
 from aptuni.cli.setup_commands import (
     add_guided_setup_command,
@@ -200,6 +201,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_setup_commands(sub)
     add_guided_setup_command(sub)
     add_memory_commands(sub)
+    add_profile_commands(sub)
 
     export = sub.add_parser("export", help="write a private, readable copy of your current Profile")
     export.add_argument("path", type=Path)
@@ -734,6 +736,7 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "setup": cmd_setup,
     "observe": cmd_observe,
     "memory": cmd_memory,
+    "profile": cmd_profile,
     "export": _cmd_export,
     "privacy": _cmd_privacy,
     "backup": cmd_backup,

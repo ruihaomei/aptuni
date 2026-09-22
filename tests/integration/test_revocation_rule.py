@@ -186,6 +186,10 @@ def test_a_purge_scope_includes_accept_and_pin_events_on_the_memory(
     scoped = set(preview.record_ids)
     events = [r for r in service.records().records()
               if r.record_type == "review_event" and r.target_id == promoted.memory_id]
-    assert len(events) == 2
+    assert [event.decision for event in events] == ["pin", "promote", "accept"]
     assert {e.id for e in events} <= scoped, "a purge must take the decisions with the memory"
+    linked_facts = [record for record in service.records().records()
+                    if record.record_type == "fact" and promoted.memory_id in record.memory_ids]
+    assert len(linked_facts) == 1
+    assert linked_facts[0].id in scoped, "a purge must take the promoted Fact with the memory"
     assert promoted.memory_id in scoped

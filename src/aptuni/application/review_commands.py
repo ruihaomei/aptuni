@@ -23,9 +23,14 @@ from aptuni.application.errors import AptuniError
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id, sha256_text
 from aptuni.domain.invariants import RecordSet
-from aptuni.domain.records import Memory, ReviewEvent, ReviewPolicy
+from aptuni.domain.records import Fact, Memory, ReviewEvent, ReviewPolicy
 from aptuni.domain.temporal import utc_now
 from aptuni.policy.modules import can_ingest
+from aptuni.policy.profile_promotion import (
+    ProfileReviewState,
+    profile_promotion_records,
+    profile_review_state_of,
+)
 from aptuni.policy.promotion import (
     ReviewState,
     evaluate_candidate,
@@ -144,13 +149,72 @@ class ReviewCommands:
         digest = sha256_text(f"review|{action}|{memory_id}|{epoch}")
         decision: Any = action
         # Only `pin` needs schema v2, so accept/reject stay readable by a v1 reader (ADR-0018 §7).
-        self._commit([ReviewEvent(
+        event = ReviewEvent(
             record_type="review_event", id=new_id("rev"), schema_version=2 if action == "pin" else 1,
             recorded_at=utc_now(), target_id=memory_id, decision=decision, actor="user_cli",
             action_digest=digest, policy_epoch=epoch, rationale_code=f"owner_{action}",
             nonce_id=f"review-{memory_id}",
-        )], seq)
+        )
+        written: list[Any] = [event]
+        if action == "pin":
+            visible = RecordSet([*records.records(), event])
+            written.extend(profile_promotion_records(memory, visible))
+        self._commit(written, seq)
         return review_state_of(memory, self.records())
+
+    # ------------------------------------------------------- Profile promotion/review
+    def refresh_profile(self) -> list[Fact]:
+        """Promote eligible older pins in one idempotent canonical commit."""
+        seq, records = self.snapshot()
+        written: list[Any] = []
+        visible = records
+        for memory in (record for record in records.records() if record.record_type == "memory"):
+            created = profile_promotion_records(memory, visible)
+            if created:
+                written.extend(created)
+                visible = RecordSet([*visible.records(), *created])
+        if written:
+            self._commit(written, seq)
+        return [record for record in written if record.record_type == "fact"]
+
+    def profile_review_pending(self) -> list[Fact]:
+        records = self.records()
+        return [fact for fact in records.current_facts()
+                if profile_review_state_of(fact, records) == "auto_promoted_pending_review"]
+
+    def profile_review_state(self, fact_id: str) -> ProfileReviewState:
+        records = self.records()
+        fact = next((record for record in records.records()
+                     if record.record_type == "fact" and record.id == fact_id
+                     and record.type == "profile.promoted_memory"), None)
+        if fact is None:
+            raise AptuniError("fact_not_current", f"No current fact with id {fact_id}.")
+        return profile_review_state_of(fact, records)
+
+    def review_profile_fact(self, fact_id: str, action: Literal["accept", "reject"]) -> ProfileReviewState:
+        seq, records = self.snapshot()
+        fact = next((record for record in records.records()
+                     if record.record_type == "fact" and record.id == fact_id
+                     and record.type == "profile.promoted_memory"), None)
+        if fact is None:
+            raise AptuniError("fact_not_current", f"No current fact with id {fact_id}.")
+        existing = [record for record in records.records()
+                    if record.record_type == "review_event" and record.target_id == fact_id
+                    and record.decision == action]
+        if existing:
+            return profile_review_state_of(fact, records)
+        if fact_id in records.revoked_ids() or records.superseded_by(fact_id) is not None:
+            raise AptuniError("fact_not_current", f"No current fact with id {fact_id}.")
+        epoch = records.policy().epoch  # type: ignore[union-attr]
+        event = ReviewEvent(
+            record_type="review_event", id=new_id("rev"), schema_version=1, recorded_at=utc_now(),
+            target_id=fact_id, decision=action, actor="user_cli",
+            action_digest=sha256_text(f"profile_review|{action}|{fact_id}|{epoch}"),
+            policy_epoch=epoch, rationale_code=f"owner_{action}_profile",
+            nonce_id=f"profile-review-{fact_id}",
+        )
+        self._commit([event], seq)
+        return profile_review_state_of(fact, self.records())
 
     def edit_memory(self, memory_id: str, statement: str) -> str:
         """Correct a promoted memory: the replacement supersedes it and the original stays."""

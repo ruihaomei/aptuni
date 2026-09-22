@@ -66,6 +66,7 @@ class RecordSet:
                 raise InvariantError(f"{record.id} references missing records: {missing}")
         self._check_supersession(checked)
         self._check_memory_lifecycle(checked)
+        self._check_profile_promotion(checked)
         self._check_evidence_support(checked)
         self._check_idempotency()
 
@@ -115,6 +116,89 @@ class RecordSet:
                 if self._by_id[source].record_type not in ("observation", "evidence"):
                     raise InvariantError(f"{candidate.id} derives from a non-observation/evidence record")
 
+    def _check_profile_promotion(self, checked: list[Any]) -> None:
+        """Bind a policy promotion targeting a Memory to exactly one lineage-linked Fact."""
+        facts = self._of_type("fact")
+        events = self._of_type("review_event")
+        for fact in (record for record in checked
+                     if record.record_type == "fact" and record.type == "profile.promoted_memory"):
+            if len(fact.memory_ids) != 1:
+                raise InvariantError(f"{fact.id} profile promotion requires exactly one memory")
+            memory_id = fact.memory_ids[0]
+            if self._by_id[memory_id].record_type != "memory":
+                raise InvariantError(f"{fact.id} profile promotion source is not a memory")
+            memory = self._by_id[memory_id]
+            promotion_events = [event for event in events if event.decision == "promote"
+                                and event.actor == "policy_auto" and event.target_id == memory_id]
+            if not promotion_events:
+                raise InvariantError(f"{fact.id} has no policy promotion event for its memory")
+            if len(promotion_events) != 1:
+                raise InvariantError(f"{memory_id} has more than one profile promotion event")
+            linked = [candidate for candidate in facts if memory_id in candidate.memory_ids
+                      and candidate.type == "profile.promoted_memory"]
+            if len(linked) != 1:
+                raise InvariantError(f"{memory_id} has more than one promoted profile fact")
+            event = promotion_events[0]
+            if not self._profile_fact_exact(fact, memory, event):
+                raise InvariantError(f"{fact.id} does not exactly preserve its promoted memory claim")
+        for event in (record for record in checked if record.record_type == "review_event"
+                      and record.decision == "promote" and record.actor == "policy_auto"):
+            self._check_profile_promotion_event(event, facts)
+
+    def _check_profile_promotion_event(self, event: Any, facts: list[Any]) -> None:
+        target = self._by_id[event.target_id]
+        matching_events = [candidate for candidate in self._of_type("review_event")
+                           if candidate.decision == "promote" and candidate.actor == "policy_auto"
+                           and candidate.target_id == event.target_id]
+        if len(matching_events) != 1:
+            raise InvariantError(f"{event.target_id} has more than one policy promotion event")
+        if target.record_type == "candidate_memory":
+            linked_memories = [record for record in self._of_type("memory")
+                               if record.candidate_id == event.target_id
+                               and record.change_kind == "assert" and not record.supersedes]
+            if len(linked_memories) != 1:
+                raise InvariantError(
+                    f"{event.id} candidate promotion must admit exactly one root memory"
+                )
+        elif target.record_type == "memory":
+            linked = [fact for fact in facts if event.target_id in fact.memory_ids
+                      and fact.type == "profile.promoted_memory"]
+            if len(linked) != 1:
+                raise InvariantError(
+                    f"{event.id} profile promotion must admit exactly one linked fact"
+                )
+        else:
+            raise InvariantError(
+                f"{event.id} policy promotion target must be a candidate_memory or memory"
+            )
+
+    @staticmethod
+    def _profile_fact_exact(fact: Any, memory: Any, event: Any) -> bool:
+        return (
+            fact.statement == memory.statement
+            and fact.module == memory.module
+            and fact.provenance == memory.provenance
+            and fact.valid_from == memory.valid_from
+            and fact.valid_until == memory.valid_until
+            and fact.evidence_ids == memory.evidence_ids
+            and fact.observed_at == memory.recorded_at
+            and fact.confidence == memory.confidence
+            and fact.policy_epoch == event.policy_epoch
+            and fact.recorded_at == event.recorded_at
+            and fact.ingested_at == fact.recorded_at
+            and fact.trust == "system"
+            and fact.review_status == "auto_derived"
+            and fact.subject == "self"
+            and fact.predicate == "stable_memory"
+            and fact.object is None
+            and fact.change_kind == "assert"
+            and not fact.supersedes
+            and fact.retention.retention_class == "canonical"
+            and fact.retention.purpose == "profile"
+            and fact.retention.expires_at is None
+            and not fact.retention.full_content
+        )
+
     def _check_evidence_support(self, checked: list[Any]) -> None:
         for record in checked:
             statement = getattr(record, "statement", "")
@@ -157,7 +241,10 @@ class RecordSet:
         """Facts believed current at system time ``as_known_at`` (default: now)."""
         known = self._known(as_known_at)
         superseded = self._superseding_kinds(known)
+        withdrawn = {r.target_id for r in known if r.record_type == "review_event"
+                     and r.decision in ("reject", "revoke")}
         return [r for r in known if r.record_type == "fact" and r.id not in superseded
+                and r.id not in withdrawn
                 and r.change_kind != "retraction"]
 
     def facts_valid_at(self, when: str, as_known_at: datetime | None = None) -> list[Any]:

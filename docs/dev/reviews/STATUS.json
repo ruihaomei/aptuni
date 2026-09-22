@@ -172,6 +172,12 @@
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   },
+  "m2-profile-promotion": {
+   "kind": "review",
+   "current": "59-m2-profile-promotion-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "relay-claude-code": {
    "kind": "drill",
    "current": "11-cold-claude-relay-drill.md",

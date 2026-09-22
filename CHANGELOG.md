@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Conservative automatic Profile promotion (ADR-0020): an owner-pinned Memory with exact
+  owner-declared CLI lineage, current permissions and no unresolved contradiction becomes one
+  lineage-linked Profile Fact atomically. `aptuni profile refresh` handles older pins and
+  `aptuni profile review list|accept|reject` provides retrospective owner review; host proposals
+  and semantic guessing never cross this boundary.
+
 - Preview-only local Mem0 2.0.20 projection commands: content-free status, exact fresh-generation
   rebuild from accepted canonical memories, and whole-store deletion. Inference and raw-conversation
   ingestion are disabled; Mem0/Ollama remain an optional extra.

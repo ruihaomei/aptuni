@@ -1,14 +1,14 @@
 # Project State
 
 **Updated:** 2026-09-22
-**Current gate:** Milestone 2 — GitHub Deep complete (`f994446`, Review 58); next work needs maintainer priority
+**Current gate:** Milestone 2 — Automatic Profile promotion complete (Review 59); longitudinal maintainer dogfooding in progress
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub Standard/Deep and MarginNote 4 sources, builtin interaction memory, bilingual SQLite/FTS projection,
 bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profile export, and the
 read-only Plugin Advisor are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -254,6 +254,16 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   service/mixin reachability from every MCP read facade, so promotion, owner decisions and commit
   sinks cannot enter a read path silently. Review 57 initially blocked the direct-only proof, then
   approved the transitive remediation with one non-blocking disposable-snooze race note.
+- **Automatic Profile promotion (runnable, Review 59).** An owner-pinned current Memory becomes one
+  stable Profile Fact only when its complete support is owner-declared CLI material, current module
+  ingest and expose permissions both allow it, no unresolved candidate contradicts it, automatic
+  promotion is enabled, and no historical promoted Fact already names it. Pin, policy event and
+  exact lineage-linked Fact commit atomically; `aptuni profile refresh` repairs older pins and is
+  idempotent even after rejection. `aptuni profile review list|accept|reject` supplies retrospective
+  review, while Context marks pending promoted Facts explicitly. Canonical validation binds exact
+  statement, module, provenance, temporal fields, evidence, fixed labels and unique transition
+  events at incremental commit time. ADR-0020 is accepted; Review 59 is **APPROVE WITH
+  NON-BLOCKING NOTES** after five independently reproduced contract blockers were remediated.
 - **GitHub Deep authored activity (runnable, `f994446`).** `aptuni source add-github URL --deep-actor
   LOGIN --module M --role R` creates an additive `github_deep` source; GitHub Standard is unchanged.
   One explicit linked login is used to attribute only repository-local authored commits, opened pull
@@ -272,19 +282,20 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 - Milestone 1 and its first public release are complete. Milestone 2 is open; S10, the Mem0
   projection preview, the opt-in hybrid retrieval preview, the Obsidian vault source, automatic
-  promotion slices A–D and GitHub Deep are complete.
+  promotion slices A–D, automatic Profile promotion and GitHub Deep are complete. Longitudinal
+  maintainer dogfooding/setup evaluation is the active slice.
 
 ## Awaiting maintainer decisions
 
-- The remaining M2 roadmap entries need maintainer prioritization and product input: automatic
-  Profile promotion policy, the in-Obsidian interface/plugin MVP, or the maintainer's full personal
-  setup and longitudinal quality evaluation. None is silently inferred from the completed source.
+- The maintainer has prioritized the remaining run: longitudinal setup/evaluation next, then the
+  in-Obsidian interface/plugin MVP. Real private data or authentication may still require direct
+  maintainer participation; no private material enters the repository.
 
 ## Next highest-priority task
 
-1. Maintainer selects the next M2 track: define the slower automatic Profile-promotion policy,
-   scope the separate in-Obsidian interface/plugin MVP, or begin the maintainer-owned full setup and
-   longitudinal quality evaluation. GitHub Deep's completed scope remains closed.
+1. Build the smallest durable longitudinal maintainer setup/evaluation for promotion, retrieval,
+   correction, review, noise, provenance and personalization; then continue directly to the first
+   useful Obsidian interface workflow. GitHub Deep's completed scope remains closed.
 2. Review lessons that carry forward: write injection tests with **real** control bytes (the
    literal text of an escape sequence proves nothing); route every outside-controlled token through
    `sanitize_token` where stored or `delimited_untrusted` where rendered; and when a rule about
@@ -297,6 +308,12 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 5. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
+
+- Automatic Profile promotion: full repository gate 642 passed, 3 optional-runtime skips and 47
+  subtests; Ruff, strict mypy (76 source files), relay, notices/secrets/workflow supply-chain and
+  frozen lexical/hybrid evaluation are green. Review 59 independently reproduced and drove fixes
+  for rejection re-promotion, invalid/duplicate transition targets, exact-claim binding, correction
+  compatibility and incremental validation. Final verdict: **APPROVE WITH NON-BLOCKING NOTES**.
 
 - GitHub Deep authored activity: full repository gate 627 passed, 3 optional-runtime skips and 47
   subtests; Ruff, strict mypy (74 source files), relay and the notices/secrets/workflow supply-chain
