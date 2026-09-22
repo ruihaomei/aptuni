@@ -229,7 +229,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   evidence row; and the plugin manifest denied reading note bodies while storing an indexed
   280-character body excerpt. All three were remediated test-first with mutation-verified
   regressions, and the final verdict is **APPROVE WITH NON-BLOCKING NOTES**.
-- **Automatic promotion and retrospective review, slices A–C (runnable).** An observation the owner
+- **Automatic promotion and retrospective review, slices A–C (runnable, `123ebdd`).** An observation the owner
   makes through the CLI now becomes an active memory in the same commit instead of waiting for a
   confirmation. It is marked `auto_promoted_pending_review` — derived from the ledger, not stored —
   and reviewed afterwards with `aptuni memory review list|accept|edit|reject|pin`. Host proposals,

@@ -53,7 +53,7 @@ Keep all MarginNote access read-only; never commit note text, and do not infer r
 
 ### What just landed
 
-Automatic promotion (ADR-0018, slices A–C). An observation the owner makes through the CLI becomes
+Automatic promotion (ADR-0018, slices A–C, `123ebdd`). An observation the owner makes through the CLI becomes
 an active memory in the same commit rather than waiting in a queue; it is marked
 `auto_promoted_pending_review`, derived from the ledger rather than stored, and reviewed afterwards
 with `aptuni memory review list|accept|edit|reject|pin`. Host proposals, sensitive modules and
