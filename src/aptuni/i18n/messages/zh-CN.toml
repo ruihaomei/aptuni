@@ -39,7 +39,7 @@
 "plugin.retrieval.hybrid.name" = "混合检索"
 "plugin.retrieval.hybrid.summary" = "结合关键词检索与语义检索。"
 "plugin.retrieval.hybrid.strength" = "上下文规模变大时召回更好。"
-"plugin.retrieval.hybrid.weakness" = "计划在里程碑 2 提供；需要嵌入模型。"
+"plugin.retrieval.hybrid.weakness" = "预览：仅覆盖已接受记忆；需要本地 Mem0 与嵌入模型。"
 "plugin.agent.mcp.name" = "MCP 服务"
 "plugin.agent.mcp.summary" = "让智能体通过本地 STDIO 读取有预算、已授权的上下文。"
 "plugin.agent.mcp.strength" = "只读、有预算，且不开放网络套接字。"

@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.metadata
 import os
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -66,6 +67,60 @@ def test_client_wrapper_has_no_inference_path() -> None:
     with pytest.raises(AptuniError) as caught:
         client.add("raw interaction", user_id="user", metadata={}, infer=True)
     assert caught.value.code == "memory_provider_inference_forbidden"
+
+
+def test_client_wrapper_uses_mem0_2_search_contract() -> None:
+    calls: list[tuple[str, dict[str, Any]]] = []
+
+    class MemoryDouble:
+        def search(self, query: str, **kwargs: Any) -> dict[str, Any]:
+            calls.append((query, kwargs))
+            return {"results": []}
+
+    result = LocalMem0Client(MemoryDouble()).search("semantic query", user_id="profile", limit=7)
+    assert result == {"results": []}
+    assert calls == [("semantic query", {
+        "filters": {"user_id": "profile"}, "top_k": 7, "threshold": 0.0,
+    })]
+
+
+def test_client_close_releases_primary_and_telemetry_vector_stores() -> None:
+    closed: list[str] = []
+
+    class MemoryDouble:
+        vector_store = SimpleNamespace(client=SimpleNamespace(close=lambda: closed.append("primary")))
+        _telemetry_vector_store = SimpleNamespace(
+            client=SimpleNamespace(close=lambda: closed.append("telemetry")),
+        )
+
+        @staticmethod
+        def close() -> None:
+            closed.append("memory")
+
+    LocalMem0Client(MemoryDouble()).close()
+    assert closed == ["memory", "primary", "telemetry"]
+
+
+def test_client_close_attempts_every_store_after_one_close_failure() -> None:
+    closed: list[str] = []
+
+    def fail_primary() -> None:
+        closed.append("primary")
+        raise RuntimeError("primary failed")
+
+    class MemoryDouble:
+        vector_store = SimpleNamespace(client=SimpleNamespace(close=fail_primary))
+        _telemetry_vector_store = SimpleNamespace(
+            client=SimpleNamespace(close=lambda: closed.append("telemetry")),
+        )
+
+        @staticmethod
+        def close() -> None:
+            closed.append("memory")
+
+    with pytest.raises(RuntimeError, match="primary failed"):
+        LocalMem0Client(MemoryDouble()).close()
+    assert closed == ["memory", "primary", "telemetry"]
 
 
 def test_safe_ollama_client_overrides_redirect_and_proxy_settings() -> None:

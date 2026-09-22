@@ -95,7 +95,8 @@ aptuni adapter apply ACTION_ID    # 在你自己的终端里确认
 | MarginNote 4 来源（macOS，本地只读直连，原生 ID） | ✅ |
 | 规范 Vault 的可校验备份与恢复 | ✅ |
 | Mem0 本地投影（`infer=False`，删除时重建整个存储） | ✅ 预览 |
-| Obsidian 来源与界面、混合检索、Graphiti | 🗺 里程碑 2–3 |
+| 显式混合检索（SQLite + 已接受记忆的 Mem0 排名） | ✅ 预览 |
+| Obsidian 来源与界面、Graphiti | 🗺 里程碑 2–3 |
 
 运行 `aptuni plugin list --lang zh-CN` 和 `aptuni recipe list --lang zh-CN` 可以在命令行看到同样的信息。
 
@@ -154,12 +155,18 @@ Mem0 只是由你在 Aptuni 中已接受记忆构建的本地派生投影；它�
 ```sh
 aptuni memory provider status
 aptuni memory provider rebuild
+aptuni search "我该如何组织实验？" --hybrid
 aptuni memory provider delete
 ```
 
 重建始终使用 `infer=False`。隐私清除不依赖 Mem0 的单条删除，而是立即移除整个托管投影。忘记
 记忆会把现有投影标为过期，并在下一次显式重建时排除已撤销记忆。设置流程和配方不会自动选择
-这一预览功能。
+这一预览功能。`search --hybrid` 只接受最新且已完成清理的投影，并且只合并排名位置；Mem0 分数
+不会成为规范数据。默认检索与 Context API 仍使用内置 SQLite/FTS 路径。
+
+预览阶段有两点需要留意。语义通道目前没有相关性下限，即使查询没有任何关键词命中，也可能返回
+最多 `--limit` 条已接受记忆，请自行判断结果而不要直接采信。此外，返回的 `score` 只在同一次
+调用内可比较：普通检索与 `--hybrid` 使用的是不同量纲。
 
 ## 真正能恢复的备份
 

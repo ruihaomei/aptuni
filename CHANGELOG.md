@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The format follows
 - Preview-only local Mem0 2.0.20 projection commands: content-free status, exact fresh-generation
   rebuild from accepted canonical memories, and whole-store deletion. Inference and raw-conversation
   ingestion are disabled; Mem0/Ollama remain an optional extra.
+- Opt-in `aptuni search --hybrid` preview with deterministic rank-only fusion across SQLite/FTS and
+  the fresh local Mem0 accepted-memory projection; default search and Context API remain lexical.
 
 ## [0.1.0] — 2026-09-21
 

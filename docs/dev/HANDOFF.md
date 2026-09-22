@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
@@ -14,8 +14,9 @@ Claude/Codex real-host S12 journeys. Milestone 1 is complete. Aptuni 0.1.0 is pu
 GitHub Release from exact commit `33ea08a`; tag workflow 35619712980 and release-commit CI
 35572245440 are green. Review 50 independently approved the final public result. S10 has now
 conditionally admitted Mem0 2.0.20 only as a disposable `infer=False` projection; Review 52
-approved the boundary with non-blocking notes. The rebuild-only production preview is now runnable
-and Review 53 approved it with non-blocking notes.
+approved the boundary with non-blocking notes. The rebuild-only production preview is runnable and
+Review 53 approved it with non-blocking notes. The opt-in hybrid retrieval preview is now runnable
+and Review 54 approved it with non-blocking notes and no blocking findings.
 
 ## Read first
 
@@ -25,15 +26,33 @@ and Review 53 approved it with non-blocking notes.
 
 ## Next action
 
-Open the hybrid-retrieval slice from the M2 roadmap. Start with an accepted bounded TDD plan and
-frozen evaluation additions; keep SQLite/FTS as the deterministic fallback and canonical hydrator,
-keep all scores derived, and preserve policy rechecks before exposure. Do not mutate the 0.1.0 tag
-or artifacts; a concrete public defect requires a patch release.
+Open the Obsidian source slice from the M2 roadmap (`ROADMAP.md` M2 order: Mem0 adapter -> hybrid
+retrieval -> Obsidian source/interface -> GitHub Deep mode; the first two are done). Start with an
+accepted bounded TDD plan. Reuse the stabilized source-provider contract and the
+`add-source-provider` skill instead of inventing a fourth ingestion shape: vault identity,
+wikilinks, frontmatter and attachment/secret exclusion are the genuinely new problems. Keep access
+read-only, emit minimized Evidence through the common snapshot/delta pipeline, and cover
+crash/replay and hidden-path withdrawal. Do not mutate the 0.1.0 tag or artifacts; a concrete
+public defect requires a patch release.
 
 `docs/dev/plans/07-m1-exit-matrix.md` audits every remaining M1 exit clause and orders Slices 14–18.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
+
+The opt-in hybrid retrieval preview adds `aptuni search --hybrid`. It fuses SQLite/FTS ranks with
+semantic ranks from the selected Mem0 generation by deterministic reciprocal-rank fusion; provider
+scores are diagnostic only and cannot reorder anything. The semantic lane returns canonical Memory
+IDs only, is filtered to accepted non-revoked memories in permitted modules, and is hydrated solely
+from the final stable canonical snapshot after a repeated exposure check. Absent, stale, invalid or
+cleanup-required provider state raises a bounded remediation error rather than falling back
+silently. Default search, the Context API and MCP are untouched. `tools/run_evals.py` is at
+evaluator version 2 with an additive checksum-bound fusion fixture; the frozen S03 corpus and its
+thresholds/holdout are unchanged. ADR-0004 and ADR-0003 carry 2026-09-22 amendments;
+`retrieval.hybrid` is now `preview`. Two honest preview limits are documented: the semantic lane has
+no relevance floor (KI-021) and `score` is comparable only within one invocation. Full gate: 501
+passed, 3 optional skips, 47 subtests; the isolated hash-locked runtime passes 55, including a real
+Mem0 2.0.20 rebuild-then-search. Review 54 is **APPROVE WITH NON-BLOCKING NOTES**.
 
 The Mem0 projection preview (`e2a06e5`) adds `aptuni memory provider status|rebuild|delete`. It projects only
 current accepted canonical memories, always uses `infer=False`, validates exact public enumeration,

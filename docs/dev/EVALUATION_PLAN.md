@@ -40,6 +40,11 @@ uses private profile data, and its synthetic result is not a population-quality 
 - **Worked example:** `tests/fixtures/eval/context-noise-example-v1.json` and its `.sha256` companion
   are frozen. The context-budget unit test verifies the checksum and reproduces the exact total,
   irrelevant-unit count, and noise ratio.
+- **Hybrid rank-fusion contract:** `tests/fixtures/eval/hybrid-ranks-v1.json` and its `.sha256`
+  companion are frozen additive inputs scored by `evaluate_hybrid_fixture` at evaluator version 2.
+  They have their own dev/holdout splits and `recall@3`/MRR thresholds and pin the deterministic
+  fusion contract only. They make no embedding-quality or population-relevance claim, and they do
+  not touch the frozen S03 lexical corpus, judgments, thresholds or holdout.
 
 ## Human/dogfood scorecard
 

@@ -80,3 +80,22 @@ stopword/task-language removal actually changes the query. The two motivating na
 all-term path. Production evaluation records dev false-positive rate 0.0, recall@5 0.992 and MRR
 1.0; holdout records 1.0 recall/MRR and 0.0 false positives. Review 44 approved the harness and this
 regression boundary; generalization beyond the synthetic corpus remains KI-018.
+
+### 2026-09-22 — Explicit hybrid accepted-memory preview
+
+`aptuni search --hybrid` may fuse the builtin SQLite result ranks with semantic ranks from the
+selected Mem0 projection. The semantic lane is limited to accepted, non-revoked canonical Memory
+IDs and requires a `ready` generation at the same Vault sequence; absent, stale, invalid, or
+cleanup-required state is a bounded error rather than a silent lexical fallback. Fusion uses only
+rank positions (reciprocal-rank fusion with deterministic lexical-first ties), never provider score
+scales. Results are hydrated only after the final stable Vault snapshot and exposure/module checks.
+Default search and the Context API remain SQLite-only. The frozen hybrid fixture validates fusion
+mechanics, not embedding-model quality or population relevance.
+
+Two consequences are deliberate and must not be read as exactness claims. Fusion runs over a
+bounded per-lane candidate pool (`min(100, max(20, limit * 4))`), so a deeply ranked agreement
+outside that pool cannot be recovered; this trades unbounded provider reads for a bounded,
+predictable cost. And the semantic lane has no relevance floor, unlike the lexical fallback's
+relative-score floor, so an unmatched query can still return exposable memories up to the requested
+limit (KI-021). The `score` field is therefore only comparable within one invocation: lexical hits
+carry `-bm25`, hybrid hits carry a reciprocal-rank value on an unrelated scale.

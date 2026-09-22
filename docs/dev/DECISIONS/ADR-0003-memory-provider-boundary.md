@@ -86,3 +86,11 @@ root and require a canonical rebuild. The optional `mem0` extra pins `mem0ai==2.
 command and is not selected by setup, Advisor recommendations, or Recipes. Only a plain loopback
 Ollama endpoint is accepted, Aptuni never pulls a missing model, and telemetry is disabled before
 the first Mem0 import.
+
+### 2026-09-22 — Read path for the opt-in hybrid preview
+
+The Mem0 provider boundary gains one read-only method, `Mem0Projection.search`, and a matching
+`search` member on the `Mem0Client` Protocol. It returns canonical Memory IDs plus a diagnostic
+score and never returns provider text. The rebuild-only write boundary, the inference ban and
+whole-store-rebuild deletion are unchanged. The retrieval semantics, fusion contract and exposure
+rechecks are specified in ADR-0004's 2026-09-22 amendment.

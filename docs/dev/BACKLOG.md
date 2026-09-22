@@ -36,3 +36,4 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Mem0 projection adapter: inject failed add/delete/rebuild operations and emit bounded structured failure evidence with cleanup | Review 51 note | M2 Mem0 adapter |
 | Qdrant Client 1.19.1 opens a temporary in-memory SQLite connection without explicit close on Python 3.13; recheck on any pinned upgrade | S10/Review 51 follow-up | M2 Mem0 adapter |
 | Mem0 provider status: bound the final old-generation scan and distinguish exact-version incompatibility from missing optional modules | Review 53 notes | M2 Mem0 hardening |
+| Hybrid service tests monkeypatch `AptuniService._semantic_search`, bypassing the lock, the freshness gate and `Mem0Projection.search`; move the module-filter, policy-race and non-memory-id cases to factory-level doubles as the CLI test already does | Review 54 N5 | M2 hybrid hardening |

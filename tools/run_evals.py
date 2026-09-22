@@ -20,11 +20,18 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from aptuni import __version__  # noqa: E402
 from aptuni.retrieval.lexical import LEXEME_VERSION  # noqa: E402
-from aptuni.retrieval.sqlite import PROJECTION_SCHEMA, ProjectionDocument, SqliteProjection  # noqa: E402
+from aptuni.retrieval.hybrid import reciprocal_rank_fusion  # noqa: E402
+from aptuni.retrieval.sqlite import (  # noqa: E402
+    PROJECTION_SCHEMA,
+    ProjectionDocument,
+    SearchRow,
+    SqliteProjection,
+)
 
-EVALUATOR_VERSION = 1
+EVALUATOR_VERSION = 2
 CORPUS_ROOT = ROOT / "spikes" / "s03_fts"
 NOISE_FIXTURE = ROOT / "tests" / "fixtures" / "eval" / "context-noise-example-v1.json"
+HYBRID_FIXTURE = ROOT / "tests" / "fixtures" / "eval" / "hybrid-ranks-v1.json"
 
 
 class EvaluationInputError(RuntimeError):
@@ -138,6 +145,54 @@ def evaluate_context_noise(path: Path = NOISE_FIXTURE) -> dict[str, float | int]
     return result
 
 
+def evaluate_hybrid_fixture(path: Path = HYBRID_FIXTURE) -> tuple[dict[str, Any], list[str]]:
+    """Score the frozen fusion contract; this deliberately makes no embedding-quality claim."""
+    verify_companion_checksum(path)
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+        if value["schema_version"] != 1:
+            raise ValueError
+        cases = value["cases"]
+        thresholds = value["thresholds"]
+    except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+        raise EvaluationInputError("hybrid rank fixture is invalid") from error
+    summaries: dict[str, dict[str, float | int]] = {}
+    outputs: dict[str, list[str]] = {}
+    failures: list[str] = []
+    for split in ("dev", "holdout"):
+        split_cases = [case for case in cases if case["split"] == split]
+        if not split_cases:
+            raise EvaluationInputError(f"hybrid rank fixture has no {split} cases")
+        reciprocal_ranks: list[float] = []
+        recalls: list[float] = []
+        for case in split_cases:
+            ranked = reciprocal_rank_fusion(
+                [SearchRow(record_id, 0.0) for record_id in case["lexical"]],
+                [SearchRow(record_id, 0.0) for record_id in case["semantic"]],
+                limit=3,
+            )
+            identifiers = [row.record_id for row in ranked]
+            outputs[case["id"]] = identifiers
+            relevant = set(case["relevant"])
+            recalls.append(len(set(identifiers) & relevant) / min(len(relevant), 3))
+            reciprocal_ranks.append(next(
+                (1.0 / rank for rank, identifier in enumerate(identifiers, 1) if identifier in relevant), 0.0,
+            ))
+        summary: dict[str, float | int] = {
+            "cases": len(split_cases),
+            "recall_at_3": sum(recalls) / len(recalls),
+            "mrr": sum(reciprocal_ranks) / len(reciprocal_ranks),
+        }
+        summaries[split] = summary
+        failures.extend(threshold_failures(f"hybrid.{split}", summary, thresholds[split]))
+    return {
+        "description": value["description"],
+        "thresholds": thresholds,
+        "metrics": summaries,
+        "outputs": outputs,
+    }, failures
+
+
 def git_state(root: Path = ROOT) -> tuple[str | None, bool | None]:
     try:
         commit = subprocess.run(
@@ -160,6 +215,7 @@ def evaluate(
     sbom: Path | None = None,
     corpus_root: Path = CORPUS_ROOT,
     noise_fixture: Path = NOISE_FIXTURE,
+    hybrid_fixture: Path = HYBRID_FIXTURE,
 ) -> dict[str, Any]:
     if sbom is not None and not sbom.is_file():
         raise EvaluationInputError(f"SBOM is missing: {sbom}")
@@ -194,6 +250,8 @@ def evaluate(
 
     commit, dirty = git_state()
     noise = evaluate_context_noise(noise_fixture)
+    hybrid, hybrid_failures = evaluate_hybrid_fixture(hybrid_fixture)
+    failures.extend(hybrid_failures)
     return {
         "schema_version": 1,
         "evaluator_version": EVALUATOR_VERSION,
@@ -212,13 +270,19 @@ def evaluate(
             "freeze_sha256": sha256(corpus_root / "FREEZE.json"),
             "frozen_files": frozen,
             "context_noise_sha256": verify_companion_checksum(noise_fixture),
+            "hybrid_ranks_sha256": verify_companion_checksum(hybrid_fixture),
             "evaluator_sha256": sha256(Path(__file__)),
             "uv_lock_sha256": sha256(ROOT / "uv.lock"),
             "sbom_sha256": sha256(sbom) if sbom is not None else None,
         },
         "thresholds": per_split,
-        "metrics": {"retrieval": summaries, "context_noise_example": noise},
-        "outputs": {"ranked_results": outputs},
+        "hybrid_thresholds": hybrid["thresholds"],
+        "metrics": {
+            "retrieval": summaries,
+            "hybrid_rank_contract": hybrid["metrics"],
+            "context_noise_example": noise,
+        },
+        "outputs": {"ranked_results": outputs, "hybrid_ranked_results": hybrid["outputs"]},
     }
 
 

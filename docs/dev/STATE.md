@@ -1,14 +1,14 @@
 # Project State
 
 **Updated:** 2026-09-22
-**Current gate:** Milestone 2 — provider hardening; S10 Mem0 admission complete (Review 52)
+**Current gate:** Milestone 2 — hybrid retrieval preview complete (Review 54); Obsidian source next
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub and MarginNote 4 sources, builtin interaction memory, bilingual SQLite/FTS projection,
 bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profile export, and the
 read-only Plugin Advisor are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -195,11 +195,26 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   purge to prevent resurrection. Malformed enumeration and every tested pre/post-publication
   failure fail closed or surface `cleanup_required`. Review 53 is **APPROVE WITH NON-BLOCKING
   NOTES**.
+- **Opt-in hybrid retrieval preview (runnable).** `aptuni search --hybrid` fuses the builtin
+  SQLite/FTS ranks with semantic ranks from the selected Mem0 generation using deterministic
+  reciprocal-rank fusion. Only rank positions are used; provider scores are diagnostic and cannot
+  reorder anything. The semantic lane returns canonical Memory IDs only, is limited to accepted
+  non-revoked memories in permitted modules, and is hydrated exclusively from the final stable
+  canonical snapshot after a repeated exposure check. A missing, stale, invalid or
+  cleanup-required projection is a bounded remediation error, never a silent lexical fallback.
+  Default `aptuni search`, the Context API and MCP are unchanged. `tools/run_evals.py` moves to
+  evaluator version 2 and scores an additive checksum-bound fusion fixture with its own dev/holdout
+  splits; the frozen S03 lexical corpus, judgments, thresholds and holdout are untouched. ADR-0004
+  and ADR-0003 carry 2026-09-22 amendments and `retrieval.hybrid` moves from `planned` to
+  `preview`. Review 54 is **APPROVE WITH NON-BLOCKING NOTES** with no blocking findings; notes N1
+  (no semantic relevance floor, now KI-021), N2, N3, N4, N6, N7, N8, N9 and N10 were applied in the
+  checkpoint and N5 (test fidelity) is in `BACKLOG.md`.
 
 ## In progress
 
-- Milestone 1 and its first public release are complete. Milestone 2 is open; S10 and the Mem0
-  projection preview are complete. Hybrid retrieval is the next active slice.
+- Milestone 1 and its first public release are complete. Milestone 2 is open; S10, the Mem0
+  projection preview and the opt-in hybrid retrieval preview are complete. The Obsidian source is
+  the next active slice.
 
 ## Awaiting maintainer decisions
 
@@ -207,14 +222,28 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. Open the hybrid-retrieval slice from the M2 roadmap with an accepted bounded TDD plan and frozen
-   evaluation additions; preserve SQLite/FTS as the deterministic fallback and canonical hydrator.
-2. Keep provider scores derived and policy-check every hydrated result; do not add a remote model or
-   embedding key to the default path.
-3. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
+1. Open the Obsidian source slice from the M2 roadmap with an accepted bounded TDD plan. Reuse the
+   stabilized source-provider contract (`docs/dev/plans` + the `add-source-provider` skill) rather
+   than inventing a fourth ingestion shape; vault identity, wikilinks, frontmatter and attachment
+   exclusion are the new problems.
+2. Keep Obsidian access read-only, keep `ingest_enabled`/`expose_enabled` independent, and emit
+   minimized Evidence through the common snapshot/delta pipeline with crash/replay coverage.
+3. Do not add a remote model or embedding key to any default path; keep provider scores derived and
+   policy-check every hydrated result.
+4. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
 
+- Hybrid retrieval preview: full repository gate 501 passed, 3 optional-runtime skips and 47
+  subtests; Ruff, strict mypy (69 source files), relay and the notices/secrets/workflow supply-chain
+  checks clean. The frozen evaluation run passes with unchanged lexical metrics (dev recall@5
+  0.9921569 / MRR 1.0 / FPR 0.0; holdout 1.0 / 1.0 / 0.0) and new hybrid dev+holdout recall@3 1.0 /
+  MRR 1.0 over 3 cases each. The hash-locked isolated runtime (S10 lock plus `ollama==0.6.2`) ran
+  the Mem0, hybrid and retrieval suites with 55 passed, including a real Mem0 2.0.20
+  rebuild-then-search through the production boundary. CLI dogfood: plain `search` returns the
+  Fact, and `search --hybrid` without a projection fails closed with the bounded
+  `aptuni memory provider rebuild` remediation and no traceback. Review 54 is **APPROVE WITH
+  NON-BLOCKING NOTES**.
 - Mem0 projection preview: full repository gate 479 passed, 3 optional-runtime skips and 47
   subtests; Ruff, strict mypy (68 source files), 35 developer checks, relay, lock/notices/secrets and
   diff checks clean. The pinned isolated Mem0/Ollama runtime passes all 23 focused tests, including

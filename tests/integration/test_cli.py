@@ -153,6 +153,20 @@ def test_bilingual_search_and_index_lifecycle_flow() -> None:
         assert json.loads(run(state, "index", "status", "--json").stdout)["state"] == "missing"
 
 
+def test_hybrid_search_flag_is_explicit_and_fails_with_bounded_remediation() -> None:
+    with tempfile.TemporaryDirectory() as raw:
+        base = Path(raw)
+        state = base / "state"
+        assert run(state, "init", str(base / "Aptuni")).returncode == 0
+        ordinary = run(state, "search", "semantic intent", "--json")
+        assert ordinary.returncode == 0 and json.loads(ordinary.stdout) == []
+
+        hybrid = run(state, "search", "semantic intent", "--hybrid", "--json")
+        assert hybrid.returncode == 1
+        assert "memory provider rebuild" in hybrid.stderr
+        assert "Traceback" not in hybrid.stderr
+
+
 def test_bounded_identity_and_context_flow() -> None:
     with tempfile.TemporaryDirectory() as raw:
         base = Path(raw)

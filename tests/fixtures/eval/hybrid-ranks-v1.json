@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "description": "Synthetic rank-fusion contract cases; not an embedding-quality benchmark.",
+  "thresholds": {
+    "dev": {"recall_at_3_min": 1.0, "mrr_min": 1.0},
+    "holdout": {"recall_at_3_min": 1.0, "mrr_min": 1.0}
+  },
+  "cases": [
+    {
+      "id": "dev_agreement",
+      "split": "dev",
+      "lexical": ["mem_lex", "mem_both"],
+      "semantic": ["mem_sem", "mem_both"],
+      "relevant": ["mem_both"]
+    },
+    {
+      "id": "dev_semantic_only",
+      "split": "dev",
+      "lexical": [],
+      "semantic": ["mem_intent"],
+      "relevant": ["mem_intent"]
+    },
+    {
+      "id": "dev_lexical_tie",
+      "split": "dev",
+      "lexical": ["mem_literal"],
+      "semantic": ["mem_other"],
+      "relevant": ["mem_literal"]
+    },
+    {
+      "id": "holdout_agreement",
+      "split": "holdout",
+      "lexical": ["mem_a", "mem_target"],
+      "semantic": ["mem_target", "mem_b"],
+      "relevant": ["mem_target"]
+    },
+    {
+      "id": "holdout_semantic_only",
+      "split": "holdout",
+      "lexical": [],
+      "semantic": ["mem_concept"],
+      "relevant": ["mem_concept"]
+    },
+    {
+      "id": "holdout_lexical_only",
+      "split": "holdout",
+      "lexical": ["mem_exact"],
+      "semantic": [],
+      "relevant": ["mem_exact"]
+    }
+  ]
+}

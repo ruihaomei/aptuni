@@ -85,6 +85,7 @@ def _add_retrieval_commands(sub: Any) -> None:
     search.add_argument("query")
     search.add_argument("--module", choices=MODULES)
     search.add_argument("--limit", type=int, default=5)
+    search.add_argument("--hybrid", action="store_true", help="combine lexical and local semantic memory ranks")
     search.add_argument("--json", action="store_true")
 
     index = sub.add_parser("index", help="inspect or rebuild the disposable search index")
@@ -412,7 +413,7 @@ def _cmd_review(args: argparse.Namespace, service: AptuniService) -> int:
 
 
 def _cmd_search(args: argparse.Namespace, service: AptuniService) -> int:
-    hits = service.search(args.query, module=args.module, limit=args.limit)
+    hits = service.search(args.query, module=args.module, limit=args.limit, hybrid=args.hybrid)
     values = [
         {
             "id": hit.id,

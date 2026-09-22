@@ -67,9 +67,13 @@ from aptuni.domain.records import (
     SchemaVersionError,
 )
 from aptuni.domain.temporal import utc_now
+from aptuni.memory.mem0_local import create_local_mem0_client
+from aptuni.memory.provider import Mem0Projection
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
+from aptuni.retrieval.hybrid import reciprocal_rank_fusion
 from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SearchRow, SqliteProjection, documents_for
 from aptuni.vault.fsgate import UnsupportedFilesystemError
+from aptuni.vault.locks import source_operations_lock
 from aptuni.vault.store import ConflictError, Vault, VaultDirNotEmptyError, VaultIntegrityError, VerifyReport
 
 CLI_EPISODE = "cli"
@@ -284,12 +288,15 @@ class AptuniService(SourceCommands, MemoryCommands):
         except (OSError, ProjectionError) as error:
             raise AptuniError("projection_failed", "The derived search index could not be deleted.") from error
 
-    def search(self, query: str, *, module: str | None = None, limit: int = 5) -> list[SearchHit]:
+    def search(
+        self, query: str, *, module: str | None = None, limit: int = 5, hybrid: bool = False,
+    ) -> list[SearchHit]:
         if module is not None:
             self._check_module(module)
         if not query.strip() or type(limit) is not int or not 1 <= limit <= 100:
             raise AptuniError("invalid_search", "Search needs a query and a limit between 1 and 100.")
-        seq, final_records, rows = self._stable_search(query, module=module, limit=limit)
+        search = self._stable_hybrid_search if hybrid else self._stable_search
+        seq, final_records, rows = search(query, module=module, limit=limit)
         del seq
         allowed = {record.id: record for record in final_records.exposable()}
         hits = []
@@ -332,6 +339,49 @@ class AptuniService(SourceCommands, MemoryCommands):
             allowed = {record.id: record for record in final_records.exposable()}
             filtered = [row for row in rows if row.record_id in allowed]
             return final_seq, final_records, filtered
+        raise AptuniError("concurrent_write", "The Vault kept changing during search; run it again.")
+
+    def _semantic_search(self, query: str, *, limit: int, vault_seq: int) -> list[SearchRow]:
+        with source_operations_lock(self.workspace.state_dir):
+            rows = Mem0Projection(self.workspace.state_dir, create_local_mem0_client).search(
+                query, vault_seq=vault_seq, limit=limit,
+            )
+        return [SearchRow(record_id, score) for record_id, score in rows]
+
+    def _stable_hybrid_search(
+        self, query: str, *, module: str | None = None, limit: int = 5,
+    ) -> tuple[int, RecordSet, list[SearchRow]]:
+        projection = SqliteProjection(self.workspace.state_dir)
+        candidate_limit = min(100, max(20, limit * 4))
+        for _ in range(3):
+            seq, records = self.snapshot()
+            try:
+                exposable = records.exposable()
+                projection.ensure(documents_for(exposable), seq)
+                lexical = projection.search(query, module=module, limit=candidate_limit)
+                semantic = self._semantic_search(query, limit=candidate_limit, vault_seq=seq)
+                revoked = {
+                    record.target_id for record in records.records()
+                    if record.record_type == "review_event"
+                }
+                allowed_memories = {
+                    record.id for record in exposable
+                    if record.record_type == "memory"
+                    and record.review_status == "accepted"
+                    and record.id not in revoked
+                    and (module is None or record.module == module)
+                }
+                semantic = [row for row in semantic if row.record_id in allowed_memories]
+                rows = reciprocal_rank_fusion(lexical, semantic, limit=limit)
+            except (OSError, ProjectionError, ValueError) as error:
+                raise AptuniError(
+                    "projection_failed", "Hybrid search is unavailable; canonical data is safe.",
+                ) from error
+            final_seq, final_records = self.snapshot()
+            if final_seq != seq:
+                continue
+            allowed = {record.id for record in final_records.exposable()}
+            return final_seq, final_records, [row for row in rows if row.record_id in allowed]
         raise AptuniError("concurrent_write", "The Vault kept changing during search; run it again.")
 
     # ---------------------------------------------------------------- bounded context

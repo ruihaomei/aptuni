@@ -39,7 +39,7 @@
 "plugin.retrieval.hybrid.name" = "Hybrid retrieval"
 "plugin.retrieval.hybrid.summary" = "Combines keyword and semantic search."
 "plugin.retrieval.hybrid.strength" = "Better recall when your context grows large."
-"plugin.retrieval.hybrid.weakness" = "Planned for Milestone 2; needs an embedding model."
+"plugin.retrieval.hybrid.weakness" = "Preview: accepted memories only; needs local Mem0 and an embedding model."
 "plugin.agent.mcp.name" = "MCP server"
 "plugin.agent.mcp.summary" = "Lets agents read bounded, permitted context over local STDIO."
 "plugin.agent.mcp.strength" = "Read-only, budgeted, and no network sockets."

@@ -18,6 +18,7 @@ from aptuni.application.service import AptuniService
 from aptuni.application.workspace import Workspace
 from aptuni.cli.main import run
 from aptuni.memory.mem0_local import LocalMem0Client, _safe_ollama_client_type, create_local_mem0_client
+from aptuni.memory.provider import Mem0Projection
 
 
 class FakeMem0Client:
@@ -42,6 +43,10 @@ class FakeMem0Client:
         if self.corrupt and rows:
             rows[0] = rows[0] | {"memory": "changed provider value"}
         return {"results": rows}
+
+    def search(self, query: str, *, user_id: str, limit: int) -> dict[str, Any]:
+        del query, user_id
+        return {"results": self.rows[:limit]}
 
     def close(self) -> None:
         (self.root / "client-closed").write_text("closed\n", encoding="ascii")
@@ -244,6 +249,115 @@ def test_corrupt_or_symlinked_selector_fails_closed(tmp_path: Path) -> None:
     assert service.memory_provider_status().state == "invalid"
 
 
+def test_semantic_search_opens_only_current_generation_and_closes_client(tmp_path: Path) -> None:
+    service = _service(tmp_path)
+    memory_id = _accepted(service)
+    rebuilt = service.rebuild_memory_provider(FakeMem0Client)
+    opened: list[Path] = []
+
+    class SearchClient(FakeMem0Client):
+        def __init__(self, root: Path) -> None:
+            super().__init__(root)
+            self.rows = [{
+                "id": "provider-result",
+                "memory": "Prefers exact derivations.",
+                "metadata": {"aptuni_canonical_id": memory_id},
+                "score": 0.91,
+            }]
+            opened.append(root)
+
+    projection = Mem0Projection(service.workspace.state_dir, SearchClient)
+    assert projection.search("derivation style", vault_seq=rebuilt.vault_seq, limit=5) == [(memory_id, 0.91)]
+    assert opened == [
+        service.workspace.state_dir / "projections" / "memory" / "mem0" / "generations" / rebuilt.generation
+    ]
+    assert (opened[0] / "client-closed").read_text(encoding="ascii") == "closed\n"
+
+
+def test_hybrid_cli_returns_semantic_only_canonical_memory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str],
+) -> None:
+    service = _service(tmp_path)
+    memory_id = _accepted(service, "Prefers reproducible quantitative workflows.")
+    service.rebuild_memory_provider(FakeMem0Client)
+
+    class SearchClient(FakeMem0Client):
+        def search(self, query: str, *, user_id: str, limit: int) -> dict[str, Any]:
+            assert query == "how should I structure experiments?"
+            assert user_id == "aptuni-local-profile" and limit >= 5
+            return {"results": [{
+                "metadata": {"aptuni_canonical_id": memory_id},
+                "score": 0.99,
+            }]}
+
+    monkeypatch.setattr("aptuni.application.service.create_local_mem0_client", SearchClient)
+    assert run(["search", "how should I structure experiments?", "--hybrid", "--json"], service) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert [item["id"] for item in payload] == [memory_id]
+
+
+@pytest.mark.parametrize("malformation", ["missing_id", "duplicate_id", "bad_score"])
+def test_semantic_search_rejects_malformed_provider_rows(tmp_path: Path, malformation: str) -> None:
+    service = _service(tmp_path)
+    memory_id = _accepted(service)
+    rebuilt = service.rebuild_memory_provider(FakeMem0Client)
+
+    class MalformedSearchClient(FakeMem0Client):
+        def search(self, query: str, *, user_id: str, limit: int) -> dict[str, Any]:
+            del query, user_id, limit
+            row = {"metadata": {"aptuni_canonical_id": memory_id}, "score": 0.5}
+            if malformation == "missing_id":
+                row["metadata"] = {}
+            if malformation == "bad_score":
+                row["score"] = "private provider value"
+            return {"results": [row, dict(row)] if malformation == "duplicate_id" else [row]}
+
+    with pytest.raises(AptuniError) as caught:
+        Mem0Projection(service.workspace.state_dir, MalformedSearchClient).search(
+            "bounded query", vault_seq=rebuilt.vault_seq, limit=5,
+        )
+    assert caught.value.code == "hybrid_projection_failed"
+    assert "private provider value" not in caught.value.message
+
+
+def test_semantic_search_rejects_stale_or_cleanup_required_generation(tmp_path: Path) -> None:
+    service = _service(tmp_path)
+    _accepted(service)
+    rebuilt = service.rebuild_memory_provider(FakeMem0Client)
+    projection = Mem0Projection(service.workspace.state_dir, FakeMem0Client)
+    service.remember("Moves the Vault sequence.", "knowledge")
+    with pytest.raises(AptuniError) as stale:
+        projection.search("query", vault_seq=service.status().seq, limit=5)
+    assert stale.value.code == "hybrid_projection_unavailable"
+
+    generations = projection.root / "generations"
+    (generations / "gen-0000000000000000").mkdir()
+    with pytest.raises(AptuniError) as cleanup:
+        projection.search("query", vault_seq=rebuilt.vault_seq, limit=5)
+    assert cleanup.value.code == "hybrid_projection_unavailable"
+
+
+def test_semantic_search_close_failure_is_bounded_and_returns_no_rows(tmp_path: Path) -> None:
+    service = _service(tmp_path)
+    memory_id = _accepted(service)
+    rebuilt = service.rebuild_memory_provider(FakeMem0Client)
+
+    class CloseFailureClient(FakeMem0Client):
+        def __init__(self, root: Path) -> None:
+            super().__init__(root)
+            self.rows = [{"metadata": {"aptuni_canonical_id": memory_id}, "score": 0.5}]
+
+        def close(self) -> None:
+            raise RuntimeError("private close failure")
+
+    with pytest.raises(AptuniError) as caught:
+        Mem0Projection(service.workspace.state_dir, CloseFailureClient).search(
+            "bounded query", vault_seq=rebuilt.vault_seq, limit=5,
+        )
+    assert caught.value.code == "hybrid_projection_failed"
+    assert "private close failure" not in caught.value.message
+
+
 @pytest.mark.skipif(importlib.util.find_spec("mem0") is None, reason="isolated mem0ai runtime is not installed")
 def test_real_mem0_2_0_20_projection_rebuild_uses_production_boundary(tmp_path: Path) -> None:
     """Run with the S10 hash-locked runtime; no Ollama or external model is used by this test."""
@@ -272,6 +386,10 @@ def test_real_mem0_2_0_20_projection_rebuild_uses_production_boundary(tmp_path: 
     report = service.rebuild_memory_provider(factory)
     assert report.records == 1
     assert service.memory_provider_status().state == "ready"
+    rows = Mem0Projection(service.workspace.state_dir, factory).search(
+        "reproducible experiment manifests", vault_seq=report.vault_seq, limit=5,
+    )
+    assert len(rows) == 1 and rows[0][0] == service.memories()[0].id
 
 
 @pytest.mark.skipif(

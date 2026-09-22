@@ -31,6 +31,7 @@ _USER_ID = "aptuni-local-profile"
 class Mem0Client(Protocol):
     def add(self, text: str, *, user_id: str, metadata: dict[str, Any], infer: bool) -> Any: ...
     def get_all(self, *, filters: dict[str, str], top_k: int) -> Any: ...
+    def search(self, query: str, *, user_id: str, limit: int) -> Any: ...
     def close(self) -> None: ...
 
 
@@ -261,6 +262,54 @@ class Mem0Projection:
                 "memory_provider_rebuild_failed",
                 "The Mem0 projection rebuild failed; the prior generation remains selected.",
             ) from error
+
+    def search(self, query: str, *, vault_seq: int, limit: int) -> list[tuple[str, float]]:
+        """Search the selected exact generation and return canonical memory IDs only."""
+        if self._client_factory is None:
+            raise AptuniError(
+                "hybrid_projection_unavailable",
+                "Hybrid search needs the optional local Mem0 runtime and a fresh rebuilt projection.",
+            )
+        status = self.status()
+        if status.state != "ready" or status.vault_seq != vault_seq:
+            raise AptuniError(
+                "hybrid_projection_unavailable",
+                "Hybrid search needs a fresh Mem0 projection; run `aptuni memory provider rebuild`.",
+            )
+        client: Mem0Client | None = None
+        try:
+            generation = (self.root / "CURRENT").read_text(encoding="ascii").strip()
+            path = self.root / "generations" / generation
+            client = self._client_factory(path)
+            rows = _normalized_rows(client.search(query, user_id=_USER_ID, limit=limit))
+            if len(rows) > limit:
+                raise ValueError("provider returned too many rows")
+            result: list[tuple[str, float]] = []
+            seen: set[str] = set()
+            for row in rows:
+                metadata = row.get("metadata")
+                canonical_id = metadata.get("aptuni_canonical_id") if isinstance(metadata, dict) else None
+                if not isinstance(canonical_id, str) or canonical_id in seen:
+                    raise ValueError("provider search identity is invalid")
+                seen.add(canonical_id)
+                raw_score = row.get("score", 0.0)
+                if isinstance(raw_score, bool) or not isinstance(raw_score, (int, float)):
+                    raise ValueError("provider search score is invalid")
+                result.append((canonical_id, float(raw_score)))
+            closing, client = client, None
+            closing.close()
+            return result
+        except AptuniError:
+            raise
+        except Exception as error:
+            raise AptuniError(
+                "hybrid_projection_failed",
+                "The local semantic projection could not be searched; canonical data is safe.",
+            ) from error
+        finally:
+            if client is not None:
+                with suppress(Exception):
+                    client.close()
 
     def _remove_old_generations(self, current: str) -> bool:
         generations = self.root / "generations"

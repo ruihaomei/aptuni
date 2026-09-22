@@ -358,3 +358,22 @@ than the earlier source review:
 The decision artifact is `spikes/s10_mem0/results/S10-mem0-2.0.20-result.json`; Review 52 approved
 only this projection-only admission. Production work must retain `infer=False`, managed-root
 confinement, telemetry-off-before-import, exact projection checks and whole-store rebuild deletion.
+
+## 2026-09-22 — read path for the hybrid preview
+
+- `Memory.search(query, *, top_k, filters, threshold, ...)` is the 2.0.20 signature. Aptuni pins
+  `threshold=0.0` (upstream default is `0.1`) so the provider does not silently apply its own
+  relevance policy; the consequence is that the semantic lane has no floor of its own (KI-021).
+- `_search_vector_store` returns the stored `metadata`, so `aptuni_canonical_id` survives the round
+  trip and `top_k` is honoured by `score_and_rank`. The search path uses the embedder only and
+  makes no LLM call, which is why the "constructed but never called" LLM note still holds.
+- `Memory.close()` closes only `self.db`; the embedded Qdrant client is not closed. `Memory` may
+  also hold a second store on `_telemetry_vector_store` (set in `mem0/memory/main.py` when
+  telemetry is on). `LocalMem0Client.close` therefore closes both stores explicitly and re-raises
+  the first failure.
+- **Pitfall, currently unreachable:** `Memory.search` calls `lemmatize_for_bm25` and
+  `extract_entities`, which reach `mem0/utils/spacy_models.py::_ensure_model_available`. If spaCy
+  is importable but `en_core_web_sm` is absent, upstream calls `spacy.cli.download(...)` — a
+  network fetch. Aptuni does not install `mem0ai[nlp]`, so the loader swallows the `ImportError`
+  and caches the failure. The same call already exists on the approved `add` path. Any dependency
+  change that pulls spaCy in must re-check this before it opens silently.

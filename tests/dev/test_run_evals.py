@@ -21,6 +21,7 @@ class EvaluationHarnessTests(unittest.TestCase):
         self.assertTrue(result["passed"], result["failures"])
         self.assertGreaterEqual(result["metrics"]["retrieval"]["dev"]["recall_at_5"], 0.85)
         self.assertEqual(0.0, result["metrics"]["retrieval"]["dev"]["false_positive_rate"])
+        self.assertEqual(1.0, result["metrics"]["hybrid_rank_contract"]["holdout"]["mrr"])
         self.assertIsNone(result["inputs"]["sbom_sha256"])
 
     def test_context_noise_checksum_detects_mutation(self) -> None:
@@ -31,6 +32,14 @@ class EvaluationHarnessTests(unittest.TestCase):
             fixture.with_suffix(".sha256").write_text(f"{'0' * 64}  example.json\n", encoding="utf-8")
             with self.assertRaises(evals.EvaluationInputError):
                 evals.verify_companion_checksum(fixture)
+
+    def test_hybrid_rank_checksum_detects_mutation(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            fixture = Path(raw) / "hybrid.json"
+            fixture.write_text('{"changed":true}\n', encoding="utf-8")
+            fixture.with_suffix(".sha256").write_text(f"{'0' * 64}  hybrid.json\n", encoding="utf-8")
+            with self.assertRaises(evals.EvaluationInputError):
+                evals.evaluate_hybrid_fixture(fixture)
 
     def test_every_frozen_retrieval_input_mutation_blocks_before_scoring(self) -> None:
         manifest = json.loads((evals.CORPUS_ROOT / "FREEZE.json").read_text(encoding="utf-8"))

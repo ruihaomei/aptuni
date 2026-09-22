@@ -9,7 +9,7 @@ import pytest
 from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService
 from aptuni.application.workspace import Workspace
-from aptuni.retrieval.sqlite import ProjectionDocument, SqliteProjection
+from aptuni.retrieval.sqlite import ProjectionDocument, SearchRow, SqliteProjection
 
 
 @pytest.fixture()
@@ -146,3 +146,89 @@ def test_compact_unmatched_queries_do_not_degrade_to_any_term_noise(tmp_path: Pa
     })
     assert projection.search("金融危机") == []
     assert projection.search("生存游戏攻略") == []
+
+
+def _accepted_memory(service: AptuniService, statement: str, module: str = "knowledge") -> str:
+    proposal = service.observe(statement, module)
+    preview = service.memory_preview(proposal.candidate_id)
+    memory_id = service.decide_memory(proposal.candidate_id, "accept", preview.digest("accept"))
+    assert memory_id is not None
+    return memory_id
+
+
+def test_default_search_never_opens_semantic_provider(
+    service: AptuniService, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    record = service.remember("Deterministic lexical retrieval.", "knowledge")
+
+    def forbidden(*_args: object, **_kwargs: object) -> list[SearchRow]:
+        raise AssertionError("default search must remain lexical-only")
+
+    monkeypatch.setattr(AptuniService, "_semantic_search", forbidden)
+    assert [hit.id for hit in service.search("lexical")] == [record.id]
+
+
+def test_hybrid_search_requires_fresh_provider_projection(service: AptuniService) -> None:
+    with pytest.raises(AptuniError) as error:
+        service.search("semantic intent", hybrid=True)
+    assert error.value.code == "hybrid_projection_unavailable"
+
+
+def test_hybrid_search_fuses_semantic_memory_and_applies_module_filter(
+    service: AptuniService, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    lexical = service.remember("Uses deterministic rank fusion.", "skills")
+    semantic = _accepted_memory(service, "Prefers reproducible quantitative workflows.", "preferences")
+
+    monkeypatch.setattr(
+        AptuniService,
+        "_semantic_search",
+        lambda *_args, **_kwargs: [SearchRow(semantic, -9999.0)],
+    )
+    assert [hit.id for hit in service.search("rank fusion", hybrid=True)] == [lexical.id, semantic]
+    assert service.search("unmatched intent", module="skills", hybrid=True) == []
+    assert [hit.id for hit in service.search("unmatched intent", module="preferences", hybrid=True)] == [semantic]
+
+
+def test_hybrid_search_rechecks_policy_after_semantic_lane(
+    service: AptuniService, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    memory_id = _accepted_memory(service, "Private causal modeling preference.")
+    changed = False
+
+    def race(*_args: object, **_kwargs: object) -> list[SearchRow]:
+        nonlocal changed
+        if not changed:
+            changed = True
+            service.set_module("knowledge", expose=False)
+        return [SearchRow(memory_id, 1.0)]
+
+    monkeypatch.setattr(AptuniService, "_semantic_search", race)
+    assert service.search("causal preference", hybrid=True) == []
+
+
+def test_hybrid_search_never_hydrates_non_memory_semantic_ids(
+    service: AptuniService, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fact = service.remember("Unrelated literal content.", "knowledge")
+    monkeypatch.setattr(
+        AptuniService,
+        "_semantic_search",
+        lambda *_args, **_kwargs: [SearchRow(fact.id, 1.0)],
+    )
+    assert service.search("semantic-only query", hybrid=True) == []
+
+
+def test_hybrid_semantic_only_results_stay_within_the_requested_limit(
+    service: AptuniService, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    memory_ids = [_accepted_memory(service, f"Semantic preference number {index}.") for index in range(6)]
+    monkeypatch.setattr(
+        AptuniService,
+        "_semantic_search",
+        lambda *_args, **_kwargs: [SearchRow(memory_id, 1.0) for memory_id in memory_ids],
+    )
+
+    hits = service.search("query with no lexical match at all", limit=3, hybrid=True)
+
+    assert [hit.id for hit in hits] == memory_ids[:3]

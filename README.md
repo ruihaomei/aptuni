@@ -99,7 +99,8 @@ aptuni adapter apply ACTION_ID     # you confirm in your own terminal
 | Verified backup and restore of the canonical Vault | ✅ |
 | MarginNote 4 source (macOS, direct read-only local sync, native IDs) | ✅ |
 | Mem0 local projection (`infer=False`, whole-store rebuild deletion) | ✅ preview |
-| Obsidian source and UI, hybrid retrieval, Graphiti | 🗺 Milestones 2–3 |
+| Opt-in hybrid search (SQLite + accepted-memory Mem0 ranks) | ✅ preview |
+| Obsidian source and UI, Graphiti | 🗺 Milestones 2–3 |
 
 Run `aptuni plugin list` and `aptuni recipe list` to see the same picture from the CLI.
 
@@ -164,13 +165,21 @@ Ollama embedding model, then manage the projection explicitly:
 ```sh
 aptuni memory provider status
 aptuni memory provider rebuild
+aptuni search "how should I structure experiments?" --hybrid
 aptuni memory provider delete
 ```
 
 Rebuilds always use `infer=False`. Privacy deletion never relies on Mem0's record-level delete:
 Aptuni removes the whole managed projection immediately. Forgetting marks the projection stale and
 excludes the revoked memory on the next explicit rebuild. The preview is not selected automatically
-by setup or Recipes.
+by setup or Recipes. `search --hybrid` requires a fresh, fully cleaned projection and combines only
+rank positions; Mem0 scores never become canonical. Default search and the Context API remain on
+the builtin SQLite/FTS path.
+
+Two preview limits are worth knowing. The semantic lane has no relevance floor yet, so a query with
+no keyword match can still return accepted memories up to `--limit`; judge the results, do not
+assume them. And the reported `score` is only comparable within one invocation — plain search and
+`--hybrid` use different scales.
 
 ## Backups you can actually restore
 

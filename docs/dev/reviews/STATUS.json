@@ -18,52 +18,11 @@
     "08-execution-test-rereview.md"
    ]
   },
-  "relay-claude-code": {
-   "kind": "drill",
-   "current": "11-cold-claude-relay-drill.md",
-   "verdict": "PASS",
-   "supersedes": []
-  },
-  "relay-codex": {
-   "kind": "drill",
-   "current": "05-cold-codex-relay-drill.md",
-   "verdict": "PASS",
-   "supersedes": []
-  },
-  "security": {
-   "kind": "review",
-   "current": "14-security-privacy-sixth-rereview.md",
-   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-   "supersedes": [
-    "02-security-privacy-review.md",
-    "04-security-privacy-rereview.md",
-    "06-security-privacy-second-rereview.md",
-    "09-security-privacy-third-rereview.md",
-    "12-security-privacy-fourth-rereview.md",
-    "13-security-privacy-fifth-rereview.md"
-   ]
-  },
   "gate0-exit": {
    "kind": "review",
    "current": "15-gate0-exit-review.md",
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
-  },
-  "m1-slice1": {
-   "kind": "review",
-   "current": "19-m1-slice1-core-rereview.md",
-   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-   "supersedes": [
-    "16-m1-slice1-core-review.md"
-   ]
-  },
-  "m1-github-source": {
-   "kind": "review",
-   "current": "18-m1-github-source-rereview.md",
-   "verdict": "APPROVE",
-   "supersedes": [
-    "17-m1-github-source-review.md"
-   ]
   },
   "m1-advisor-catalog": {
    "kind": "review",
@@ -71,65 +30,6 @@
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": [
     "20-m1-advisor-catalog-review.md"
-   ]
-  },
-  "s05b-marginnote-reconciler": {
-   "kind": "review",
-   "current": "23-s05b-marginnote-reconciler-rereview.md",
-   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-   "supersedes": [
-    "22-s05b-marginnote-reconciler-review.md"
-   ]
-  },
-  "m1-marginnote4-source": {
-   "kind": "review",
-   "current": "25-m1-marginnote4-source-rereview.md",
-   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-   "supersedes": [
-    "24-m1-marginnote4-source-review.md"
-   ]
-  },
-  "m1-memory-lifecycle": {
-   "kind": "review",
-   "current": "28-m1-memory-lifecycle-rereview.md",
-   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-   "supersedes": [
-    "26-m1-memory-lifecycle-review.md"
-   ]
-  },
-  "m1-profile-export": {
-   "kind": "review",
-   "current": "27-m1-profile-export-review.md",
-   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-   "supersedes": []
-  },
-  "m1-privacy-purge": {
-   "kind": "review",
-   "current": "32-m1-privacy-purge-f1-f2-rereview.md",
-   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
-   "supersedes": [
-    "29-m1-privacy-purge-review.md",
-    "30-m1-privacy-purge-rereview.md",
-    "31-m1-privacy-purge-final-review.md"
-    ]
-  },
-  "m1-guided-setup": {
-   "kind": "review",
-   "current": "34-m1-guided-setup-apply-rereview.md",
-   "verdict": "APPROVE",
-    "supersedes": [
-     "33-m1-guided-setup-apply-review.md"
-    ]
-  },
-  "m1-owner-backup-restore": {
-   "kind": "review",
-   "current": "39-m1-owner-backup-restore-atomicity-rereview.md",
-   "verdict": "APPROVE",
-   "supersedes": [
-    "35-m1-owner-backup-restore-review.md",
-    "36-m1-owner-backup-restore-rereview.md",
-    "37-m1-owner-backup-restore-final-review.md",
-    "38-m1-owner-backup-restore-g1-g2-rereview.md"
    ]
   },
   "m1-ci-supply-chain": {
@@ -149,6 +49,49 @@
     "43-m1-evaluation-harness-rereview.md"
    ]
   },
+  "m1-github-source": {
+   "kind": "review",
+   "current": "18-m1-github-source-rereview.md",
+   "verdict": "APPROVE",
+   "supersedes": [
+    "17-m1-github-source-review.md"
+   ]
+  },
+  "m1-guided-setup": {
+   "kind": "review",
+   "current": "34-m1-guided-setup-apply-rereview.md",
+   "verdict": "APPROVE",
+   "supersedes": [
+    "33-m1-guided-setup-apply-review.md"
+   ]
+  },
+  "m1-marginnote4-source": {
+   "kind": "review",
+   "current": "25-m1-marginnote4-source-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "24-m1-marginnote4-source-review.md"
+   ]
+  },
+  "m1-memory-lifecycle": {
+   "kind": "review",
+   "current": "28-m1-memory-lifecycle-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "26-m1-memory-lifecycle-review.md"
+   ]
+  },
+  "m1-owner-backup-restore": {
+   "kind": "review",
+   "current": "39-m1-owner-backup-restore-atomicity-rereview.md",
+   "verdict": "APPROVE",
+   "supersedes": [
+    "35-m1-owner-backup-restore-review.md",
+    "36-m1-owner-backup-restore-rereview.md",
+    "37-m1-owner-backup-restore-final-review.md",
+    "38-m1-owner-backup-restore-g1-g2-rereview.md"
+   ]
+  },
   "m1-post-contract-skills": {
    "kind": "review",
    "current": "46-m1-post-contract-skills-rereview.md",
@@ -157,6 +100,22 @@
     "45-m1-post-contract-skills-review.md"
    ]
   },
+  "m1-privacy-purge": {
+   "kind": "review",
+   "current": "32-m1-privacy-purge-f1-f2-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "29-m1-privacy-purge-review.md",
+    "30-m1-privacy-purge-rereview.md",
+    "31-m1-privacy-purge-final-review.md"
+   ]
+  },
+  "m1-profile-export": {
+   "kind": "review",
+   "current": "27-m1-profile-export-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "m1-real-host-s12": {
    "kind": "review",
    "current": "48-m1-real-host-s12-rereview.md",
@@ -164,6 +123,20 @@
    "supersedes": [
     "47-m1-real-host-s12-review.md"
    ]
+  },
+  "m1-slice1": {
+   "kind": "review",
+   "current": "19-m1-slice1-core-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "16-m1-slice1-core-review.md"
+   ]
+  },
+  "m2-hybrid-retrieval": {
+   "kind": "review",
+   "current": "54-m2-hybrid-retrieval-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
   },
   "m2-mem0-admission": {
    "kind": "review",
@@ -179,12 +152,45 @@
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   },
+  "relay-claude-code": {
+   "kind": "drill",
+   "current": "11-cold-claude-relay-drill.md",
+   "verdict": "PASS",
+   "supersedes": []
+  },
+  "relay-codex": {
+   "kind": "drill",
+   "current": "05-cold-codex-relay-drill.md",
+   "verdict": "PASS",
+   "supersedes": []
+  },
   "release": {
    "kind": "review",
    "current": "50-release-final-review.md",
    "verdict": "APPROVE",
    "supersedes": [
     "49-release-candidate-review.md"
+   ]
+  },
+  "s05b-marginnote-reconciler": {
+   "kind": "review",
+   "current": "23-s05b-marginnote-reconciler-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "22-s05b-marginnote-reconciler-review.md"
+   ]
+  },
+  "security": {
+   "kind": "review",
+   "current": "14-security-privacy-sixth-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "02-security-privacy-review.md",
+    "04-security-privacy-rereview.md",
+    "06-security-privacy-second-rereview.md",
+    "09-security-privacy-third-rereview.md",
+    "12-security-privacy-fourth-rereview.md",
+    "13-security-privacy-fifth-rereview.md"
    ]
   }
  }

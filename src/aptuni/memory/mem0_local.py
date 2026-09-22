@@ -47,14 +47,31 @@ class LocalMem0Client:
     def get_all(self, *, filters: dict[str, str], top_k: int) -> Any:
         return self.memory.get_all(filters=filters, top_k=top_k)
 
+    def search(self, query: str, *, user_id: str, limit: int) -> Any:
+        return self.memory.search(query, filters={"user_id": user_id}, top_k=limit, threshold=0.0)
+
     def close(self) -> None:
-        vector_store = getattr(self.memory, "vector_store", None)
-        client = getattr(vector_store, "client", None)
+        stores = (
+            getattr(self.memory, "vector_store", None),
+            getattr(self.memory, "_telemetry_vector_store", None),
+        )
+        clients = tuple({id(client): client for client in (
+            getattr(store, "client", None) for store in stores
+        ) if client is not None}.values())
+        failure: Exception | None = None
         try:
             self.memory.close()
-        finally:
-            if client is not None and hasattr(client, "close"):
-                client.close()
+        except Exception as error:
+            failure = error
+        for client in clients:
+            if hasattr(client, "close"):
+                try:
+                    client.close()
+                except Exception as error:
+                    if failure is None:
+                        failure = error
+        if failure is not None:
+            raise failure
 
 
 def _safe_ollama_client_type(base: type[Any]) -> type[Any]:
