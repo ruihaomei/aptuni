@@ -35,7 +35,7 @@ Keep all MarginNote access read-only; never commit note text, and do not infer r
 
 ### What just landed
 
-The Mem0 projection preview adds `aptuni memory provider status|rebuild|delete`. It projects only
+The Mem0 projection preview (`e2a06e5`) adds `aptuni memory provider status|rebuild|delete`. It projects only
 current accepted canonical memories, always uses `infer=False`, validates exact public enumeration,
 and publishes fresh generations atomically. The optional runtime is exactly Mem0 2.0.20 plus Ollama
 0.6.2; only numeric loopback is accepted, redirects/proxies are disabled, and models are never

@@ -187,7 +187,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   equality, canonical-byte isolation, managed-root purge and guarded network paths passed. The
   focused suite passes 15/15 in the isolated runtime; Review 52 is **APPROVE WITH NON-BLOCKING
   NOTES**.
-- **Mem0 projection adapter preview.** `aptuni memory provider status|rebuild|delete` materializes
+- **Mem0 projection adapter preview (`e2a06e5`).** `aptuni memory provider status|rebuild|delete` materializes
   current accepted canonical memories into an exact fresh Mem0 generation with `infer=False`, then
   atomically selects it. Mem0 2.0.20 and Ollama 0.6.2 are optional exact pins; the client accepts
   numeric loopback only, ignores environment proxies, refuses redirects and never pulls a model.
