@@ -15,8 +15,10 @@ from pydantic import ValidationError
 from aptuni.application.errors import AptuniError
 from aptuni.application.ingest import (
     FOLDER_PARSER,
+    GITHUB_DEEP_PARSER,
     GITHUB_PARSER,
     FolderIngest,
+    GitHubDeepIngest,
     GitHubIngest,
     PendingSourceState,
     SourceChangedDuringSync,
@@ -154,6 +156,7 @@ class SourceCommands:
         token_env: str | None = None,
         api_origin: str = "https://api.github.com",
         primary_for: tuple[str, ...] = (),
+        deep_actor: str | None = None,
     ) -> SourceConfig:
         """Approve one exact GitHub repository; any credential remains an environment reference."""
         if not modules:
@@ -161,11 +164,14 @@ class SourceCommands:
         for module in modules:
             self._check_module(module)
         try:
-            spec = GitHubSourceSpec.build(repository_url, api_origin=api_origin, ref=ref, token_env=token_env)
+            spec = GitHubSourceSpec.build(
+                repository_url, api_origin=api_origin, ref=ref, token_env=token_env, actor=deep_actor,
+            )
             seq, _ = self.snapshot()
             config = SourceConfig(
                 record_type="source_config", id=new_id("src"), schema_version=1, recorded_at=utc_now(),
-                source_type="github", roots=spec.roots(), semantic_role=role, module_mapping=modules,
+                source_type="github_deep" if deep_actor is not None else "github",
+                roots=spec.roots(), semantic_role=role, module_mapping=modules,
                 authority=AuthorityPolicy(version=1, primary_for=primary_for),
             )
         except (SourceIdentityError, ValidationError, ValueError) as error:
@@ -228,7 +234,7 @@ class SourceCommands:
         module = config.module_mapping[0]
         if not can_ingest(policy, module):
             raise AptuniError("module_ingest_disabled", f"Module '{module}' is not accepting new information.")
-        if config.source_type not in {"folder", "github", "marginnote4", "obsidian"}:
+        if config.source_type not in {"folder", "github", "github_deep", "marginnote4", "obsidian"}:
             raise AptuniError("source_type_unsupported", f"Source type '{config.source_type}' is not runnable.")
         store = SourceStateStore(self.vault().root, config.id)
         state = store.load()
@@ -238,7 +244,7 @@ class SourceCommands:
         ingest, parser = self._ingest_for(config, module, policy.epoch, current, records.ids())
         try:
             scan = ingest.scan(state)
-            if config.source_type == "github":
+            if config.source_type in {"github", "github_deep"}:
                 provider_data = {"repository_id": scan.repository_id}  # type: ignore[union-attr]
         except (GitHubApiError, SourceIdentityError) as error:
             raise AptuniError("github_sync_failed", f"GitHub sync stopped safely ({error}).") from error
@@ -298,7 +304,8 @@ class SourceCommands:
         return state
 
     def _ingest_for(self, config: SourceConfig, module: str, epoch: int, current: dict[str, Any],
-                    ids: set[str]) -> tuple[FolderIngest | GitHubIngest | MarginNoteIngest | ObsidianIngest,
+                    ids: set[str]) -> tuple[FolderIngest | GitHubIngest | GitHubDeepIngest |
+                                             MarginNoteIngest | ObsidianIngest,
                                              tuple[str, str]]:
         if config.source_type == "marginnote4":
             return self._marginnote_ingest(config, module, epoch, current, ids), MARGINNOTE_PARSER
@@ -310,6 +317,11 @@ class SourceCommands:
             spec = GitHubSourceSpec.from_roots(config.roots)
         except SourceIdentityError as error:
             raise AptuniError("source_config_invalid", "The GitHub source configuration is invalid.") from error
+        if config.source_type == "github_deep":
+            if spec.actor is None:
+                raise AptuniError("source_config_invalid", "The GitHub Deep actor is missing.")
+            return (GitHubDeepIngest(config, module, epoch, current, ids, self._github_client(spec)),
+                    GITHUB_DEEP_PARSER)
         return GitHubIngest(config, module, epoch, current, ids, self._github_client(spec)), GITHUB_PARSER
 
     @staticmethod

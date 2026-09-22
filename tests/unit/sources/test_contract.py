@@ -141,6 +141,23 @@ class ExtensionRegistryTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             default_registry().validate(Extension("github.locator", 1, {"repository_id": 42}))
 
+    def test_github_activity_repository_identity_requires_an_exact_positive_integer(self) -> None:
+        fields = {
+            "activity_key": "review:91",
+            "repository_id": 7,
+            "actor": "octocat",
+            "activity_kind": "review",
+            "activity_id": "91",
+            "occurred_at": "2026-09-20T04:05:06+00:00",
+            "mode": "deep",
+        }
+        default_registry().validate(Extension("github.activity", 1, fields))
+        for malformed in (True, 0, -1):
+            with self.assertRaisesRegex(ContractError, "github_repository_identity_invalid"):
+                default_registry().validate(
+                    Extension("github.activity", 1, fields | {"repository_id": malformed})
+                )
+
     def test_unknown_version_round_trips_but_forces_review(self) -> None:
         future = Extension("folder.locator", 9, {"relative_path": "a.md", "inode_hint": 7})
         registry = default_registry()

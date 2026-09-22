@@ -249,6 +249,25 @@ a parser from silently rewriting the user's Profile.
   paths before fetch, canonicalizes origins, strictly validates tree identity, and recomputes each
   fetched Git blob object hash. Review 18 approved the remediation.
 
+## 2026-09-22 GitHub Deep authored-activity contract
+
+- GitHub's repository-commit endpoint supports an exact `author` login filter plus `sha`, `page`
+  and `per_page` (maximum 100). Aptuni still verifies the linked `author.login` on every result;
+  email, display name and committer identity are not attribution:
+  <https://docs.github.com/en/rest/commits/commits#list-commits>.
+- GitHub issue/PR search supports repository-scoped `author:` and `reviewed-by:` qualifiers. Search
+  can report `incomplete_results`, so every incomplete response or exhausted local page bound is
+  partial coverage and cannot prove withdrawal:
+  <https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests>.
+- Submitted reviews are separate, paginated PR resources (maximum 100/page). Deep enumerates only a
+  bounded set of repository-local candidate PRs, then keeps exact linked reviewer logins with a
+  non-null submission time; bodies and inline comments are never retained:
+  <https://docs.github.com/en/rest/pulls/reviews#list-reviews-for-a-pull-request>.
+- ADR-0019 fixes independent caps for commits, opened PRs and reviews. Rate limits and malformed
+  identity abort the sync; any page, candidate, request, item or response-size exhaustion makes the
+  combined snapshot partial. Deep is additive to Standard and emits only minimized Evidence through
+  the existing crash-replay, module-policy, retention and purge paths.
+
 ## 2026-09-19 MarginNote S05B real-history replay
 
 - MarginNote 4 keeps incremental notebook backups whose note JSON carries the internal `noteid` and an

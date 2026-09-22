@@ -39,4 +39,5 @@ community contributors' agents) must read the ADRs relevant to its task before e
 | [ADR-0016](ADR-0016-owner-backup-format-and-ledger-location.md) | Make the owner's backup a verified format and keep the deletion ledger in the Vault | Accepted |
 | [ADR-0017](ADR-0017-obsidian-vault-source.md) | Read an Obsidian vault as topology, not as a folder of Markdown | Accepted |
 | [ADR-0018](ADR-0018-automatic-promotion-and-retrospective-review.md) | Promote stable memories automatically and review them retrospectively | Accepted |
+| [ADR-0019](ADR-0019-github-deep-authored-activity.md) | Model GitHub Deep as an additive authored-activity source | Accepted |
 <!-- ADR-INDEX:END -->

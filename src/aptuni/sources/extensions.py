@@ -40,6 +40,10 @@ class ExtensionRegistry:
             raise ContractError("extension_required_field_missing")
         if keys - spec.required - spec.optional:
             raise ContractError("extension_field_unexpected")
+        if extension.schema == "github.activity":
+            repository_id = extension.fields["repository_id"]
+            if type(repository_id) is not int or repository_id <= 0:
+                raise ContractError("github_repository_identity_invalid")
 
     def gate(self, op: Operation) -> Operation:
         """Validate every understood locator; route not-understood versions to review."""
@@ -86,6 +90,15 @@ def default_registry() -> ExtensionRegistry:
         ExtensionSpec(
             frozenset({"repository_id", "commit", "path", "blob"}),
             frozenset({"owner_name", "mode", "selection_reason"}),
+        ),
+    )
+    registry.register(
+        "github.activity",
+        1,
+        ExtensionSpec(
+            frozenset({"activity_key", "repository_id", "actor", "activity_kind", "activity_id",
+                       "occurred_at", "mode"}),
+            frozenset({"commit", "pull_number", "state", "title"}),
         ),
     )
     return registry

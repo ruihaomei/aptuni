@@ -39,12 +39,19 @@ from aptuni.sources.codec import (
 )
 from aptuni.sources.delivery import DeliveryGuard
 from aptuni.sources.folder import DEFAULT_MAX_BYTES, FolderScan, scan_folder
-from aptuni.sources.github import GitHubApi, GitHubScan, scan_github
+from aptuni.sources.github import (
+    GitHubActivityScan,
+    GitHubApi,
+    GitHubScan,
+    scan_github,
+    scan_github_activity,
+)
 from aptuni.sources.records import CandidateDelta, Operation, Snapshot
 from aptuni.sources.records import SourceLocator as SourceItemLocator
 
 FOLDER_PARSER = ("folder.text", "1")
 GITHUB_PARSER = ("github.standard", "1")
+GITHUB_DEEP_PARSER = ("github.deep", "1")
 EXCERPT_CHARS = 280
 STATE_VERSION = 1
 SOURCE_RETENTION = RetentionLabel(retention_class="source_minimized", purpose="source_evidence",
@@ -384,6 +391,81 @@ class GitHubIngest:
             trust="untrusted_source", retention=SOURCE_RETENTION, policy_epoch=self.policy_epoch, confidence=None,
             review_status="auto_derived", supersedes=(previous.id,) if previous else (),
             change_kind=change_kind, subject=path, signals=() if retraction else ("exposure",), excerpt=excerpt,
+            content_hash=content_hash, observed_at=now,
+        )
+
+
+class GitHubDeepIngest:
+    """Turns exact-actor GitHub activity metadata into minimized Evidence (ADR-0019)."""
+
+    def __init__(self, config: SourceConfig, module: str, policy_epoch: int,
+                 current: dict[str, Evidence], existing_ids: set[str], client: GitHubApi) -> None:
+        self.config = config
+        self.module = module
+        self.policy_epoch = policy_epoch
+        self.current = current
+        self.existing_ids = existing_ids
+        self.client = client
+
+    def scan(self, state: SourceState | None) -> GitHubActivityScan:
+        fetched = self.client.fetch_deep_activity()
+        previous: GitHubActivityScan | None = None
+        if state is not None:
+            repository_id = state.provider_data.get("repository_id")
+            if not isinstance(repository_id, int):
+                raise SourceChangedDuringSync("github_state_identity_missing")
+            prior_delta = CandidateDelta.build(
+                self.config.id, state.snapshot.snapshot_id, state.snapshot.snapshot_id,
+                state.parser, (), sequence=state.sequence,
+            )
+            previous = GitHubActivityScan(
+                state.snapshot, prior_delta, state.parser, repository_id, state.notes,
+            )
+        scan = scan_github_activity(fetched, self.config.id, previous, GITHUB_DEEP_PARSER)
+        return scan
+
+    def evidence_for(self, op: Operation, delta_id: str, sequence: int) -> Evidence | None:
+        subject = op.subject_id
+        if subject is None or deterministic_id("evd", f"{delta_id}:{subject}") in self.existing_ids:
+            return None
+        previous = self.current.get(subject)
+        if op.kind == "remove":
+            if previous is None:
+                return None
+            return self._record(op, delta_id, sequence, previous, retraction=True)
+        return self._record(op, delta_id, sequence, previous, retraction=False)
+
+    def _record(self, op: Operation, delta_id: str, sequence: int, previous: Evidence | None,
+                *, retraction: bool) -> Evidence:
+        locator = op.before if retraction else op.after
+        assert locator is not None
+        activity_key = str(locator.extension.fields["activity_key"])
+        if retraction:
+            assert previous is not None
+            excerpt, content_hash, change_kind = previous.excerpt, previous.content_hash, "retraction"
+        else:
+            kind = str(locator.extension.fields["activity_kind"])
+            title = str(locator.extension.fields.get("title", ""))
+            label = {
+                "commit": "Authored commit",
+                "pull_request": "Opened pull request",
+                "review": "Submitted review",
+            }.get(kind, "Authored activity")
+            excerpt = f"{label}: {title}".rstrip(": ")[:EXCERPT_CHARS]
+            content_hash = str(op.content_hash)
+            change_kind = "assert" if previous is None else (
+                "correction" if "parser_upgrade" in op.reasons else "world_change")
+        now = utc_now()
+        return Evidence(
+            record_type="evidence", id=deterministic_id("evd", f"{delta_id}:{locator.subject_id}"),
+            schema_version=1, recorded_at=now, valid_from=None, valid_until=None,
+            module=self.module,
+            provenance=Provenance(source_id=self.config.id, episode=f"sync-{sequence}",
+                                  locator=_canonical_locator(locator)),
+            trust="untrusted_source", retention=SOURCE_RETENTION, policy_epoch=self.policy_epoch,
+            confidence=None, review_status="auto_derived", supersedes=(previous.id,) if previous else (),
+            change_kind=change_kind, subject=activity_key,
+            signals=() if retraction else ("exposure",), excerpt=excerpt,
             content_hash=content_hash, observed_at=now,
         )
 

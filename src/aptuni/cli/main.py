@@ -60,6 +60,8 @@ def _add_source_commands(sub: Any) -> None:
     github_add.add_argument("--api-origin", default="https://api.github.com",
                             help="GitHub API origin (GitHub Enterprise must use same-host /api/v3)")
     github_add.add_argument("--primary-for", action="append", default=[], metavar="DIMENSION")
+    github_add.add_argument("--deep-actor", metavar="LOGIN",
+                            help="read only authored commits/PRs/reviews for this exact GitHub login")
     github_add.add_argument("--json", action="store_true")
     obsidian_add = source_sub.add_parser("add-obsidian", help="approve one Obsidian vault as a source")
     obsidian_add.add_argument("path", type=Path)
@@ -347,11 +349,14 @@ def _cmd_source(args: argparse.Namespace, service: AptuniService) -> int:
             token_env=args.token_env,
             api_origin=args.api_origin,
             primary_for=tuple(args.primary_for),
+            deep_actor=args.deep_actor,
         )
         if args.json:
             _print_json(_source_json(source))
         else:
-            print(f"Approved GitHub source {source.id}: {source.roots[0]}")
+            mode = " Deep" if source.source_type == "github_deep" else ""
+            actor = f" for {delimited_untrusted(args.deep_actor)}" if args.deep_actor else ""
+            print(f"Approved GitHub{mode} source {source.id}{actor}: {source.roots[0]}")
         return 0
     if args.source_command in MARGINNOTE_COMMANDS:
         return cmd_marginnote(args, service, _source_json)

@@ -20,12 +20,14 @@ import urllib.request
 from collections import Counter, deque
 from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import PurePosixPath
 from typing import Any, Protocol
 
 from aptuni.sources.folder import EXCLUDED_DIRS, is_secret
+from aptuni.sources.obsidian_parse import sanitize_token
 from aptuni.sources.reconcile import KeyedSpec, Observed, reconcile_keyed
-from aptuni.sources.records import CandidateDelta, Snapshot
+from aptuni.sources.records import CandidateDelta, Snapshot, canonical_json
 
 MANIFESTS = frozenset({"pyproject.toml", "package.json", "requirements.txt", "cargo.toml", "go.mod",
                        "setup.cfg", "pom.xml", "build.gradle"})
@@ -40,7 +42,15 @@ MAX_BLOB_BYTES = 1_000_000
 MAX_TREE_REQUESTS = 200
 MAX_TREE_ENTRIES = 100_000
 MAX_REDIRECTS = 3
+MAX_DEEP_PAGE_BYTES = 2_000_000
+MAX_DEEP_PAGES = 5
+DEEP_PAGE_SIZE = 100
+MAX_REVIEW_CANDIDATES = 100
+MAX_REVIEW_PAGES = 2
+MAX_REVIEW_REQUESTS = 100
+MAX_REVIEW_ITEMS = 500
 GITHUB_EXCLUDED_DIRS = EXCLUDED_DIRS | frozenset({".cache", ".pytest_cache", ".mypy_cache", ".ruff_cache"})
+ACTOR_RE = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9_-]{0,62}[A-Za-z0-9])?$")
 
 
 class SourceIdentityError(ValueError):
@@ -59,6 +69,7 @@ class GitHubSourceSpec:
     api_origin: str = DEFAULT_API_ORIGIN
     ref: str | None = None
     token_env: str | None = None
+    actor: str | None = None
 
     @classmethod
     def build(
@@ -68,6 +79,7 @@ class GitHubSourceSpec:
         api_origin: str = DEFAULT_API_ORIGIN,
         ref: str | None = None,
         token_env: str | None = None,
+        actor: str | None = None,
     ) -> GitHubSourceSpec:
         repo = urllib.parse.urlsplit(repository_url.rstrip("/"))
         api = urllib.parse.urlsplit(api_origin.rstrip("/"))
@@ -100,7 +112,9 @@ class GitHubSourceSpec:
             raise SourceIdentityError("github_ref_invalid")
         if token_env is not None and not re.fullmatch(r"[A-Z][A-Z0-9_]{0,127}", token_env):
             raise SourceIdentityError("github_token_reference_invalid")
-        return cls(parts[0], parts[1], canonical_repository_url, canonical_api_origin, ref, token_env)
+        if actor is not None and ACTOR_RE.fullmatch(actor) is None:
+            raise SourceIdentityError("github_actor_invalid")
+        return cls(parts[0], parts[1], canonical_repository_url, canonical_api_origin, ref, token_env, actor)
 
     def roots(self) -> tuple[str, ...]:
         values = [self.repository_url, f"api:{self.api_origin}"]
@@ -108,6 +122,8 @@ class GitHubSourceSpec:
             values.append(f"ref:{self.ref}")
         if self.token_env is not None:
             values.append(f"env:{self.token_env}")
+        if self.actor is not None:
+            values.append(f"actor:{self.actor}")
         return tuple(values)
 
     @classmethod
@@ -117,11 +133,11 @@ class GitHubSourceSpec:
         options: dict[str, str] = {}
         for value in roots[1:]:
             prefix, separator, payload = value.partition(":")
-            if not separator or prefix not in {"api", "ref", "env"} or prefix in options:
+            if not separator or prefix not in {"api", "ref", "env", "actor"} or prefix in options:
                 raise SourceIdentityError("github_source_config_invalid")
             options[prefix] = payload
         return cls.build(roots[0], api_origin=options.get("api", DEFAULT_API_ORIGIN),
-                         ref=options.get("ref"), token_env=options.get("env"))
+                         ref=options.get("ref"), token_env=options.get("env"), actor=options.get("actor"))
 
 
 @dataclass(frozen=True)
@@ -173,6 +189,15 @@ class UrllibGitHubTransport:
 class GitHubTree:
     data: dict[str, Any]
     default_branch: str
+    notes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class GitHubActivityBatch:
+    repository_id: int
+    full_name: str
+    items: tuple[dict[str, Any], ...]
+    complete: bool
     notes: tuple[str, ...]
 
 
@@ -239,7 +264,7 @@ class GitHubApi:
                 raise GitHubApiError("github_json_invalid") from error
         raise GitHubApiError("github_redirect_limit")
 
-    def fetch_tree(self) -> GitHubTree:
+    def _repository(self) -> tuple[str, dict[str, Any]]:
         slug = f"{urllib.parse.quote(self.spec.owner)}/{urllib.parse.quote(self.spec.repository)}"
         repo, _ = self._json(f"/repos/{slug}")
         if not isinstance(repo, dict):
@@ -247,8 +272,17 @@ class GitHubApi:
         repository_id = repo.get("id")
         full_name = repo.get("full_name")
         default_branch = repo.get("default_branch")
-        if not isinstance(repository_id, int) or not isinstance(full_name, str) or not isinstance(default_branch, str):
+        if (type(repository_id) is not int or repository_id <= 0 or not isinstance(full_name, str)
+                or not isinstance(default_branch, str)):
             raise GitHubApiError("github_repository_response_invalid")
+        return slug, repo
+
+    def fetch_tree(self) -> GitHubTree:
+        slug, repo = self._repository()
+        repository_id = repo.get("id")
+        full_name = repo.get("full_name")
+        default_branch = repo.get("default_branch")
+        assert isinstance(repository_id, int) and isinstance(full_name, str) and isinstance(default_branch, str)
         requested_ref = self.spec.ref or default_branch
         commit, _ = self._json(f"/repos/{slug}/commits/{urllib.parse.quote(requested_ref, safe='')}")
         commit_sha = commit.get("sha") if isinstance(commit, dict) else None
@@ -270,6 +304,315 @@ class GitHubApi:
                 notes.add("tree_traversal_budget_exhausted")
         return GitHubTree({"repository_id": repository_id, "full_name": full_name, "commit": commit_sha,
                            "truncated": truncated, "tree": entries}, default_branch, tuple(sorted(notes)))
+
+    def fetch_authored_commits(self) -> GitHubActivityBatch:
+        """Read bounded default/ref history and keep only commits linked to the exact actor."""
+        actor = self.spec.actor
+        if actor is None:
+            raise GitHubApiError("github_deep_actor_required")
+        slug, repo = self._repository()
+        return self._fetch_authored_commits(slug, repo, actor)
+
+    def fetch_deep_activity(self) -> GitHubActivityBatch:
+        """Read all bounded repository-local activity lanes for the configured actor."""
+        actor = self.spec.actor
+        if actor is None:
+            raise GitHubApiError("github_deep_actor_required")
+        slug, repo = self._repository()
+        batches = (
+            self._fetch_authored_commits(slug, repo, actor),
+            self._fetch_opened_pull_requests(slug, repo, actor),
+            self._fetch_reviews(slug, repo, actor),
+        )
+        seen: set[str] = set()
+        items: list[dict[str, Any]] = []
+        notes: set[str] = set()
+        for batch in batches:
+            notes.update(batch.notes)
+            for item in batch.items:
+                key = item["activity_key"]
+                if key in seen:
+                    raise GitHubApiError("github_deep_activity_duplicate")
+                seen.add(key)
+                items.append(item)
+        return GitHubActivityBatch(
+            batches[0].repository_id,
+            batches[0].full_name,
+            tuple(items),
+            all(batch.complete for batch in batches),
+            tuple(sorted(notes)),
+        )
+
+    def _fetch_authored_commits(
+        self, slug: str, repo: dict[str, Any], actor: str,
+    ) -> GitHubActivityBatch:
+        repository_id = repo["id"]
+        full_name = repo["full_name"]
+        branch = self.spec.ref or repo["default_branch"]
+        notes: set[str] = set()
+        items: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        complete = True
+        for page in range(1, MAX_DEEP_PAGES + 1):
+            query = urllib.parse.urlencode({
+                "author": actor, "per_page": DEEP_PAGE_SIZE, "page": page, "sha": branch,
+            })
+            value, _ = self._json(
+                f"/repos/{slug}/commits?{query}", max_bytes=MAX_DEEP_PAGE_BYTES,
+            )
+            if not isinstance(value, list) or len(value) > DEEP_PAGE_SIZE:
+                raise GitHubApiError("github_deep_commits_response_invalid")
+            for raw in value:
+                item = self._authored_commit(raw, actor)
+                if item is None:
+                    notes.add("commit_author_unverified_skipped")
+                    complete = False
+                    continue
+                key = item["activity_key"]
+                if key in seen:
+                    raise GitHubApiError("github_deep_activity_duplicate")
+                seen.add(key)
+                items.append(item)
+            if len(value) < DEEP_PAGE_SIZE:
+                break
+        else:
+            notes.add("deep_commits_truncated")
+            complete = False
+        return GitHubActivityBatch(
+            repository_id, sanitize_token(full_name, limit=128), tuple(items), complete, tuple(sorted(notes)),
+        )
+
+    def _fetch_opened_pull_requests(
+        self, slug: str, repo: dict[str, Any], actor: str,
+    ) -> GitHubActivityBatch:
+        raw_items, complete, notes = self._search_pull_requests(
+            f"author:{actor}", max_pages=MAX_DEEP_PAGES,
+        )
+        items: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for raw in raw_items:
+            identity = self._pull_request_identity(raw, slug)
+            user = raw.get("user")
+            if not isinstance(user, dict) or not isinstance(user.get("login"), str):
+                raise GitHubApiError("github_deep_pull_request_invalid")
+            if user["login"].casefold() != actor.casefold():
+                notes.add("pull_request_author_unverified_skipped")
+                complete = False
+                continue
+            title, state = raw.get("title"), raw.get("state")
+            if not isinstance(title, str) or not isinstance(state, str):
+                raise GitHubApiError("github_deep_pull_request_invalid")
+            activity_id, number = identity
+            key = f"pull_request:{activity_id}"
+            if key in seen:
+                raise GitHubApiError("github_deep_activity_duplicate")
+            seen.add(key)
+            items.append({
+                "activity_id": activity_id,
+                "activity_key": key,
+                "activity_kind": "pull_request",
+                "actor": actor,
+                "mode": "deep",
+                "occurred_at": _aware_iso(raw.get("created_at")),
+                "pull_number": number,
+                "state": _sanitized_state(state),
+                "title": sanitize_token(title, limit=160),
+            })
+        return GitHubActivityBatch(
+            repo["id"], sanitize_token(repo["full_name"], limit=128), tuple(items), complete,
+            tuple(sorted(notes)),
+        )
+
+    def _fetch_reviews(
+        self, slug: str, repo: dict[str, Any], actor: str,
+    ) -> GitHubActivityBatch:
+        candidates, complete, notes = self._search_pull_requests(
+            f"reviewed-by:{actor}", max_pages=1,
+        )
+        if len(candidates) > MAX_REVIEW_CANDIDATES:
+            candidates = candidates[:MAX_REVIEW_CANDIDATES]
+            complete = False
+            notes.add("deep_review_candidates_truncated")
+        numbers: list[int] = []
+        seen_numbers: set[int] = set()
+        for candidate in candidates:
+            _, number = self._pull_request_identity(candidate, slug)
+            if number in seen_numbers:
+                raise GitHubApiError("github_deep_review_candidate_duplicate")
+            seen_numbers.add(number)
+            numbers.append(number)
+
+        items: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        requests = 0
+        for number in numbers:
+            lane_items, used, lane_complete, lane_notes = self._reviews_for_pull(
+                slug, number, actor,
+                request_budget=MAX_REVIEW_REQUESTS - requests,
+                item_budget=MAX_REVIEW_ITEMS - len(items),
+            )
+            requests += used
+            notes.update(lane_notes)
+            complete = complete and lane_complete
+            for item in lane_items:
+                key = item["activity_key"]
+                if key in seen:
+                    raise GitHubApiError("github_deep_activity_duplicate")
+                seen.add(key)
+                items.append(item)
+            if requests >= MAX_REVIEW_REQUESTS or len(items) >= MAX_REVIEW_ITEMS:
+                if number != numbers[-1]:
+                    complete = False
+                break
+        return GitHubActivityBatch(
+            repo["id"], sanitize_token(repo["full_name"], limit=128), tuple(items), complete,
+            tuple(sorted(notes)),
+        )
+
+    def _reviews_for_pull(
+        self,
+        slug: str,
+        number: int,
+        actor: str,
+        *,
+        request_budget: int,
+        item_budget: int,
+    ) -> tuple[list[dict[str, Any]], int, bool, set[str]]:
+        items: list[dict[str, Any]] = []
+        notes: set[str] = set()
+        requests = 0
+        if request_budget <= 0:
+            return items, requests, False, {"deep_review_request_budget_exhausted"}
+        if item_budget <= 0:
+            return items, requests, False, {"deep_review_item_budget_exhausted"}
+        for page in range(1, MAX_REVIEW_PAGES + 1):
+            if requests >= request_budget:
+                notes.add("deep_review_request_budget_exhausted")
+                return items, requests, False, notes
+            value, _ = self._json(
+                f"/repos/{slug}/pulls/{number}/reviews?per_page={DEEP_PAGE_SIZE}&page={page}",
+                max_bytes=MAX_DEEP_PAGE_BYTES,
+            )
+            requests += 1
+            if not isinstance(value, list) or len(value) > DEEP_PAGE_SIZE:
+                raise GitHubApiError("github_deep_reviews_response_invalid")
+            for raw in value:
+                item = self._submitted_review(raw, actor, number)
+                if item is None:
+                    continue
+                items.append(item)
+                if len(items) >= item_budget:
+                    notes.add("deep_review_item_budget_exhausted")
+                    return items, requests, False, notes
+            if len(value) < DEEP_PAGE_SIZE:
+                return items, requests, True, notes
+        notes.add("deep_review_pages_truncated")
+        return items, requests, False, notes
+
+    def _search_pull_requests(
+        self, qualifier: str, *, max_pages: int,
+    ) -> tuple[list[dict[str, Any]], bool, set[str]]:
+        query_text = f"repo:{self.spec.owner}/{self.spec.repository} is:pr {qualifier}"
+        items: list[dict[str, Any]] = []
+        notes: set[str] = set()
+        complete = True
+        total_count: int | None = None
+        for page in range(1, max_pages + 1):
+            query = urllib.parse.urlencode({
+                "q": query_text, "per_page": DEEP_PAGE_SIZE, "page": page,
+            })
+            value, _ = self._json(f"/search/issues?{query}", max_bytes=MAX_DEEP_PAGE_BYTES)
+            if (not isinstance(value, dict) or type(value.get("total_count")) is not int
+                    or value["total_count"] < 0 or not isinstance(value.get("incomplete_results"), bool)
+                    or not isinstance(value.get("items"), list)
+                    or len(value["items"]) > DEEP_PAGE_SIZE):
+                raise GitHubApiError("github_deep_search_response_invalid")
+            observed_total = value["total_count"]
+            if total_count is not None and observed_total != total_count:
+                notes.add("deep_search_count_changed")
+                complete = False
+            total_count = observed_total if total_count is None else max(total_count, observed_total)
+            if value["incomplete_results"]:
+                notes.add("deep_search_incomplete")
+                complete = False
+            for raw in value["items"]:
+                if not isinstance(raw, dict):
+                    raise GitHubApiError("github_deep_pull_request_invalid")
+                items.append(raw)
+            if len(value["items"]) < DEEP_PAGE_SIZE:
+                break
+        else:
+            notes.add("deep_search_truncated")
+            complete = False
+        if total_count is not None and total_count > len(items):
+            notes.add("deep_search_count_exceeds_results")
+            complete = False
+        return items, complete, notes
+
+    def _pull_request_identity(self, raw: dict[str, Any], slug: str) -> tuple[str, int]:
+        activity_id, number = raw.get("id"), raw.get("number")
+        expected_repository = f"{self.spec.api_origin}/repos/{slug}"
+        if (type(activity_id) is not int or activity_id <= 0 or type(number) is not int or number <= 0
+                or raw.get("repository_url") != expected_repository
+                or not isinstance(raw.get("pull_request"), dict)):
+            raise GitHubApiError("github_deep_pull_request_invalid")
+        return str(activity_id), number
+
+    @staticmethod
+    def _submitted_review(raw: Any, actor: str, number: int) -> dict[str, Any] | None:
+        if not isinstance(raw, dict):
+            raise GitHubApiError("github_deep_review_invalid")
+        activity_id, user = raw.get("id"), raw.get("user")
+        if type(activity_id) is not int or activity_id <= 0 or not isinstance(user, dict):
+            raise GitHubApiError("github_deep_review_invalid")
+        login = user.get("login")
+        if not isinstance(login, str):
+            raise GitHubApiError("github_deep_review_invalid")
+        if login.casefold() != actor.casefold() or raw.get("submitted_at") is None:
+            return None
+        state = raw.get("state")
+        if not isinstance(state, str):
+            raise GitHubApiError("github_deep_review_invalid")
+        return {
+            "activity_id": str(activity_id),
+            "activity_key": f"review:{activity_id}",
+            "activity_kind": "review",
+            "actor": actor,
+            "mode": "deep",
+            "occurred_at": _aware_iso(raw.get("submitted_at")),
+            "pull_number": number,
+            "state": _sanitized_state(state).lower(),
+        }
+
+    @staticmethod
+    def _authored_commit(raw: Any, actor: str) -> dict[str, Any] | None:
+        if not isinstance(raw, dict):
+            raise GitHubApiError("github_deep_commit_invalid")
+        sha = raw.get("sha")
+        linked = raw.get("author")
+        commit = raw.get("commit")
+        if not isinstance(sha, str) or SHA_RE.fullmatch(sha) is None or not isinstance(commit, dict):
+            raise GitHubApiError("github_deep_commit_invalid")
+        author = commit.get("author")
+        message = commit.get("message")
+        if not isinstance(author, dict) or not isinstance(message, str):
+            raise GitHubApiError("github_deep_commit_invalid")
+        occurred_at = _aware_iso(author.get("date"))
+        if not isinstance(linked, dict) or not isinstance(linked.get("login"), str):
+            return None
+        if linked["login"].casefold() != actor.casefold():
+            return None
+        title = sanitize_token(message.splitlines()[0] if message.splitlines() else "", limit=160)
+        return {
+            "activity_id": sha,
+            "activity_key": f"commit:{sha}",
+            "activity_kind": "commit",
+            "actor": actor,
+            "commit": sha,
+            "mode": "deep",
+            "occurred_at": occurred_at,
+            "title": title,
+        }
 
     def _walk_tree(self, slug: str, root_sha: str) -> tuple[list[dict[str, Any]], bool]:
         pending: deque[tuple[str, str]] = deque([("", root_sha)])
@@ -331,6 +674,34 @@ class GitHubScan:
     parser: tuple[str, str]
     repository_id: int
     notes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class GitHubActivityScan:
+    snapshot: Snapshot
+    delta: CandidateDelta
+    parser: tuple[str, str]
+    repository_id: int
+    notes: tuple[str, ...]
+
+
+def _aware_iso(value: Any) -> str:
+    if not isinstance(value, str):
+        raise GitHubApiError("github_deep_timestamp_invalid")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise GitHubApiError("github_deep_timestamp_invalid") from error
+    if parsed.tzinfo is None:
+        raise GitHubApiError("github_deep_timestamp_invalid")
+    return parsed.astimezone(UTC).isoformat()
+
+
+def _sanitized_state(value: str) -> str:
+    state = sanitize_token(value, limit=32)
+    if not state:
+        raise GitHubApiError("github_deep_state_invalid")
+    return state
 
 
 def _selection_reason(path: str) -> tuple[int, str]:
@@ -452,3 +823,42 @@ def scan_github(
         sequence=previous.delta.sequence + 1 if previous else 1,
     )
     return GitHubScan(result.snapshot, delta, parser, repository_id, tuple(sorted(notes)))
+
+
+def scan_github_activity(
+    batch: GitHubActivityBatch,
+    source_id: str,
+    previous: GitHubActivityScan | None,
+    parser: tuple[str, str],
+) -> GitHubActivityScan:
+    if type(batch.repository_id) is not int or batch.repository_id <= 0:
+        raise SourceIdentityError("github_repository_identity_invalid")
+    if previous is not None and previous.repository_id != batch.repository_id:
+        raise SourceIdentityError("repository_identity_changed")
+    observed: list[Observed] = []
+    seen: set[str] = set()
+    for item in batch.items:
+        key = item.get("activity_key")
+        if not isinstance(key, str) or not key or key in seen:
+            raise SourceIdentityError("github_deep_activity_invalid")
+        seen.add(key)
+        fields = dict(item) | {"repository_id": batch.repository_id}
+        content_hash = "sha256:" + hashlib.sha256(canonical_json(fields).encode("utf-8")).hexdigest()
+        observed.append(Observed(key, content_hash, fields))
+    spec = KeyedSpec(source_id, "github", "github.activity", 1, "activity_key")
+    parser_changed = previous is not None and previous.parser != parser
+    result = reconcile_keyed(
+        spec, previous.snapshot if previous else None, observed,
+        "complete" if batch.complete else "partial", parser_changed,
+    )
+    delta = CandidateDelta.build(
+        source_id,
+        previous.snapshot.snapshot_id if previous else None,
+        result.snapshot.snapshot_id,
+        parser,
+        result.operations,
+        sequence=previous.delta.sequence + 1 if previous else 1,
+    )
+    return GitHubActivityScan(
+        result.snapshot, delta, parser, batch.repository_id, batch.notes,
+    )
