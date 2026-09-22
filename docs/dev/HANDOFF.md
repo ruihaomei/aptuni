@@ -40,7 +40,7 @@ Keep all MarginNote access read-only; never commit note text, and do not infer r
 
 ### What just landed
 
-The opt-in hybrid retrieval preview adds `aptuni search --hybrid`. It fuses SQLite/FTS ranks with
+The opt-in hybrid retrieval preview (`37f21fe`) adds `aptuni search --hybrid`. It fuses SQLite/FTS ranks with
 semantic ranks from the selected Mem0 generation by deterministic reciprocal-rank fusion; provider
 scores are diagnostic only and cannot reorder anything. The semantic lane returns canonical Memory
 IDs only, is filtered to accepted non-revoked memories in permitted modules, and is hydrated solely

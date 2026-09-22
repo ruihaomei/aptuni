@@ -195,7 +195,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   purge to prevent resurrection. Malformed enumeration and every tested pre/post-publication
   failure fail closed or surface `cleanup_required`. Review 53 is **APPROVE WITH NON-BLOCKING
   NOTES**.
-- **Opt-in hybrid retrieval preview (runnable).** `aptuni search --hybrid` fuses the builtin
+- **Opt-in hybrid retrieval preview (runnable, `37f21fe`).** `aptuni search --hybrid` fuses the builtin
   SQLite/FTS ranks with semantic ranks from the selected Mem0 generation using deterministic
   reciprocal-rank fusion. Only rank positions are used; provider scores are diagnostic and cannot
   reorder anything. The semantic lane returns canonical Memory IDs only, is limited to accepted
