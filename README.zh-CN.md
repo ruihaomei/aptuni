@@ -98,7 +98,8 @@ aptuni adapter apply ACTION_ID    # 在你自己的终端里确认
 | 规范 Vault 的可校验备份与恢复 | ✅ |
 | Mem0 本地投影（`infer=False`，删除时重建整个存储） | ✅ 预览 |
 | 显式混合检索（SQLite + 已接受记忆的 Mem0 排名） | ✅ 预览 |
-| Obsidian 评审界面、Graphiti | 🗺 里程碑 2–3 |
+| Obsidian 所有者评审界面 | ✅ 桌面端 |
+| Graphiti | 🗺 里程碑 3 |
 
 运行 `aptuni plugin list --lang zh-CN` 和 `aptuni recipe list --lang zh-CN` 可以在命令行看到同样的信息。
 
@@ -190,6 +191,22 @@ aptuni evidence --source SOURCE_ID
 正文，被摘录的就是正文——任何来源都是如此。）代码块内的双链与标签不算结构，
 不常见的 frontmatter 会被如实报告而不是猜测。详见
 `docs/dev/DECISIONS/ADR-0017-obsidian-vault-source.md`。
+
+## 在 Obsidian 中审阅 Aptuni
+
+Obsidian 所有者界面与上面的来源插件完全分离：安装界面不会授予笔记摄取权，插件也不会
+扫描或写入笔记。先把三个内置文件安装到已有的桌面端仓库，再在 Obsidian 的第三方插件
+设置中由你自行启用 **Aptuni**：
+
+```sh
+aptuni interface obsidian install ~/Vault
+```
+
+从侧边栏打开 Aptuni，即可查看 Profile、Memory、Evidence、最近变更、待审阅项与晋升状态。
+接受、编辑、拒绝、固定、忘记和查看证据都复用 Aptuni 现有的规范审阅规则；“忘记”一定先显示
+绑定摘要的确认。插件只保存本地 Aptuni 可执行文件设置，不持久化返回的个人内容。如果 Obsidian
+的 PATH 中找不到 `aptuni`，请在插件设置里填绝对路径。暂不支持 Obsidian 移动端。详见
+`docs/dev/DECISIONS/ADR-0023-obsidian-owner-interface.md`。
 
 ## 通过官方 MCP 精确读取 Notion
 

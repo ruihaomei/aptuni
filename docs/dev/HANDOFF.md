@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
@@ -26,6 +26,10 @@ Automatic Profile promotion is runnable under accepted ADR-0020; Review 59 appro
 owner-pinned Memory→Fact lifecycle after all incremental/full-validation blockers were remediated.
 The official Notion MCP source is runnable under accepted ADR-0021; Review 60 approved its exact
 root, official hosted-MCP, Keychain-confined and fail-closed provider boundary.
+Longitudinal dogfooding is runnable under accepted ADR-0022, with one real content-free authorized
+Folder baseline. The separate Obsidian desktop owner interface is runnable under accepted ADR-0023;
+Review 62 approved its bounded local bridge, canonical actions, no-content-cache client and
+descriptor-pinned installer after all blocking findings were remediated test-first.
 
 ## Read first
 
@@ -35,10 +39,9 @@ root, official hosted-MCP, Keychain-confined and fail-closed provider boundary.
 
 ## Next action
 
-Continue directly to the separate `interface.obsidian` plugin/UI MVP over the existing application
-contracts. Keep ingestion separate; prioritize Profile, Memory, Evidence, Recent Changes, Pending
-Reviews and bounded Accept/Edit/Reject/Pin/Forget/Show Evidence flows. Private real-data steps may
-require maintainer participation; never persist that content in repository artifacts.
+The fixed maintainer-priority run is complete. Continue the real `aptuni evaluate` loop as ordinary
+usage accumulates. Notion OAuth and installing/enabling the Obsidian plugin in a real private vault
+remain explicit owner actions; never infer scope or persist private content in repository artifacts.
 
 Two Review 55 lessons carry forward to any provider work: write injection tests with **real**
 control bytes — the literal text of an escape sequence asserts nothing and left a whole mutation
@@ -50,6 +53,19 @@ concrete public defect requires a patch release.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
+
+Obsidian owner interface (ADR-0023, Review 62) adds `aptuni interface obsidian snapshot|evidence|
+action|install` and a bundled three-file desktop plugin. One bounded Vault snapshot feeds Profile,
+Memory, Evidence, Recent Changes and Pending Reviews with explicit truncation, provenance and
+currently valid actions. Accept/Edit/Reject/Pin, Profile review, evidence display and two-phase
+Forget reuse canonical services. The plugin invokes Aptuni with `execFile` argument arrays, enforces
+exact contract `aptuni.obsidian@1`, renders text-only DOM content and caches no returned personal
+data. Installation neither scans notes, grants ingestion nor enables the plugin; it pins and
+revalidates every destination path component and the final target. Review 62's four first-pass and
+two continuity follow-up blockers were remediated with deterministic regressions. Full gate: 704
+passed, 3 optional skips and 61 subtests; Ruff, strict mypy, relay, JavaScript syntax,
+notices/secrets/workflow and artifact supply-chain checks, frozen evaluation and packaged-asset
+inspection are green. Final verdict **APPROVE**.
 
 Longitudinal dogfooding (ADR-0022, Review 61) adds `aptuni evaluate setup|trial|score|capture|report|
 reset`. It runs ordinary Context retrieval, prints context only for immediate owner judgment, and

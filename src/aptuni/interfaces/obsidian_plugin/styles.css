@@ -1,0 +1,36 @@
+.aptuni-view {
+  padding: var(--size-4-4);
+}
+
+.aptuni-toolbar,
+.aptuni-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--size-4-2);
+}
+
+.aptuni-section {
+  margin-block: var(--size-4-6);
+}
+
+.aptuni-card {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  margin-block: var(--size-4-3);
+  padding: var(--size-4-3);
+}
+
+.aptuni-card-title {
+  font-weight: var(--font-semibold);
+}
+
+.aptuni-meta {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  margin-block: var(--size-4-1);
+}
+
+.aptuni-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}

@@ -1,0 +1,9 @@
+{
+  "id": "aptuni",
+  "name": "Aptuni",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Review your local Aptuni Profile, Memory and Evidence inside Obsidian.",
+  "author": "Aptuni",
+  "isDesktopOnly": true
+}

@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Obsidian desktop owner interface (ADR-0023): a bounded local JSON bridge and three-file plugin
+  show Profile, Memory, Evidence, recent changes, pending reviews and promotion state. Review,
+  evidence and two-phase Forget actions reuse canonical services; installation neither scans notes,
+  grants source access nor enables the plugin, and returned personal content is not cached.
+
 - Content-free longitudinal dogfooding (ADR-0022): `aptuni evaluate` records explicit usefulness/
   noise labels, lifecycle snapshots, provenance, permission and context-efficiency metrics without
   retaining query or context text; purge and `evaluate reset` remove the complete derived dataset.

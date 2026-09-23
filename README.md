@@ -102,7 +102,8 @@ aptuni adapter apply ACTION_ID     # you confirm in your own terminal
 | Notion source (official MCP, exact pages/databases only) | ✅ |
 | Mem0 local projection (`infer=False`, whole-store rebuild deletion) | ✅ preview |
 | Opt-in hybrid search (SQLite + accepted-memory Mem0 ranks) | ✅ preview |
-| Obsidian review UI, Graphiti | 🗺 Milestones 2–3 |
+| Obsidian owner review UI | ✅ desktop |
+| Graphiti | 🗺 Milestone 3 |
 
 Run `aptuni plugin list` and `aptuni recipe list` to see the same picture from the CLI.
 
@@ -206,6 +207,23 @@ through the property block. (If you also write that value in the note's body, th
 excerpted — as it would from any source.) Links and
 tags inside code blocks are not treated as structure, and unusual frontmatter is reported rather
 than guessed at. See `docs/dev/DECISIONS/ADR-0017-obsidian-vault-source.md`.
+
+## Review Aptuni inside Obsidian
+
+The Obsidian owner interface is separate from the source above: installing it grants no note
+ingestion and the plugin never scans or writes your notes. Install its three bundled files into an
+existing desktop vault, then enable **Aptuni** yourself in Obsidian's Community plugins settings:
+
+```sh
+aptuni interface obsidian install ~/Vault
+```
+
+Open Aptuni from the ribbon to inspect Profile, Memory, Evidence, recent changes, pending reviews
+and promotion state. Accept, edit, reject, pin, forget and evidence actions reuse Aptuni's existing
+canonical review rules; Forget always shows a digest-bound confirmation first. The plugin stores
+only its local Aptuni executable setting, not returned personal content. If `aptuni` is not on
+Obsidian's PATH, set its absolute path in the plugin settings. Obsidian mobile is not supported.
+See `docs/dev/DECISIONS/ADR-0023-obsidian-owner-interface.md`.
 
 ## Exact Notion scope through official MCP
 

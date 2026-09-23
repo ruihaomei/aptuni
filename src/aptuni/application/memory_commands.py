@@ -279,6 +279,8 @@ class MemoryCommands:
             if prior.action_digest == confirmed_digest:
                 return
             raise AptuniError("memory_not_current", "That memory is no longer current.")
+        if records.superseded_by(memory_id) is not None:
+            raise AptuniError("memory_not_current", "That memory has been replaced by a correction.")
         policy = self.policy_of(records)
         nonce_id, expires_at = self._load_confirmation("memory", memory_id, policy.epoch)
         preview = ForgetPreview(memory.id, memory.statement, memory.module, memory.trust, memory.provenance.episode,
@@ -381,7 +383,8 @@ class MemoryCommands:
         revoked = self._revoked(records)
         current = next((memory for memory in records.records()
                         if memory.record_type == "memory" and memory.id == memory_id
-                        and memory.id not in revoked), None)
+                        and memory.id not in revoked
+                        and records.superseded_by(memory.id) is None), None)
         if current is None:
             raise AptuniError("memory_not_current", f"No current memory with id {memory_id}.")
         return current

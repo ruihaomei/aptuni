@@ -68,10 +68,10 @@ def test_bundled_catalog_matches_shipped_code() -> None:
     builtin = {pid for pid, plugin in catalog.plugins.items() if plugin.maturity == "builtin"}
     assert builtin == {"source.folder", "source.github", "source.marginnote", "source.obsidian", "source.notion",
                        "memory.builtin", "retrieval.sqlite_fts", "agent.mcp", "agent.claude_code",
-                       "agent.codex", "interface.cli"}
+                       "agent.codex", "interface.cli", "interface.obsidian"}
     for preview in ("memory.mem0", "retrieval.hybrid"):
         assert catalog.plugins[preview].maturity == "preview"
-    for planned in ("memory.graphiti", "interface.obsidian"):
+    for planned in ("memory.graphiti",):
         assert catalog.plugins[planned].maturity == "planned"
 
 

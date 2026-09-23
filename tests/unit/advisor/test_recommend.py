@@ -88,11 +88,11 @@ def test_requested_shipped_sources_are_selected() -> None:
     assert {"source.folder", "source.obsidian", "source.notion"} <= selected(rec)
 
 
-def test_the_obsidian_interface_stays_deferred_while_its_source_ships() -> None:
-    """Reading a vault is shipped; the in-Obsidian review UI is a separate, still-planned plugin."""
+def test_the_obsidian_source_and_interface_ship_as_separate_plugins() -> None:
+    """Reading a vault and the owner review UI remain separate selectable capabilities."""
     rec = recommend(answers(sources=frozenset({"obsidian"})), load_catalog())
     assert "source.obsidian" in selected(rec)
-    assert "interface.obsidian" in deferred(rec)
+    assert "interface.obsidian" in selected(rec)
 
 
 def test_automatic_memory_falls_back_to_available_recipe_and_says_why() -> None:

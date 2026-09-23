@@ -1,14 +1,15 @@
 # Project State
 
-**Updated:** 2026-09-23
-**Current gate:** Milestone 2 — Longitudinal maintainer dogfooding complete (Review 61); Obsidian interface in progress
+**Updated:** 2026-09-24
+**Current gate:** Milestone 2 — fixed maintainer-priority run complete through Obsidian interface (Review 62)
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
-Folder, GitHub Standard/Deep and MarginNote 4 sources, builtin interaction memory, bilingual SQLite/FTS projection,
-bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profile export, and the
-read-only Plugin Advisor are runnable. The public repository is
+Folder, GitHub Standard/Deep, MarginNote 4, Obsidian and official-MCP Notion sources, builtin
+interaction memory, bilingual SQLite/FTS projection, bounded Context API, permissioned MCP STDIO
+server, Claude/Codex adapters, Profile export, the read-only Plugin Advisor, longitudinal
+evaluation and the Obsidian owner interface are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -294,25 +295,33 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   promotion/review state and context-unit efficiency. Purge and explicit reset remove the full
   dataset. ADR-0022 is accepted; Review 61 is **APPROVE** after deletion-order, terminal-rendering
   and migrated-metric blockers were remediated. One real authorized Folder baseline is recorded.
+- **Obsidian owner interface (runnable, Review 62).** `aptuni interface obsidian install VAULT`
+  copies the bundled desktop plugin without enabling it. Its versioned, bounded local bridge shows
+  Profile, Memory, Evidence, Recent Changes, Pending Reviews and promotion state from one Vault
+  snapshot, with explicit truncation and valid-action metadata. Accept/Edit/Reject/Pin, evidence
+  display, Profile review and digest-confirmed Forget reuse canonical services. It stores no
+  returned personal content and neither scans nor grants access to Obsidian notes. The installer
+  pins and revalidates the complete destination path and fails closed on directory swaps. ADR-0023
+  is accepted; Review 62 is **APPROVE** after all currentness, consistency, contract-version and
+  filesystem-confinement blockers were remediated test-first.
 
 ## In progress
 
 - Milestone 1 and its first public release are complete. Milestone 2 is open; S10, the Mem0
   projection preview, the opt-in hybrid retrieval preview, the Obsidian vault source, automatic
-  promotion slices A–D, automatic Profile promotion, GitHub Deep, the official Notion MCP source
-  and longitudinal maintainer dogfooding are complete. The Obsidian interface/plugin is active.
+  promotion slices A–D, automatic Profile promotion, GitHub Deep, the official Notion MCP source,
+  longitudinal maintainer dogfooding, and the bounded Obsidian owner interface are complete.
 
 ## Awaiting maintainer decisions
 
-- The maintainer has prioritized the remaining run: longitudinal setup/evaluation next, then the
-  in-Obsidian interface/plugin MVP. Real private data or authentication may still require direct
-  maintainer participation; no private material enters the repository.
+- No unresolved product decision blocks the completed priority run. Aptuni's Notion OAuth and
+  enabling/installing the Obsidian plugin in a real private vault remain explicit owner actions;
+  no private material enters the repository.
 
 ## Next highest-priority task
 
-1. Build the first useful Obsidian interface/plugin workflow over the existing application
-   contracts, keeping source ingestion separate and prioritizing Profile, Memory, Evidence, Recent
-   Changes, Pending Reviews and safe owner actions. Do not expand it into the long-term product.
+1. Continue the real longitudinal dogfood loop as ordinary maintainer usage accumulates; record
+   explicit retrieval trials and captures rather than inventing a larger evaluation framework.
 2. Review lessons that carry forward: write injection tests with **real** control bytes (the
    literal text of an escape sequence proves nothing); route every outside-controlled token through
    `sanitize_token` where stored or `delimited_untrusted` where rendered; and when a rule about
@@ -325,6 +334,12 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 5. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
+
+- Obsidian owner interface: full repository gate 704 passed, 3 optional-runtime skips and 61
+  subtests; Ruff, strict mypy (85 source files), relay, JavaScript syntax, notices/secrets/workflow
+  and built-artifact supply-chain checks, frozen lexical/hybrid evaluation and wheel asset
+  inspection are green. Review 62 drove stale-Forget, single-snapshot, contract-version and full
+  installer path/target continuity fixes to deterministic regressions. Final verdict: **APPROVE**.
 
 - Longitudinal maintainer dogfooding: full repository gate 692 passed, 3 optional-runtime skips and
   61 subtests; Ruff, strict mypy (81 source files), relay, notices/secrets/workflow supply-chain and

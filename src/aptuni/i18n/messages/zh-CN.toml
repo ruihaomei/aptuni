@@ -71,7 +71,7 @@
 "plugin.interface.obsidian.name" = "Obsidian 界面"
 "plugin.interface.obsidian.summary" = "在 Obsidian 中审阅、编辑和审计你的 Profile。"
 "plugin.interface.obsidian.strength" = "一键接受、编辑、拒绝并查看证据。"
-"plugin.interface.obsidian.weakness" = "计划在里程碑 2 提供。"
+"plugin.interface.obsidian.weakness" = "仅支持桌面端，并需要本地 Aptuni 可执行文件。"
 
 # ---------------------------------------------------------------- 配方
 "recipe.starter-lite.name" = "轻量入门"

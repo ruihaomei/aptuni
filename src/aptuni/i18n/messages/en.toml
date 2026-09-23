@@ -71,7 +71,7 @@
 "plugin.interface.obsidian.name" = "Obsidian interface"
 "plugin.interface.obsidian.summary" = "Review, edit and audit your Profile inside Obsidian."
 "plugin.interface.obsidian.strength" = "One-click accept, edit, reject and show evidence."
-"plugin.interface.obsidian.weakness" = "Planned for Milestone 2."
+"plugin.interface.obsidian.weakness" = "Desktop-only and requires the local Aptuni executable."
 
 # ---------------------------------------------------------------- recipes
 "recipe.starter-lite.name" = "Starter Lite"

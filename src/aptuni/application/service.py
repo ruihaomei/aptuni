@@ -34,6 +34,7 @@ from aptuni.application.errors import AptuniError
 from aptuni.application.evaluation import EvaluationCommands
 from aptuni.application.export import ExportReport, export_profile
 from aptuni.application.memory_commands import MemoryCommands
+from aptuni.application.obsidian_interface import ObsidianInterfaceCommands
 from aptuni.application.privacy import (
     PrivacyInventory,
     PurgePreview,
@@ -126,7 +127,9 @@ class MemoryReviewFeed:
     reminder: ReviewReminder
 
 
-class AptuniService(SourceCommands, MemoryCommands, ReviewCommands, EvaluationCommands):
+class AptuniService(
+    SourceCommands, MemoryCommands, ReviewCommands, EvaluationCommands, ObsidianInterfaceCommands,
+):
     def __init__(self, workspace: Workspace) -> None:
         self.workspace = workspace
         self._vault: Vault | None = None

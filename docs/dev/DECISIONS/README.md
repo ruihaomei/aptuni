@@ -43,4 +43,5 @@ community contributors' agents) must read the ADRs relevant to its task before e
 | [ADR-0020](ADR-0020-conservative-memory-to-profile-promotion.md) | Promote only pinned owner-declared Memories into stable Profile Facts | Accepted |
 | [ADR-0021](ADR-0021-official-notion-mcp-source.md) | Ingest explicitly scoped Notion entities through the official hosted MCP server | Accepted |
 | [ADR-0022](ADR-0022-content-free-longitudinal-dogfooding.md) | Measure longitudinal quality without retaining evaluation content | Accepted |
+| [ADR-0023](ADR-0023-obsidian-owner-interface.md) | Keep the Obsidian owner interface behind a local versioned bridge | Accepted |
 <!-- ADR-INDEX:END -->
