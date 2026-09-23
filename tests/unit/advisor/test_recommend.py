@@ -83,10 +83,9 @@ def test_case_d_no_host_is_cli_only() -> None:
     assert "advisor.note.cli_only" in rec.notes
 
 
-def test_unshipped_sources_are_deferred_not_silently_dropped() -> None:
+def test_requested_shipped_sources_are_selected() -> None:
     rec = recommend(answers(sources=frozenset({"obsidian", "notion", "folder"})), load_catalog())
-    assert "source.notion" in deferred(rec)
-    assert {"source.folder", "source.obsidian"} <= selected(rec)  # both ship as builtin (ADR-0017)
+    assert {"source.folder", "source.obsidian", "source.notion"} <= selected(rec)
 
 
 def test_the_obsidian_interface_stays_deferred_while_its_source_ships() -> None:

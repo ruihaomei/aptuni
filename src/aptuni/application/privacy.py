@@ -658,6 +658,9 @@ def build_privacy_inventory(vault_root: Path, state_dir: Path, seq: int, records
                       "content-free purge history"),
         InventoryCopy("profile_exports", "unmanaged_export", "untracked", None, None, None, False,
                       "user_controlled", "user_environment", "user_must_delete", "readable Profile copies"),
+        InventoryCopy("notion_mcp_credentials", "credential", "macOS Keychain", None, None, None, True,
+                      "until_disconnect", "excluded", "aptuni_source_disconnect_notion",
+                      "OAuth authorization for official Notion MCP; no Notion content"),
     ]
     for source in sorted((r for r in records.records() if r.record_type == "source_config"), key=lambda r: r.id):
         copies.append(InventoryCopy(
@@ -671,5 +674,6 @@ def build_privacy_inventory(vault_root: Path, state_dir: Path, seq: int, records
         "forget": "revoke visibility; keep canonical audit history",
         "purge": "remove selected managed content and derived copies; external host copies require user action",
         "uninstall": "remove Aptuni state/bundles; keep the Vault, original sources, exports and external host copies",
+        "disconnect_notion": "delete Aptuni's official Notion MCP OAuth material from the host credential store",
     }
     return PrivacyInventory(1, seq, datetime.now(UTC).isoformat(), tuple(copies), actions)

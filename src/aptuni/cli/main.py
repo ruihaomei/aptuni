@@ -70,6 +70,16 @@ def _add_source_commands(sub: Any) -> None:
     obsidian_add.add_argument("--role", default="notes", help="what this vault means (default: notes)")
     obsidian_add.add_argument("--primary-for", action="append", default=[], metavar="DIMENSION")
     obsidian_add.add_argument("--json", action="store_true")
+    notion_add = source_sub.add_parser("add-notion", help="approve exact Notion pages/databases via official MCP")
+    notion_add.add_argument("entity_url", nargs="+", help="exact Notion page/database URL or UUID")
+    notion_add.add_argument("--module", action="append", required=True, choices=MODULES, dest="modules")
+    notion_add.add_argument("--role", default="notes", help="what these entities mean (default: notes)")
+    notion_add.add_argument("--primary-for", action="append", default=[], metavar="DIMENSION")
+    notion_add.add_argument("--json", action="store_true")
+    notion_connect = source_sub.add_parser("connect-notion", help="authorize Aptuni with official Notion MCP")
+    notion_connect.add_argument("--json", action="store_true")
+    notion_disconnect = source_sub.add_parser("disconnect-notion", help="remove Aptuni's Notion MCP authorization")
+    notion_disconnect.add_argument("--json", action="store_true")
     add_marginnote_parsers(source_sub)
     source_list = source_sub.add_parser("list", help="list approved sources")
     source_list.add_argument("--json", action="store_true")
@@ -339,9 +349,37 @@ def _cmd_add_local_source(args: argparse.Namespace, service: AptuniService) -> i
     return 0
 
 
+def _cmd_notion_source(args: argparse.Namespace, service: AptuniService) -> int:
+    if args.source_command == "add-notion":
+        source = service.add_notion_source(
+            tuple(args.entity_url), modules=tuple(args.modules), role=args.role,
+            primary_for=tuple(args.primary_for),
+        )
+        if args.json:
+            _print_json(_source_json(source))
+        else:
+            print(f"Approved Notion source {source.id}: {len(source.roots)} exact root(s)")
+        return 0
+    if args.source_command == "disconnect-notion":
+        removed = service.disconnect_notion()
+        if args.json:
+            _print_json({"disconnected": True, "credential_removed": removed})
+        else:
+            print("Disconnected Aptuni from official Notion MCP")
+        return 0
+    principal_id = service.connect_notion()
+    if args.json:
+        _print_json({"connected": True, "principal_id": principal_id})
+    else:
+        print(f"Connected official Notion MCP principal {delimited_untrusted(principal_id)}")
+    return 0
+
+
 def _cmd_source(args: argparse.Namespace, service: AptuniService) -> int:
     if args.source_command in ("add-folder", "add-obsidian"):
         return _cmd_add_local_source(args, service)
+    if args.source_command in ("add-notion", "connect-notion", "disconnect-notion"):
+        return _cmd_notion_source(args, service)
     if args.source_command == "add-github":
         source = service.add_github_source(
             args.repository_url,

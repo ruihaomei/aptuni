@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Official Notion MCP source (ADR-0021): `aptuni source connect-notion` uses OAuth/PKCE and macOS
+  Keychain, while `add-notion` approves exact page/database roots. Sync calls only official
+  `notion-get-users(self)` identity and exact-root `fetch` tools,
+  retains minimized `notion.locator@1` provenance, and treats truncation or missing roots as partial
+  coverage so it cannot silently withdraw prior Evidence.
+
 - Conservative automatic Profile promotion (ADR-0020): an owner-pinned Memory with exact
   owner-declared CLI lineage, current permissions and no unresolved contradiction becomes one
   lineage-linked Profile Fact atomically. `aptuni profile refresh` handles older pins and

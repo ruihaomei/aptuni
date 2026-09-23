@@ -101,4 +101,12 @@ def default_registry() -> ExtensionRegistry:
             frozenset({"commit", "pull_number", "state", "title"}),
         ),
     )
+    registry.register(
+        "notion.locator",
+        1,
+        ExtensionSpec(
+            frozenset({"principal_id", "entity_id", "entity_type", "canonical_url", "title",
+                       "last_edited_at", "parent_id", "child_entity_ids", "block_ids", "truncated"}),
+        ),
+    )
     return registry

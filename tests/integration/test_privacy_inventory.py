@@ -74,4 +74,5 @@ def test_privacy_status_cli_is_scriptable(tmp_path: Path) -> None:
         "canonical_vault", "source_state", "retrieval_projection", "adapter_grants",
         "adapter_bundles", "pending_actions", "memory_confirmations", "privacy_actions",
         "privacy_receipts", "deletion_ledger", "profile_exports",
+        "notion_mcp_credentials",
     }

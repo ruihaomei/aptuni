@@ -94,6 +94,7 @@ aptuni adapter apply ACTION_ID    # 在你自己的终端里确认
 | 插件顾问、配方、中英文命令行 | ✅ 预览（`aptuni advise`） |
 | MarginNote 4 来源（macOS，本地只读直连，原生 ID） | ✅ |
 | Obsidian 来源（识别仓库，把双链与属性名保留为结构） | ✅ |
+| Notion 来源（官方 MCP，仅限明确页面/数据库） | ✅ |
 | 规范 Vault 的可校验备份与恢复 | ✅ |
 | Mem0 本地投影（`infer=False`，删除时重建整个存储） | ✅ 预览 |
 | 显式混合检索（SQLite + 已接受记忆的 Mem0 排名） | ✅ 预览 |
@@ -189,6 +190,25 @@ aptuni evidence --source SOURCE_ID
 正文，被摘录的就是正文——任何来源都是如此。）代码块内的双链与标签不算结构，
 不常见的 frontmatter 会被如实报告而不是猜测。详见
 `docs/dev/DECISIONS/ADR-0017-obsidian-vault-source.md`。
+
+## 通过官方 MCP 精确读取 Notion
+
+Notion 只是可选来源，不是 Aptuni 的存储。先通过 Notion 官方托管 MCP 完成一次连接，再明确批准
+真正需要摄取的页面或数据库：
+
+```sh
+aptuni source connect-notion
+aptuni source add-notion https://www.notion.so/EXACT_PAGE_ID --module knowledge --role notes
+aptuni sync SOURCE_ID
+aptuni evidence --source SOURCE_ID
+```
+
+OAuth/PKCE 凭据只保存在 macOS 钥匙串中，Notion API 令牌不会进入 Vault 或状态目录。同步只检查
+当前连接的 `self` 主体，再对这些精确根调用官方 `fetch`，不会搜索整个工作区、读取最近页面、
+自动发现后代或调用写工具。Aptuni 保留
+稳定的页面/数据库来源和一小段 Evidence 摘录，随后丢弃原始 MCP 响应。若响应被截断或含未知内容，
+快照会标记为不完整，而不会撤回既有 Evidence。可用 `aptuni source disconnect-notion` 删除连接。
+详见 `docs/dev/DECISIONS/ADR-0021-official-notion-mcp-source.md`。
 
 ## 它会自己学习，而不打断你
 

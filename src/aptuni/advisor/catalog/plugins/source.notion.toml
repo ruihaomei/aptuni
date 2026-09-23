@@ -1,0 +1,28 @@
+schema_version = 1
+id = "source.notion"
+category = "source"
+contract_version = 1
+maturity = "builtin"
+milestone = "M2"
+name = "plugin.source.notion.name"
+summary = "plugin.source.notion.summary"
+egress = ["source_origin"]
+retention = "source_minimized"
+strengths = ["plugin.source.notion.strength"]
+weaknesses = ["plugin.source.notion.weakness"]
+
+[capabilities]
+incremental_sync = true
+provenance = true
+exact_scope = true
+official_mcp = true
+
+[requirements]
+docker = false
+local_only_supported = false
+network = ["https://mcp.notion.com"]
+
+[setup]
+min_minutes = 3
+max_minutes = 8
+difficulty = "easy"

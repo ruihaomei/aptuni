@@ -32,6 +32,8 @@ from aptuni.application.ingest import (
     summarize,
 )
 from aptuni.application.marginnote_ingest import MarginNoteIngest, MarginNoteSourceSpec, MarginNoteSpecError
+from aptuni.application.notion_ingest import NOTION_PARSER, NotionIngest, NotionReadClient
+from aptuni.application.notion_mcp import NotionMcpClient
 from aptuni.application.obsidian_ingest import OBSIDIAN_PARSER, ObsidianIngest
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
@@ -44,6 +46,7 @@ from aptuni.sources.github import GitHubApi, GitHubApiError, GitHubSourceSpec, S
 from aptuni.sources.marginnote4 import PARSER as MARGINNOTE_PARSER
 from aptuni.sources.marginnote4 import MarginNoteStoreError, probe
 from aptuni.sources.marginnote4.store import CONTAINER
+from aptuni.sources.notion import NotionScopeError, NotionSourceSpec
 from aptuni.sources.obsidian import VaultUnavailableError, is_vault
 from aptuni.sources.records import Operation
 from aptuni.vault.locks import source_operations_lock
@@ -200,6 +203,34 @@ class SourceCommands:
         self._commit([config], seq)
         return config
 
+    def add_notion_source(self, roots: tuple[str, ...], modules: tuple[str, ...], role: str,
+                          primary_for: tuple[str, ...] = ()) -> SourceConfig:
+        """Approve exact Notion page/database roots. OAuth discovery alone never grants ingestion."""
+        self._check_modules(modules)
+        try:
+            spec = NotionSourceSpec.build(roots)
+            seq, _ = self.snapshot()
+            config = SourceConfig(
+                record_type="source_config", id=new_id("src"), schema_version=1,
+                recorded_at=utc_now(), source_type="notion", roots=spec.roots(),
+                semantic_role=role, module_mapping=modules,
+                authority=AuthorityPolicy(version=1, primary_for=primary_for),
+            )
+        except (NotionScopeError, ValidationError, ValueError) as error:
+            raise AptuniError("invalid_source", f"Invalid Notion source configuration: {error}") from error
+        self._commit([config], seq)
+        return config
+
+    @staticmethod
+    def connect_notion() -> str:
+        """Authorize Aptuni's read-only official Notion MCP client and return principal identity."""
+        return NotionMcpClient().connect()
+
+    @staticmethod
+    def disconnect_notion() -> bool:
+        """Delete Aptuni's official Notion MCP OAuth material from the host credential store."""
+        return NotionMcpClient().disconnect()
+
     def sources(self) -> list[SourceConfig]:
         return [r for r in self.records().records() if r.record_type == "source_config"]
 
@@ -234,7 +265,7 @@ class SourceCommands:
         module = config.module_mapping[0]
         if not can_ingest(policy, module):
             raise AptuniError("module_ingest_disabled", f"Module '{module}' is not accepting new information.")
-        if config.source_type not in {"folder", "github", "github_deep", "marginnote4", "obsidian"}:
+        if config.source_type not in {"folder", "github", "github_deep", "marginnote4", "obsidian", "notion"}:
             raise AptuniError("source_type_unsupported", f"Source type '{config.source_type}' is not runnable.")
         store = SourceStateStore(self.vault().root, config.id)
         state = store.load()
@@ -246,8 +277,14 @@ class SourceCommands:
             scan = ingest.scan(state)
             if config.source_type in {"github", "github_deep"}:
                 provider_data = {"repository_id": scan.repository_id}  # type: ignore[union-attr]
+            elif config.source_type == "notion":
+                provider_data = {"principal_id": scan.principal_id}  # type: ignore[union-attr]
         except (GitHubApiError, SourceIdentityError) as error:
             raise AptuniError("github_sync_failed", f"GitHub sync stopped safely ({error}).") from error
+        except NotionScopeError as error:
+            raise AptuniError(
+                "notion_sync_failed", "Official Notion MCP returned unsafe metadata; nothing was changed."
+            ) from error
         except VaultUnavailableError as error:
             raise AptuniError(
                 "obsidian_vault_unavailable",
@@ -305,7 +342,7 @@ class SourceCommands:
 
     def _ingest_for(self, config: SourceConfig, module: str, epoch: int, current: dict[str, Any],
                     ids: set[str]) -> tuple[FolderIngest | GitHubIngest | GitHubDeepIngest |
-                                             MarginNoteIngest | ObsidianIngest,
+                                             MarginNoteIngest | ObsidianIngest | NotionIngest,
                                              tuple[str, str]]:
         if config.source_type == "marginnote4":
             return self._marginnote_ingest(config, module, epoch, current, ids), MARGINNOTE_PARSER
@@ -313,16 +350,22 @@ class SourceCommands:
             return FolderIngest(config, module, epoch, current, existing_ids=ids), FOLDER_PARSER
         if config.source_type == "obsidian":
             return ObsidianIngest(config, module, epoch, current, existing_ids=ids), OBSIDIAN_PARSER
+        if config.source_type == "notion":
+            try:
+                notion_spec = NotionSourceSpec.from_roots(config.roots)
+            except NotionScopeError as error:
+                raise AptuniError("source_config_invalid", "The Notion source configuration is invalid.") from error
+            return NotionIngest(config, module, epoch, current, ids, self._notion_client(notion_spec)), NOTION_PARSER
         try:
-            spec = GitHubSourceSpec.from_roots(config.roots)
+            github_spec = GitHubSourceSpec.from_roots(config.roots)
         except SourceIdentityError as error:
             raise AptuniError("source_config_invalid", "The GitHub source configuration is invalid.") from error
         if config.source_type == "github_deep":
-            if spec.actor is None:
+            if github_spec.actor is None:
                 raise AptuniError("source_config_invalid", "The GitHub Deep actor is missing.")
-            return (GitHubDeepIngest(config, module, epoch, current, ids, self._github_client(spec)),
+            return (GitHubDeepIngest(config, module, epoch, current, ids, self._github_client(github_spec)),
                     GITHUB_DEEP_PARSER)
-        return GitHubIngest(config, module, epoch, current, ids, self._github_client(spec)), GITHUB_PARSER
+        return GitHubIngest(config, module, epoch, current, ids, self._github_client(github_spec)), GITHUB_PARSER
 
     @staticmethod
     def _marginnote_ingest(config: SourceConfig, module: str, epoch: int, current: dict[str, Any],
@@ -342,3 +385,6 @@ class SourceCommands:
     @staticmethod
     def _github_client(spec: GitHubSourceSpec) -> GitHubApi:
         return GitHubApi(spec)
+
+    def _notion_client(self, spec: NotionSourceSpec) -> NotionReadClient:
+        return NotionMcpClient(spec)

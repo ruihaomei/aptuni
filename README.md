@@ -99,6 +99,7 @@ aptuni adapter apply ACTION_ID     # you confirm in your own terminal
 | Verified backup and restore of the canonical Vault | ✅ |
 | MarginNote 4 source (macOS, direct read-only local sync, native IDs) | ✅ |
 | Obsidian source (vault-aware, wikilinks and property names as structure) | ✅ |
+| Notion source (official MCP, exact pages/databases only) | ✅ |
 | Mem0 local projection (`infer=False`, whole-store rebuild deletion) | ✅ preview |
 | Opt-in hybrid search (SQLite + accepted-memory Mem0 ranks) | ✅ preview |
 | Obsidian review UI, Graphiti | 🗺 Milestones 2–3 |
@@ -205,6 +206,26 @@ through the property block. (If you also write that value in the note's body, th
 excerpted — as it would from any source.) Links and
 tags inside code blocks are not treated as structure, and unusual frontmatter is reported rather
 than guessed at. See `docs/dev/DECISIONS/ADR-0017-obsidian-vault-source.md`.
+
+## Exact Notion scope through official MCP
+
+Notion is an optional source, never Aptuni's storage. Connect once through Notion's official hosted
+MCP server, then approve only the pages or databases you actually want to ingest:
+
+```sh
+aptuni source connect-notion
+aptuni source add-notion https://www.notion.so/EXACT_PAGE_ID --module knowledge --role notes
+aptuni sync SOURCE_ID
+aptuni evidence --source SOURCE_ID
+```
+
+The OAuth/PKCE credentials stay in macOS Keychain; no Notion API token enters the Vault or state
+directory. Sync checks only the connected `self` principal, then calls official `fetch` for those
+exact roots—no workspace search, recent-page scan, descendant discovery or write tool. Aptuni
+retains stable page/database provenance and a short Evidence excerpt, then discards the raw MCP
+response. Truncated or unknown content makes the
+snapshot partial rather than withdrawing earlier Evidence. Remove the connection with
+`aptuni source disconnect-notion`. See `docs/dev/DECISIONS/ADR-0021-official-notion-mcp-source.md`.
 
 ## It learns without interrupting you
 
