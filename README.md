@@ -256,6 +256,23 @@ days, whichever comes first, and `aptuni memory review snooze` defers it. Turn t
 with `aptuni memory review policy --auto-promotion off`. See
 `docs/dev/DECISIONS/ADR-0018-automatic-promotion-and-retrospective-review.md`.
 
+## Measure your setup over time
+
+The owner can run a private, repeatable dogfood loop against the ordinary Context path:
+
+```sh
+aptuni evaluate setup
+aptuni evaluate trial "What should my agent know for this task?"
+aptuni evaluate score TRIAL_ID --useful ID... --noise ID...
+aptuni evaluate capture
+aptuni evaluate report
+```
+
+Only a query digest, canonical IDs, explicit labels and content-free metrics persist in local state;
+query text and returned context do not. Reports cover usefulness/noise, unsupported useful records,
+provenance, exposure correctness, source changes, promotion/review state and context-unit
+efficiency. `aptuni evaluate reset` deletes the complete derived evaluation dataset.
+
 ## Backups you can actually restore
 
 `aptuni export` writes a readable copy of your current Profile. It is for reading, and it cannot be

@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Content-free longitudinal dogfooding (ADR-0022): `aptuni evaluate` records explicit usefulness/
+  noise labels, lifecycle snapshots, provenance, permission and context-efficiency metrics without
+  retaining query or context text; purge and `evaluate reset` remove the complete derived dataset.
+
 - Official Notion MCP source (ADR-0021): `aptuni source connect-notion` uses OAuth/PKCE and macOS
   Keychain, while `add-notion` approves exact page/database roots. Sync calls only official
   `notion-get-users(self)` identity and exact-root `fetch` tools,

@@ -1,14 +1,14 @@
 # Project State
 
 **Updated:** 2026-09-23
-**Current gate:** Milestone 2 — Official Notion MCP source complete (Review 60); longitudinal maintainer dogfooding in progress
+**Current gate:** Milestone 2 — Longitudinal maintainer dogfooding complete (Review 61); Obsidian interface in progress
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub Standard/Deep and MarginNote 4 sources, builtin interaction memory, bilingual SQLite/FTS projection,
 bounded Context API, permissioned MCP STDIO server, Claude/Codex adapters, Profile export, and the
 read-only Plugin Advisor are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -286,13 +286,21 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   missing/truncated/unknown roots cannot withdraw prior Evidence. ADR-0021 is accepted; Review 60
   is **APPROVE WITH NON-BLOCKING NOTES** after all identity, SDK, exact-scope, validation and
   production-shaped test blockers were remediated.
+- **Longitudinal maintainer dogfooding (runnable, Review 61).** `aptuni evaluate setup|trial|score|
+  capture|report|reset` measures the ordinary Context path without retaining query or returned
+  context text. Private schema-v2 derived state contains only query digests, canonical IDs, labels,
+  bounded context metrics and content-free lifecycle snapshots. Reports cover usefulness/noise,
+  unsupported useful records, provenance, exposure, source updates, corrections/supersession,
+  promotion/review state and context-unit efficiency. Purge and explicit reset remove the full
+  dataset. ADR-0022 is accepted; Review 61 is **APPROVE** after deletion-order, terminal-rendering
+  and migrated-metric blockers were remediated. One real authorized Folder baseline is recorded.
 
 ## In progress
 
 - Milestone 1 and its first public release are complete. Milestone 2 is open; S10, the Mem0
   projection preview, the opt-in hybrid retrieval preview, the Obsidian vault source, automatic
-  promotion slices A–D, automatic Profile promotion, GitHub Deep and the official Notion MCP source
-  are complete. Longitudinal maintainer dogfooding/setup evaluation is the active slice.
+  promotion slices A–D, automatic Profile promotion, GitHub Deep, the official Notion MCP source
+  and longitudinal maintainer dogfooding are complete. The Obsidian interface/plugin is active.
 
 ## Awaiting maintainer decisions
 
@@ -302,9 +310,9 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. Build the smallest durable longitudinal maintainer setup/evaluation for promotion, retrieval,
-   correction, review, noise, provenance and personalization; then continue directly to the first
-   useful Obsidian interface workflow. GitHub Deep's completed scope remains closed.
+1. Build the first useful Obsidian interface/plugin workflow over the existing application
+   contracts, keeping source ingestion separate and prioritizing Profile, Memory, Evidence, Recent
+   Changes, Pending Reviews and safe owner actions. Do not expand it into the long-term product.
 2. Review lessons that carry forward: write injection tests with **real** control bytes (the
    literal text of an escape sequence proves nothing); route every outside-controlled token through
    `sanitize_token` where stored or `delimited_untrusted` where rendered; and when a rule about
@@ -317,6 +325,14 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 5. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
+
+- Longitudinal maintainer dogfooding: full repository gate 692 passed, 3 optional-runtime skips and
+  61 subtests; Ruff, strict mypy (81 source files), relay, notices/secrets/workflow supply-chain and
+  frozen lexical/hybrid evaluation are green. Review 61 verified
+  content absence, bounded state/migration, permission metrics, purge/reset closure and terminal
+  safety with final verdict **APPROVE**. A real content-free schema-v2 baseline exists at Vault
+  sequence 3 for one authorized Folder source and one Evidence record, with zero review backlog and
+  zero exposure violations; no retrieval trial was recorded.
 
 - Official Notion MCP source: full repository gate 683 passed, 3 optional-runtime skips and 61
   subtests; Ruff, strict mypy (81 source files), relay, notices/secrets/workflow supply-chain and

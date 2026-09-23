@@ -31,6 +31,7 @@ from aptuni.application.context import (
     unit_cost,
 )
 from aptuni.application.errors import AptuniError
+from aptuni.application.evaluation import EvaluationCommands
 from aptuni.application.export import ExportReport, export_profile
 from aptuni.application.memory_commands import MemoryCommands
 from aptuni.application.privacy import (
@@ -125,7 +126,7 @@ class MemoryReviewFeed:
     reminder: ReviewReminder
 
 
-class AptuniService(SourceCommands, MemoryCommands, ReviewCommands):
+class AptuniService(SourceCommands, MemoryCommands, ReviewCommands, EvaluationCommands):
     def __init__(self, workspace: Workspace) -> None:
         self.workspace = workspace
         self._vault: Vault | None = None
@@ -549,6 +550,10 @@ class AptuniService(SourceCommands, MemoryCommands, ReviewCommands):
             if self.snapshot()[0] == seq:
                 return response
         raise AptuniError("concurrent_write", "The Vault kept changing during context creation; run it again.")
+
+    def _evaluation_context(self, query: str, limit: int) -> ContextResponse:
+        """Use the ordinary owner Context path; evaluation never gets a privileged retrieval lane."""
+        return self.context(query, budget=4000, limit=limit)
 
     def memory_review_feed(
         self,

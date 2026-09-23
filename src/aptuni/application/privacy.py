@@ -247,6 +247,8 @@ def _snapshot_copy_scope(
     tokens.append("retrieval_projection")  # always-run invalidation covers creation after preview
     _owned_child(state_dir, "projections", "memory", "mem0")
     tokens.append("memory_provider_projection")  # S10 requires whole-root invalidation
+    _owned_child(state_dir, "evaluation")
+    tokens.append("longitudinal_evaluation")  # labels/ids may refer to any purged canonical record
     grants = _direct_names(state_dir, "adapters", "grants")
     tokens.extend(f"adapter_grant:{name}" for name in grants)
     tokens.extend(f"adapter_bundle:{name}" for name in _direct_names(state_dir, "adapters", "bundles"))
@@ -439,6 +441,8 @@ def _remove_managed_copy(vault: Vault, state_dir: Path, token: str) -> bool:
         return _delete_projection(state_dir)
     if token == "memory_provider_projection":
         return _remove_owned(state_dir, "projections", "memory", "mem0")
+    if token == "longitudinal_evaluation":
+        return _remove_owned(state_dir, "evaluation")
     kind, _, name = token.partition(":")
     if kind == "source_state":
         source_id, _, state_kind = name.partition(":")
@@ -639,6 +643,9 @@ def build_privacy_inventory(vault_root: Path, state_dir: Path, seq: int, records
                       state_dir / "projections" / "memory" / "mem0", "derived", "excluded",
                       "whole_store_remove_then_canonical_rebuild",
                       "optional Mem0 projection; inference disabled"),
+        _managed_copy("longitudinal_evaluation", "derived", state_dir / "evaluation",
+                      "until_reset_or_purge", "excluded", "whole_store_remove",
+                      "query digests, canonical ids, owner labels and aggregate quality snapshots; no query text"),
         _managed_copy("adapter_grants", "grant", state_dir / "adapters" / "grants", "until_revoked", "excluded",
                       "managed_revoke", "host/module/scope egress authorization"),
         _managed_copy("adapter_bundles", "configuration", state_dir / "adapters" / "bundles", "until_uninstall",

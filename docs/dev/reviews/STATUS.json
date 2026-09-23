@@ -152,6 +152,12 @@
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   },
+  "m2-longitudinal-dogfooding": {
+   "kind": "review",
+   "current": "61-m2-longitudinal-dogfooding-review.md",
+   "verdict": "APPROVE",
+   "supersedes": []
+  },
   "m2-mem0-admission": {
    "kind": "review",
    "current": "52-m2-s10-mem0-admission-rereview.md",

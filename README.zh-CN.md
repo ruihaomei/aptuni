@@ -237,6 +237,22 @@ aptuni memory review pin     MEMORY_ID     # 保留，并不再提醒
 `aptuni memory review policy --auto-promotion off` 可以完全关闭该功能。详见
 `docs/dev/DECISIONS/ADR-0018-automatic-promotion-and-retrospective-review.md`。
 
+## 持续衡量自己的真实配置
+
+所有者可以针对普通 Context 路径运行一套私密、可重复的长期体验评估：
+
+```sh
+aptuni evaluate setup
+aptuni evaluate trial "智能体在这个任务里应该了解我的哪些信息？"
+aptuni evaluate score TRIAL_ID --useful ID... --noise ID...
+aptuni evaluate capture
+aptuni evaluate report
+```
+
+本地状态只保留查询摘要、规范记录 ID、显式标签和不含正文的指标；查询原文和返回的上下文不会持久化。
+报告覆盖有用性/噪声、缺少支持的有用结果、来源覆盖、暴露权限、来源更新、晋升/审阅状态和上下文单位效率。
+`aptuni evaluate reset` 会删除整套派生评估数据。
+
 ## 真正能恢复的备份
 
 `aptuni export` 写出的是当前 Profile 的可读副本，它用于阅读，无法用于恢复。可恢复的副本是备份：

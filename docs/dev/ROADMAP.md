@@ -105,7 +105,8 @@ probes deferred from S04 pass for each adapter version.
   ADR-0013 confirmation, overriding PRD §16 for MVP); automatic Profile promotion remains separate and
   slower.
 - Automatic Profile promotion, retrospective review workflow, Personal Memory recipe.
-- Maintainer's full setup and longitudinal quality evaluation.
+- Maintainer's full setup and longitudinal quality evaluation. The bounded content-free workflow is
+  implemented by ADR-0022; repeated scored trials remain ongoing dogfood evidence.
 
 ## Milestone 3 — Ecosystem — future
 

@@ -41,5 +41,6 @@ community contributors' agents) must read the ADRs relevant to its task before e
 | [ADR-0018](ADR-0018-automatic-promotion-and-retrospective-review.md) | Promote stable memories automatically and review them retrospectively | Accepted |
 | [ADR-0019](ADR-0019-github-deep-authored-activity.md) | Model GitHub Deep as an additive authored-activity source | Accepted |
 | [ADR-0020](ADR-0020-conservative-memory-to-profile-promotion.md) | Promote only pinned owner-declared Memories into stable Profile Facts | Accepted |
-| [ADR-0021](ADR-0021-official-notion-mcp-source.md) | Ingest explicitly scoped Notion entities through the official hosted MCP server | Proposed |
+| [ADR-0021](ADR-0021-official-notion-mcp-source.md) | Ingest explicitly scoped Notion entities through the official hosted MCP server | Accepted |
+| [ADR-0022](ADR-0022-content-free-longitudinal-dogfooding.md) | Measure longitudinal quality without retaining evaluation content | Accepted |
 <!-- ADR-INDEX:END -->

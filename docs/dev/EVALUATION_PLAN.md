@@ -62,6 +62,12 @@ These are reported, not silently converted into objective human-competence score
 Dogfood results must retain denominators and confidence caveats. One maintainer session is qualitative
 evidence, not a population claim.
 
+ADR-0022 implements the longitudinal collection loop as `aptuni evaluate setup|trial|score|capture|
+report|reset`. It retains only query digests, canonical IDs, explicit labels and content-free
+metrics in private derived state; raw queries and returned context are immediate owner output only.
+The report keeps denominators for usefulness/noise, provenance, context-unit efficiency,
+permissions, source updates, corrections, supersession, promotion and retrospective review burden.
+
 ## Corpus and run discipline
 
 - Use synthetic/licensed content plus sanitized maintainer fixtures; never commit private raw exports.

@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
@@ -35,11 +35,10 @@ root, official hosted-MCP, Keychain-confined and fail-closed provider boundary.
 
 ## Next action
 
-Continue the maintainer-prioritized run with the smallest durable longitudinal setup/evaluation for
-promotion, retrieval, correction, review, noise, provenance and personalization. After that local
-checkpoint, continue directly to the separate `interface.obsidian` plugin/UI MVP. Private real-data
-steps may require maintainer participation; never persist that content in repository artifacts. Do
-not reopen ADR-0019 or expand Deep without a new decision.
+Continue directly to the separate `interface.obsidian` plugin/UI MVP over the existing application
+contracts. Keep ingestion separate; prioritize Profile, Memory, Evidence, Recent Changes, Pending
+Reviews and bounded Accept/Edit/Reject/Pin/Forget/Show Evidence flows. Private real-data steps may
+require maintainer participation; never persist that content in repository artifacts.
 
 Two Review 55 lessons carry forward to any provider work: write injection tests with **real**
 control bytes — the literal text of an escape sequence asserts nothing and left a whole mutation
@@ -51,6 +50,17 @@ concrete public defect requires a patch release.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
+
+Longitudinal dogfooding (ADR-0022, Review 61) adds `aptuni evaluate setup|trial|score|capture|report|
+reset`. It runs ordinary Context retrieval, prints context only for immediate owner judgment, and
+persists query digests, canonical IDs, explicit useful/noise labels and content-free metrics only.
+Lifecycle snapshots cover source updates, corrections/supersession, promotion/review burden and
+permissions; purge/reset remove all derived state. Review 61's deletion-order, terminal-injection
+and mixed-migration metric blockers were remediated test-first; final verdict **APPROVE**. A real
+content-free baseline is established on the maintainer's authorized Folder setup; no query trial or
+private content was stored.
+Full gate: 692 passed, 3 optional-runtime skips and 61 subtests; Ruff, strict mypy, relay,
+supply-chain checks and frozen lexical/hybrid evaluation are green.
 
 Official Notion MCP source (ADR-0021, Review 60) adds `source add-notion`, `connect-notion` and
 `disconnect-notion`. OAuth/PKCE secrets remain in macOS Keychain. The source stores exact approved
