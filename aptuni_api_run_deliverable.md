@@ -39,3 +39,6 @@ Obsidian asset comparison all pass.
 
 Remaining owner actions are limited to enabling/configuring Aptuni in Obsidian and supplying one
 exact Notion page/database URL for the consent-preserving content read.
+
+Local implementation checkpoint: `a1a04fb` (`feat(api): add public SDK plugin platform`). Nothing
+was pushed.

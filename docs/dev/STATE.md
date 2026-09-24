@@ -307,7 +307,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Implemented (Milestone 3)
 
-- **Versioned public developer API and SDK plugin platform (runnable, Review 63).** `aptuni.api.v1`
+- **Versioned public developer API and SDK plugin platform (runnable, `a1a04fb`, Review 63).** `aptuni.api.v1`
   exposes bounded Profile, Memory, Context and minimized Evidence reads plus quarantined memory
   proposals and read-only review queues through immutable `aptuni.api@1` DTOs. Strict
   `aptuni.plugin@1` manifests request authority but grant none; owner-created grants bind an exact

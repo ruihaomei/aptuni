@@ -32,6 +32,7 @@ Review 62 approved its bounded local bridge, canonical actions, no-content-cache
 descriptor-pinned installer after all blocking findings were remediated test-first. The public
 `aptuni.api.v1` SDK, strict manifest/grant platform and Top-Down Learning flagship are runnable under
 accepted ADR-0024; Review 63 approved the final authorization lifecycle and compatibility contract.
+The implementation checkpoint is `a1a04fb`; it is local and has not been pushed.
 
 ## Read first
 
@@ -45,7 +46,7 @@ The public developer-platform slice is complete. Authentication to the owner's N
 verified through the exact `self` read; fetch one owner-supplied exact page/database URL next, never
 workspace-search. The real vault `/Users/ruihaomei/Study_Work_Award` contains the verified Aptuni
 plugin, but the owner must enable it in Obsidian and set
-`/Users/ruihaomei/Study_Work_Award/Interest/Program/Personal Profile and memery systerm/.tools/bin/aptuni`
+`/Users/ruihaomei/Study_Work_Award/Interest/Program/Personal Profile and memery systerm/.venv/bin/aptuni`
 as the executable. The default Aptuni config still points at an old `/private/tmp/aptuni-smoke-*`
 Vault, so the plugin settings must name the intended production executable/configuration explicitly.
 Never infer private scope or persist private content in repository artifacts.
