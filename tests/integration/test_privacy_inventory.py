@@ -9,10 +9,20 @@ import sys
 from pathlib import Path
 
 from aptuni.adapters.manager import AdapterManager
+from aptuni.api.v1 import PluginManifest
+from aptuni.api.v1.grants import PluginGrantManager
 from aptuni.application.service import AptuniService
 from aptuni.application.workspace import Workspace
 
 REPO = Path(__file__).resolve().parents[2]
+
+
+def _plugin_manifest() -> PluginManifest:
+    return PluginManifest(
+        schema_version=1, contract="aptuni.plugin@1", id="dev.example.private", name="Private plugin",
+        version="0.1.0", api_version="v1", entry_point="private_plugin.plugin:create_plugin",
+        capabilities=("context.read",), modules=("preferences",), egress=("none",), retention="none",
+    )
 
 
 def test_inventory_lists_managed_unmanaged_and_external_copies_without_content(tmp_path: Path) -> None:
@@ -33,6 +43,8 @@ def test_inventory_lists_managed_unmanaged_and_external_copies_without_content(t
     plan = manager.plan("codex", ("preferences",), allow_host_model_egress=True,
                         allow_memory_proposals=True)
     grant, _ = manager.apply(plan.action_id)
+    plugin_manager = PluginGrantManager(workspace)
+    plugin_manager.apply(plugin_manager.plan(_plugin_manifest()).action_id)
 
     before = service.status().seq
     inventory = service.privacy_inventory()
@@ -43,6 +55,7 @@ def test_inventory_lists_managed_unmanaged_and_external_copies_without_content(t
     assert copies["source_state"].present and copies["source_state"].bytes > 0
     assert copies["retrieval_projection"].present and copies["retrieval_projection"].bytes > 0
     assert copies["adapter_grants"].present and copies["adapter_grants"].managed
+    assert copies["developer_plugin_grants"].present and copies["developer_plugin_grants"].managed
     assert copies["profile_exports"].present is None and not copies["profile_exports"].managed
     external = copies[f"host_external:{grant.grant_id}"]
     assert external.present is None and not external.managed
@@ -74,5 +87,5 @@ def test_privacy_status_cli_is_scriptable(tmp_path: Path) -> None:
         "canonical_vault", "source_state", "retrieval_projection", "adapter_grants",
         "adapter_bundles", "pending_actions", "memory_confirmations", "privacy_actions",
         "privacy_receipts", "deletion_ledger", "profile_exports",
-        "notion_mcp_credentials",
+        "notion_mcp_credentials", "developer_plugin_grants", "developer_plugin_pending",
     }

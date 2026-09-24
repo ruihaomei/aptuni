@@ -13,6 +13,8 @@ from pathlib import Path
 import pytest
 
 from aptuni.adapters.manager import AdapterManager
+from aptuni.api.v1 import AptuniAPIError, PluginManifest, connect
+from aptuni.api.v1.grants import PluginGrantManager
 from aptuni.application import privacy
 from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService
@@ -208,6 +210,33 @@ def test_preview_deletes_only_exact_adapter_copies_and_preserves_external_detail
     assert external.data_class is not None and "modules=preferences" in external.data_class
     assert not (service.workspace.state_dir / "adapters" / "grants" / f"{first.grant_id}.json").exists()
     assert (service.workspace.state_dir / "adapters" / "grants" / f"{later.grant_id}.json").exists()
+
+
+def test_preview_revokes_only_the_exact_local_plugin_grants_present_at_preview(tmp_path: Path) -> None:
+    service = _service(tmp_path)
+    fact = service.remember("plugin-scope marker", "preferences")
+    manifest = PluginManifest(
+        schema_version=1, contract="aptuni.plugin@1", id="dev.example.private", name="Private plugin",
+        version="0.1.0", api_version="v1", entry_point="private_plugin.plugin:create_plugin",
+        capabilities=("context.read",), modules=("preferences",), egress=("none",), retention="none",
+    )
+    manager = PluginGrantManager(service.workspace)
+    first = manager.apply(manager.plan(manifest).action_id)
+    live = connect(manifest, first.grant_id, workspace=service.workspace)
+    assert live.query_context("plugin-scope", modules=("preferences",)).items
+    pending = manager.plan(manifest)
+    preview = service.privacy_purge_preview((fact.id,))
+    assert f"developer_grant:{first.grant_id}.json" in preview.managed_copy_ids
+    assert f"developer_pending:{pending.action_id}.json" in preview.managed_copy_ids
+
+    later = manager.apply(manager.plan(manifest).action_id)
+    assert later.grant_id != first.grant_id
+    service.confirm_privacy_purge(preview.action_id, preview.digest)
+    assert not (manager.root / "grants" / f"{first.grant_id}.json").exists()
+    assert (manager.root / "grants" / f"{later.grant_id}.json").exists()
+    with pytest.raises(AptuniAPIError) as revoked:
+        live.query_context("plugin-scope", modules=("preferences",))
+    assert revoked.value.code == "plugin_grant_not_found"
 
 
 def test_projection_created_after_preview_is_still_invalidated(tmp_path: Path) -> None:

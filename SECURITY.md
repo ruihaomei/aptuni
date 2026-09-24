@@ -52,3 +52,11 @@ catalog. Two boundaries are documented design limits, not vulnerabilities by the
 
 Reports showing that Aptuni itself releases more than it discloses, or crosses these boundaries
 without disclosure, are in scope and welcome.
+
+Local `aptuni.api.v1` plugins are another explicit trust boundary. Their manifest and owner grant
+limit what the supported API releases, but installed Python code runs with the user's process
+privileges and is not sandboxed. Public API v1 therefore authorizes only clients declaring no
+external egress; review plugin source and dependencies before executing them. A plugin bypassing
+the supported API by reading user files directly is operating as local trusted code, while any
+Aptuni API release beyond its exact grant remains in scope as a vulnerability. Aptuni v1 does not
+discover, import or execute third-party entry points.

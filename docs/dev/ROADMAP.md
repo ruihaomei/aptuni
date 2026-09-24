@@ -110,7 +110,9 @@ probes deferred from S04 pass for each adapter version.
 
 ## Milestone 3 — Ecosystem — future
 
-- Graphiti after S11; LlamaIndex retrieval; plugin scaffolds; external conformance certification.
+- [x] Versioned public Python API, manifest-bound local grants, plugin scaffold, and first
+  public-contract flagship example (ADR-0024; Review 63 approved).
+- Graphiti after S11; LlamaIndex retrieval; external conformance certification.
 - Community registry/catalog and advanced recipes only after governance/security design.
 
 ## Milestone 4 — Public Growth — future/nice-to-have

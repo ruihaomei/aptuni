@@ -485,6 +485,7 @@ class AptuniService(
         limit: int = 20,
         audience: str = "owner_cli",
         access: HostContextAccess | None = None,
+        _record_types: tuple[str, ...] | None = None,
     ) -> ContextResponse:
         self._check_context_request(budget, audience, limit)
         if not query.strip() or len(query.encode("utf-8")) > MAX_QUERY_BYTES:
@@ -503,7 +504,9 @@ class AptuniService(
                 self._authorize_host(access, scope="evidence.read", modules=selected)
         elif access is not None:
             raise AptuniError("invalid_context", "Host access is valid only for the host_mcp audience.")
-        record_types = ("fact", "memory", "evidence") if include_evidence else ("fact", "memory")
+        if _record_types is not None and (_record_types != ("memory",) or include_evidence):
+            raise AptuniError("invalid_context", "The internal context record-type restriction is invalid.")
+        record_types = _record_types or (("fact", "memory", "evidence") if include_evidence else ("fact", "memory"))
         for _ in range(3):
             seq, records, rows = self._stable_search(
                 query,

@@ -16,6 +16,7 @@ from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService, Status
 from aptuni.application.workspace import DEFAULT_VAULT, Workspace
 from aptuni.cli.backup_commands import add_backup_commands, cmd_backup
+from aptuni.cli.developer_cli import add_developer_commands, cmd_developer
 from aptuni.cli.evaluation_cli import add_evaluation_commands, cmd_evaluate
 from aptuni.cli.marginnote_commands import MARGINNOTE_COMMANDS, add_marginnote_parsers, cmd_marginnote
 from aptuni.cli.memory_cli import add_memory_commands, cmd_memory, cmd_observe
@@ -216,6 +217,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_profile_commands(sub)
     add_evaluation_commands(sub)
     add_interface_commands(sub)
+    add_developer_commands(sub)
 
     export = sub.add_parser("export", help="write a private, readable copy of your current Profile")
     export.add_argument("path", type=Path)
@@ -781,6 +783,7 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "profile": cmd_profile,
     "evaluate": cmd_evaluate,
     "interface": cmd_interface,
+    "developer": cmd_developer,
     "export": _cmd_export,
     "privacy": _cmd_privacy,
     "backup": cmd_backup,

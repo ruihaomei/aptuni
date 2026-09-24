@@ -196,6 +196,12 @@
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   },
+  "m3-public-api-plugin-platform": {
+   "kind": "review",
+   "current": "63-m3-public-api-plugin-platform-review.md",
+   "verdict": "APPROVE",
+   "supersedes": []
+  },
   "relay-claude-code": {
    "kind": "drill",
    "current": "11-cold-claude-relay-drill.md",

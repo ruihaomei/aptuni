@@ -16,6 +16,7 @@ from aptuni.application.confirmations import action_lock as _action_lock
 from aptuni.application.confirmations import preview_digest as _preview_digest
 from aptuni.application.confirmations import unlink_durable as _unlink_durable
 from aptuni.application.confirmations import write_private_json as _write_private_json
+from aptuni.application.developer_authorization import developer_authorization_lock
 from aptuni.application.errors import AptuniError
 from aptuni.domain.ids import ID_PATTERN, new_id, sha256_text
 from aptuni.domain.invariants import InvariantError, RecordSet
@@ -253,6 +254,8 @@ def _snapshot_copy_scope(
     tokens.extend(f"adapter_grant:{name}" for name in grants)
     tokens.extend(f"adapter_bundle:{name}" for name in _direct_names(state_dir, "adapters", "bundles"))
     tokens.extend(f"adapter_pending:{name}" for name in _direct_names(state_dir, "adapters", "pending"))
+    tokens.extend(f"developer_grant:{name}" for name in _direct_names(state_dir, "developer", "grants"))
+    tokens.extend(f"developer_pending:{name}" for name in _direct_names(state_dir, "developer", "pending"))
     tokens.extend(f"memory_confirmation:{name}" for name in _direct_names(state_dir, "memory-confirmations"))
     return tuple(tokens), _grant_external_scope(state_dir, grants)
 
@@ -290,6 +293,7 @@ def create_purge_preview(
             "retrieval projection: always invalidated, so a later rebuild excludes purged records",
             "Mem0 projection: entire managed root is deleted; later use requires a canonical rebuild",
             "adapter grants/bundles/pending plans listed below: revoked and deleted",
+            "local plugin grants/pending plans listed below: revoked and deleted",
             "host transcripts, original sources and exported copies: user action required",
         ),
         "managed_copy_ids": managed_copy_ids,
@@ -454,12 +458,19 @@ def _remove_managed_copy(vault: Vault, state_dir: Path, token: str) -> bool:
         "adapter_grant": ("adapters", "grants"),
         "adapter_bundle": ("adapters", "bundles"),
         "adapter_pending": ("adapters", "pending"),
+        "developer_grant": ("developer", "grants"),
+        "developer_pending": ("developer", "pending"),
         "memory_confirmation": ("memory-confirmations",),
     }
     parts = roots.get(kind)
     if parts is None or not name or "/" in name or name in {".", ".."}:
         raise OSError("managed_copy_id_invalid")
-    return _remove_owned(state_dir, *parts, name)
+    if kind in {"developer_grant", "developer_pending"}:
+        with developer_authorization_lock(state_dir):
+            removed = _remove_owned(state_dir, *parts, name)
+    else:
+        removed = _remove_owned(state_dir, *parts, name)
+    return removed
 
 
 def _run_cleanups(
@@ -652,6 +663,11 @@ def build_privacy_inventory(vault_root: Path, state_dir: Path, seq: int, records
                       "excluded", "managed_uninstall", "generated host configuration"),
         _managed_copy("pending_actions", "temporary", state_dir / "adapters" / "pending", "until_applied_or_expired",
                       "excluded", "managed_cleanup", "unapplied adapter previews"),
+        _managed_copy("developer_plugin_grants", "grant", state_dir / "developer" / "grants", "until_revoked",
+                      "excluded", "managed_revoke", "local plugin capability and module authorization"),
+        _managed_copy("developer_plugin_pending", "temporary", state_dir / "developer" / "pending",
+                      "until_applied_cancelled_or_purged", "excluded", "managed_cleanup",
+                      "unapplied local plugin grant previews"),
         _managed_copy("memory_confirmations", "temporary", state_dir / "memory-confirmations", "ten_minutes",
                       "excluded", "managed_expiry_or_cancel", "single-use owner confirmation previews"),
         _managed_copy("privacy_actions", "temporary", state_dir / "privacy" / "pending", "ten_minutes",

@@ -8,6 +8,13 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Public developer API and local plugin platform (ADR-0024): `aptuni.api.v1` provides bounded,
+  permission-checked Profile/Memory/Context/Evidence reads, quarantined memory proposals and
+  read-only review queues through immutable versioned contracts. `aptuni developer` validates
+  manifests, creates revocable exact owner grants and scaffolds public-API-only clients without
+  discovering or executing third-party code. The separate
+  Top-Down Learning example dogfoods the complete goal-to-adaptive-next-step loop.
+
 - Obsidian desktop owner interface (ADR-0023): a bounded local JSON bridge and three-file plugin
   show Profile, Memory, Evidence, recent changes, pending reviews and promotion state. Review,
   evidence and two-phase Forget actions reuse canonical services; installation neither scans notes,
