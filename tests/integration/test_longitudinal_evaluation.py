@@ -516,3 +516,150 @@ def test_cli_setup_trial_score_capture_report_journey(
     assert json.loads(capsys.readouterr().out)["retrieval"]["scored_trials"] == 1
     assert run(["evaluate", "reset", "--json"], service) == 0
     assert json.loads(capsys.readouterr().out) == {"removed": True}
+
+
+def test_discard_removes_only_the_exact_trials(service: AptuniService) -> None:
+    service.remember("Maintains Aptuni.", "projects")
+    keep = service.evaluation_trial("Maintains Aptuni", limit=5)
+    drop = service.evaluation_trial("Maintains", limit=5)
+    service.score_evaluation_trial(drop.id, useful_ids=drop.record_ids, noise_ids=())
+    snapshot = service.capture_evaluation_snapshot()
+
+    assert service.discard_evaluation_trials((drop.id,)) == (drop.id,)
+
+    report = service.evaluation_report()
+    assert report["retrieval"]["trials"] == 1
+    assert report["retrieval"]["scored_trials"] == 0
+    assert report["retrieval"]["unscored_trial_ids"] == [keep.id]
+    assert report["snapshots"] == [snapshot]
+
+
+def test_discard_is_all_or_nothing_for_unknown_or_malformed_ids(service: AptuniService) -> None:
+    service.remember("Maintains Aptuni.", "projects")
+    trial = service.evaluation_trial("Maintains Aptuni", limit=5)
+
+    for ids, code in (
+        ((trial.id, "trial-0000000000000000"), "evaluation_trial_not_found"),
+        (("not-a-trial",), "invalid_evaluation_trial"),
+        ((), "invalid_evaluation_trial"),
+        ((trial.id, trial.id), "invalid_evaluation_trial"),
+    ):
+        with pytest.raises(AptuniError) as error:
+            service.discard_evaluation_trials(ids)
+        assert error.value.code == code
+
+    assert service.evaluation_report()["retrieval"]["trials"] == 1
+
+
+def test_rest_noise_labels_every_unlisted_record_as_noise(service: AptuniService) -> None:
+    useful = service.remember("Uses Python for Aptuni.", "projects")
+    service.remember("Uses tea while reading.", "preferences")
+    trial = service.evaluation_trial("Uses", limit=10)
+
+    scored = service.score_evaluation_trial(trial.id, useful_ids=(useful.id,), noise_ids=(), rest_noise=True)
+
+    assert scored.useful_ids == (useful.id,)
+    assert set(scored.noise_ids) == set(trial.record_ids) - {useful.id}
+
+
+def test_rest_noise_still_rejects_ids_the_trial_did_not_return(service: AptuniService) -> None:
+    service.remember("Uses Python for Aptuni.", "projects")
+    trial = service.evaluation_trial("Uses", limit=10)
+
+    with pytest.raises(AptuniError) as error:
+        service.score_evaluation_trial(
+            trial.id, useful_ids=("fct_00000000000000000000000000",), noise_ids=(), rest_noise=True,
+        )
+
+    assert error.value.code == "evaluation_labels_incomplete"
+
+
+def test_repeated_queries_report_first_and_latest_usefulness_per_mode(service: AptuniService) -> None:
+    useful = service.remember("Maintains Aptuni.", "projects")
+    first = service.evaluation_trial("Maintains Aptuni", limit=5)
+    service.score_evaluation_trial(first.id, useful_ids=(), noise_ids=first.record_ids)
+    latest = service.evaluation_trial("Maintains Aptuni", limit=5)
+    service.score_evaluation_trial(latest.id, useful_ids=(useful.id,), noise_ids=(), rest_noise=True)
+    once = service.evaluation_trial("Maintains", limit=5)
+    service.score_evaluation_trial(once.id, useful_ids=once.record_ids, noise_ids=())
+
+    [series] = service.evaluation_report()["retrieval"]["repeated_queries"]
+
+    assert series["query_digest_prefix"] == first.query_digest.removeprefix("sha256:")[:12]
+    assert series["mode"] == "profile_memory"
+    assert series["scored_trials"] == 2
+    assert series["first_useful_rate"] == 0.0
+    assert series["latest_useful_rate"] == 1.0 / len(latest.record_ids)
+
+
+def test_cli_discard_rest_noise_and_human_report(
+    service: AptuniService, capsys: pytest.CaptureFixture[str],
+) -> None:
+    useful = service.remember("Maintains Aptuni.", "projects")
+    assert run(["evaluate", "trial", "Maintains Aptuni", "--json"], service) == 0
+    trial = json.loads(capsys.readouterr().out)
+    assert run(["evaluate", "score", trial["trial_id"], "--useful", useful.id, "--rest-noise"], service) == 0
+    capsys.readouterr()
+    assert run(["evaluate", "trial", "Maintains", "--evidence", "--json"], service) == 0
+    extra = json.loads(capsys.readouterr().out)
+
+    assert run(["evaluate", "report"], service) == 0
+    human = capsys.readouterr().out
+    assert "Profile/Memory only: 1 scored" in human
+    assert "With Evidence: 0 scored" in human
+    assert extra["trial_id"] in human  # the unscored trial is listed for later scoring
+
+    assert run(["evaluate", "discard", extra["trial_id"], "--json"], service) == 0
+    assert json.loads(capsys.readouterr().out) == {"discarded": [extra["trial_id"]]}
+
+
+def test_discard_refuses_to_erase_exposure_violation_evidence(service: AptuniService) -> None:
+    service.remember("Maintains Aptuni.", "projects")
+    trial = service.evaluation_trial("Maintains Aptuni", limit=5)
+    path = service.workspace.state_dir / "evaluation" / "longitudinal.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    state["trials"][0]["exposure_violations"] = 1
+    path.write_text(json.dumps(state), encoding="utf-8")
+    path.chmod(0o600)
+
+    with pytest.raises(AptuniError) as error:
+        service.discard_evaluation_trials((trial.id,))
+
+    assert error.value.code == "evaluation_trial_protected"
+    assert service.evaluation_report()["permissions"]["exposure_violations"] == 1
+
+
+def test_discard_refuses_contaminated_evaluation_state(service: AptuniService) -> None:
+    service.remember("Maintains Aptuni.", "projects")
+    trial = service.evaluation_trial("Maintains Aptuni", limit=5)
+    stray = service.workspace.state_dir / "evaluation" / "junk"
+    stray.write_text("unmanaged", encoding="utf-8")
+
+    with pytest.raises(AptuniError):
+        service.discard_evaluation_trials((trial.id,))
+
+    assert stray.exists()
+
+
+def test_the_same_query_in_both_modes_forms_separate_series(service: AptuniService, tmp_path: Path) -> None:
+    evidence_id, _ = _evidence_setup(service, tmp_path)
+    query = "What is the purpose of the source integration fixture?"
+    for include_evidence in (False, False, True, True):
+        trial = service.evaluation_trial(query, limit=5, include_evidence=include_evidence)
+        useful = (evidence_id,) if evidence_id in trial.record_ids else ()
+        service.score_evaluation_trial(trial.id, useful_ids=useful, noise_ids=(), rest_noise=True)
+
+    series = service.evaluation_report()["retrieval"]["repeated_queries"]
+
+    assert sorted(item["mode"] for item in series) == ["profile_memory", "with_evidence"]
+    assert len({item["query_digest_prefix"] for item in series}) == 1
+
+
+def test_rest_noise_rejects_a_record_labelled_both_useful_and_noise(service: AptuniService) -> None:
+    useful = service.remember("Uses Python for Aptuni.", "projects")
+    trial = service.evaluation_trial("Uses", limit=10)
+
+    with pytest.raises(AptuniError) as error:
+        service.score_evaluation_trial(trial.id, useful_ids=(useful.id,), noise_ids=(useful.id,), rest_noise=True)
+
+    assert error.value.code == "evaluation_labels_incomplete"

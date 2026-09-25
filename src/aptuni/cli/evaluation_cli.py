@@ -28,7 +28,11 @@ def add_evaluation_commands(sub: Any) -> None:
     score.add_argument("trial_id")
     score.add_argument("--useful", nargs="*", default=[])
     score.add_argument("--noise", nargs="*", default=[])
+    score.add_argument("--rest-noise", action="store_true", help="label every record not listed as useful as noise")
     score.add_argument("--json", action="store_true")
+    discard = actions.add_parser("discard", help="remove exact trials, such as test or mislabelled runs")
+    discard.add_argument("trial_ids", nargs="+")
+    discard.add_argument("--json", action="store_true")
 
 
 def _dump(value: object) -> None:
@@ -57,12 +61,14 @@ def cmd_evaluate(args: Any, service: Any) -> int:
         }
     elif action == "score":
         trial = service.score_evaluation_trial(
-            args.trial_id, useful_ids=tuple(args.useful), noise_ids=tuple(args.noise),
+            args.trial_id, useful_ids=tuple(args.useful), noise_ids=tuple(args.noise), rest_noise=args.rest_noise,
         )
         value = {"trial_id": trial.id, "scored": trial.scored,
                  "useful": list(trial.useful_ids), "noise": list(trial.noise_ids)}
     elif action == "capture":
         value = service.capture_evaluation_snapshot()
+    elif action == "discard":
+        value = {"discarded": list(service.discard_evaluation_trials(tuple(args.trial_ids)))}
     elif action == "reset":
         value = {"removed": service.reset_evaluation()}
     else:
@@ -80,7 +86,7 @@ def _print_human(action: str, value: dict[str, Any]) -> None:
         print(f"Trial {value['trial_id']} at Vault commit {value['vault_seq']} ({mode})")
         for item in value["items"]:
             print(f"  {item['id']}  [{item['module']}]  {delimited_untrusted(item['text'])}")
-        print("Classify every id with: aptuni evaluate score TRIAL --useful ... --noise ...")
+        print("Label it: aptuni evaluate score TRIAL --useful ID... --rest-noise")
     elif action == "setup":
         print(f"Vault commit {value['vault_seq']}; sources={', '.join(value['source_types']) or 'none'}; "
               f"retrieval={value['retrieval_projection']}")
@@ -90,7 +96,19 @@ def _print_human(action: str, value: dict[str, Any]) -> None:
         print(f"Captured longitudinal snapshot at Vault commit {value['vault_seq']}.")
     elif action == "reset":
         print("Deleted longitudinal evaluation state." if value["removed"] else "No evaluation state existed.")
+    elif action == "discard":
+        print(f"Discarded {len(value['discarded'])} trial(s).")
     else:
         retrieval = value["retrieval"]
         print(f"Scored trials={retrieval['scored_trials']}; useful={retrieval['useful_context_rate']:.3f}; "
               f"noise={retrieval['noise_rate']:.3f}; traceable={retrieval['traceable_useful_rate']:.3f}.")
+        for key, label in (("profile_memory", "Profile/Memory only"), ("with_evidence", "With Evidence")):
+            mode = retrieval["by_context_mode"][key]
+            print(f"  {label}: {mode['scored_trials']} scored; useful={mode['useful_context_rate']:.3f}; "
+                  f"noise={mode['noise_rate']:.3f}")
+        for series in retrieval["repeated_queries"]:
+            print(f"  Repeated query {series['query_digest_prefix']} ({series['mode']}): "
+                  f"{series['scored_trials']} scored; "
+                  f"useful {series['first_useful_rate']:.3f} -> {series['latest_useful_rate']:.3f}")
+        if retrieval["unscored_trial_ids"]:
+            print("  Unscored: " + " ".join(retrieval["unscored_trial_ids"]))

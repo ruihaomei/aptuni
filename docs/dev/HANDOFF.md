@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
@@ -42,17 +42,15 @@ The implementation checkpoint is `a1a04fb`; it is local and has not been pushed.
 
 ## Next action
 
-All three real activation paths are verified end to end: the canonical Vault in the owner work
-root's private `.aptuni/`, the Obsidian owner interface, and the official Notion MCP exact-page
-source with Aptuni's own Keychain session. The first longitudinal trial is resolved: default Context
-is L3-only by contract, so `aptuni evaluate trial --evidence` now measures the Evidence layer, and
-Context with Evidence keeps retrieval rank so better-matching Evidence is no longer displaced or
-budget-truncated by weaker Profile/Memory (Review 66). The residual Profile/Memory-only noise is the
-specified ADR-0004 fallback, kept under KI-018 until more real trials exist. The second dogfood
-issue is fixed too: an expired Notion access token now refreshes silently from the stored refresh
-token instead of demanding browser re-authorization (Review 67). Next: keep running trials in both
-modes, and take the deferred Notion hardening from Reviews 65 and 67 (BACKLOG) as one Notion slice.
-Never persist private query or source content in repository artifacts.
+All three real activation paths are verified, and the deferred Notion hardening is closed at
+`6e05e8a` (Review 68): line-safe envelope parsing, declared native Keychain signatures, bounded
+credential reads/writes and truthful `disconnect-notion`. The evaluation workflow is ready for
+repeated owner use (Review 69): trials in Profile/Memory-only or `--evidence` mode, owner labels via
+`score --useful … --rest-noise`, `discard` for test or mislabelled trials, and a report with unscored
+trials and first-versus-latest usefulness for repeated queries. The live dataset was cleaned of
+agent-labelled fixture trials. The next measurable signal needs the owner's own queries and labels;
+do not retune KI-018 before real owner-labelled Profile/Memory trials show a persistent pattern.
+Remaining Notion BACKLOG items wait for evidence of the live server's non-enveloped shapes.
 
 Two Review 55 lessons carry forward to any provider work: write injection tests with **real**
 control bytes — the literal text of an escape sequence asserts nothing and left a whole mutation
@@ -64,6 +62,11 @@ concrete public defect requires a patch release.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
+
+Notion hardening and owner-labelled evaluation (Reviews 68–69). Credential and envelope notes from
+Reviews 65/67 are closed at `6e05e8a`; `evaluate discard`, `score --rest-noise` and the extended
+report make repeated owner trials cheap and honest, and the stale activation deliverable was folded
+into STATE and removed.
 
 Real dogfooding fixes (Reviews 65–67; checkpoints `1ae1d8f`, `1d93ff8`, `327dbf4`, local and unpushed). The Notion activation delta is checkpointed at `1ae1d8f`
 after Review 65 blocked a parser that treated absent completeness metadata as complete; unverified

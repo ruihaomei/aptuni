@@ -220,6 +220,12 @@
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   },
+  "m3-owner-labelled-evaluation": {
+   "kind": "review",
+   "current": "69-m3-owner-labelled-evaluation-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "m3-public-api-plugin-platform": {
    "kind": "review",
    "current": "63-m3-public-api-plugin-platform-review.md",

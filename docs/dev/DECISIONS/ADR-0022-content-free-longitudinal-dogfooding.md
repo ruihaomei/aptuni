@@ -61,3 +61,17 @@ content-free boolean, `include_evidence`, per trial; v2 trials migrate as `false
 because v2 could not request Evidence. `report` adds `retrieval.by_context_mode` with separate
 `profile_memory` and `with_evidence` usefulness/noise denominators. Existing aggregate metrics are
 unchanged; the report and state `schema_version` becomes 3, and `schema_version` must be an integer.
+
+## Amendment — 2026-09-25 repeatable owner-labelled trials
+
+Usefulness labels are owner judgments; an agent must not invent them. To keep the dataset honest
+and cheap to maintain, `evaluate discard TRIAL…` removes exact trials (for example test runs or
+labels not made by the owner) all-or-nothing without touching snapshots, and
+`evaluate score --rest-noise` lets the owner name only useful records while every other returned
+record is labelled noise; ids outside the trial still fail. `report` lists unscored trial ids and,
+for each query digest scored more than once in one mode, a `repeated_queries` series with first and
+latest usefulness (`query_digest_prefix`, 12 hex characters, never the query; a trial that returned
+nothing counts as 0.0 there, while per-mode aggregates exclude it from their denominators). A trial
+that recorded an exposure violation cannot be discarded, so permission evidence survives. The stored trial schema is unchanged
+(v3). No retrieval-policy change is derived automatically; KI-018 stays open until enough real
+owner-labelled Profile/Memory trials show a persistent pattern.

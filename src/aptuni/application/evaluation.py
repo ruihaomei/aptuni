@@ -173,8 +173,9 @@ class EvaluationCommands:
         return self._trial(row, items)
 
     def score_evaluation_trial(
-        self, trial_id: str, *, useful_ids: tuple[str, ...], noise_ids: tuple[str, ...],
+        self, trial_id: str, *, useful_ids: tuple[str, ...], noise_ids: tuple[str, ...], rest_noise: bool = False,
     ) -> EvaluationTrial:
+        """Record the owner's exact labels; ``rest_noise`` marks every unlisted returned record noise."""
         with source_operations_lock(self.workspace.state_dir):
             state = self._load_evaluation()
             row = next((trial for trial in state["trials"] if trial["id"] == trial_id), None)
@@ -182,6 +183,8 @@ class EvaluationCommands:
                 raise AptuniError("evaluation_trial_not_found", "No exact evaluation trial has that id.")
             expected = set(row["record_ids"])
             useful, noise = set(useful_ids), set(noise_ids)
+            if rest_noise and (useful | noise) <= expected:
+                noise |= expected - useful
             if useful & noise or useful | noise != expected:
                 raise AptuniError(
                     "evaluation_labels_incomplete", "You must classify every returned record as useful or noise.",
@@ -190,6 +193,25 @@ class EvaluationCommands:
             row["noise_ids"] = sorted(noise)
             self._write_evaluation(state)
             return self._trial(row)
+
+    def discard_evaluation_trials(self, trial_ids: tuple[str, ...]) -> tuple[str, ...]:
+        """Remove exact trials (for example test or mislabelled runs); all ids must exist or none go."""
+        if not trial_ids or len(set(trial_ids)) != len(trial_ids) \
+                or not all(TRIAL_ID_RE.fullmatch(trial_id) for trial_id in trial_ids):
+            raise AptuniError("invalid_evaluation_trial", "Name one or more distinct exact trial ids.")
+        with source_operations_lock(self.workspace.state_dir):
+            state = self._load_evaluation()
+            known = {trial["id"] for trial in state["trials"]}
+            if not set(trial_ids) <= known:
+                raise AptuniError("evaluation_trial_not_found", "No exact evaluation trial has that id.")
+            if any(trial["id"] in trial_ids and trial["exposure_violations"] for trial in state["trials"]):
+                # Permission evidence must survive: a trial that saw an exposure violation stays.
+                raise AptuniError(
+                    "evaluation_trial_protected", "A trial that recorded an exposure violation cannot be discarded.",
+                )
+            state["trials"] = [trial for trial in state["trials"] if trial["id"] not in set(trial_ids)]
+            self._write_evaluation(state)
+        return trial_ids
 
     def capture_evaluation_snapshot(self) -> dict[str, Any]:
         seq, records = self.snapshot()
@@ -290,6 +312,10 @@ class EvaluationCommands:
                     "useful_records_per_1000_units": (
                         1000 * len(measured_useful_ids) / used_units if used_units else 0.0
                     ),
+                    "unscored_trial_ids": [
+                        trial["id"] for trial in state["trials"] if trial["useful_ids"] is None
+                    ],
+                    "repeated_queries": self._repeated_queries(scored),
                     "by_context_mode": {
                         "profile_memory": self._mode_metrics(
                             [trial for trial in scored if not trial["include_evidence"]]),
@@ -326,6 +352,27 @@ class EvaluationCommands:
             finally:
                 os.close(directory_fd)
             return True
+
+    @staticmethod
+    def _repeated_queries(scored: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """First versus latest usefulness for each query digest the owner scored more than once."""
+        groups: dict[tuple[str, bool], list[dict[str, Any]]] = {}
+        for trial in scored:  # rows are stored in creation order
+            groups.setdefault((trial["query_digest"], trial["include_evidence"]), []).append(trial)
+
+        def rate(trial: dict[str, Any]) -> float:
+            return len(trial["useful_ids"]) / len(trial["record_ids"]) if trial["record_ids"] else 0.0
+
+        return [
+            {
+                "query_digest_prefix": digest.removeprefix("sha256:")[:12],
+                "mode": "with_evidence" if evidence else "profile_memory",
+                "scored_trials": len(trials),
+                "first_useful_rate": rate(trials[0]),
+                "latest_useful_rate": rate(trials[-1]),
+            }
+            for (digest, evidence), trials in groups.items() if len(trials) > 1
+        ]
 
     @staticmethod
     def _mode_metrics(scored: list[dict[str, Any]]) -> dict[str, Any]:

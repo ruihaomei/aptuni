@@ -282,7 +282,8 @@ The owner can run a private, repeatable dogfood loop against the ordinary Contex
 aptuni evaluate setup
 aptuni evaluate trial "What should my agent know for this task?"
 aptuni evaluate trial --evidence "What does my source note say about this?"   # also measures L4 Evidence
-aptuni evaluate score TRIAL_ID --useful ID... --noise ID...
+aptuni evaluate score TRIAL_ID --useful ID... --rest-noise   # every unlisted record is noise
+aptuni evaluate discard TRIAL_ID...                           # drop test or mislabelled trials
 aptuni evaluate capture
 aptuni evaluate report
 ```
@@ -290,7 +291,10 @@ aptuni evaluate report
 Only a query digest, canonical IDs, explicit labels and content-free metrics persist in local state;
 query text and returned context do not. Reports cover usefulness/noise, unsupported useful records,
 provenance, exposure correctness, source changes, promotion/review state and context-unit
-efficiency. `aptuni evaluate reset` deletes the complete derived evaluation dataset.
+efficiency, separately for Profile/Memory-only and with-Evidence trials. Rerunning the same query
+later shows first-versus-latest usefulness for that query, and unscored trials are listed so they
+can be labelled later. Only you label results; `aptuni evaluate reset` deletes the complete derived
+evaluation dataset.
 
 ## Backups you can actually restore
 

@@ -11,7 +11,7 @@ server, Claude/Codex adapters, Profile export, the read-only Plugin Advisor, lon
 evaluation, the Obsidian owner interface and the versioned public developer SDK are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -51,7 +51,9 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   ADR-0004 fallback (KI-018). Fixed at `1d93ff8`: rank-preserving Context ordering and `evaluate
   trial --evidence` with schema v3 (Review 66). Live after-state on the same query: Profile/Memory-only
   mode 0/2 useful (unchanged, by contract); with-Evidence mode 1/1 useful, 0 noise; 0 exposure
-  violations. Labels are agent-assigned on the synthetic activation fixture, not owner judgments.
+  violations. Those labels were agent-assigned on the synthetic fixture, so all three trials were
+  later removed with `evaluate discard`; the live dataset now holds only owner-labelled trials (none
+  yet) plus two content-free snapshots.
 - **Second dogfood issue.** A day after authorization, sync demanded a browser re-authorization and
   printed an SDK traceback: MCP SDK 2.2.0 forgets token expiry across processes and answers the
   resulting 401 with a full authorization instead of the refresh grant. Aptuni now persists the
@@ -366,9 +368,10 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. Continue the real longitudinal dogfood loop with explicit trials in both context modes and
-   periodic captures. Revisit the KI-018 fallback floor only when real `profile_memory` trials show
-   persistent noise; take the Notion BACKLOG hardening (Review 65 N2–N5) with the next Notion slice.
+1. The owner runs real trials in both context modes (`evaluate trial [--evidence]`, then
+   `evaluate score --useful … --rest-noise`) and periodic `evaluate capture`; agents never invent
+   labels. Revisit the KI-018 fallback floor only when real owner-labelled `profile_memory` trials
+   show persistent noise. Remaining Notion items in BACKLOG need live server evidence first.
 2. Review lessons that carry forward: write injection tests with **real** control bytes (the
    literal text of an escape sequence proves nothing); route every outside-controlled token through
    `sanitize_token` where stored or `delimited_untrusted` where rendered; and when a rule about
@@ -381,6 +384,11 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 5. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
+
+- Notion hardening and owner-labelled evaluation (2026-09-25, `6e05e8a` and the evaluation
+  checkpoint): full repository gate 801 passed, 3 optional-runtime skips and 62 subtests; Ruff,
+  strict mypy, relay and frozen lexical/hybrid evaluation green. Reviews 68 and 69 **APPROVE WITH
+  NON-BLOCKING NOTES**. Real Security.framework round trips used throwaway services only.
 
 - Notion session refresh (2026-09-25): full repository gate 767 passed, 3 optional-runtime skips
   and 62 subtests before review-note fixes; focused Notion suites 65 passed after them. Ruff,
