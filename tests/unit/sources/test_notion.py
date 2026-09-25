@@ -25,6 +25,7 @@ def entity(
     edited: str = "2026-09-23T08:00:00.000Z",
     truncated: bool = False,
     unknown: tuple[str, ...] = (),
+    verified: bool = True,
 ) -> NotionEntity:
     return NotionEntity(
         entity_id=entity_id,
@@ -36,10 +37,22 @@ def entity(
         parent_id=None,
         truncated=truncated,
         unknown_block_ids=unknown,
+        completeness_verified=verified,
     )
 
 
 class NotionScopeTests(unittest.TestCase):
+    def test_scope_accepts_official_app_url_with_benign_pvs_hint(self) -> None:
+        spec = NotionSourceSpec.build((
+            f"https://app.notion.com/p/{PAGE_A.replace('-', '')}?pvs=204",
+        ))
+
+        self.assertEqual((PAGE_A,), spec.entity_ids)
+        self.assertEqual(
+            (f"https://www.notion.so/{PAGE_A.replace('-', '')}",),
+            spec.roots(),
+        )
+
     def test_scope_is_exact_normalized_and_never_workspace_wide(self) -> None:
         spec = NotionSourceSpec.build((f"https://www.notion.so/Notes-{PAGE_A.replace('-', '')}", PAGE_B))
 
@@ -59,6 +72,7 @@ class NotionScopeTests(unittest.TestCase):
             "https://token@www.notion.so/" + PAGE_A,
             "http://www.notion.so/" + PAGE_A,
             "https://www.notion.so/" + PAGE_A + "?token=secret",
+            "https://app.notion.com/p/" + PAGE_A + "?pvs=204&token=secret",
         ):
             with self.subTest(invalid=invalid), self.assertRaises(NotionScopeError):
                 NotionSourceSpec.build((invalid,))
@@ -117,6 +131,24 @@ class NotionScanTests(unittest.TestCase):
                 partial = scan_notion(spec, "src-notion", fetched, first, PARSER, principal_id=PAGE_B)
                 self.assertEqual("partial", partial.snapshot.coverage)
                 self.assertNotIn("remove", [op.kind for op in partial.delta.operations])
+
+    def test_unverified_completeness_is_partial_but_still_records_the_observed_page(self) -> None:
+        spec = NotionSourceSpec.build((PAGE_A,))
+        first = scan_notion(spec, "src-notion", [entity()], None, PARSER, principal_id=PAGE_B)
+        edited = entity(text="# Research notes\nAn edited body.\n", verified=False)
+
+        scan = scan_notion(spec, "src-notion", [edited], first, PARSER, principal_id=PAGE_B)
+
+        # Absent completeness metadata is never evidence of completeness (ADR-0021 amendment).
+        self.assertEqual("partial", scan.snapshot.coverage)
+        self.assertIn("notion_completeness_unverified", scan.notes)
+        self.assertEqual(["modify"], [op.kind for op in scan.delta.operations])
+
+    def test_completeness_verification_defaults_closed(self) -> None:
+        unverified = NotionEntity(**{
+            key: value for key, value in entity().__dict__.items() if key != "completeness_verified"
+        })
+        self.assertFalse(unverified.completeness_verified)
 
     def test_oversized_or_out_of_scope_results_fail_closed(self) -> None:
         spec = NotionSourceSpec.build((PAGE_A,))

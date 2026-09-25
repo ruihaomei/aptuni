@@ -45,3 +45,8 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Reserve an unknown `record_type` for `SchemaVersionError` so a newer record type fails legibly on an older install instead of as a pydantic validation error | Review 56 N4 | Schema compatibility |
 | Corroboration linking so a statement observed in two episodes strengthens one candidate instead of creating two, which would let a repeated host proposal become stable | ADR-0018 rule 2 follow-up | M2 promotion |
 | Add a direct mocked-`UrllibGitHubTransport` regression for a 2,000,001-byte Deep response; the integration suite already proves the 2,000,000-byte request bound and durable no-change consequence after `github_response_too_large` | Review 58 W3 | GitHub source hardening |
+| Notion `<content>` envelope: parse by line (first exact `<content>` line, last exact `</content>` line followed only by `</page>`) so a page quoting the marker does not stop the whole sync | Review 65 N2 | Next Notion slice |
+| Keychain ctypes: declare `argtypes` for every Security/CoreFoundation call and `CFRelease.restype = None` | Review 65 N3 | Next Notion slice |
+| Keychain: free `password_data` if `item` is NULL; bound secret length (~64 KiB); raise `notion_credentials_delete_failed` on non-not-found delete errors; document the interpreter-trusted access list in KNOWN_ISSUES | Review 65 N4 | Next Notion slice |
+| Keychain tests: native read failure mapping, duplicate-item modify path, `SecKeychainItemFreeContent` called | Review 65 N5 | Next Notion slice |
+| Count inline enhanced-markdown `<unknown …/>` blocks as unknown block IDs once the live format is confirmed from `notion://docs/enhanced-markdown-spec` | Review 65 B1 recommendation 4 | Next Notion slice |

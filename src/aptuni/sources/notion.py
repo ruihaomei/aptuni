@@ -6,7 +6,7 @@ import hashlib
 import re
 from dataclasses import dataclass
 from datetime import datetime
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlsplit
 from uuid import UUID
 
 from aptuni.sources.obsidian_parse import sanitize_token
@@ -31,6 +31,20 @@ _STRUCTURAL_URL = re.compile(
     r'<(?P<tag>page|database|folder|synced_block(?:_reference)?)\b[^>]*\burl="(?P<url>[^"]+)"',
     re.IGNORECASE,
 )
+
+
+def _has_safe_share_hint(query: str) -> bool:
+    if not query:
+        return True
+    try:
+        values = parse_qsl(query, keep_blank_values=True, strict_parsing=True)
+    except ValueError:
+        return False
+    return (
+        len(values) == 1
+        and values[0][0] == "pvs"
+        and re.fullmatch(r"[0-9]{1,3}", values[0][1]) is not None
+    )
 
 
 class NotionScopeError(ValueError):
@@ -60,7 +74,7 @@ def _scope_value(value: str) -> tuple[str, str]:
         or parsed.username is not None
         or parsed.password is not None
         or parsed.port is not None
-        or parsed.query
+        or not _has_safe_share_hint(parsed.query)
         or parsed.fragment
     ):
         raise NotionScopeError("notion_scope_origin_invalid")
@@ -106,6 +120,9 @@ class NotionEntity:
     parent_id: str | None
     truncated: bool
     unknown_block_ids: tuple[str, ...]
+    #: True only when the official result carried explicit, valid completeness metadata.
+    #: Absent metadata is never evidence of completeness (ADR-0021 2026-09-25 amendment).
+    completeness_verified: bool = False
 
 
 @dataclass(frozen=True)
@@ -196,7 +213,9 @@ def scan_notion(
     by_id = {str(item.locator.extension.fields["entity_id"]): item for item in items}
     if len(by_id) != len(items) or not set(by_id) <= set(spec.entity_ids):
         raise NotionScopeError("notion_result_scope_invalid")
-    unsafe = any(entity.truncated or entity.unknown_block_ids for entity in fetched)
+    unsafe = any(
+        entity.truncated or entity.unknown_block_ids or not entity.completeness_verified for entity in fetched
+    )
     coverage = "complete" if len(by_id) == len(spec.entity_ids) and not unsafe else "partial"
     notes: set[str] = set()
     if coverage == "partial":
@@ -205,6 +224,8 @@ def scan_notion(
         notes.add("notion_truncated")
     if any(entity.unknown_block_ids for entity in fetched):
         notes.add("notion_unknown_blocks")
+    if any(not entity.completeness_verified for entity in fetched):
+        notes.add("notion_completeness_unverified")
 
     old_items = previous.snapshot.items if previous else ()
     old_by_id = {str(item.locator.extension.fields["entity_id"]): item for item in old_items}

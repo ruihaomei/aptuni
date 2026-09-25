@@ -247,7 +247,7 @@ def _print_modules(status: Status) -> None:
 def _cmd_init(args: argparse.Namespace, service: AptuniService) -> int:
     status = service.init(args.path)
     print(f"Created your Aptuni Vault at {status.vault_path}")
-    print(f"Local state (lock, ledger, config): {status.state_dir}")
+    print(f"Local derived state and config: {status.state_dir}")
     return 0
 
 

@@ -44,3 +44,27 @@ no remote-deletion signal: a missing root retains prior Evidence until explicit 
 Test exact scope, official endpoint/tool allowlist, stable identity, edit/no-op/missing-root retention,
 truncation and unknown blocks, prompt/control-byte injection, OAuth state/timeout/refresh, credential
 non-retention, purge/privacy inventory, crash replay and backward-compatible Vault reads.
+
+## Amendment — 2026-09-24 real activation
+
+Official page creation returned an `https://app.notion.com/...?...pvs=204` URL. Treat one numeric
+`pvs` parameter as a non-authoritative sharing hint, discard it during stable-ID canonicalization,
+and continue rejecting every other, duplicate, malformed or credential-bearing query parameter.
+This is URL compatibility only: the immutable exact entity-ID scope and fetch-only provider
+contract do not change. Aptuni's OAuth/PKCE client remains deliberately separate from host-agent
+Notion connectors; authentication in one credential boundary is not evidence that the other has a
+usable session. Review 64 independently approves the compatibility change.
+
+## Amendment — 2026-09-25 official result envelope and completeness
+
+The official server currently returns page bodies inside an enhanced-markdown envelope and omits
+`truncated`, `unknown_block_ids` and `unknown_block_count`. Aptuni extracts only the body of exactly
+one ordered `<content>…</content>` envelope and rejects duplicate, unbalanced or reversed envelopes.
+When all completeness keys are absent the result is accepted but completeness is **unverified**:
+snapshot coverage is `partial` with note `notion_completeness_unverified`, so the observed page still
+updates Evidence while nothing is ever recorded as fully observed. If any completeness key is
+present, `truncated` and `unknown_block_ids` must both be present and valid, and
+`unknown_block_count`, if present, must equal the list length. Absent metadata is never evidence of
+completeness.
+Review 65 blocked the first activation parser that treated absence as completeness; this amendment
+records the remediation.

@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import ctypes
 import json
 import platform
 import queue
-import subprocess
 import sys
 import webbrowser
 from collections.abc import Awaitable, Callable
@@ -36,6 +36,145 @@ _KEYCHAIN_ACCOUNT = "default"
 _FETCH_TOOL = "notion-fetch"
 _IDENTITY_TOOL = "notion-get-users"
 _MAX_MCP_RESULT_CHARS = 1_500_000
+_ERR_SEC_ITEM_NOT_FOUND = -25300
+_ERR_SEC_DUPLICATE_ITEM = -25299
+
+
+def _keychain_libraries() -> tuple[Any, Any]:
+    security = ctypes.CDLL("/System/Library/Frameworks/Security.framework/Security")
+    core_foundation = ctypes.CDLL("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")
+    return security, core_foundation
+
+
+def _release_keychain_item(core_foundation: Any, item: ctypes.c_void_p) -> None:
+    if item.value is not None:
+        core_foundation.CFRelease(item)
+
+
+def _read_keychain_secret() -> bytes | None:
+    security, core_foundation = _keychain_libraries()
+    service = _KEYCHAIN_SERVICE.encode()
+    account = _KEYCHAIN_ACCOUNT.encode()
+    password_length = ctypes.c_uint32()
+    password_data = ctypes.c_void_p()
+    item = ctypes.c_void_p()
+    find = security.SecKeychainFindGenericPassword
+    find.restype = ctypes.c_int32
+    status = int(find(
+        None,
+        len(service),
+        service,
+        len(account),
+        account,
+        ctypes.byref(password_length),
+        ctypes.byref(password_data),
+        ctypes.byref(item),
+    ))
+    if status == _ERR_SEC_ITEM_NOT_FOUND:
+        return None
+    if status != 0 or item.value is None or password_data.value is None:
+        _release_keychain_item(core_foundation, item)
+        raise OSError(status, "Keychain read failed")
+    try:
+        return ctypes.string_at(password_data.value, password_length.value)
+    finally:
+        security.SecKeychainItemFreeContent(None, password_data)
+        _release_keychain_item(core_foundation, item)
+
+
+def _store_keychain_secret(secret: bytes) -> bool:
+    """Add or replace the Keychain item without exposing the secret in argv or a TTY."""
+    security, core_foundation = _keychain_libraries()
+    service = _KEYCHAIN_SERVICE.encode()
+    account = _KEYCHAIN_ACCOUNT.encode()
+    item = ctypes.c_void_p()
+    find = security.SecKeychainFindGenericPassword
+    find.restype = ctypes.c_int32
+    status = int(find(
+        None,
+        len(service),
+        service,
+        len(account),
+        account,
+        None,
+        None,
+        ctypes.byref(item),
+    ))
+    if status == _ERR_SEC_ITEM_NOT_FOUND:
+        add = security.SecKeychainAddGenericPassword
+        add.restype = ctypes.c_int32
+        add_status = int(add(
+            None,
+            len(service),
+            service,
+            len(account),
+            account,
+            len(secret),
+            secret,
+            None,
+        ))
+        if add_status == 0:
+            return True
+        if add_status != _ERR_SEC_DUPLICATE_ITEM:
+            return False
+        retry_item = ctypes.c_void_p()
+        retry_status = int(find(
+            None,
+            len(service),
+            service,
+            len(account),
+            account,
+            None,
+            None,
+            ctypes.byref(retry_item),
+        ))
+        if retry_status != 0 or retry_item.value is None:
+            _release_keychain_item(core_foundation, retry_item)
+            return False
+        try:
+            modify = security.SecKeychainItemModifyAttributesAndData
+            modify.restype = ctypes.c_int32
+            return int(modify(retry_item, None, len(secret), secret)) == 0
+        finally:
+            _release_keychain_item(core_foundation, retry_item)
+    if status != 0 or item.value is None:
+        return False
+    try:
+        modify = security.SecKeychainItemModifyAttributesAndData
+        modify.restype = ctypes.c_int32
+        return int(modify(item, None, len(secret), secret)) == 0
+    finally:
+        _release_keychain_item(core_foundation, item)
+
+
+def _delete_keychain_secret() -> bool:
+    security, core_foundation = _keychain_libraries()
+    service = _KEYCHAIN_SERVICE.encode()
+    account = _KEYCHAIN_ACCOUNT.encode()
+    item = ctypes.c_void_p()
+    find = security.SecKeychainFindGenericPassword
+    find.restype = ctypes.c_int32
+    status = int(find(
+        None,
+        len(service),
+        service,
+        len(account),
+        account,
+        None,
+        None,
+        ctypes.byref(item),
+    ))
+    if status == _ERR_SEC_ITEM_NOT_FOUND:
+        return False
+    if status != 0 or item.value is None:
+        _release_keychain_item(core_foundation, item)
+        return False
+    try:
+        delete = security.SecKeychainItemDelete
+        delete.restype = ctypes.c_int32
+        return int(delete(item)) == 0
+    finally:
+        _release_keychain_item(core_foundation, item)
 
 
 class MacKeychainTokenStorage(TokenStorage):
@@ -50,15 +189,17 @@ class MacKeychainTokenStorage(TokenStorage):
 
     def _read(self) -> dict[str, Any]:
         self._require_host()
-        result = subprocess.run(
-            ["security", "find-generic-password", "-a", _KEYCHAIN_ACCOUNT, "-s", _KEYCHAIN_SERVICE, "-w"],
-            check=False, capture_output=True, text=True,
-        )
-        if result.returncode != 0:
+        try:
+            secret = _read_keychain_secret()
+        except OSError as error:
+            raise AptuniError(
+                "notion_credentials_read_failed", "Could not read Notion MCP credentials from Keychain."
+            ) from error
+        if secret is None:
             return {}
         try:
-            value = json.loads(result.stdout)
-        except json.JSONDecodeError as error:
+            value = json.loads(secret.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as error:
             raise AptuniError("notion_credentials_invalid", "The Notion MCP Keychain item is unreadable.") from error
         if not isinstance(value, dict):
             raise AptuniError("notion_credentials_invalid", "The Notion MCP Keychain item is unreadable.")
@@ -66,13 +207,8 @@ class MacKeychainTokenStorage(TokenStorage):
 
     def _write(self, value: dict[str, Any]) -> None:
         self._require_host()
-        secret = json.dumps(value, sort_keys=True, separators=(",", ":"))
-        result = subprocess.run(
-            ["security", "add-generic-password", "-a", _KEYCHAIN_ACCOUNT, "-s", _KEYCHAIN_SERVICE,
-             "-U", "-w"],
-            input=secret + "\n", check=False, capture_output=True, text=True,
-        )
-        if result.returncode != 0:
+        secret = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+        if not _store_keychain_secret(secret):
             raise AptuniError("notion_credentials_write_failed", "Could not save Notion MCP credentials in Keychain.")
 
     async def get_tokens(self) -> OAuthToken | None:
@@ -100,11 +236,7 @@ class MacKeychainTokenStorage(TokenStorage):
 
     def delete(self) -> bool:
         self._require_host()
-        result = subprocess.run(
-            ["security", "delete-generic-password", "-a", _KEYCHAIN_ACCOUNT, "-s", _KEYCHAIN_SERVICE],
-            check=False, capture_output=True, text=True,
-        )
-        return result.returncode == 0
+        return _delete_keychain_secret()
 
 
 class _Callback:
@@ -196,6 +328,20 @@ def _text_result(result: Any) -> dict[str, Any]:
     return value
 
 
+def _entity_text(text: str) -> str:
+    opening = "<content>"
+    closing = "</content>"
+    if opening not in text and closing not in text:
+        return text
+    if text.count(opening) != 1 or text.count(closing) != 1:
+        raise AptuniError("notion_mcp_result_invalid", "Official Notion MCP returned invalid content metadata.")
+    start = text.index(opening) + len(opening)
+    end = text.find(closing, start)
+    if end < 0:
+        raise AptuniError("notion_mcp_result_invalid", "Official Notion MCP returned invalid content metadata.")
+    return text[start:end].strip()
+
+
 def _entity(value: dict[str, Any], expected_url: str) -> NotionEntity:
     metadata = value.get("metadata")
     if not isinstance(metadata, dict):
@@ -211,16 +357,27 @@ def _entity(value: dict[str, Any], expected_url: str) -> NotionEntity:
     actual = NotionSourceSpec.build((url,)).entity_ids[0]
     if actual != expected:
         raise AptuniError("notion_mcp_scope_violation", "Official Notion MCP returned a different entity.")
-    unknown = value.get("unknown_block_ids", ())
-    if not isinstance(unknown, list) or not all(isinstance(item, str) for item in unknown):
-        raise AptuniError("notion_mcp_result_invalid", "Official Notion MCP returned invalid block metadata.")
-    unknown_count = value.get("unknown_block_count", len(unknown))
-    truncated = value.get("truncated")
-    if (type(unknown_count) is not int or unknown_count < 0 or unknown_count != len(unknown)
-            or type(truncated) is not bool):
-        raise AptuniError(
-            "notion_mcp_result_invalid", "Official Notion MCP returned invalid completeness metadata."
-        )
+    completeness_keys = {"truncated", "unknown_block_ids", "unknown_block_count"}
+    if completeness_keys.isdisjoint(value):
+        # The current official server omits these keys; accept the page but never call it complete.
+        unknown: list[str] = []
+        truncated = False
+        verified = False
+    else:
+        verified = True
+        unknown_value = value.get("unknown_block_ids")
+        truncated_value = value.get("truncated")
+        if (not isinstance(unknown_value, list)
+                or not all(isinstance(item, str) for item in unknown_value)
+                or type(truncated_value) is not bool):
+            raise AptuniError("notion_mcp_result_invalid", "Official Notion MCP returned invalid block metadata.")
+        unknown = unknown_value
+        truncated = truncated_value
+        unknown_count = value.get("unknown_block_count", len(unknown))
+        if type(unknown_count) is not int or unknown_count < 0 or unknown_count != len(unknown):
+            raise AptuniError(
+                "notion_mcp_result_invalid", "Official Notion MCP returned invalid completeness metadata."
+            )
     last_edited = (
         value["page_last_edited_at"] if "page_last_edited_at" in value else metadata.get("last_edited_at")
     )
@@ -233,11 +390,12 @@ def _entity(value: dict[str, Any], expected_url: str) -> NotionEntity:
         entity_type=entity_type,
         canonical_url=url,
         title=title,
-        text=text,
+        text=_entity_text(text),
         last_edited_at=last_edited,
         parent_id=parent_id,
         truncated=truncated,
         unknown_block_ids=tuple(unknown),
+        completeness_verified=verified,
     )
 
 

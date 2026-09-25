@@ -25,6 +25,8 @@ def test_init_remember_facts_module_doctor_flow() -> None:
         init = run(state, "init", str(base / "Aptuni"))
         assert init.returncode == 0, init.stderr
         assert "Aptuni" in init.stdout
+        assert "Local derived state and config:" in init.stdout
+        assert "ledger" not in init.stdout
 
         added = run(state, "remember", "Prefers concise answers.", "--module", "preferences")
         assert added.returncode == 0, added.stderr

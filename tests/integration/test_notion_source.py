@@ -40,6 +40,7 @@ def page(text: str = "# Useful note\nVisible body with a task.\n") -> NotionEnti
         parent_id=None,
         truncated=False,
         unknown_block_ids=(),
+        completeness_verified=True,
     )
 
 
