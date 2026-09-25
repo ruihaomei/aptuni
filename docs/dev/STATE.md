@@ -385,8 +385,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Latest validation state
 
-- Notion hardening and owner-labelled evaluation (2026-09-25, `6e05e8a` and the evaluation
-  checkpoint): full repository gate 801 passed, 3 optional-runtime skips and 62 subtests; Ruff,
+- Notion hardening and owner-labelled evaluation (2026-09-25, `6e05e8a` and `1ba862c`):
+  full repository gate 801 passed, 3 optional-runtime skips and 62 subtests; Ruff,
   strict mypy, relay and frozen lexical/hybrid evaluation green. Reviews 68 and 69 **APPROVE WITH
   NON-BLOCKING NOTES**. Real Security.framework round trips used throwaway services only.
 
