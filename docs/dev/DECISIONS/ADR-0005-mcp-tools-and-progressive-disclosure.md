@@ -126,3 +126,14 @@ private keys, transcript-role prefixes and instruction-shaped control text. This
 fail-closed screen for obvious protected content, not a claim that arbitrary secret detection is
 complete. Owner-authored CLI observations remain a distinct path. Tool schemas carry no authority,
 approval or nonce fields.
+
+## Amendment — 2026-09-25 relevance order across disclosed layers
+
+L0–L4 name what a caller requested, not a within-response priority that overrides relevance. When a
+caller explicitly requests Evidence (L4), Context keeps the permission-filtered retrieval rank across
+L3 and L4 records, so a better-matching Evidence unit is neither displaced nor budget-truncated by a
+weaker Fact or Memory match. Default Context remains L3-only; Evidence stays an explicit,
+separately scoped expansion. `layers` reports the disclosed layers in canonical L0–L4 order,
+independent of item order. Exposure, module and host-scope checks happen before ordering and are
+unchanged. Found by the first real Notion dogfood trial; regression in
+`tests/integration/test_context.py`.

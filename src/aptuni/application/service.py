@@ -525,10 +525,13 @@ class AptuniService(
                 f"{name}={counts[name]}" for name in sorted(counts)
             )
             modules_text = "selected modules: " + (", ".join(selected_modules) if selected_modules else "none")
-            record_candidates = sorted(
+            # Keep the retrieval rank across L3 and L4: an explicitly requested Evidence unit that
+            # matches better must not be displaced or budget-truncated by a weaker L3 match
+            # (ADR-0005 2026-09-25 amendment). Exposure filtering already happened above.
+            record_candidates = tuple(
                 # ADR-0018 §3: a memory carries how it got here, so an agent can tell an
                 # auto-promoted one the owner has not reviewed from one they confirmed.
-                (record_unit(
+                record_unit(
                     record,
                     review_state_of(record, records) if record.record_type == "memory" else (
                         profile_review_state_of(record, records)
@@ -536,8 +539,7 @@ class AptuniService(
                         else None
                     ),
                 )
-                 for record in matched),
-                key=lambda item: 3 if item.layer == "L3" else 4,
+                for record in matched
             )
             candidates = (
                 section("L1", "context_index", index_text),
@@ -557,9 +559,9 @@ class AptuniService(
                 return response
         raise AptuniError("concurrent_write", "The Vault kept changing during context creation; run it again.")
 
-    def _evaluation_context(self, query: str, limit: int) -> ContextResponse:
+    def _evaluation_context(self, query: str, limit: int, *, include_evidence: bool = False) -> ContextResponse:
         """Use the ordinary owner Context path; evaluation never gets a privileged retrieval lane."""
-        return self.context(query, budget=4000, limit=limit)
+        return self.context(query, budget=4000, limit=limit, include_evidence=include_evidence)
 
     def memory_review_feed(
         self,

@@ -196,6 +196,12 @@
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   },
+  "m3-context-evidence-rank": {
+   "kind": "review",
+   "current": "66-m3-context-evidence-rank-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "m3-notion-activation-delta": {
    "kind": "review",
    "current": "65-m3-notion-activation-delta-review.md",

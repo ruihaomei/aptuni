@@ -51,3 +51,13 @@ schema migration, fresh-process lock order, concurrent-write rejection, ordinary
 exact scoring partitions, promotion/correction/source-update metrics, purge invalidation, bounded
 reset and the complete CLI journey. Record one content-free baseline on the maintainer's existing
 authorized setup, then obtain independent privacy/deletion review and the full repository gate.
+
+## Amendment — 2026-09-25 measuring the Evidence layer (schema v3)
+
+Default Context is L3-only (ADR-0005), so a v2 trial could never measure a query that only source
+Evidence answers. `aptuni evaluate trial --evidence` now calls the same ordinary Context path with
+`include_evidence=True`; no privileged lane or permission is added. Schema v3 stores one
+content-free boolean, `include_evidence`, per trial; v2 trials migrate as `false`, which is exact
+because v2 could not request Evidence. `report` adds `retrieval.by_context_mode` with separate
+`profile_memory` and `with_evidence` usefulness/noise denominators. Existing aggregate metrics are
+unchanged; the report and state `schema_version` becomes 3, and `schema_version` must be an integer.

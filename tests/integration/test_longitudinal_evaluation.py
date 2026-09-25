@@ -114,6 +114,156 @@ def test_capture_tracks_source_updates_without_retaining_source_content(
     assert "private source value" not in durable
 
 
+def _evidence_setup(service: AptuniService, tmp_path: Path) -> tuple[str, str]:
+    """A source note that answers the query, plus an L3 record sharing only one query term."""
+    source_root = tmp_path / "evidence-source"
+    source_root.mkdir()
+    (source_root / "fixture.md").write_text(
+        "Integration fixture purpose: verify exact-scope read-only source synchronization.\n",
+        encoding="utf-8",
+    )
+    source = service.add_folder_source(source_root, modules=("knowledge",), role="notes")
+    service.sync(source.id)
+    evidence = next(record for record in service.snapshot()[1].records() if record.record_type == "evidence")
+    unrelated = service.remember("Activation fixture goal: validate the owner interface.", "goals")
+    return evidence.id, unrelated.id
+
+
+def test_evidence_trial_measures_l4_through_the_ordinary_context_path(
+    service: AptuniService, tmp_path: Path,
+) -> None:
+    evidence_id, unrelated_id = _evidence_setup(service, tmp_path)
+    query = "What is the purpose of the source integration fixture?"
+
+    default = service.evaluation_trial(query, limit=5)
+    expanded = service.evaluation_trial(query, limit=5, include_evidence=True)
+
+    # Default automatic Context is L3-only by contract (ADR-0005); the trial must say so.
+    assert evidence_id not in default.record_ids
+    assert default.include_evidence is False
+    assert expanded.include_evidence is True
+    assert expanded.record_ids[0] == evidence_id  # the better match leads; the weak one may follow
+    assert expanded.record_ids.index(evidence_id) < expanded.record_ids.index(unrelated_id)
+    assert expanded.record_ids == tuple(
+        unit.canonical_id for unit in service.context(query, budget=4000, limit=5, include_evidence=True).units
+        if unit.canonical_id is not None
+    )
+    durable = (service.workspace.state_dir / "evaluation" / "longitudinal.json").read_text()
+    assert query not in durable
+    assert "exact-scope read-only" not in durable
+    rows = json.loads(durable)["trials"]
+    assert [row["include_evidence"] for row in rows] == [False, True]
+
+
+def test_report_separates_profile_memory_and_evidence_trials(
+    service: AptuniService, tmp_path: Path,
+) -> None:
+    evidence_id, _ = _evidence_setup(service, tmp_path)
+    query = "What is the purpose of the source integration fixture?"
+    default = service.evaluation_trial(query, limit=5)
+    service.score_evaluation_trial(default.id, useful_ids=(), noise_ids=default.record_ids)
+    expanded = service.evaluation_trial(query, limit=5, include_evidence=True)
+    service.score_evaluation_trial(expanded.id, useful_ids=(evidence_id,), noise_ids=tuple(
+        record_id for record_id in expanded.record_ids if record_id != evidence_id
+    ))
+
+    report = service.evaluation_report()
+    modes = report["retrieval"]["by_context_mode"]
+
+    assert report["schema_version"] == 3
+    assert modes["profile_memory"]["scored_trials"] == 1
+    assert modes["profile_memory"]["useful_records"] == 0
+    assert modes["profile_memory"]["noise_rate"] == 1.0
+    assert modes["with_evidence"]["scored_trials"] == 1
+    assert modes["with_evidence"]["useful_records"] == 1
+    assert modes["with_evidence"]["useful_context_rate"] == pytest.approx(1 / len(expanded.record_ids))
+    assert report["retrieval"]["scored_trials"] == 2
+
+
+def test_evidence_trial_keeps_the_ordinary_exposure_policy(
+    service: AptuniService, tmp_path: Path,
+) -> None:
+    evidence_id, _ = _evidence_setup(service, tmp_path)
+    service.set_module("knowledge", expose=False)
+
+    trial = service.evaluation_trial("source integration fixture purpose", limit=5, include_evidence=True)
+
+    assert evidence_id not in trial.record_ids
+    assert trial.exposure_violations == 0
+
+
+def test_non_boolean_evidence_mode_fails_closed(service: AptuniService) -> None:
+    service.remember("Maintains Aptuni.", "projects")
+    with pytest.raises(AptuniError) as error:
+        service.evaluation_trial("Maintains Aptuni", limit=5, include_evidence="yes")  # type: ignore[arg-type]
+    assert error.value.code == "invalid_evaluation_trial"
+
+    service.evaluation_trial("Maintains Aptuni", limit=5)
+    path = service.workspace.state_dir / "evaluation" / "longitudinal.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    state["trials"][0]["include_evidence"] = "true"
+    path.write_text(json.dumps(state), encoding="utf-8")
+    path.chmod(0o600)
+    with pytest.raises(AptuniError) as error:
+        service.evaluation_report()
+    assert error.value.code == "evaluation_state_invalid"
+
+
+def test_v2_trials_migrate_as_profile_memory_trials(service: AptuniService) -> None:
+    useful = service.remember("Maintains Aptuni.", "projects")
+    trial = service.evaluation_trial("Maintains Aptuni", limit=5)
+    service.score_evaluation_trial(trial.id, useful_ids=trial.record_ids, noise_ids=())
+    path = service.workspace.state_dir / "evaluation" / "longitudinal.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    state["schema_version"] = 2
+    for row in state["trials"]:
+        row.pop("include_evidence")
+    path.write_text(json.dumps(state), encoding="utf-8")
+    path.chmod(0o600)
+
+    report = service.evaluation_report()
+    persisted = json.loads(path.read_text(encoding="utf-8"))
+
+    assert persisted["schema_version"] == 3
+    assert persisted["trials"][0]["include_evidence"] is False
+    assert report["retrieval"]["by_context_mode"]["profile_memory"]["useful_records"] == 1
+    assert useful.id in persisted["trials"][0]["useful_ids"]
+
+
+@pytest.mark.parametrize("case", ["v2_with_mode", "v3_without_mode", "boolean_version"])
+def test_schema_version_and_mode_fields_must_match_exactly(service: AptuniService, case: str) -> None:
+    service.remember("Maintains Aptuni.", "projects")
+    service.evaluation_trial("Maintains Aptuni", limit=5)
+    path = service.workspace.state_dir / "evaluation" / "longitudinal.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    if case == "v2_with_mode":
+        state["schema_version"] = 2
+    elif case == "v3_without_mode":
+        state["trials"][0].pop("include_evidence")
+    else:
+        state["schema_version"] = True
+    path.write_text(json.dumps(state), encoding="utf-8")
+    path.chmod(0o600)
+
+    with pytest.raises(AptuniError) as error:
+        service.evaluation_report()
+
+    assert error.value.code == "evaluation_state_invalid"
+
+
+def test_cli_evidence_trial_reports_its_context_mode(
+    service: AptuniService, tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    evidence_id, _ = _evidence_setup(service, tmp_path)
+
+    assert run(["evaluate", "trial", "source integration fixture purpose", "--evidence", "--json"], service) == 0
+    trial = json.loads(capsys.readouterr().out)
+
+    assert trial["include_evidence"] is True
+    assert trial["items"][0]["id"] == evidence_id
+    assert trial["items"][0]["kind"] == "evidence"
+
+
 def test_privacy_inventory_and_purge_cover_longitudinal_evaluation(service: AptuniService) -> None:
     fact = service.remember("Private evaluation marker.", "projects")
     service.evaluation_trial("private marker query", limit=5)
@@ -220,7 +370,7 @@ def test_trial_discards_a_stale_context_before_writing_state(
     service.remember("Maintains Aptuni.", "projects")
     stale = service._evaluation_context("Maintains Aptuni", 5)
     service.remember("A concurrent canonical change.", "projects")
-    monkeypatch.setattr(service, "_evaluation_context", lambda _query, _limit: stale)
+    monkeypatch.setattr(service, "_evaluation_context", lambda _query, _limit, **_mode: stale)
 
     with pytest.raises(AptuniError) as error:
         service.evaluation_trial("Maintains Aptuni", limit=5)
@@ -272,7 +422,7 @@ def test_initial_evaluation_schema_migrates_without_losing_prior_snapshots(
     path.chmod(0o600)
 
     report = service.evaluation_report()
-    assert json.loads(path.read_text(encoding="utf-8"))["schema_version"] == 2
+    assert json.loads(path.read_text(encoding="utf-8"))["schema_version"] == 3
     upgraded = service.capture_evaluation_snapshot()
     assert upgraded["extended_metrics_available"] is True
     assert len(json.loads(path.read_text(encoding="utf-8"))["snapshots"]) == 1
@@ -280,9 +430,9 @@ def test_initial_evaluation_schema_migrates_without_losing_prior_snapshots(
     service.capture_evaluation_snapshot()
     persisted = json.loads(path.read_text(encoding="utf-8"))
 
-    assert report["schema_version"] == 2
+    assert report["schema_version"] == 3
     assert report["snapshots"][0]["extended_metrics_available"] is False
-    assert persisted["schema_version"] == 2
+    assert persisted["schema_version"] == 3
     assert len(persisted["snapshots"]) == 2
 
 
@@ -303,7 +453,7 @@ def test_fresh_report_process_opens_vault_before_source_operation_lock(
 
     monkeypatch.setattr(evaluation, "source_operations_lock", assert_open_first)
 
-    assert reopened.evaluation_report()["schema_version"] == 2
+    assert reopened.evaluation_report()["schema_version"] == 3
 
 
 def test_mixed_migrated_trials_do_not_inflate_context_efficiency(service: AptuniService) -> None:
@@ -318,7 +468,7 @@ def test_mixed_migrated_trials_do_not_inflate_context_efficiency(service: Aptuni
     for trial in state["trials"]:
         for key in (
             "requested_units", "used_units", "truncated", "exposure_violations",
-            "context_metrics_available",
+            "context_metrics_available", "include_evidence",
         ):
             trial.pop(key)
     path.write_text(json.dumps(state), encoding="utf-8")

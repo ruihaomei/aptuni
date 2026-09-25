@@ -96,7 +96,8 @@ def pack_units(candidates: tuple[ContextUnit, ...], budget: int) -> PackedUnits:
             used += cost
         else:
             truncated = True
-    layers = tuple(dict.fromkeys(item.layer for item in items))
+    # Report disclosed layers in canonical L0–L4 order, independent of relevance-ranked item order.
+    layers = tuple(sorted({item.layer for item in items}))
     return PackedUnits(tuple(items), used, budget - used, truncated, layers)
 
 

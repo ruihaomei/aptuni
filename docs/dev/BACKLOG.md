@@ -50,3 +50,4 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Keychain: free `password_data` if `item` is NULL; bound secret length (~64 KiB); raise `notion_credentials_delete_failed` on non-not-found delete errors; document the interpreter-trusted access list in KNOWN_ISSUES | Review 65 N4 | Next Notion slice |
 | Keychain tests: native read failure mapping, duplicate-item modify path, `SecKeychainItemFreeContent` called | Review 65 N5 | Next Notion slice |
 | Count inline enhanced-markdown `<unknown …/>` blocks as unknown block IDs once the live format is confirmed from `notion://docs/enhanced-markdown-spec` | Review 65 B1 recommendation 4 | Next Notion slice |
+| MCP `aptuni_search_context` description: state that item order means relevance, not trust, now that a tainted L4 unit can lead an Evidence-requested response | Review 66 note 1 | Next MCP/adapter slice |

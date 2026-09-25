@@ -1,8 +1,8 @@
 # Project State
 
-**Updated:** 2026-09-24
-**Current gate:** Milestone 3 real activation — Vault and Obsidian verified; exact Notion sync awaits
-Aptuni's isolated OAuth authorization (Review 64 approves the URL compatibility fix)
+**Updated:** 2026-09-25
+**Current gate:** Milestone 3 real dogfooding — all three activation paths verified end to end; the
+first longitudinal trial drove an Evidence-rank fix and an Evidence-mode evaluator (Review 66)
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub Standard/Deep, MarginNote 4, Obsidian and official-MCP Notion sources, builtin
 interaction memory, bilingual SQLite/FTS projection, bounded Context API, permissioned MCP STDIO
@@ -10,7 +10,7 @@ server, Claude/Codex adapters, Profile export, the read-only Plugin Advisor, lon
 evaluation, the Obsidian owner interface and the versioned public developer SDK are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -29,23 +29,28 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 - Relay harness: `AGENTS.md` (execution policy: steady, fast vertical slices), `CLAUDE.md`,
   `tools/check_relay.py`.
 
-## Real owner activation (2026-09-24)
+## Real owner activation and dogfooding (2026-09-24/25)
 
-- The owner-selected work root safely hosts the canonical Vault in its private `.aptuni/`
-  namespace. Direct initialization of the non-empty work root failed before mutation; the
-  namespaced Vault uses private directory/file modes, and real `status` plus `doctor` pass.
-- The enabled Obsidian plugin now uses the exact repository virtual-environment executable. Its
-  live owner view rendered Profile, Memory, Recent Changes and Pending Reviews, then applied and
-  visibly confirmed one deterministic canonical accept action. Evidence remains pending only
-  because the Notion source has not synchronized yet.
-- A small private, non-sensitive Notion integration fixture exists and is the sole approved source
-  root. Official creation returned an `app.notion.com` URL with a numeric `pvs` sharing hint;
-  Aptuni now canonicalizes that exact URL without relaxing entity scope or accepting other query
-  fields. Review 64 independently approves the change.
-- The host agent's Notion connector is authenticated, but Aptuni's intentionally separate
-  `com.aptuni.notion-mcp` Keychain item is absent. Real sync fails closed with
-  `notion_auth_required`; one explicit `aptuni source connect-notion` authorization is the exact
-  remaining owner boundary. No connector credential was copied or bypassed.
+- The canonical Vault lives in the owner work root's private `.aptuni/` namespace; `status` and
+  `doctor` pass. The enabled Obsidian plugin uses the repository virtual-environment executable and
+  shows Profile, Memory, Evidence, Recent Changes and Pending Reviews.
+- The official Notion MCP source syncs one private, non-sensitive fixture page as its sole exact
+  root through Aptuni's own Keychain OAuth session, with stable provenance and a no-op re-sync.
+  Activation fixes (`pvs` URL hint, native Keychain calls, `<content>` envelope, unverified
+  completeness → `partial`) are checkpointed at `1ae1d8f` (Reviews 64 and 65).
+- **First longitudinal trial (content-free).** An Evidence-answerable query in default Context
+  returned 2/2 unrelated Profile/Memory records. Root causes: default Context is L3-only by
+  ADR-0005 and the evaluator could not request L4; with Evidence requested, an L3-before-L4 sort
+  displaced and budget-truncated better-ranked Evidence; the residual L3 noise is the specified
+  ADR-0004 fallback (KI-018). Fixed: rank-preserving Context ordering and `evaluate trial
+  --evidence` with schema v3 (Review 66). Live after-state on the same query: Profile/Memory-only
+  mode 0/2 useful (unchanged, by contract); with-Evidence mode 1/1 useful, 0 noise; 0 exposure
+  violations. Labels are agent-assigned on the synthetic activation fixture, not owner judgments.
+- **Second dogfood issue.** A day after authorization, sync demanded a browser re-authorization and
+  printed an SDK traceback: MCP SDK 2.2.0 forgets token expiry across processes and answers the
+  resulting 401 with a full authorization instead of the refresh grant. Aptuni now persists the
+  absolute expiry in the same Keychain item and restores it; the live sync refreshed silently and
+  was a no-op. This slice is under independent review.
 
 ## Implemented (Milestone 1)
 
@@ -349,16 +354,14 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Awaiting maintainer decisions
 
-- Notion connector authentication is verified against the exact `self` endpoint, but one exact
-  owner-selected page/database URL is still required for the scoped content read. The real Obsidian
-  vault contains byte-identical production plugin files; enabling the plugin and setting the Aptuni
-  executable remain explicit owner UI actions. No private material enters repository artifacts.
+- None blocking. Real usefulness labels beyond the synthetic activation fixture need the owner's own
+  queries and judgments; trials on private sources are the owner's call.
 
 ## Next highest-priority task
 
-1. Complete the two owner activation boundaries: exact Notion root fetch, and Obsidian enable plus
-   executable configuration. Then continue the real longitudinal dogfood loop; record
-   explicit retrieval trials and captures rather than inventing a larger evaluation framework.
+1. Continue the real longitudinal dogfood loop with explicit trials in both context modes and
+   periodic captures. Revisit the KI-018 fallback floor only when real `profile_memory` trials show
+   persistent noise; take the Notion BACKLOG hardening (Review 65 N2–N5) with the next Notion slice.
 2. Review lessons that carry forward: write injection tests with **real** control bytes (the
    literal text of an escape sequence proves nothing); route every outside-controlled token through
    `sanitize_token` where stored or `delimited_untrusted` where rendered; and when a rule about
@@ -371,6 +374,11 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 5. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
+
+- Real dogfooding fixes (2026-09-25): full repository gate 749 passed, 3 optional-runtime skips and
+  62 subtests before review-note fixes; Ruff, strict mypy (95 source files), relay and frozen
+  lexical/hybrid evaluation green. Reviews 65 and 66 **APPROVE WITH NON-BLOCKING NOTES**. Live
+  Vault: commit 7, `doctor` healthy, evaluation state schema v3 with 3 scored trials.
 
 - Public API/plugin SDK platform: full repository gate 725 passed, 3 optional-runtime skips and 61
   subtests; Ruff, strict mypy (95 source files), relay, notices/secrets/workflow and fresh-artifact

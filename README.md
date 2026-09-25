@@ -281,6 +281,7 @@ The owner can run a private, repeatable dogfood loop against the ordinary Contex
 ```sh
 aptuni evaluate setup
 aptuni evaluate trial "What should my agent know for this task?"
+aptuni evaluate trial --evidence "What does my source note say about this?"   # also measures L4 Evidence
 aptuni evaluate score TRIAL_ID --useful ID... --noise ID...
 aptuni evaluate capture
 aptuni evaluate report

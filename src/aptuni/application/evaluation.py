@@ -40,6 +40,12 @@ SNAPSHOT_KEYS = V1_SNAPSHOT_KEYS | {
 V1_TRIAL_KEYS = {
     "id", "query_digest", "vault_seq", "created_at", "record_ids", "useful_ids", "noise_ids",
 }
+V2_TRIAL_KEYS = V1_TRIAL_KEYS | {
+    "requested_units", "used_units", "truncated", "exposure_violations", "context_metrics_available",
+}
+#: Schema v3 records which ordinary Context mode a trial measured: L3 only, or L3 plus L4 Evidence.
+TRIAL_KEYS = V2_TRIAL_KEYS | {"include_evidence"}
+SCHEMA_VERSION = 3
 STATE_KEYS = {"schema_version", "trials", "snapshots"}
 
 
@@ -66,6 +72,7 @@ class EvaluationTrial:
     exposure_violations: int
     useful_ids: tuple[str, ...] = ()
     noise_ids: tuple[str, ...] = ()
+    include_evidence: bool = False
 
 
 class EvaluationCommands:
@@ -80,7 +87,7 @@ class EvaluationCommands:
     def index_status(self) -> Any:
         raise NotImplementedError
 
-    def _evaluation_context(self, query: str, limit: int) -> Any:
+    def _evaluation_context(self, query: str, limit: int, *, include_evidence: bool = False) -> Any:
         raise NotImplementedError
 
     @property
@@ -119,10 +126,13 @@ class EvaluationCommands:
             ),
         }
 
-    def evaluation_trial(self, query: str, *, limit: int = 5) -> EvaluationTrial:
+    def evaluation_trial(self, query: str, *, limit: int = 5, include_evidence: bool = False) -> EvaluationTrial:
         if not query.strip() or type(limit) is not int or not 1 <= limit <= 20:
             raise AptuniError("invalid_evaluation_trial", "Evaluation needs a query and a limit from 1 to 20.")
-        response = self._evaluation_context(query, limit)
+        if type(include_evidence) is not bool:
+            raise AptuniError("invalid_evaluation_trial", "The evaluation Evidence mode must be true or false.")
+        # Evidence is the explicit L4 expansion (ADR-0005); a trial measures the mode it requested.
+        response = self._evaluation_context(query, limit, include_evidence=include_evidence)
         items = tuple(
             EvaluationItem(unit.canonical_id, unit.kind, unit.module or "", unit.text)
             for unit in response.units if unit.canonical_id is not None
@@ -138,6 +148,7 @@ class EvaluationCommands:
             "truncated": response.truncated,
             "exposure_violations": 0,
             "context_metrics_available": True,
+            "include_evidence": include_evidence,
             "useful_ids": None,
             "noise_ids": None,
         }
@@ -259,7 +270,7 @@ class EvaluationCommands:
             traceable = sum(self._traceable(records, record_id) for record_id in useful_ids)
             useful_trials = sum(bool(trial["useful_ids"]) for trial in scored)
             return {
-                "schema_version": 2,
+                "schema_version": SCHEMA_VERSION,
                 "retrieval": {
                     "trials": len(state["trials"]),
                     "scored_trials": len(scored),
@@ -279,6 +290,12 @@ class EvaluationCommands:
                     "useful_records_per_1000_units": (
                         1000 * len(measured_useful_ids) / used_units if used_units else 0.0
                     ),
+                    "by_context_mode": {
+                        "profile_memory": self._mode_metrics(
+                            [trial for trial in scored if not trial["include_evidence"]]),
+                        "with_evidence": self._mode_metrics(
+                            [trial for trial in scored if trial["include_evidence"]]),
+                    },
                 },
                 "permissions": {
                     "exposure_violations": sum(
@@ -311,6 +328,23 @@ class EvaluationCommands:
             return True
 
     @staticmethod
+    def _mode_metrics(scored: list[dict[str, Any]]) -> dict[str, Any]:
+        returned = sum(len(trial["record_ids"]) for trial in scored)
+        useful = sum(len(trial["useful_ids"]) for trial in scored)
+        noise = sum(len(trial["noise_ids"]) for trial in scored)
+        return {
+            "scored_trials": len(scored),
+            "returned_records": returned,
+            "useful_records": useful,
+            "noise_records": noise,
+            "useful_context_rate": useful / returned if returned else 0.0,
+            "noise_rate": noise / returned if returned else 0.0,
+            "trials_with_useful_context_rate": (
+                sum(bool(trial["useful_ids"]) for trial in scored) / len(scored) if scored else 0.0
+            ),
+        }
+
+    @staticmethod
     def _counts(records: RecordSet) -> dict[str, int]:
         return {
             name: sum(record.record_type == name for record in records.records())
@@ -338,7 +372,7 @@ class EvaluationCommands:
             row["id"], row["query_digest"], row["vault_seq"], row["created_at"],
             tuple(row["record_ids"]), items, useful is not None,
             row["requested_units"], row["used_units"], row["truncated"], row["exposure_violations"],
-            tuple(useful or ()), tuple(noise or ()),
+            tuple(useful or ()), tuple(noise or ()), row["include_evidence"],
         )
 
     def _load_evaluation(self) -> dict[str, Any]:
@@ -353,7 +387,7 @@ class EvaluationCommands:
         if self._evaluation_root.exists():
             self._managed_evaluation_children()
         if not path.exists():
-            return {"schema_version": 2, "trials": [], "snapshots": []}
+            return {"schema_version": SCHEMA_VERSION, "trials": [], "snapshots": []}
         try:
             if path.stat().st_size > MAX_STATE_BYTES:
                 raise ValueError("too_large")
@@ -361,12 +395,16 @@ class EvaluationCommands:
                 raise ValueError("unsafe_mode")
             state = json.loads(path.read_text(encoding="utf-8"))
             if not isinstance(state, dict) or set(state) != STATE_KEYS \
-                    or state.get("schema_version") not in {1, 2} or not isinstance(state.get("trials"), list) \
+                    or type(state.get("schema_version")) is not int \
+                    or state.get("schema_version") not in {1, 2, SCHEMA_VERSION} \
+                    or not isinstance(state.get("trials"), list) \
                     or not isinstance(state.get("snapshots"), list):
                 raise ValueError("invalid_schema")
-            migrated = state["schema_version"] == 1
-            if migrated:
+            migrated = state["schema_version"] != SCHEMA_VERSION
+            if state["schema_version"] == 1:
                 state = self._migrate_v1(state)
+            if state["schema_version"] == 2:
+                state = self._migrate_v2(state)
             self._validate_evaluation(state)
             if migrated:
                 self._write_evaluation(state)
@@ -406,16 +444,22 @@ class EvaluationCommands:
         return {"schema_version": 2, "trials": trials, "snapshots": snapshots}
 
     @staticmethod
+    def _migrate_v2(state: dict[str, Any]) -> dict[str, Any]:
+        """Every schema-v2 trial came from the L3-only default; none could request Evidence."""
+        trials: list[dict[str, Any]] = []
+        for raw in state["trials"]:
+            if not isinstance(raw, dict) or set(raw) != V2_TRIAL_KEYS:
+                raise ValueError("invalid_v2_trial")
+            trials.append({**raw, "include_evidence": False})
+        return {"schema_version": SCHEMA_VERSION, "trials": trials, "snapshots": state["snapshots"]}
+
+    @staticmethod
     def _validate_evaluation(state: dict[str, Any]) -> None:
         trials, snapshots = state["trials"], state["snapshots"]
         if len(trials) > MAX_TRIALS or len(snapshots) > MAX_SNAPSHOTS:
             raise ValueError("too_many_rows")
-        trial_keys = {
-            "id", "query_digest", "vault_seq", "created_at", "record_ids", "useful_ids", "noise_ids",
-            "requested_units", "used_units", "truncated", "exposure_violations", "context_metrics_available",
-        }
         for trial in trials:
-            if not isinstance(trial, dict) or set(trial) != trial_keys:
+            if not isinstance(trial, dict) or set(trial) != TRIAL_KEYS:
                 raise ValueError("invalid_trial")
             if not TRIAL_ID_RE.fullmatch(trial["id"]) or not re.fullmatch(
                 r"sha256:[0-9a-f]{64}", trial["query_digest"]
@@ -456,7 +500,8 @@ class EvaluationCommands:
                 or type(trial["truncated"]) is not bool
                 or type(trial["exposure_violations"]) is not int
                 or trial["exposure_violations"] < 0
-                or type(trial["context_metrics_available"]) is not bool):
+                or type(trial["context_metrics_available"]) is not bool
+                or type(trial["include_evidence"]) is not bool):
             raise ValueError("invalid_trial_metrics")
 
     @staticmethod

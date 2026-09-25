@@ -148,3 +148,65 @@ def test_invalid_or_unauthorized_context_request_fails_closed(
     with pytest.raises(AptuniError) as error:
         service.context(**kwargs)  # type: ignore[arg-type]
     assert error.value.code == code
+
+
+def _fixture_evidence_and_unrelated_fact(service: AptuniService, tmp_path: Path) -> tuple[str, str]:
+    """Evidence that answers the query, plus a Profile fact sharing only the term "fixture"."""
+    notes = tmp_path / "fixture-notes"
+    notes.mkdir()
+    (notes / "fixture.md").write_text(
+        "Integration fixture purpose: verify exact-scope read-only source synchronization.\n",
+        encoding="utf-8",
+    )
+    source = service.add_folder_source(notes, modules=("knowledge",), role="notes")
+    service.sync(source.id)
+    evidence = next(record for record in service.snapshot()[1].records() if record.record_type == "evidence")
+    unrelated = service.remember("Activation fixture goal: validate the owner interface.", "goals")
+    return evidence.id, unrelated.id
+
+
+def test_relevant_evidence_outranks_a_weaker_profile_match(service: AptuniService, tmp_path: Path) -> None:
+    evidence_id, unrelated_id = _fixture_evidence_and_unrelated_fact(service, tmp_path)
+    query = "What is the purpose of the source integration fixture?"
+    ranked = [row.record_id for row in service._stable_search(
+        query, record_types=("fact", "memory", "evidence"), limit=21,
+    )[2]]
+    assert ranked == [evidence_id, unrelated_id]  # retrieval already ranks the Evidence first
+
+    response = service.context(query, budget=4000, include_evidence=True)
+
+    records = [item.canonical_id for item in response.items if item.canonical_id is not None]
+    assert records == ranked
+    assert response.layers == ("L1", "L2", "L3", "L4")  # canonical layer order, not arrival order
+
+
+def test_budget_keeps_the_relevant_evidence_over_a_weaker_profile_match(
+    service: AptuniService, tmp_path: Path,
+) -> None:
+    evidence_id, unrelated_id = _fixture_evidence_and_unrelated_fact(service, tmp_path)
+    query = "What is the purpose of the source integration fixture?"
+    full = service.context(query, budget=4000, include_evidence=True)
+    evidence_unit = next(item for item in full.items if item.canonical_id == evidence_id)
+    unrelated_unit = next(item for item in full.items if item.canonical_id == unrelated_id)
+    assert unrelated_unit.units <= evidence_unit.units  # the old L3-first packing would fit it instead
+    fixed = [item for item in full.items if item.canonical_id is None]
+    budget = 32 + sum(item.units for item in fixed) + evidence_unit.units
+
+    response = service.context(query, budget=budget, include_evidence=True)
+
+    returned = [item.canonical_id for item in response.items if item.canonical_id is not None]
+    assert returned == [evidence_id]
+    assert unrelated_id not in returned
+    assert response.truncated is True
+
+
+def test_evidence_ordering_keeps_exposure_guards(service: AptuniService, tmp_path: Path) -> None:
+    evidence_id, unrelated_id = _fixture_evidence_and_unrelated_fact(service, tmp_path)
+    service.set_module("knowledge", expose=False)
+
+    response = service.context("purpose of the source integration fixture", budget=4000, include_evidence=True)
+
+    returned = [item.canonical_id for item in response.items if item.canonical_id is not None]
+    assert evidence_id not in returned
+    assert all(item.layer != "L4" for item in response.items)
+    assert returned in ([], [unrelated_id])

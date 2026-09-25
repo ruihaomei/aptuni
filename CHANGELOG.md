@@ -48,6 +48,15 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Context with Evidence requested keeps retrieval rank across Profile/Memory (L3) and Evidence (L4),
+  so a better-matching Evidence unit is no longer placed after, or budget-truncated in favour of, a
+  weaker Profile/Memory match. `layers` is reported in canonical L0–L4 order (ADR-0005 amendment).
+- `aptuni evaluate trial --evidence` measures the explicit Evidence layer; evaluation state moves to
+  schema v3 and `evaluate report` separates Profile/Memory-only and with-Evidence trials
+  (ADR-0022 amendment). Existing state migrates automatically.
+- Official Notion MCP results without completeness metadata are accepted with `partial` coverage
+  and a `notion_completeness_unverified` note instead of being recorded as complete; the page body
+  is taken from exactly one enhanced-markdown `<content>` envelope (ADR-0021 amendment).
 - **Automatic promotion (ADR-0018).** An observation you make yourself through the CLI now becomes
   an active memory immediately instead of waiting in a review queue. It is marked
   `auto_promoted_pending_review` and reviewed retrospectively with

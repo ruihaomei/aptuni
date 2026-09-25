@@ -22,6 +22,7 @@ def add_evaluation_commands(sub: Any) -> None:
     trial = actions.add_parser("trial", help="run one retrieval trial without storing its query text")
     trial.add_argument("query")
     trial.add_argument("--limit", type=int, default=5)
+    trial.add_argument("--evidence", action="store_true", help="also measure L4 source Evidence")
     trial.add_argument("--json", action="store_true")
     score = actions.add_parser("score", help="label every returned record as useful or noise")
     score.add_argument("trial_id")
@@ -39,9 +40,10 @@ def cmd_evaluate(args: Any, service: Any) -> int:
     if action == "setup":
         value = service.evaluation_setup()
     elif action == "trial":
-        trial = service.evaluation_trial(args.query, limit=args.limit)
+        trial = service.evaluation_trial(args.query, limit=args.limit, include_evidence=args.evidence)
         value = {
             "trial_id": trial.id,
+            "include_evidence": trial.include_evidence,
             "query_digest": trial.query_digest,
             "vault_seq": trial.vault_seq,
             "requested_units": trial.requested_units,
@@ -74,7 +76,8 @@ def cmd_evaluate(args: Any, service: Any) -> int:
 
 def _print_human(action: str, value: dict[str, Any]) -> None:
     if action == "trial":
-        print(f"Trial {value['trial_id']} at Vault commit {value['vault_seq']}")
+        mode = "Profile/Memory + Evidence" if value["include_evidence"] else "Profile/Memory only"
+        print(f"Trial {value['trial_id']} at Vault commit {value['vault_seq']} ({mode})")
         for item in value["items"]:
             print(f"  {item['id']}  [{item['module']}]  {delimited_untrusted(item['text'])}")
         print("Classify every id with: aptuni evaluate score TRIAL --useful ... --noise ...")
