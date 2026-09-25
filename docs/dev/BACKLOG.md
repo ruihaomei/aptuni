@@ -51,3 +51,6 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Keychain tests: native read failure mapping, duplicate-item modify path, `SecKeychainItemFreeContent` called | Review 65 N5 | Next Notion slice |
 | Count inline enhanced-markdown `<unknown …/>` blocks as unknown block IDs once the live format is confirmed from `notion://docs/enhanced-markdown-spec` | Review 65 B1 recommendation 4 | Next Notion slice |
 | MCP `aptuni_search_context` description: state that item order means relevance, not trust, now that a tainted L4 unit can lead an Evidence-requested response | Review 66 note 1 | Next MCP/adapter slice |
+| Provider-level test: refresh returns 400 → `notion_auth_required`, no redirect, no Keychain write | Review 67 N2 | Next Notion slice |
+| `mcp.client.streamable_http` can still log `post_writer` tracebacks to stderr; route the transport logger too once its failure modes are mapped to bounded errors | Review 67 N6 | Next Notion slice |
+| A stored `client.issuer` mismatch makes the SDK re-register and overwrite the Keychain `client` entry even on the non-interactive path (pre-existing) | Review 67 (c) | Next Notion slice |

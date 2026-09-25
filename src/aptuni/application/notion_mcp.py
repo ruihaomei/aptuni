@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import ctypes
 import json
+import logging
+import math
 import platform
 import queue
 import sys
+import time
 import webbrowser
 from collections.abc import Awaitable, Callable
 from contextlib import suppress
@@ -38,6 +41,14 @@ _IDENTITY_TOOL = "notion-get-users"
 _MAX_MCP_RESULT_CHARS = 1_500_000
 _ERR_SEC_ITEM_NOT_FOUND = -25300
 _ERR_SEC_DUPLICATE_ITEM = -25299
+_EXPIRY_KEY = "tokens_expire_at"
+# Refresh this long before the server's expiry, absorbing response latency and clock skew.
+_EXPIRY_MARGIN_SECONDS = 60
+# A positive time long past: the SDK treats a falsy expiry as "unknown", i.e. still valid.
+_ALREADY_EXPIRED = 1.0
+# The SDK logs OAuth failures with tracebacks; with no handler configured Python's last-resort
+# handler would print them to the owner's terminal. Aptuni reports a bounded AptuniError instead.
+logging.getLogger("mcp.client.auth").addHandler(logging.NullHandler())
 
 
 def _keychain_libraries() -> tuple[Any, Any]:
@@ -177,6 +188,24 @@ def _delete_keychain_secret() -> bool:
         _release_keychain_item(core_foundation, item)
 
 
+def _expiry_of(value: dict[str, Any]) -> float | None:
+    """``None`` for a non-expiring token; already expired when a legacy or invalid expiry is stored."""
+    tokens = value.get("tokens")
+    if not isinstance(tokens, dict):
+        return None
+    stored = value.get(_EXPIRY_KEY)
+    if stored is None:
+        # Items written before expiry was persisted: an expiring token of unknown age is stale.
+        return _ALREADY_EXPIRED if tokens.get("expires_in") is not None else None
+    if type(stored) not in (int, float):
+        return _ALREADY_EXPIRED
+    try:
+        expiry = float(stored)
+    except OverflowError:
+        return _ALREADY_EXPIRED
+    return expiry if math.isfinite(expiry) and expiry > _ALREADY_EXPIRED else _ALREADY_EXPIRED
+
+
 class MacKeychainTokenStorage(TokenStorage):
     """SDK token storage whose secret JSON never enters Aptuni-owned files or argv."""
 
@@ -219,7 +248,26 @@ class MacKeychainTokenStorage(TokenStorage):
     async def set_tokens(self, tokens: OAuthToken) -> None:
         value = await anyio.to_thread.run_sync(self._read)
         value["tokens"] = tokens.model_dump(mode="json")
+        # The SDK keeps expiry only in process memory; persist it so a later process can refresh.
+        if tokens.expires_in is not None:
+            value[_EXPIRY_KEY] = time.time() + max(0, tokens.expires_in - _EXPIRY_MARGIN_SECONDS)
+        else:
+            value.pop(_EXPIRY_KEY, None)
         await anyio.to_thread.run_sync(self._write, value)
+
+    async def token_expiry(self) -> float | None:
+        """Absolute access-token expiry; see `_expiry_of`."""
+        return _expiry_of(await anyio.to_thread.run_sync(self._read))
+
+    async def session(self) -> tuple[OAuthToken | None, OAuthClientInformationFull | None, float | None]:
+        """Tokens, client and expiry from one Keychain read, so they always belong together."""
+        value = await anyio.to_thread.run_sync(self._read)
+        tokens, client = value.get("tokens"), value.get("client")
+        return (
+            OAuthToken.model_validate(tokens) if isinstance(tokens, dict) else None,
+            OAuthClientInformationFull.model_validate(client) if isinstance(client, dict) else None,
+            _expiry_of(value),
+        )
 
     async def get_client_info(self) -> OAuthClientInformationFull | None:
         value = await anyio.to_thread.run_sync(self._read)
@@ -297,6 +345,55 @@ def _metadata(redirect_uri: str) -> OAuthClientMetadata:
         token_endpoint_auth_method="none",
         grant_types=["authorization_code", "refresh_token"],
     )
+
+
+class _PersistedExpiryOAuthProvider(OAuthClientProvider):
+    """Restore the stored access-token expiry so a new process refreshes instead of re-authorizing.
+
+    MCP SDK 2.2.0 reloads tokens without their expiry, treats a stale access token as valid, and
+    answers the resulting 401 with a full browser authorization rather than the refresh grant.
+    """
+
+    def __init__(
+        self,
+        storage: MacKeychainTokenStorage,
+        client_metadata: OAuthClientMetadata,
+        redirect_handler: Callable[[str], Awaitable[None]],
+        callback_handler: Callable[[], Awaitable[AuthorizationCodeResult]],
+    ) -> None:
+        super().__init__(NOTION_MCP_ENDPOINT, client_metadata, storage, redirect_handler, callback_handler)
+        self._aptuni_storage = storage
+
+    async def _initialize(self) -> None:
+        tokens, client, expiry = await self._aptuni_storage.session()
+        self.context.current_tokens = tokens
+        self.context.client_info = client
+        self.context.token_expiry_time = expiry if tokens is not None else None
+        self._initialized = True
+
+
+def _auth_provider(
+    redirect_uri: str,
+    storage: MacKeychainTokenStorage,
+    redirect: Callable[[str], Awaitable[None]],
+    callback: Callable[[], Awaitable[AuthorizationCodeResult]],
+) -> OAuthClientProvider:
+    return _PersistedExpiryOAuthProvider(storage, _metadata(redirect_uri), redirect, callback)
+
+
+def _run_bounded(operation: Callable[[], Awaitable[Any]]) -> Any:
+    """Surface an AptuniError raised inside the MCP transport task group as itself."""
+    try:
+        return anyio.run(operation)
+    except BaseExceptionGroup as group:
+        matched, rest = group.split(AptuniError)
+        # Never let a bounded error mask an interrupt, exit or cancellation raised beside it.
+        if matched is None or (rest is not None and rest.split(Exception)[1] is not None):
+            raise
+        first: BaseException = matched
+        while isinstance(first, BaseExceptionGroup):
+            first = first.exceptions[0]
+        raise first from None
 
 
 def _noninteractive_handler() -> Callable[..., Awaitable[Any]]:
@@ -407,7 +504,7 @@ class NotionMcpClient:
     def fetch(self, entity_urls: tuple[str, ...]) -> tuple[str, list[NotionEntity]]:
         if self.spec is None or entity_urls != self.spec.entity_urls:
             raise AptuniError("notion_mcp_scope_violation", "The Notion fetch scope changed unexpectedly.")
-        return anyio.run(self._fetch)
+        return cast(tuple[str, list[NotionEntity]], _run_bounded(self._fetch))
 
     async def _with_session(
         self,
@@ -416,7 +513,7 @@ class NotionMcpClient:
         callback: Callable[[], Awaitable[AuthorizationCodeResult]],
         operation: Callable[[ClientSession], Awaitable[Any]],
     ) -> Any:
-        auth = OAuthClientProvider(NOTION_MCP_ENDPOINT, _metadata(redirect_uri), self.storage, redirect, callback)
+        auth = _auth_provider(redirect_uri, self.storage, redirect, callback)
         client: httpx2.AsyncClient = create_mcp_http_client(auth=auth)
         async with (
             client,
@@ -473,7 +570,7 @@ class NotionMcpClient:
         return cast(tuple[str, list[NotionEntity]], await self._with_session(redirect_uri, fail, fail, operation))
 
     def connect(self) -> str:
-        return anyio.run(self._connect)
+        return cast(str, _run_bounded(self._connect))
 
     def disconnect(self) -> bool:
         return self.storage.delete()

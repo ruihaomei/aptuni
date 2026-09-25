@@ -7,6 +7,7 @@ import json
 from types import SimpleNamespace
 
 import anyio
+import httpx2
 import pytest
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 from mcp.types import CallToolResult, TextContent
@@ -15,6 +16,7 @@ from aptuni.application.errors import AptuniError
 from aptuni.application.notion_mcp import (
     MacKeychainTokenStorage,
     NotionMcpClient,
+    _auth_provider,
     _Callback,
     _delete_keychain_secret,
     _entity,
@@ -356,3 +358,164 @@ def test_keychain_write_failure_never_echoes_secret(monkeypatch) -> None:  # typ
         MacKeychainTokenStorage()._write({"access_token": "SECRET"})
     assert error.value.code == "notion_credentials_write_failed"
     assert "SECRET" not in error.value.message
+
+
+def _memory_storage(monkeypatch, persisted: dict[str, object]) -> MacKeychainTokenStorage:  # type: ignore[no-untyped-def]
+    storage = MacKeychainTokenStorage()
+    monkeypatch.setattr(storage, "_read", lambda: json.loads(json.dumps(persisted)))
+
+    def save(value: dict[str, object]) -> None:
+        persisted.clear()
+        persisted.update(value)
+
+    monkeypatch.setattr(storage, "_write", save)
+    return storage
+
+
+def test_stored_tokens_carry_an_absolute_expiry(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr("aptuni.application.notion_mcp.time.time", lambda: 1_000.0)
+    persisted: dict[str, object] = {}
+    storage = _memory_storage(monkeypatch, persisted)
+
+    anyio.run(storage.set_tokens, OAuthToken(access_token="a", refresh_token="r", expires_in=3600))
+
+    # A 60-second margin absorbs response latency and clock skew so a sync refreshes rather than 401s.
+    assert persisted["tokens_expire_at"] == 4_540.0
+    assert anyio.run(storage.token_expiry) == 4_540.0
+
+
+@pytest.mark.parametrize(
+    ("stored", "expected"),
+    [
+        ({"tokens": {"access_token": "a", "token_type": "Bearer", "expires_in": 28800}}, "expired"),
+        ({"tokens": {"access_token": "a", "token_type": "Bearer"}}, None),
+        ({"tokens": {"access_token": "a", "token_type": "Bearer"}, "tokens_expire_at": "soon"}, "expired"),
+        ({"tokens": {"access_token": "a", "token_type": "Bearer"}, "tokens_expire_at": float("nan")}, "expired"),
+        ({"tokens": {"access_token": "a", "token_type": "Bearer"}, "tokens_expire_at": True}, "expired"),
+        ({"tokens": {"access_token": "a", "token_type": "Bearer"}, "tokens_expire_at": 0}, "expired"),
+        ({"tokens": {"access_token": "a", "token_type": "Bearer"}, "tokens_expire_at": 10**400}, "expired"),
+        ({}, None),
+    ],
+)
+def test_unknown_or_invalid_expiry_is_due_for_refresh(monkeypatch, stored, expected) -> None:  # type: ignore[no-untyped-def]
+    import time
+
+    storage = _memory_storage(monkeypatch, dict(stored))
+    expiry = anyio.run(storage.token_expiry)
+
+    if expected is None:
+        assert expiry is None
+    else:
+        # Truthy and in the past: the SDK treats a falsy expiry as unknown and therefore valid.
+        assert expiry and 0 < expiry < time.time()
+
+
+def _restarted_first_request(monkeypatch, expire_at: float | None) -> tuple[httpx2.Request, list[str]]:  # type: ignore[no-untyped-def]
+    persisted: dict[str, object] = {
+        "tokens": {"access_token": "stale", "token_type": "Bearer", "refresh_token": "refresh", "expires_in": 28800},
+        "client": {"client_id": "client", "redirect_uris": ["http://127.0.0.1:43123/callback"]},
+    }
+    if expire_at is not None:
+        persisted["tokens_expire_at"] = expire_at
+    storage = _memory_storage(monkeypatch, persisted)
+    redirects: list[str] = []
+
+    async def redirect(url: str) -> None:
+        redirects.append(url)
+
+    async def callback() -> object:
+        raise AssertionError("a restarted session must not start a browser authorization")
+
+    provider = _auth_provider("http://127.0.0.1:43123/callback", storage, redirect, callback)  # type: ignore[arg-type]
+    request = httpx2.Request("POST", "https://mcp.notion.com/mcp")
+
+    async def first() -> httpx2.Request:
+        flow = provider.async_auth_flow(request)
+        try:
+            return await flow.__anext__()
+        finally:
+            await flow.aclose()
+
+    return anyio.run(first), redirects
+
+
+def test_restarted_session_refreshes_an_expired_token_before_any_request(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr("aptuni.application.notion_mcp.time.time", lambda: 50_000.0)
+    outgoing, redirects = _restarted_first_request(monkeypatch, expire_at=40_000.0)
+
+    assert str(outgoing.url) == "https://mcp.notion.com/token"
+    assert b"grant_type=refresh_token" in outgoing.content
+    assert redirects == []
+
+
+def test_restarted_legacy_session_without_expiry_refreshes_first(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    outgoing, redirects = _restarted_first_request(monkeypatch, expire_at=None)
+
+    assert str(outgoing.url) == "https://mcp.notion.com/token"
+    assert redirects == []
+
+
+def test_restarted_unexpired_session_sends_the_request_directly(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    import time
+
+    outgoing, redirects = _restarted_first_request(monkeypatch, expire_at=time.time() + 3600)
+
+    assert str(outgoing.url) == "https://mcp.notion.com/mcp"
+    assert outgoing.headers["Authorization"] == "Bearer stale"
+    assert redirects == []
+
+
+@pytest.mark.parametrize("method", ["fetch", "connect"])
+def test_task_group_wrapped_aptuni_errors_surface_as_bounded_errors(monkeypatch, method: str) -> None:  # type: ignore[no-untyped-def]
+    client = NotionMcpClient(NotionSourceSpec.build((PAGE,)))
+    required = AptuniError("notion_auth_required", "Run `aptuni source connect-notion`.")
+
+    async def wrapped() -> None:
+        raise BaseExceptionGroup("unhandled errors in a TaskGroup", [required])
+
+    monkeypatch.setattr(client, "_fetch", wrapped)
+    monkeypatch.setattr(client, "_connect", wrapped)
+
+    with pytest.raises(AptuniError) as error:
+        if method == "fetch":
+            client.fetch(client.spec.entity_urls)  # type: ignore[union-attr]
+        else:
+            client.connect()
+
+    assert error.value is required
+
+
+def test_groups_without_an_aptuni_error_are_not_masked(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    client = NotionMcpClient(NotionSourceSpec.build((PAGE,)))
+
+    async def wrapped() -> None:
+        raise BaseExceptionGroup("unhandled errors in a TaskGroup", [OSError("network")])
+
+    monkeypatch.setattr(client, "_fetch", wrapped)
+
+    with pytest.raises(BaseExceptionGroup):
+        client.fetch(client.spec.entity_urls)  # type: ignore[union-attr]
+
+
+def test_sdk_auth_diagnostics_never_reach_the_last_resort_stderr_handler() -> None:
+    import logging
+
+    handlers = logging.getLogger("mcp.client.auth").handlers
+    assert any(isinstance(handler, logging.NullHandler) for handler in handlers)
+
+
+@pytest.mark.parametrize("interrupt", [KeyboardInterrupt(), SystemExit(1)])
+def test_an_interrupt_beside_an_aptuni_error_is_not_masked(monkeypatch, interrupt: BaseException) -> None:  # type: ignore[no-untyped-def]
+    client = NotionMcpClient(NotionSourceSpec.build((PAGE,)))
+
+    async def wrapped() -> None:
+        raise BaseExceptionGroup("unhandled errors in a TaskGroup", [
+            AptuniError("notion_auth_required", "Run `aptuni source connect-notion`."), interrupt,
+        ])
+
+    monkeypatch.setattr(client, "_fetch", wrapped)
+
+    with pytest.raises(BaseExceptionGroup) as raised:
+        client.fetch(client.spec.entity_urls)  # type: ignore[union-attr]
+
+    assert interrupt in raised.value.exceptions

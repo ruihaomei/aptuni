@@ -68,3 +68,19 @@ present, `truncated` and `unknown_block_ids` must both be present and valid, and
 completeness.
 Review 65 blocked the first activation parser that treated absence as completeness; this amendment
 records the remediation.
+
+## Amendment — 2026-09-25 persisted access-token expiry
+
+MCP SDK 2.2.0 reloads stored tokens without their expiry, so a later process treated a stale access
+token as valid and answered the resulting 401 with a full browser authorization instead of the
+refresh grant. Real dogfooding hit this one day after authorization. Aptuni now stores an absolute
+`tokens_expire_at` beside the tokens inside the same Keychain item and restores it when its OAuth
+provider initializes, so an expired session silently uses the stored refresh token against the
+official token endpoint. The stored expiry is 60 seconds early to absorb latency and clock skew;
+a legacy or invalid stored expiry is treated as already expired (refresh first), while a token the
+server issued without `expires_in` stays non-expiring. Tokens, client and expiry come from one
+Keychain read. A failed refresh still ends in the non-interactive `notion_auth_required` error. No
+credential leaves Keychain, and the fetch-only tool allowlist is unchanged. SDK OAuth diagnostics
+are routed to a null handler and transport task-group errors are unwrapped, so the owner sees the
+bounded Aptuni message rather than a traceback; an interrupt, exit or cancellation raised beside an
+Aptuni error is never masked. Review 67 approves.

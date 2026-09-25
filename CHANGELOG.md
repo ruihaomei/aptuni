@@ -57,6 +57,9 @@ All notable changes to this project are documented here. The format follows
 - Official Notion MCP results without completeness metadata are accepted with `partial` coverage
   and a `notion_completeness_unverified` note instead of being recorded as complete; the page body
   is taken from exactly one enhanced-markdown `<content>` envelope (ADR-0021 amendment).
+- The Notion source no longer demands a new browser authorization once its access token expires:
+  Aptuni persists the token expiry in its Keychain item and refreshes silently with the stored
+  refresh token. OAuth failures print the bounded Aptuni message instead of an SDK traceback.
 - **Automatic promotion (ADR-0018).** An observation you make yourself through the CLI now becomes
   an active memory immediately instead of waiting in a review queue. It is marked
   `auto_promoted_pending_review` and reviewed retrospectively with

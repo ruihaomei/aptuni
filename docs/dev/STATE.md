@@ -2,7 +2,8 @@
 
 **Updated:** 2026-09-25
 **Current gate:** Milestone 3 real dogfooding — all three activation paths verified end to end; the
-first longitudinal trial drove an Evidence-rank fix and an Evidence-mode evaluator (Review 66)
+first longitudinal trial drove an Evidence-rank fix and an Evidence-mode evaluator (Review 66); the
+second fixed silent Notion session refresh (Review 67)
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub Standard/Deep, MarginNote 4, Obsidian and official-MCP Notion sources, builtin
 interaction memory, bilingual SQLite/FTS projection, bounded Context API, permissioned MCP STDIO
@@ -10,7 +11,7 @@ server, Claude/Codex adapters, Profile export, the read-only Plugin Advisor, lon
 evaluation, the Obsidian owner interface and the versioned public developer SDK are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -50,7 +51,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   printed an SDK traceback: MCP SDK 2.2.0 forgets token expiry across processes and answers the
   resulting 401 with a full authorization instead of the refresh grant. Aptuni now persists the
   absolute expiry in the same Keychain item and restores it; the live sync refreshed silently and
-  was a no-op. This slice is under independent review.
+  was a no-op, and OAuth failures now print the bounded Aptuni message. Review 67 approves with
+  non-blocking notes (applied or recorded in `BACKLOG.md`).
 
 ## Implemented (Milestone 1)
 
@@ -374,6 +376,11 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 5. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
+
+- Notion session refresh (2026-09-25): full repository gate 767 passed, 3 optional-runtime skips
+  and 62 subtests before review-note fixes; focused Notion suites 65 passed after them. Ruff,
+  strict mypy, relay and frozen evaluation green; live expired session refreshed silently; Review
+  67 **APPROVE WITH NON-BLOCKING NOTES**.
 
 - Real dogfooding fixes (2026-09-25): full repository gate 749 passed, 3 optional-runtime skips and
   62 subtests before review-note fixes; Ruff, strict mypy (95 source files), relay and frozen
