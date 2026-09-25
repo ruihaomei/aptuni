@@ -43,15 +43,15 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   returned 2/2 unrelated Profile/Memory records. Root causes: default Context is L3-only by
   ADR-0005 and the evaluator could not request L4; with Evidence requested, an L3-before-L4 sort
   displaced and budget-truncated better-ranked Evidence; the residual L3 noise is the specified
-  ADR-0004 fallback (KI-018). Fixed: rank-preserving Context ordering and `evaluate trial
-  --evidence` with schema v3 (Review 66). Live after-state on the same query: Profile/Memory-only
+  ADR-0004 fallback (KI-018). Fixed at `1d93ff8`: rank-preserving Context ordering and `evaluate
+  trial --evidence` with schema v3 (Review 66). Live after-state on the same query: Profile/Memory-only
   mode 0/2 useful (unchanged, by contract); with-Evidence mode 1/1 useful, 0 noise; 0 exposure
   violations. Labels are agent-assigned on the synthetic activation fixture, not owner judgments.
 - **Second dogfood issue.** A day after authorization, sync demanded a browser re-authorization and
   printed an SDK traceback: MCP SDK 2.2.0 forgets token expiry across processes and answers the
   resulting 401 with a full authorization instead of the refresh grant. Aptuni now persists the
   absolute expiry in the same Keychain item and restores it; the live sync refreshed silently and
-  was a no-op, and OAuth failures now print the bounded Aptuni message. Review 67 approves with
+  was a no-op, and OAuth failures now print the bounded Aptuni message (`327dbf4`). Review 67 approves with
   non-blocking notes (applied or recorded in `BACKLOG.md`).
 
 ## Implemented (Milestone 1)

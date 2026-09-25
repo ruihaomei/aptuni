@@ -65,7 +65,7 @@ Keep all MarginNote access read-only; never commit note text, and do not infer r
 
 ### What just landed
 
-Real dogfooding fixes (Reviews 65–66). The Notion activation delta is checkpointed at `1ae1d8f`
+Real dogfooding fixes (Reviews 65–67; checkpoints `1ae1d8f`, `1d93ff8`, `327dbf4`, local and unpushed). The Notion activation delta is checkpointed at `1ae1d8f`
 after Review 65 blocked a parser that treated absent completeness metadata as complete; unverified
 completeness is now `partial`. Context with Evidence requested keeps retrieval rank across L3/L4 and
 reports `layers` canonically; `aptuni evaluate trial --evidence` plus evaluation schema v3 separate
