@@ -20,6 +20,7 @@ from aptuni.application.notion_mcp import (
     _Callback,
     _delete_keychain_secret,
     _entity,
+    _noninteractive_handler,
     _read_keychain_secret,
     _store_keychain_secret,
     _text_result,
@@ -67,6 +68,9 @@ def test_native_keychain_add_uses_in_process_secret_bytes(monkeypatch) -> None: 
         SecKeychainAddGenericPassword = Function(
             lambda *_args: added.append(_args[6]) or 0,
         )
+        SecKeychainItemModifyAttributesAndData = Function(lambda *_args: pytest.fail("unexpected modify"))
+        SecKeychainItemFreeContent = Function(lambda *_args: pytest.fail("unexpected free"))
+        SecKeychainItemDelete = Function(lambda *_args: pytest.fail("unexpected delete"))
 
     class CoreFoundation:
         CFRelease = Function(lambda *_args: None)
@@ -519,3 +523,311 @@ def test_an_interrupt_beside_an_aptuni_error_is_not_masked(monkeypatch, interrup
         client.fetch(client.spec.entity_urls)  # type: ignore[union-attr]
 
     assert interrupt in raised.value.exceptions
+
+
+class _Native:
+    """A fake native function that records calls and any declared ctypes signature."""
+
+    def __init__(self, callback):  # type: ignore[no-untyped-def]
+        self.callback = callback
+        self.restype: object = "undeclared"
+        self.argtypes: object = "undeclared"
+        self.calls = 0
+
+    def __call__(self, *args):  # type: ignore[no-untyped-def]
+        self.calls += 1
+        return self.callback(*args)
+
+
+_NATIVE_SECURITY = (
+    "SecKeychainFindGenericPassword", "SecKeychainAddGenericPassword",
+    "SecKeychainItemModifyAttributesAndData", "SecKeychainItemFreeContent", "SecKeychainItemDelete",
+)
+
+
+def _install_native(monkeypatch, **functions):  # type: ignore[no-untyped-def]
+    unexpected = {
+        name: _Native(lambda *_args, name=name: pytest.fail(f"unexpected {name}")) for name in _NATIVE_SECURITY
+    }
+    supplied = {name: fn for name, fn in functions.items() if name.startswith("Sec")}
+    security = SimpleNamespace(**{**unexpected, **supplied})
+    core = SimpleNamespace(CFRelease=functions.get("CFRelease", _Native(lambda *_args: None)))
+    monkeypatch.setattr(
+        "aptuni.application.notion_mcp.ctypes.CDLL",
+        lambda path: security if path.endswith("/Security") else core,
+    )
+    return security, core
+
+
+def _found(data: bytes | None, *, item: int | None = 1234, length: int | None = None):  # type: ignore[no-untyped-def]
+    buffers: list[object] = []
+
+    def find(*args):  # type: ignore[no-untyped-def]
+        if item is not None:
+            args[7]._obj.value = item
+        if data is not None and args[5] is not None and args[6] is not None:
+            buffer = ctypes.create_string_buffer(data)
+            buffers.append(buffer)
+            args[5]._obj.value = len(data) if length is None else length
+            args[6]._obj.value = ctypes.addressof(buffer)
+        return 0
+
+    return find
+
+
+def test_every_native_keychain_call_declares_its_signature(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    stored: list[bytes] = [b"first"]
+    functions = {
+        "SecKeychainFindGenericPassword": _Native(_found(b"first")),
+        "SecKeychainAddGenericPassword": _Native(lambda *_args: 0),
+        "SecKeychainItemModifyAttributesAndData": _Native(lambda *_args: stored.__setitem__(0, _args[3]) or 0),
+        "SecKeychainItemFreeContent": _Native(lambda *_args: 0),
+        "SecKeychainItemDelete": _Native(lambda *_args: 0),
+        "CFRelease": _Native(lambda *_args: None),
+    }
+    _install_native(monkeypatch, **functions)
+
+    _read_keychain_secret()
+    _store_keychain_secret(b"second")
+    _delete_keychain_secret()
+
+    for name, function in functions.items():
+        if function.calls:
+            assert isinstance(function.argtypes, list), name
+            assert function.restype != "undeclared", name
+    assert functions["CFRelease"].restype is None
+
+
+def test_native_read_failure_maps_to_a_content_free_error(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr("aptuni.application.notion_mcp.platform.system", lambda: "Darwin")
+    _install_native(monkeypatch, SecKeychainFindGenericPassword=_Native(lambda *_args: -25293))
+
+    with pytest.raises(AptuniError) as error:
+        MacKeychainTokenStorage()._read()
+
+    assert error.value.code == "notion_credentials_read_failed"
+    assert "-25293" not in error.value.message
+
+
+def test_native_read_frees_returned_content_even_without_an_item(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    free = _Native(lambda *_args: 0)
+    _install_native(
+        monkeypatch,
+        SecKeychainFindGenericPassword=_Native(_found(b"secret", item=None)),
+        SecKeychainItemFreeContent=free,
+    )
+
+    with pytest.raises(OSError):
+        _read_keychain_secret()
+
+    assert free.calls == 1
+
+
+def test_native_read_frees_content_after_copying_it(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    free = _Native(lambda *_args: 0)
+    _install_native(
+        monkeypatch,
+        SecKeychainFindGenericPassword=_Native(_found(b"secret")),
+        SecKeychainItemFreeContent=free,
+    )
+
+    assert _read_keychain_secret() == b"secret"
+    assert free.calls == 1
+
+
+def test_oversized_keychain_secret_is_rejected_before_copying(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    free = _Native(lambda *_args: 0)
+    copied: list[object] = []
+    monkeypatch.setattr("aptuni.application.notion_mcp.ctypes.string_at", lambda *args: copied.append(args))
+    _install_native(
+        monkeypatch,
+        SecKeychainFindGenericPassword=_Native(_found(b"x", length=64 * 1024 + 1)),
+        SecKeychainItemFreeContent=free,
+    )
+
+    with pytest.raises(OSError):
+        _read_keychain_secret()
+
+    assert copied == []
+    assert free.calls == 1
+
+
+def test_duplicate_add_race_refinds_and_modifies(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    finds = iter([-25300, 0])
+    modified: list[bytes] = []
+
+    def find(*args):  # type: ignore[no-untyped-def]
+        status = next(finds)
+        if status == 0:
+            args[7]._obj.value = 99
+        return status
+
+    _install_native(
+        monkeypatch,
+        SecKeychainFindGenericPassword=_Native(find),
+        SecKeychainAddGenericPassword=_Native(lambda *_args: -25299),
+        SecKeychainItemModifyAttributesAndData=_Native(lambda *_args: modified.append(_args[3]) or 0),
+    )
+
+    assert _store_keychain_secret(b"raced")
+    assert modified == [b"raced"]
+
+
+def test_keychain_delete_distinguishes_absent_from_failed(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr("aptuni.application.notion_mcp.platform.system", lambda: "Darwin")
+    _install_native(monkeypatch, SecKeychainFindGenericPassword=_Native(lambda *_args: -25300))
+    assert MacKeychainTokenStorage().delete() is False
+
+    _install_native(
+        monkeypatch,
+        SecKeychainFindGenericPassword=_Native(_found(None)),
+        SecKeychainItemDelete=_Native(lambda *_args: -25293),
+    )
+    with pytest.raises(AptuniError) as error:
+        MacKeychainTokenStorage().delete()
+    assert error.value.code == "notion_credentials_delete_failed"
+
+    _install_native(monkeypatch, SecKeychainFindGenericPassword=_Native(lambda *_args: -25293))
+    with pytest.raises(AptuniError) as error:
+        MacKeychainTokenStorage().delete()
+    assert error.value.code == "notion_credentials_delete_failed"
+
+
+def _enveloped(body: str) -> str:
+    url = f"https://www.notion.so/{PAGE.replace('-', '')}"
+    return (
+        f'Here is the result of "fetch" for the Page with URL {url}:\n'
+        f'<page url="{url}">\n<properties>{{"title":"Fixture"}}</properties>\n'
+        f"<content>\n{body}\n</content>\n</page>"
+    )
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "Quote the marker <content> inline.",
+        "Closing marker </content> inline too.",
+        "A line that is exactly\n</content>\nstays in the body",
+        "An exact line\n<content>\nalso stays",
+    ],
+)
+def test_a_page_quoting_the_envelope_markers_still_syncs(body: str) -> None:
+    url = f"https://www.notion.so/{PAGE.replace('-', '')}"
+    value = {"metadata": {"type": "page"}, "title": "Fixture", "url": url, "text": _enveloped(body)}
+
+    assert _entity(value, url).text == body
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "<content>\nbody\n</content>\ntrailing prose",
+        "prefix <content>inline</content>",
+    ],
+)
+def test_malformed_envelope_tail_or_inline_envelope_fails_closed(text: str) -> None:
+    url = f"https://www.notion.so/{PAGE.replace('-', '')}"
+    value = {"metadata": {"type": "page"}, "title": "Title", "url": url, "text": text}
+
+    with pytest.raises(AptuniError) as error:
+        _entity(value, url)
+
+    assert error.value.code == "notion_mcp_result_invalid"
+
+
+def test_failed_refresh_ends_in_auth_required_without_browser_or_keychain_write(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    persisted: dict[str, object] = {
+        "tokens": {"access_token": "stale", "token_type": "Bearer", "refresh_token": "revoked", "expires_in": 28800},
+        "client": {
+            "client_id": "client", "redirect_uris": ["http://127.0.0.1:43123/callback"],
+            "issuer": "https://mcp.notion.com", "token_endpoint_auth_method": "none",
+        },
+        "tokens_expire_at": 1_000.0,
+    }
+    before = json.loads(json.dumps(persisted))
+    storage = _memory_storage(monkeypatch, persisted)
+    writes: list[object] = []
+    monkeypatch.setattr(storage, "_write", writes.append)
+    handler = _noninteractive_handler()
+    provider = _auth_provider("http://127.0.0.1:43123/callback", storage, handler, handler)
+    seen: list[str] = []
+
+    def respond(request: httpx2.Request) -> httpx2.Response:
+        url = str(request.url)
+        seen.append(f"{request.method} {url.split('?', 1)[0]}")
+        if url == "https://mcp.notion.com/token":
+            return httpx2.Response(400, json={"error": "invalid_grant"}, request=request)
+        if url.startswith("https://mcp.notion.com/.well-known/oauth-protected-resource"):
+            return httpx2.Response(200, json={
+                "resource": "https://mcp.notion.com/mcp", "authorization_servers": ["https://mcp.notion.com"],
+            }, request=request)
+        if url.startswith("https://mcp.notion.com/.well-known/oauth-authorization-server"):
+            return httpx2.Response(200, json={
+                "issuer": "https://mcp.notion.com",
+                "authorization_endpoint": "https://mcp.notion.com/authorize",
+                "token_endpoint": "https://mcp.notion.com/token",
+                "registration_endpoint": "https://mcp.notion.com/register",
+                "response_types_supported": ["code"],
+                "code_challenge_methods_supported": ["S256"],
+            }, request=request)
+        if url == "https://mcp.notion.com/mcp":
+            assert "Authorization" not in request.headers  # the stale token is not replayed
+            return httpx2.Response(401, headers={"WWW-Authenticate": "Bearer"}, request=request)
+        raise AssertionError(f"unexpected request {request.method} {url}")
+
+    async def drive() -> None:
+        flow = provider.async_auth_flow(httpx2.Request("POST", "https://mcp.notion.com/mcp"))
+        try:
+            outgoing = await flow.__anext__()
+            while True:
+                outgoing = await flow.asend(respond(outgoing))
+        except StopAsyncIteration:
+            pytest.fail("the flow finished without failing closed")
+        finally:
+            await flow.aclose()
+
+    monkeypatch.setattr("aptuni.application.notion_mcp.time.time", lambda: 50_000.0)
+    with pytest.raises(AptuniError) as error:
+        anyio.run(drive)
+
+    assert error.value.code == "notion_auth_required"
+    assert seen[0] == "POST https://mcp.notion.com/token"
+    assert writes == []
+    assert persisted == before
+
+
+def test_oversized_credentials_are_refused_on_write_as_on_read(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr("aptuni.application.notion_mcp.platform.system", lambda: "Darwin")
+    stored: list[bytes] = []
+    monkeypatch.setattr("aptuni.application.notion_mcp._store_keychain_secret", stored.append)
+
+    # Only the size guard can refuse here: the fake store would otherwise accept and record the bytes.
+    with pytest.raises(AptuniError) as error:
+        MacKeychainTokenStorage()._write({"tokens": {"access_token": "x" * (64 * 1024)}})
+
+    assert error.value.code == "notion_credentials_write_failed"
+    assert stored == []
+
+
+@pytest.mark.parametrize(
+    ("text", "body"),
+    [
+        ("<page>\r\n<content>\r\nbody line\r\n</content>\r\n</page>\r\n", "body line"),
+        ("<content>\n   \nbody\n\t\n</content>\n  \n</page>\n\n", "body"),
+    ],
+)
+def test_envelope_tolerates_crlf_and_whitespace_only_lines(text: str, body: str) -> None:
+    url = f"https://www.notion.so/{PAGE.replace('-', '')}"
+    value = {"metadata": {"type": "page"}, "title": "Title", "url": url, "text": text}
+
+    assert _entity(value, url).text == body
+
+
+def test_a_lone_exact_closing_line_fails_closed() -> None:
+    url = f"https://www.notion.so/{PAGE.replace('-', '')}"
+    value = {"metadata": {"type": "page"}, "title": "Title", "url": url, "text": "body\n</content>\n</page>"}
+
+    with pytest.raises(AptuniError) as error:
+        _entity(value, url)
+
+    assert error.value.code == "notion_mcp_result_invalid"

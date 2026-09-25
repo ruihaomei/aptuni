@@ -58,8 +58,10 @@ usable session. Review 64 independently approves the compatibility change.
 ## Amendment — 2026-09-25 official result envelope and completeness
 
 The official server currently returns page bodies inside an enhanced-markdown envelope and omits
-`truncated`, `unknown_block_ids` and `unknown_block_count`. Aptuni extracts only the body of exactly
-one ordered `<content>…</content>` envelope and rejects duplicate, unbalanced or reversed envelopes.
+`truncated`, `unknown_block_ids` and `unknown_block_count`. The envelope puts each marker on its own
+line: Aptuni takes the body between the first exact `<content>` line and the last exact `</content>`
+line, which only `</page>` may follow, so markers a page quotes inside its body stay body text.
+A missing close, trailing content, or markers without an exact envelope line fail closed.
 When all completeness keys are absent the result is accepted but completeness is **unverified**:
 snapshot coverage is `partial` with note `notion_completeness_unverified`, so the observed page still
 updates Evidence while nothing is ever recorded as fully observed. If any completeness key is
@@ -84,3 +86,11 @@ credential leaves Keychain, and the fetch-only tool allowlist is unchanged. SDK 
 are routed to a null handler and transport task-group errors are unwrapped, so the owner sees the
 bounded Aptuni message rather than a traceback; an interrupt, exit or cancellation raised beside an
 Aptuni error is never masked. Review 67 approves.
+
+## Amendment — 2026-09-25 native credential hardening
+
+Every Security/CoreFoundation call has a declared ctypes signature. A read copies at most 64 KiB and
+always frees returned content, and `disconnect-notion` now distinguishes an absent item (nothing to
+remove) from a failed delete, which raises `notion_credentials_delete_failed` instead of reporting
+removal. A failed refresh has a provider-level regression: it ends in `notion_auth_required` with no
+browser and no Keychain write. Review 68 approves.

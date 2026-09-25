@@ -159,3 +159,35 @@ def test_crash_after_canonical_commit_replays_without_duplicate_evidence(
     assert replay.evidence_written == 0
     assert len(service.evidence(source.id)) == 1
     assert service.doctor().ok
+
+
+@pytest.mark.parametrize(
+    ("removed", "expected"),
+    [(True, "Disconnected Aptuni from official Notion MCP"), (False, "No stored Notion MCP authorization")],
+)
+def test_cli_disconnect_says_whether_a_credential_was_removed(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch,
+    removed: bool, expected: str,
+) -> None:
+    service = service_at(tmp_path)
+    monkeypatch.setattr(service, "disconnect_notion", lambda: removed)
+
+    assert run(["source", "disconnect-notion"], service) == 0
+
+    assert capsys.readouterr().out.strip() == expected
+
+
+def test_cli_disconnect_failure_is_an_error_not_a_removal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = service_at(tmp_path)
+
+    def refused() -> bool:
+        raise AptuniError("notion_credentials_delete_failed", "Could not remove Notion MCP credentials.")
+
+    monkeypatch.setattr(service, "disconnect_notion", refused)
+
+    with pytest.raises(AptuniError) as error:
+        run(["source", "disconnect-notion", "--json"], service)
+
+    assert error.value.code == "notion_credentials_delete_failed"

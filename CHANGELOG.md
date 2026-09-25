@@ -57,6 +57,9 @@ All notable changes to this project are documented here. The format follows
 - Official Notion MCP results without completeness metadata are accepted with `partial` coverage
   and a `notion_completeness_unverified` note instead of being recorded as complete; the page body
   is taken from exactly one enhanced-markdown `<content>` envelope (ADR-0021 amendment).
+- `aptuni source disconnect-notion` now fails with `notion_credentials_delete_failed` when Keychain
+  refuses the delete, instead of reporting the credential as removed. A Notion page that quotes the
+  `<content>` markers in its own text no longer stops the sync.
 - The Notion source no longer demands a new browser authorization once its access token expires:
   Aptuni persists the token expiry in its Keychain item and refreshes silently with the stored
   refresh token. OAuth failures print the bounded Aptuni message instead of an SDK traceback.

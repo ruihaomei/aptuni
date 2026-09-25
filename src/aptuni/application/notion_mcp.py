@@ -51,9 +51,33 @@ _ALREADY_EXPIRED = 1.0
 logging.getLogger("mcp.client.auth").addHandler(logging.NullHandler())
 
 
+_MAX_KEYCHAIN_SECRET_BYTES = 64 * 1024
+_OSSTATUS = ctypes.c_int32
+_FIND_ARGTYPES = [
+    ctypes.c_void_p, ctypes.c_uint32, ctypes.c_char_p, ctypes.c_uint32, ctypes.c_char_p,
+    ctypes.POINTER(ctypes.c_uint32), ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_void_p),
+]
+
+
 def _keychain_libraries() -> tuple[Any, Any]:
+    """Load the frameworks and declare every signature, so a wrong argument type fails loudly."""
     security = ctypes.CDLL("/System/Library/Frameworks/Security.framework/Security")
     core_foundation = ctypes.CDLL("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")
+    signatures: tuple[tuple[Any, Any, list[Any]], ...] = (
+        (security.SecKeychainFindGenericPassword, _OSSTATUS, _FIND_ARGTYPES),
+        (security.SecKeychainAddGenericPassword, _OSSTATUS, [
+            ctypes.c_void_p, ctypes.c_uint32, ctypes.c_char_p, ctypes.c_uint32, ctypes.c_char_p,
+            ctypes.c_uint32, ctypes.c_char_p, ctypes.POINTER(ctypes.c_void_p),
+        ]),
+        (security.SecKeychainItemModifyAttributesAndData, _OSSTATUS,
+         [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint32, ctypes.c_char_p]),
+        (security.SecKeychainItemFreeContent, _OSSTATUS, [ctypes.c_void_p, ctypes.c_void_p]),
+        (security.SecKeychainItemDelete, _OSSTATUS, [ctypes.c_void_p]),
+        (core_foundation.CFRelease, None, [ctypes.c_void_p]),
+    )
+    for function, restype, argtypes in signatures:
+        function.restype = restype
+        function.argtypes = argtypes
     return security, core_foundation
 
 
@@ -70,7 +94,6 @@ def _read_keychain_secret() -> bytes | None:
     password_data = ctypes.c_void_p()
     item = ctypes.c_void_p()
     find = security.SecKeychainFindGenericPassword
-    find.restype = ctypes.c_int32
     status = int(find(
         None,
         len(service),
@@ -83,13 +106,15 @@ def _read_keychain_secret() -> bytes | None:
     ))
     if status == _ERR_SEC_ITEM_NOT_FOUND:
         return None
-    if status != 0 or item.value is None or password_data.value is None:
-        _release_keychain_item(core_foundation, item)
-        raise OSError(status, "Keychain read failed")
     try:
+        if status != 0 or item.value is None or password_data.value is None:
+            raise OSError(status, "Keychain read failed")
+        if password_length.value > _MAX_KEYCHAIN_SECRET_BYTES:
+            raise OSError(0, "Keychain item is larger than any Aptuni credential")
         return ctypes.string_at(password_data.value, password_length.value)
     finally:
-        security.SecKeychainItemFreeContent(None, password_data)
+        if password_data.value is not None:
+            security.SecKeychainItemFreeContent(None, password_data)
         _release_keychain_item(core_foundation, item)
 
 
@@ -100,7 +125,6 @@ def _store_keychain_secret(secret: bytes) -> bool:
     account = _KEYCHAIN_ACCOUNT.encode()
     item = ctypes.c_void_p()
     find = security.SecKeychainFindGenericPassword
-    find.restype = ctypes.c_int32
     status = int(find(
         None,
         len(service),
@@ -113,7 +137,6 @@ def _store_keychain_secret(secret: bytes) -> bool:
     ))
     if status == _ERR_SEC_ITEM_NOT_FOUND:
         add = security.SecKeychainAddGenericPassword
-        add.restype = ctypes.c_int32
         add_status = int(add(
             None,
             len(service),
@@ -144,7 +167,6 @@ def _store_keychain_secret(secret: bytes) -> bool:
             return False
         try:
             modify = security.SecKeychainItemModifyAttributesAndData
-            modify.restype = ctypes.c_int32
             return int(modify(retry_item, None, len(secret), secret)) == 0
         finally:
             _release_keychain_item(core_foundation, retry_item)
@@ -152,19 +174,18 @@ def _store_keychain_secret(secret: bytes) -> bool:
         return False
     try:
         modify = security.SecKeychainItemModifyAttributesAndData
-        modify.restype = ctypes.c_int32
         return int(modify(item, None, len(secret), secret)) == 0
     finally:
         _release_keychain_item(core_foundation, item)
 
 
 def _delete_keychain_secret() -> bool:
+    """``False`` when no item exists; any other failure raises, so removal is never assumed."""
     security, core_foundation = _keychain_libraries()
     service = _KEYCHAIN_SERVICE.encode()
     account = _KEYCHAIN_ACCOUNT.encode()
     item = ctypes.c_void_p()
     find = security.SecKeychainFindGenericPassword
-    find.restype = ctypes.c_int32
     status = int(find(
         None,
         len(service),
@@ -177,13 +198,13 @@ def _delete_keychain_secret() -> bool:
     ))
     if status == _ERR_SEC_ITEM_NOT_FOUND:
         return False
-    if status != 0 or item.value is None:
-        _release_keychain_item(core_foundation, item)
-        return False
     try:
-        delete = security.SecKeychainItemDelete
-        delete.restype = ctypes.c_int32
-        return int(delete(item)) == 0
+        if status != 0 or item.value is None:
+            raise OSError(status, "Keychain lookup before delete failed")
+        delete_status = int(security.SecKeychainItemDelete(item))
+        if delete_status != 0:
+            raise OSError(delete_status, "Keychain delete failed")
+        return True
     finally:
         _release_keychain_item(core_foundation, item)
 
@@ -237,7 +258,8 @@ class MacKeychainTokenStorage(TokenStorage):
     def _write(self, value: dict[str, Any]) -> None:
         self._require_host()
         secret = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
-        if not _store_keychain_secret(secret):
+        # Never save what a later read would refuse; that would strand the owner until disconnect.
+        if len(secret) > _MAX_KEYCHAIN_SECRET_BYTES or not _store_keychain_secret(secret):
             raise AptuniError("notion_credentials_write_failed", "Could not save Notion MCP credentials in Keychain.")
 
     async def get_tokens(self) -> OAuthToken | None:
@@ -284,7 +306,13 @@ class MacKeychainTokenStorage(TokenStorage):
 
     def delete(self) -> bool:
         self._require_host()
-        return _delete_keychain_secret()
+        try:
+            return _delete_keychain_secret()
+        except OSError as error:
+            raise AptuniError(
+                "notion_credentials_delete_failed",
+                "Could not remove Notion MCP credentials from Keychain; nothing was reported as removed.",
+            ) from error
 
 
 class _Callback:
@@ -426,17 +454,23 @@ def _text_result(result: Any) -> dict[str, Any]:
 
 
 def _entity_text(text: str) -> str:
-    opening = "<content>"
-    closing = "</content>"
-    if opening not in text and closing not in text:
+    """Return the body of the enhanced-markdown envelope, which puts each marker on its own line.
+
+    The envelope opens at the first exact ``<content>`` line and closes at the last exact
+    ``</content>`` line, which only ``</page>`` may follow; markers the page itself quotes in between
+    stay in the body. A bare result without markers passes through unchanged.
+    """
+    opening, closing = "<content>", "</content>"
+    lines = [line.strip() for line in text.split("\n")]
+    if opening not in lines:
+        if opening in text or closing in text:
+            raise AptuniError("notion_mcp_result_invalid", "Official Notion MCP returned invalid content metadata.")
         return text
-    if text.count(opening) != 1 or text.count(closing) != 1:
+    start = lines.index(opening)
+    ends = [index for index, line in enumerate(lines) if line == closing and index > start]
+    if not ends or [line for line in lines[ends[-1] + 1:] if line] not in ([], ["</page>"]):
         raise AptuniError("notion_mcp_result_invalid", "Official Notion MCP returned invalid content metadata.")
-    start = text.index(opening) + len(opening)
-    end = text.find(closing, start)
-    if end < 0:
-        raise AptuniError("notion_mcp_result_invalid", "Official Notion MCP returned invalid content metadata.")
-    return text[start:end].strip()
+    return "\n".join(text.split("\n")[start + 1:ends[-1]]).strip()
 
 
 def _entity(value: dict[str, Any], expected_url: str) -> NotionEntity:

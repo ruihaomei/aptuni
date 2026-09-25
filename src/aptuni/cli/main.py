@@ -371,7 +371,7 @@ def _cmd_notion_source(args: argparse.Namespace, service: AptuniService) -> int:
         if args.json:
             _print_json({"disconnected": True, "credential_removed": removed})
         else:
-            print("Disconnected Aptuni from official Notion MCP")
+            print("Disconnected Aptuni from official Notion MCP" if removed else "No stored Notion MCP authorization")
         return 0
     principal_id = service.connect_notion()
     if args.json:

@@ -208,6 +208,12 @@
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   },
+  "m3-notion-credential-hardening": {
+   "kind": "review",
+   "current": "68-m3-notion-credential-hardening-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "m3-notion-token-expiry": {
    "kind": "review",
    "current": "67-m3-notion-token-expiry-review.md",
