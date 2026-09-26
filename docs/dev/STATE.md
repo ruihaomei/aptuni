@@ -339,7 +339,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Implemented (Milestone 3)
 
-- **Canonical Beta Agent activation (runnable, Review 70).** Core now defines only
+- **Canonical Beta Agent activation (runnable, `d40d037`, Review 70).** Core now defines only
   `aptuni.profile`, `aptuni.memory` and `aptuni.full`; official Claude Code and Codex bundles expose
   them as manual-only native skills and no longer inject identity at session start. Task scope is a
   one-shot bounded disclosure and the default; only Full may persist for one inspectable,
@@ -398,7 +398,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Latest validation state
 
-- Beta Agent activation (2026-09-27, checkpoint pending): focused contract/adapter/MCP/setup gate
+- Beta Agent activation (2026-09-27, `d40d037`): focused contract/adapter/MCP/setup gate
   88 passed; final full repository suite (823 collected), Ruff, strict mypy, relay and diff checks
   green. Review 70 independently approves the implementation and maintainer-accepted limitation.
 

@@ -10,7 +10,7 @@ manual-only Profile/Memory/Full skills to host-independent intents. Task activat
 disclosure; only Full can persist for an inspectable and disableable MCP-process session. OFF denies
 new retrieval, capture and disclosure. It cannot erase content already delivered into a capable
 host transcript; strict isolation requires a new host task, chat or session. The implementation
-checkpoint is pending the final full/relay gate and local commit.
+checkpoint is `d40d037`; it is local and has not been pushed.
 
 Milestone 2. Runnable: Vault/CLI core; Folder, GitHub and direct local MarginNote 4 sources; builtin
 interaction memory with quarantined MCP proposals; bilingual SQLite/FTS; bounded Context API; MCP
