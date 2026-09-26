@@ -101,7 +101,7 @@ def test_case_c_host_plan_names_every_file_before_confirmation(
 
     assert [step["target"] for step in plan["steps"] if step["kind"] == "adapter"] == ["claude_code", "codex"]
     assert "claude_code: .mcp.json" in plan["host_files"]
-    assert "claude_code: hooks.json" in plan["host_files"]
+    assert "claude_code: skills/profile/SKILL.md" in plan["host_files"]
     assert "codex: config.toml" in plan["host_files"]
 
     report = apply_setup_plan(service, plan["action_id"], plan["digest"])
@@ -488,8 +488,13 @@ def test_b6_the_preview_names_every_file_the_adapter_actually_writes(
     assert report.terminal_state == "complete"
 
     promised = {name.split(": ", 1)[1] for name in plan["host_files"]}
-    written = {path.name for grant in report.grants
-               for path in (service.workspace.state_dir / "adapters" / "bundles" / grant).iterdir()}
+    written = {
+        path.relative_to(bundle).as_posix()
+        for grant in report.grants
+        for bundle in (service.workspace.state_dir / "adapters" / "bundles" / grant,)
+        for path in bundle.rglob("*")
+        if path.is_file()
+    }
     assert written <= promised, f"apply wrote files the preview never named: {written - promised}"
     assert "AGENTS.md" in promised, "the Codex AGENTS.md was previously written but never previewed"
 
@@ -880,4 +885,6 @@ def test_resume_repairs_each_missing_adapter_bundle_file(
     assert resumed.terminal_state == "complete"
     grant_id = resumed.grants[0]
     bundle = service.workspace.state_dir / "adapters" / "bundles" / grant_id
-    assert {path.name for path in bundle.iterdir()} == set(BUNDLE_FILES[adapter_host])
+    assert {
+        path.relative_to(bundle).as_posix() for path in bundle.rglob("*") if path.is_file()
+    } == set(BUNDLE_FILES[adapter_host])

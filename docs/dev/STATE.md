@@ -1,9 +1,8 @@
 # Project State
 
-**Updated:** 2026-09-25
-**Current gate:** Milestone 3 real dogfooding — all three activation paths verified end to end; the
-first longitudinal trial drove an Evidence-rank fix and an Evidence-mode evaluator (Review 66); the
-second fixed silent Notion session refresh (Review 67)
+**Updated:** 2026-09-27
+**Current gate:** Beta productization — canonical Agent activation is accepted and independently
+approved (ADR-0025, Review 70); next is plugin-declared Aptuni context through `aptuni.api.v1`
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub Standard/Deep, MarginNote 4, Obsidian and official-MCP Notion sources, builtin
 interaction memory, bilingual SQLite/FTS projection, bounded Context API, permissioned MCP STDIO
@@ -11,7 +10,7 @@ server, Claude/Codex adapters, Profile export, the read-only Plugin Advisor, lon
 evaluation, the Obsidian owner interface and the versioned public developer SDK are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -340,6 +339,16 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Implemented (Milestone 3)
 
+- **Canonical Beta Agent activation (runnable, Review 70).** Core now defines only
+  `aptuni.profile`, `aptuni.memory` and `aptuni.full`; official Claude Code and Codex bundles expose
+  them as manual-only native skills and no longer inject identity at session start. Task scope is a
+  one-shot bounded disclosure and the default; only Full may persist for one inspectable,
+  disableable MCP-process session. Activation-required OFF denies identity, context, review and
+  memory capture. Every call reuses live grants, module exposure, provenance and budgets. Under the
+  maintainer-accepted capable-host boundary, OFF controls new disclosure but cannot erase context
+  already delivered to a host transcript; strict isolation requires a new host task/chat/session.
+  ADR-0025 is accepted and the independent review verdict is **APPROVE**.
+
 - **Versioned public developer API and SDK plugin platform (runnable, `a1a04fb`, Review 63).** `aptuni.api.v1`
   exposes bounded Profile, Memory, Context and minimized Evidence reads plus quarantined memory
   proposals and read-only review queues through immutable `aptuni.api@1` DTOs. Strict
@@ -354,8 +363,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## In progress
 
-- Milestone 1 and its first public release are complete. The selected Milestone 2 priorities and the
-  first Milestone 3 developer-platform slice are complete; S10, the Mem0
+- Milestone 1 and its first public release are complete. The selected Milestone 2 priorities,
+  first Milestone 3 developer-platform slice and canonical Beta Agent activation are complete; S10, the Mem0
   projection preview, the opt-in hybrid retrieval preview, the Obsidian vault source, automatic
   promotion slices A–D, automatic Profile promotion, GitHub Deep, the official Notion MCP source,
   longitudinal maintainer dogfooding, the bounded Obsidian owner interface, public SDK and flagship
@@ -368,22 +377,30 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. The owner runs real trials in both context modes (`evaluate trial [--evidence]`, then
+1. Extend the accepted `aptuni.api.v1` manifest/grant contract minimally so third-party Agent
+   plugins declare required and optional Aptuni context capabilities, receive only owner-granted
+   task-relevant context, and cannot bypass live revocation or privacy policy. Then adapt the
+   Top-Down Learning example into the first manually invokable host skill through that public path.
+2. The owner runs real trials in both context modes (`evaluate trial [--evidence]`, then
    `evaluate score --useful … --rest-noise`) and periodic `evaluate capture`; agents never invent
    labels. Revisit the KI-018 fallback floor only when real owner-labelled `profile_memory` trials
    show persistent noise. Remaining Notion items in BACKLOG need live server evidence first.
-2. Review lessons that carry forward: write injection tests with **real** control bytes (the
+3. Review lessons that carry forward: write injection tests with **real** control bytes (the
    literal text of an escape sequence proves nothing); route every outside-controlled token through
    `sanitize_token` where stored or `delimited_untrusted` where rendered; and when a rule about
    "current records" changes, check *every* view of it — Review 56 found the same supersession gap
    in export, the Mem0 projection and the repeat-observation path after `memories()` was fixed.
-3. Keep every source read-only, keep `ingest_enabled`/`expose_enabled` independent, and emit
+4. Keep every source read-only, keep `ingest_enabled`/`expose_enabled` independent, and emit
    minimized Evidence through the common snapshot/delta pipeline with crash/replay coverage.
-4. Do not add a remote model or embedding key to any default path; keep provider scores derived and
+5. Do not add a remote model or embedding key to any default path; keep provider scores derived and
    policy-check every hydrated result.
-5. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
+6. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
+
+- Beta Agent activation (2026-09-27, checkpoint pending): focused contract/adapter/MCP/setup gate
+  88 passed; final full repository suite (823 collected), Ruff, strict mypy, relay and diff checks
+  green. Review 70 independently approves the implementation and maintainer-accepted limitation.
 
 - Notion hardening and owner-labelled evaluation (2026-09-25, `6e05e8a` and `1ba862c`):
   full repository gate 801 passed, 3 optional-runtime skips and 62 subtests; Ruff,

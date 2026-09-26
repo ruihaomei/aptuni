@@ -196,6 +196,12 @@
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   },
+  "m3-beta-agent-activation": {
+   "kind": "review",
+   "current": "70-beta-agent-activation-review.md",
+   "verdict": "APPROVE",
+   "supersedes": []
+  },
   "m3-context-evidence-rank": {
    "kind": "review",
    "current": "66-m3-context-evidence-rank-review.md",

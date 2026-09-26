@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Explicit Beta Agent activation (ADR-0025): Aptuni is OFF for ordinary Claude Code and Codex
+  tasks. Native host skills map Profile, Memory and Full to host-independent activation intents;
+  task scope is the default, while explicit session Full is inspectable and disableable. OFF blocks
+  new retrieval, capture and disclosure but cannot erase context already delivered to a capable host;
+  manual-only skills are a UX safeguard rather than an authenticated-human security boundary.
+
 - Public developer API and local plugin platform (ADR-0024): `aptuni.api.v1` provides bounded,
   permission-checked Profile/Memory/Context/Evidence reads, quarantined memory proposals and
   read-only review queues through immutable versioned contracts. `aptuni developer` validates
@@ -47,6 +53,10 @@ All notable changes to this project are documented here. The format follows
   locator, the excerpt or the search index (ADR-0017).
 
 ### Changed
+
+- Claude Code adapter bundles no longer inject an identity card at SessionStart. Generated Claude
+  and Codex bundles run MCP in activation-required mode, and live grant revocation stops subsequent
+  reads in an already-running session.
 
 - Context with Evidence requested keeps retrieval rank across Profile/Memory (L3) and Evidence (L4),
   so a better-matching Evidence unit is no longer placed after, or budget-truncated in favour of, a

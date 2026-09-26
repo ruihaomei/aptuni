@@ -45,4 +45,5 @@ community contributors' agents) must read the ADRs relevant to its task before e
 | [ADR-0022](ADR-0022-content-free-longitudinal-dogfooding.md) | Measure longitudinal quality without retaining evaluation content | Accepted |
 | [ADR-0023](ADR-0023-obsidian-owner-interface.md) | Keep the Obsidian owner interface behind a local versioned bridge | Accepted |
 | [ADR-0024](ADR-0024-versioned-public-developer-api.md) | Expose task-oriented extensions through a versioned least-privilege SDK | Accepted |
+| [ADR-0025](ADR-0025-explicit-agent-activation.md) | Keep Agent personalization OFF until a canonical activation intent is invoked | Proposed |
 <!-- ADR-INDEX:END -->

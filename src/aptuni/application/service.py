@@ -504,7 +504,7 @@ class AptuniService(
                 self._authorize_host(access, scope="evidence.read", modules=selected)
         elif access is not None:
             raise AptuniError("invalid_context", "Host access is valid only for the host_mcp audience.")
-        if _record_types is not None and (_record_types != ("memory",) or include_evidence):
+        if _record_types is not None and (_record_types not in (("fact",), ("memory",)) or include_evidence):
             raise AptuniError("invalid_context", "The internal context record-type restriction is invalid.")
         record_types = _record_types or (("fact", "memory", "evidence") if include_evidence else ("fact", "memory"))
         for _ in range(3):

@@ -41,14 +41,24 @@ def test_plan_apply_generates_deterministic_private_grant_and_bundle(tmp_path: P
     if host == "claude":
         config = json.loads((bundle / ".mcp.json").read_text())
         assert config["mcpServers"]["aptuni"]["args"][-1] == grant.grant_id
-        hooks = json.loads((bundle / "hooks.json").read_text())
-        assert "SessionStart" in hooks["hooks"]
+        assert "--activation-required" in config["mcpServers"]["aptuni"]["args"]
+        assert not (bundle / "hooks.json").exists()
+        assert (bundle / ".claude-plugin" / "plugin.json").is_file()
+        assert (bundle / "skills" / "profile" / "SKILL.md").is_file()
     else:
         codex_config = (bundle / "config.toml").read_text()
         assert grant.grant_id in codex_config
+        assert "--activation-required" in codex_config
         assert 'env_vars = ["APTUNI_STATE_DIR"]' in codex_config
         assert "required = true" in codex_config
         assert "quoted data" in (bundle / "AGENTS.md").read_text()
+        assert (bundle / ".agents" / "skills" / "aptuni-profile" / "SKILL.md").is_file()
+        metadata = (bundle / ".agents" / "skills" / "aptuni-profile" / "agents" / "openai.yaml").read_text()
+        assert "allow_implicit_invocation: false" in metadata
+    skill_text = "\n".join(path.read_text() for path in bundle.rglob("SKILL.md"))
+    assert "aptuni.profile" in skill_text
+    assert "aptuni.memory" in skill_text
+    assert "aptuni.full" in skill_text
 
 
 def test_cli_cancel_creates_no_grant_or_bundle(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
