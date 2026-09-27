@@ -58,3 +58,4 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Public API: an any-term/OR retrieval mode and per-item corroboration counts would remove plugin-side lexicons and per-term query fan-out (see `docs/research/findings/plugin-platform-friction.md`) | Flagship #1 platform feedback | Plugin platform |
 | Top-Down: forged demonstration bullets with distinct timestamps still yield a (quarantined) proposal; consider binding demonstrations to a local seal | Review 74 re-review note 2 | Top-Down hardening |
 | Top-Down: rewrite bare `—`/`›` in targets and concepts instead of rejecting them | Review 74 re-review note 3 | Top-Down UX |
+| `aptuni developer grant apply` raises an unhandled `EOFError` traceback when stdin is closed; print a bounded "confirmation required" error and exit non-zero | Clean-install journey 2026-09-27 | CLI polish |

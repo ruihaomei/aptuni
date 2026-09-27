@@ -76,6 +76,9 @@ local or cloud. The demo contexts are in `examples/plugins/top_down_learning/exa
 (regenerate them with `tools/regenerate_top_down_demo.py`). Platform friction is in
 `docs/research/findings/plugin-platform-friction.md`.
 
+Checkpoints: Stable gate `7ae7211`, Flagship #1 `bf8e20c` (local, not pushed). A fresh isolated
+uv-tool install ran the first-run journey through the installed server successfully.
+
 Next: Beta release integration. Run a genuine clean-environment install and first-run journey for
 Aptuni 0.2.0b1 and plugin 0.2.0 on both hosts, write release notes, and publish only when release
 policy authorizes it. Then start the User #1 dogfooding window. Do not retune the pedagogy before

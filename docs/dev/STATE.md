@@ -420,9 +420,11 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stabl
 
 - Top-Down Learning Flagship #1 (2026-09-27, Review 74 after one BLOCK round): portable
   `aptuni.top-down-learning.context@1`, verification gate, just-in-time local loop, cloud export,
-  eight stateless MCP tools and a Transformer demo. Full suite 888 passed, 3 skips, 62 subtests; dev
-  suite, Ruff, strict source/plugin mypy, relay, supply-chain secrets and all three host validators
-  green.
+  eight stateless MCP tools and a Transformer demo. Checkpoint `bf8e20c`. Full suite 893 passed,
+  3 skips, 62 subtests. Dev suite, Ruff, strict source/plugin mypy, relay, supply-chain secrets and
+  all three host validators are green. A fresh isolated `uv tool` install of Aptuni 0.2.0b1 plus
+  plugin 0.2.0 passed the following sequence, driven through the *installed* `top-down-study-mcp`
+  server: init, remember, grant plan, typed `APPLY`, prepare, verify, cloud choice and resume.
 
 - Stable readiness gate (2026-09-27, Review 73): `tools/stable_gate.py` emits a commit- and
   clean-tree-bound, content-free report. The current report honestly shows FAIL (no bound evidence),
