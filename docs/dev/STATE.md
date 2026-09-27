@@ -349,7 +349,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   already delivered to a host transcript; strict isolation requires a new host task/chat/session.
   ADR-0025 is accepted and the independent review verdict is **APPROVE**.
 
-- **Plugin-declared Beta context contract (runnable, Review 71).** New `aptuni.plugin@1` manifests
+- **Plugin-declared Beta context contract (runnable, `358eed3`, Review 71).** New `aptuni.plugin@1` manifests
   declare disjoint required and optional capabilities in `[aptuni]`; owner grants must include the
   required set and may withhold optional authority. This is additive syntax over the existing exact,
   revocable grant—not a parallel permission system. Legacy manifest digests and stored grant files
@@ -411,7 +411,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   88 passed; final full repository suite (823 collected), Ruff, strict mypy, relay and diff checks
   green. Review 70 independently approves the implementation and maintainer-accepted limitation.
 
-- Plugin context declaration (2026-09-27, checkpoint pending): 47 focused manifest/public
+- Plugin context declaration (2026-09-27, `358eed3`): 47 focused manifest/public
   API/flagship/privacy tests; final full repository suite (828 collected), Ruff, strict mypy, relay
   and diff checks green. Review 71 independently approves after required capability dependencies
   were closed within the required set.

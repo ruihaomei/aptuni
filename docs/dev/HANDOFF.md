@@ -16,8 +16,8 @@ The additive plugin context declaration is also runnable and approved by Review 
 use `[aptuni] required/optional`; the existing grant remains the only authority, legacy v1 digests
 and stored grants stay valid, and every operation still revalidates revocation, modules and privacy.
 The Top-Down learning journey works with required context alone; optional memory capture fails
-closed when the owner withholds it. Its implementation checkpoint is pending the final full/relay
-gate and local commit.
+closed when the owner withholds it. Its implementation checkpoint is `358eed3`; it is local and has
+not been pushed.
 
 Milestone 2. Runnable: Vault/CLI core; Folder, GitHub and direct local MarginNote 4 sources; builtin
 interaction memory with quarantined MCP proposals; bilingual SQLite/FTS; bounded Context API; MCP
