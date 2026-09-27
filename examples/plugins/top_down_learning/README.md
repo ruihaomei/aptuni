@@ -91,17 +91,21 @@ optional `memory.propose` capability fails closed when it is withheld.
 
 ## Install and authorize
 
-From an Aptuni source checkout (Beta `0.2.0b1`):
+With the published Beta, where `aptuni` comes from PyPI and the plugin from the exact release tag:
 
 ```sh
-uv tool install /path/to/aptuni
-uv tool install /path/to/aptuni/examples/plugins/top_down_learning \
-  --with-editable /path/to/aptuni
-aptuni developer inspect /path/to/aptuni/examples/plugins/top_down_learning/src/top_down_learning/aptuni-plugin.toml
-aptuni developer grant plan /path/to/aptuni/examples/plugins/top_down_learning/src/top_down_learning/aptuni-plugin.toml
-aptuni developer grant apply ACT_ID
+git clone --depth 1 --branch v0.2.0b1 https://github.com/ruihaomei/aptuni.git aptuni-v0.2.0b1
+uv tool install aptuni==0.2.0b1
+uv tool install ./aptuni-v0.2.0b1/examples/plugins/top_down_learning
+MANIFEST=aptuni-v0.2.0b1/examples/plugins/top_down_learning/src/top_down_learning/aptuni-plugin.toml
+aptuni developer inspect "$MANIFEST"
+aptuni developer grant plan "$MANIFEST"
+aptuni developer grant apply ACT_ID        # type APPLY to confirm
 export APTUNI_TOP_DOWN_GRANT_ID=GRANT_ID
 ```
+
+The plugin wheel and sdist are also attached to the GitHub Release with their SHA-256 sums. Below,
+`/path/to/aptuni` means that checkout.
 
 The plan grants the required `context.read` and, by default, the optional `memory.propose`. To
 withhold memory capture, add `--capability context.read` to `grant plan`. Version 0.2.0 changes the

@@ -147,6 +147,16 @@ class SupplyChainTests(unittest.TestCase):
             self.assertTrue(any("semantic-version tag" in error
                                 for error in gate.check_release_workflow(mutated)))
 
+            mutated.write_text(text.replace(
+                '      - "v[0-9]+.[0-9]+.[0-9]+b[0-9]+"\n', "",
+            ), encoding="utf-8")
+            self.assertTrue(any("beta tag" in error for error in gate.check_release_workflow(mutated)))
+
+            mutated.write_text(text.replace(
+                '      - "v[0-9]+.[0-9]+.[0-9]+b[0-9]+"', '      - "v*"',
+            ), encoding="utf-8")
+            self.assertTrue(any("beta tag" in error for error in gate.check_release_workflow(mutated)))
+
 
 if __name__ == "__main__":
     unittest.main()

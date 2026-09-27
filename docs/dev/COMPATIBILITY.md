@@ -1,7 +1,9 @@
 # MVP Compatibility and Locale Matrix
 
-**Status:** Aptuni 0.1.0 release matrix. S03 fixed the SQLite baseline, hosted runs closed the Ubuntu
-24.04/ext4 gate, and S12 completed the frozen real-host rows.
+**Status:** Aptuni 0.2.0b1 Beta matrix. The platform rows are unchanged from 0.1.0: S03 fixed the
+SQLite baseline, hosted runs close the Ubuntu 24.04/ext4 gate for each release commit, and S12
+completed the frozen real-host rows. The Beta's real Claude Code and Codex first-run journeys are
+recorded in `docs/dev/releases/0.2.0b1.md` after publication.
 
 Gate 0/S01 proof baseline on 2026-09-18: macOS 26.2 (build 25C56), local APFS **data** volume
 (`/System/Volumes/Data`, where user files live; the root volume is sealed/read-only), CPython 3.13.3

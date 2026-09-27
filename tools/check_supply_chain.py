@@ -168,6 +168,9 @@ def check_release_workflow(path: Path) -> list[str]:
         errors.append("release workflow must default to read-only contents permission")
     if '      - "v[0-9]+.[0-9]+.[0-9]+"' not in text or "workflow_dispatch" in text:
         errors.append("release workflow must publish only from semantic-version tag pushes")
+    tags = re.search(r"(?m)^    tags:\n((?:      - .*\n)+)", text)
+    if tags is None or tags.group(1) != '      - "v[0-9]+.[0-9]+.[0-9]+"\n      - "v[0-9]+.[0-9]+.[0-9]+b[0-9]+"\n':
+        errors.append("release workflow must accept exactly the stable and SemVer beta tag patterns")
     if "persist-credentials: false" not in text:
         errors.append("release checkout must disable persisted credentials")
     if text.count("id-token: write") != 1 or "environment:\n      name: pypi" not in text:

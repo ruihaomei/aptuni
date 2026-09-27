@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0b1] — 2026-09-27
+
+First Beta. Aptuni becomes a personal context platform for Agent plugins: canonical Profile, Memory
+and Full activation (OFF by default), plugin-declared context capabilities under exact owner grants,
+and Top-Down Learning as Flagship Plugin #1. Stable remains gated on the owner UX Gate, the
+automated Stable readiness gate and a clean-room audit.
+
 ### Added
 
 - Top-Down Learning is now Aptuni Flagship Plugin #1 (plugin 0.2.0). It uses task-scoped context
