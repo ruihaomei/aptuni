@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Agent plugins may declare required and optional Aptuni context capabilities in their existing
+  `aptuni.plugin@1` manifest. Owner grants must include required capabilities, may omit optional
+  authority, and preserve live module, revocation and privacy checks; legacy manifests retain their
+  exact digest and behavior (ADR-0024 amendment).
+
 - Explicit Beta Agent activation (ADR-0025): Aptuni is OFF for ordinary Claude Code and Codex
   tasks. Native host skills map Profile, Memory and Full to host-independent activation intents;
   task scope is the default, while explicit session Full is inspectable and disableable. OFF blocks

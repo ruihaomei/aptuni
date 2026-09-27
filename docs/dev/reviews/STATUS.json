@@ -202,6 +202,12 @@
    "verdict": "APPROVE",
    "supersedes": []
   },
+  "m3-beta-plugin-context": {
+   "kind": "review",
+   "current": "71-beta-plugin-context-contract-review.md",
+   "verdict": "APPROVE",
+   "supersedes": []
+  },
   "m3-context-evidence-rank": {
    "kind": "review",
    "current": "66-m3-context-evidence-rank-review.md",

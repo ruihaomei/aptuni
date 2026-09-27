@@ -49,6 +49,16 @@ def _ready(tmp_path: Path) -> tuple[Workspace, AptuniService]:
     return workspace, service
 
 
+def _declared_manifest() -> PluginManifest:
+    value = _manifest().model_dump(mode="json")
+    value.pop("capabilities")
+    value["aptuni"] = {
+        "required": ("context.read",),
+        "optional": ("memory.read", "memory.propose"),
+    }
+    return PluginManifest.model_validate(value)
+
+
 def _client(tmp_path: Path, manifest: PluginManifest, *, capabilities: tuple[str, ...] | None = None,
             modules: tuple[str, ...] | None = None):
     workspace, _ = _ready(tmp_path)
@@ -96,6 +106,51 @@ def test_grant_narrows_manifest_and_denies_drift_or_extra_modules(tmp_path: Path
     with pytest.raises(AptuniAPIError) as empty_modules:
         manager.plan(declared, capabilities=("context.read",), modules=())
     assert empty_modules.value.code == "plugin_module_invalid"
+
+
+def test_required_plugin_context_cannot_be_omitted_and_optional_context_can(tmp_path: Path) -> None:
+    workspace, _ = _ready(tmp_path)
+    manifest = _declared_manifest()
+    manager = PluginGrantManager(workspace)
+    with pytest.raises(AptuniAPIError) as missing:
+        manager.plan(
+            manifest, capabilities=("memory.read",), modules=("knowledge",),
+        )
+    assert missing.value.code == "plugin_required_capability_denied"
+
+    plan = manager.plan(
+        manifest, capabilities=("context.read",), modules=("knowledge",),
+    )
+    assert plan.required_capabilities == ("context.read",)
+    grant = manager.apply(plan.action_id)
+    assert grant.required_capabilities == ("context.read",)
+    api = connect(manifest, grant.grant_id, workspace=workspace)
+    assert api.query_context("parking", modules=("knowledge",)).contract == "aptuni.api@1"
+    with pytest.raises(AptuniAPIError) as optional:
+        api.search_memories("parking", modules=("knowledge",))
+    assert optional.value.code == "plugin_capability_denied"
+
+
+def test_legacy_manifest_and_grant_records_remain_loadable(tmp_path: Path) -> None:
+    workspace, _ = _ready(tmp_path)
+    manifest = _manifest()
+    manager = PluginGrantManager(workspace)
+    plan = manager.plan(manifest, capabilities=("context.read",), modules=("knowledge",))
+    plan_path = manager.root / "pending" / f"{plan.action_id}.json"
+    legacy_plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    legacy_plan.pop("required_capabilities")
+    plan_path.write_text(json.dumps(legacy_plan), encoding="utf-8")
+    assert manager.pending(plan.action_id) == plan
+
+    grant = manager.apply(plan.action_id)
+    grant_path = manager.root / "grants" / f"{grant.grant_id}.json"
+    legacy_grant = json.loads(grant_path.read_text(encoding="utf-8"))
+    legacy_grant.pop("required_capabilities")
+    grant_path.write_text(json.dumps(legacy_grant), encoding="utf-8")
+    assert manager.load(grant.grant_id) == grant
+    assert connect(manifest, grant.grant_id, workspace=workspace).query_context(
+        "parking", modules=("knowledge",),
+    ).contract == "aptuni.api@1"
 
 
 def test_memory_submission_is_quarantined_idempotent_and_review_decisions_are_absent(tmp_path: Path) -> None:
@@ -317,12 +372,17 @@ def test_developer_cli_scaffolds_inspects_and_owner_confirms_a_narrow_grant(
     assert scaffold["contract"] == "aptuni.developer@1" and len(scaffold["files"]) == 6
     manifest_path = target / "aptuni-plugin.toml"
     assert run(["developer", "inspect", str(manifest_path), "--json"], service) == 0
-    assert json.loads(capsys.readouterr().out)["id"] == "dev.example.coach"
+    inspected = json.loads(capsys.readouterr().out)
+    assert inspected["id"] == "dev.example.coach"
+    assert inspected["aptuni"] == {"optional": [], "required": ["context.read"]}
     assert run([
         "developer", "grant", "plan", str(manifest_path), "--capability", "context.read",
         "--module", "knowledge", "--json",
     ], service) == 0
-    action_id = json.loads(capsys.readouterr().out)["action_id"]
+    planned = json.loads(capsys.readouterr().out)
+    action_id = planned["action_id"]
+    assert "Required capabilities: context.read" in planned["preview"]
+    assert "Granted optional capabilities: none" in planned["preview"]
     monkeypatch.setattr("builtins.input", lambda *args: "APPLY")
     assert run(["developer", "grant", "apply", action_id, "--json"], service) == 0
     grant_id = json.loads(capsys.readouterr().out)["grant_id"]

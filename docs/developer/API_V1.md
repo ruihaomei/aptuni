@@ -63,6 +63,20 @@ and once revoke or privacy purge completes the already-connected client is stopp
 Applying the same preview concurrently or retrying after interrupted publication resolves to the
 same single grant generation.
 
+For new Agent plugins, declare the same capability set as required and optional intent:
+
+```toml
+[aptuni]
+required = ["context.read"]
+optional = ["memory.propose"]
+```
+
+Planning fails if an owner selection omits a required capability. Optional capabilities may be
+withheld without invalidating the grant, and an attempted optional operation then fails with
+`plugin_capability_denied`. Exact modules remain independently narrowed. The old top-level
+`capabilities` field remains supported with its original digest and semantics, but cannot be mixed
+with `[aptuni]`.
+
 API v1 is an authorization protocol, not an activation runtime. Aptuni does not discover, import or
 execute manifest entry points. A reviewed host is responsible for loading the client code and its
 dependency closure.

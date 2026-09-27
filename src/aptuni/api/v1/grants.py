@@ -43,6 +43,7 @@ class PluginGrantPlan(_GrantModel):
     nonce_id: str
     created_at: datetime
     expires_at: datetime
+    required_capabilities: tuple[Capability, ...] = ()
 
 
 class PluginGrant(_GrantModel):
@@ -57,6 +58,7 @@ class PluginGrant(_GrantModel):
     created_at: datetime
     plan_expires_at: datetime
     action_digest: str
+    required_capabilities: tuple[Capability, ...] = ()
 
 
 class PluginGrantManager:
@@ -79,12 +81,18 @@ class PluginGrantManager:
                 "plugin_egress_unsupported",
                 "Public API v1 authorizes local no-egress clients only; use an informed MCP grant for external egress.",
             )
-        selected_capabilities = tuple(manifest.capabilities if capabilities is None else capabilities)
+        requested_capabilities = manifest.requested_capabilities
+        selected_capabilities = tuple(requested_capabilities if capabilities is None else capabilities)
         selected_modules = tuple(manifest.modules if modules is None else modules)
         if not selected_capabilities or len(set(selected_capabilities)) != len(selected_capabilities):
             raise AptuniAPIError("plugin_capability_invalid", "Choose a unique non-empty capability subset.")
-        if not set(selected_capabilities) <= set(manifest.capabilities):
+        if not set(selected_capabilities) <= set(requested_capabilities):
             raise AptuniAPIError("plugin_capability_denied", "The grant cannot exceed the manifest capabilities.")
+        if not set(manifest.required_capabilities) <= set(selected_capabilities):
+            raise AptuniAPIError(
+                "plugin_required_capability_denied",
+                "The grant must include every capability the plugin declares as required.",
+            )
         if not selected_modules or len(set(selected_modules)) != len(selected_modules):
             raise AptuniAPIError("plugin_module_invalid", "Choose a unique non-empty module subset.")
         if not set(selected_modules) <= set(manifest.modules):
@@ -110,6 +118,8 @@ class PluginGrantManager:
             "created_at": created_at.isoformat(),
             "expires_at": (created_at + _PLAN_TTL).isoformat(),
         }
+        if manifest.required_capabilities:
+            payload["required_capabilities"] = manifest.required_capabilities
         digest = self._digest(payload)
         plan = PluginGrantPlan(
             action_id="act-" + digest[:16], digest="sha256:" + digest,
@@ -139,6 +149,7 @@ class PluginGrantManager:
                 created_at=plan.created_at,
                 plan_expires_at=plan.expires_at,
                 action_digest=plan.digest,
+                required_capabilities=plan.required_capabilities,
             )
             try:
                 existing = self.load(grant_id)
@@ -374,6 +385,8 @@ class PluginGrantManager:
             payload["expires_at"] = value.expires_at.isoformat()
         else:
             payload["expires_at"] = value.plan_expires_at.isoformat()
+        if value.required_capabilities:
+            payload["required_capabilities"] = value.required_capabilities
         return payload
 
     @staticmethod

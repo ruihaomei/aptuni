@@ -17,11 +17,22 @@ point, public-API-only starter, test and README. Scaffolding creates no Vault, g
 or network permission. Aptuni v1 records but does not discover, import or execute that entry point;
 the reviewed host loads its own client code.
 
-The manifest declares:
+New manifests declare:
 
 - exact plugin id, semantic version, API version and entry point;
-- requested capabilities and Profile modules;
+- required Aptuni context capabilities, optional capabilities and Profile modules;
 - egress and retention behavior.
+
+```toml
+[aptuni]
+required = ["context.read"]
+optional = ["memory.read", "evidence.read"]
+```
+
+Required means the plugin cannot run under a grant that omits that capability. Optional authority
+is owner-selectable. Both use the same public capability vocabulary and the same exact, revocable
+grant; the declaration itself grants nothing. The legacy top-level `capabilities = [...]` form
+remains valid for existing v1 plugins but cannot be mixed with `[aptuni]`.
 
 V1 authorizes only `egress = ["none"]`. A plugin that sends personal context to a host model, cloud
 API or source origin must use Aptuni's separately confirmed MCP/adapter egress path. A manifest is
@@ -33,6 +44,11 @@ Grant previews expire after ten minutes and are consumed when applied. Use `aptu
 list` to audit grants, `grant cancel ACTION_ID` to discard a preview, and `grant revoke GRANT_ID` to
 remove authority. Calls and grant changes are serialized; after revocation completes, an existing
 client cannot start another authorized operation.
+
+Invoking an approved Agent plugin does not require a separate Aptuni Profile/Memory/Full activation.
+The reviewed plugin receives context only by making bounded public API calls under its exact grant
+for the current task. Aptuni still does not discover or execute the entry point; the reviewed host
+owns plugin loading.
 
 ## Review and memory boundaries
 

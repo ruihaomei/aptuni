@@ -5,7 +5,9 @@ import importlib.util
 import sys
 from pathlib import Path
 
-from aptuni.api.v1 import connect, load_manifest, scaffold_plugin
+import pytest
+
+from aptuni.api.v1 import AptuniAPIError, connect, load_manifest, scaffold_plugin
 from aptuni.api.v1.grants import PluginGrantManager
 from aptuni.application.service import AptuniService
 from aptuni.application.workspace import Workspace
@@ -31,6 +33,12 @@ def _ready(tmp_path: Path):
     manager = PluginGrantManager(workspace)
     grant = manager.apply(manager.plan(manifest).action_id)
     return service, connect(manifest, grant.grant_id, workspace=workspace)
+
+
+def test_manifest_declares_context_dependency_and_optional_gap_capture() -> None:
+    manifest = load_manifest(EXAMPLE / "aptuni-plugin.toml")
+    assert manifest.required_capabilities == ("context.read",)
+    assert manifest.optional_capabilities == ("memory.propose",)
 
 
 def test_complete_personalized_learning_loop_uses_only_public_api(tmp_path: Path) -> None:
@@ -63,6 +71,26 @@ def test_gap_submission_is_explicit_quarantined_and_idempotent(tmp_path: Path) -
     assert first.status == "pending_owner_review"
     assert first.candidate_id == second.candidate_id
     assert first.created and not second.created
+
+
+def test_learning_journey_works_when_optional_gap_capture_is_not_granted(tmp_path: Path) -> None:
+    workspace = Workspace(tmp_path / "state")
+    service = AptuniService(workspace)
+    service.init(tmp_path / "vault")
+    service.remember("I have practical Python experience", "skills")
+    manifest = load_manifest(EXAMPLE / "aptuni-plugin.toml")
+    manager = PluginGrantManager(workspace)
+    grant = manager.apply(manager.plan(
+        manifest,
+        capabilities=("context.read",),
+        modules=("knowledge", "skills", "preferences"),
+    ).action_id)
+    plugin = TopDownLearningPlugin(connect(manifest, grant.grant_id, workspace=workspace))
+    session = plugin.start("Build an intelligent parking system")
+    assert session.prerequisites[0].status == "known"
+    with pytest.raises(AptuniAPIError) as denied:
+        plugin.record_gap(session, "I need more practice explaining homography.")
+    assert denied.value.code == "plugin_capability_denied"
 
 
 def test_long_goal_gap_keys_preserve_distinct_feedback(tmp_path: Path) -> None:

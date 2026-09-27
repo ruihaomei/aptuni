@@ -18,7 +18,7 @@ def scaffold_plugin(target: Path, *, plugin_id: str, name: str) -> tuple[Path, .
     manifest = PluginManifest(
         schema_version=1, contract="aptuni.plugin@1", id=plugin_id, name=name, version="0.1.0",
         api_version="v1", entry_point=f"{package}.plugin:create_plugin",
-        capabilities=("context.read",), modules=("knowledge",), egress=("none",), retention="none",
+        aptuni={"required": ("context.read",)}, modules=("knowledge",), egress=("none",), retention="none",
     )
     destination = target.expanduser().resolve(strict=False)
     if target.is_symlink() or (destination.exists() and (not destination.is_dir() or any(destination.iterdir()))):
@@ -32,8 +32,8 @@ def scaffold_plugin(target: Path, *, plugin_id: str, name: str) -> tuple[Path, .
             'schema_version = 1\ncontract = "aptuni.plugin@1"\n'
             f'id = "{manifest.id}"\nname = {json.dumps(manifest.name, ensure_ascii=False)}\nversion = "0.1.0"\n'
             f'api_version = "v1"\nentry_point = "{manifest.entry_point}"\n'
-            'capabilities = ["context.read"]\nmodules = ["knowledge"]\n'
-            'egress = ["none"]\nretention = "none"\n'
+            'modules = ["knowledge"]\negress = ["none"]\nretention = "none"\n\n'
+            '[aptuni]\nrequired = ["context.read"]\noptional = []\n'
         ),
         "pyproject.toml": (
             "[build-system]\nrequires = [\"hatchling\"]\nbuild-backend = \"hatchling.build\"\n\n"

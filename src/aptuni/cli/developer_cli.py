@@ -61,11 +61,17 @@ def cmd_developer(args: Any, service: AptuniService) -> int:
                 modules=tuple(args.modules) if args.modules else None,
             )
             value = plan.model_dump(mode="json") | {
-                "preview": _preview(plan.plugin_id, plan.plugin_version, plan.capabilities, plan.modules),
+                "preview": _preview(
+                    plan.plugin_id, plan.plugin_version, plan.capabilities, plan.modules,
+                    plan.required_capabilities,
+                ),
             }
         elif args.grant_command == "apply":
             plan = manager.pending(args.action_id)
-            preview = _preview(plan.plugin_id, plan.plugin_version, plan.capabilities, plan.modules)
+            preview = _preview(
+                plan.plugin_id, plan.plugin_version, plan.capabilities, plan.modules,
+                plan.required_capabilities,
+            )
             print(preview, file=sys.stderr if args.json else sys.stdout)
             if not _owner_confirms_apply(json_mode=args.json):
                 print("Cancelled; no plugin grant was created.")
@@ -87,9 +93,18 @@ def cmd_developer(args: Any, service: AptuniService) -> int:
     return 0
 
 
-def _preview(plugin_id: str, version: str, capabilities: tuple[str, ...], modules: tuple[str, ...]) -> str:
+def _preview(
+    plugin_id: str,
+    version: str,
+    capabilities: tuple[str, ...],
+    modules: tuple[str, ...],
+    required_capabilities: tuple[str, ...] = (),
+) -> str:
+    optional = tuple(capability for capability in capabilities if capability not in required_capabilities)
     return (
-        f"Plugin: {plugin_id} {version}\nCapabilities: {', '.join(capabilities)}\n"
+        f"Plugin: {plugin_id} {version}\nRequired capabilities: "
+        f"{', '.join(required_capabilities) or 'none'}\n"
+        f"Granted optional capabilities: {', '.join(optional) or 'none'}\n"
         f"Modules: {', '.join(modules)}\nEgress: none\n"
         "Effect: create a private manifest-bound local grant; no plugin code is imported or run."
     )

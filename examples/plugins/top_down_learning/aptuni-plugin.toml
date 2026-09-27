@@ -5,7 +5,10 @@ name = "Top-Down Learning"
 version = "0.1.0"
 api_version = "v1"
 entry_point = "top_down_learning.plugin:create_plugin"
-capabilities = ["context.read", "memory.propose"]
 modules = ["knowledge", "skills", "preferences"]
 egress = ["none"]
 retention = "canonical_proposals"
+
+[aptuni]
+required = ["context.read"]
+optional = ["memory.propose"]
