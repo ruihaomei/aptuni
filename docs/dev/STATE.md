@@ -4,7 +4,9 @@
 **Current gate:** Beta productization — canonical activation, plugin-declared context and the
 Top-Down Learning flagship are independently approved and the machine-readable Stable readiness
 gate is runnable (Review 73), and Top-Down Learning is Flagship Plugin #1 with a portable verified
-learning context (ADR-0026, Review 74); next is Beta release integration
+learning context (ADR-0026, Review 74). **Aptuni 0.2.0b1 Beta is public** (PyPI and a GitHub
+pre-release from `f59241f`; `docs/dev/releases/0.2.0b1.md`). Next: real Claude Code/Codex first-run
+journeys with the maintainer and the 14-day User #1 dogfooding window (`docs/dev/BETA_DOGFOODING.md`)
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub Standard/Deep, MarginNote 4, Obsidian and official-MCP Notion sources, builtin
 interaction memory, bilingual SQLite/FTS projection, bounded Context API, permissioned MCP STDIO
@@ -396,11 +398,13 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stabl
 
 ## Next highest-priority task
 
-1. Integrate Flagship #1 into the Beta release surface. Add a genuine clean-environment journey:
-   fresh uv-tool install of Aptuni `0.2.0b1` plus plugin `0.2.0`, init, grant, and a Claude/Codex
-   first run to a verified local context and a cloud export. Then release notes, and the Beta
-   publication only when policy authorizes it. Then fresh-install User #1 dogfooding of Core,
-   activation UX, both Top-Down modes, the grant experience and learning-context quality.
+1. Run the real Claude Code and Codex first-run journeys with the maintainer on the published Beta;
+   record them in `docs/dev/releases/0.2.0b1.md`. Day 0 of the 14-day User #1 window is the first
+   real journey (`docs/dev/BETA_DOGFOODING.md`). Keep the UX Gate open until the exact phrase
+   `Aptuni User Experience Gate: PASS`; run `tools/stable_gate.py` at each checkpoint. Do not tune
+   retrieval or learning from synthetic data. Fix real Beta defects test-first, ship them in a new
+   pre-release, and never rewrite release evidence. Never publish Stable without asking again after
+   UX Gate PASS, Automated Stable Gate PASS and a clean-room Stable audit PASS.
 2. The owner runs real trials in both context modes (`evaluate trial [--evidence]`, then
    `evaluate score --useful … --rest-noise`) and periodic `evaluate capture`; agents never invent
    labels. Revisit the KI-018 fallback floor only when real owner-labelled `profile_memory` trials

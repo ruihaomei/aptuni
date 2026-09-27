@@ -79,7 +79,14 @@ local or cloud. The demo contexts are in `examples/plugins/top_down_learning/exa
 Checkpoints: Stable gate `7ae7211`, Flagship #1 `bf8e20c` (local, not pushed). A fresh isolated
 uv-tool install ran the first-run journey through the installed server successfully.
 
-Next: Beta release integration. Run a genuine clean-environment install and first-run journey for
+**Aptuni 0.2.0b1 Beta is public** (maintainer-authorized): PyPI and a GitHub pre-release from
+`f59241f`, with byte-identical hosted, PyPI, GitHub and local artifacts. The record is in
+`docs/dev/releases/0.2.0b1.md`. The dogfooding protocol is `docs/dev/BETA_DOGFOODING.md`.
+
+Next: the real host first-run journeys with the maintainer, then the dogfooding window. The earlier
+integration steps below are done.
+
+Previously next: Beta release integration. Run a genuine clean-environment install and first-run journey for
 Aptuni 0.2.0b1 and plugin 0.2.0 on both hosts, write release notes, and publish only when release
 policy authorizes it. Then start the User #1 dogfooding window. Do not retune the pedagogy before
 real use.
