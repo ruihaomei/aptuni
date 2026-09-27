@@ -217,3 +217,13 @@ def test_scaffold_quotes_untrusted_display_name_as_toml_data(tmp_path: Path) -> 
     scaffold_plugin(target, plugin_id="dev.example.quoted", name=name)
     manifest = load_manifest(target / "aptuni-plugin.toml")
     assert manifest.name == name
+
+
+def test_plugin_distribution_declares_apache_license_and_ships_legal_files() -> None:
+    import tomllib
+
+    project = tomllib.loads((EXAMPLE / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    assert project["license"] == "Apache-2.0"
+    assert project["license-files"] == ["LICENSE", "NOTICE"]
+    for name in ("LICENSE", "NOTICE"):
+        assert (EXAMPLE / name).read_bytes() == (ROOT / name).read_bytes()
