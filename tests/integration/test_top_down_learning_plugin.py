@@ -227,3 +227,13 @@ def test_plugin_distribution_declares_apache_license_and_ships_legal_files() -> 
     assert project["license-files"] == ["LICENSE", "NOTICE"]
     for name in ("LICENSE", "NOTICE"):
         assert (EXAMPLE / name).read_bytes() == (ROOT / name).read_bytes()
+
+
+def test_host_manifests_and_server_report_the_package_version() -> None:
+    import tomllib
+
+    version = tomllib.loads((EXAMPLE / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+    assert load_manifest(MANIFEST).version == version
+    for path in (EXAMPLE / ".codex-plugin" / "plugin.json", EXAMPLE / "claude" / ".claude-plugin" / "plugin.json"):
+        assert json.loads(path.read_text(encoding="utf-8"))["version"] == version
+    assert f'version="{version}"' in (EXAMPLE / "src" / "top_down_learning" / "mcp_server.py").read_text()

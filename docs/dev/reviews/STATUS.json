@@ -282,10 +282,11 @@
   },
   "release": {
    "kind": "review",
-   "current": "50-release-final-review.md",
-   "verdict": "APPROVE",
+   "current": "75-beta-release-candidate-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": [
-    "49-release-candidate-review.md"
+    "49-release-candidate-review.md",
+    "50-release-final-review.md"
    ]
   },
   "s05b-marginnote-reconciler": {

@@ -159,5 +159,6 @@ First public pre-alpha release of the Milestone 1 personal context core.
 - Module-scoped host grants, network-denied MCP STDIO, conservative host-confinement reporting, and
   tracked-secret checks in the release gate.
 
-[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.2.0b1...HEAD
+[0.2.0b1]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b1
 [0.1.0]: https://github.com/ruihaomei/aptuni/releases/tag/v0.1.0

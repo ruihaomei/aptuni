@@ -5,8 +5,8 @@
 - Notion: the real connector returned the authenticated owner/workspace identity through the exact
   read-only `self` endpoint. No search, write or OAuth restart occurred. A content fetch is paused
   until the owner supplies one exact page/database URL.
-- Obsidian: Aptuni `0.1.0` is installed at
-  `/Users/ruihaomei/Study_Work_Award/.obsidian/plugins/aptuni`. `manifest.json`, `main.js` and
+- Obsidian: Aptuni `0.1.0` is installed in the owner's vault plugin folder
+  (`<vault>/.obsidian/plugins/aptuni`). `manifest.json`, `main.js` and
   `styles.css` byte-match the packaged assets, use private modes, and JavaScript syntax passes.
   Obsidian has not yet enabled the plugin.
 

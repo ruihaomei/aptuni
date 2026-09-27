@@ -105,7 +105,8 @@ export APTUNI_TOP_DOWN_GRANT_ID=GRANT_ID
 ```
 
 The plugin wheel and sdist are also attached to the GitHub Release with their SHA-256 sums. Below,
-`/path/to/aptuni` means that checkout.
+`/path/to/aptuni` means that checkout (`aptuni-v0.2.0b1`). Each `uv tool` environment carries its
+own copy of `aptuni`, so upgrade both tools together.
 
 The plan grants the required `context.read` and, by default, the optional `memory.propose`. To
 withhold memory capture, add `--capability context.read` to `grant plan`. Version 0.2.0 changes the
