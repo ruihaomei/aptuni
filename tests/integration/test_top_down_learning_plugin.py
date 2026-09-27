@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import ast
 import json
 import subprocess
 import sys
@@ -11,25 +10,31 @@ import pytest
 from mcp import Client, StdioServerParameters
 from mcp.server.mcpserver.exceptions import ToolError
 
-from aptuni.api.v1 import AptuniAPIError, connect, load_manifest, scaffold_plugin
+from aptuni.api.v1 import connect, load_manifest, scaffold_plugin
 from aptuni.api.v1.grants import PluginGrantManager
 from aptuni.application.service import AptuniService
 from aptuni.application.workspace import Workspace
 
 ROOT = Path(__file__).parents[2]
+TOOLS = (
+    "top_down_prepare", "top_down_revise", "top_down_verify", "top_down_choose_delivery",
+    "top_down_record_progress", "top_down_resume", "top_down_export_cloud", "top_down_propose_memory",
+)
 EXAMPLE = ROOT / "examples" / "plugins" / "top_down_learning"
 MANIFEST = EXAMPLE / "src" / "top_down_learning" / "aptuni-plugin.toml"
 sys.path.insert(0, str(EXAMPLE / "src"))
-from top_down_learning.plugin import TopDownLearningPlugin  # noqa: E402
+from top_down_learning.context_parser import parse_context  # noqa: E402
+from top_down_learning.demo_maps import TRANSFORMER_PREREQUISITES  # noqa: E402
 
 
 def _ready(tmp_path: Path):
     workspace = Workspace(tmp_path / "state")
     service = AptuniService(workspace)
     service.init(tmp_path / "vault")
-    service.remember("My goal is to build an intelligent parking system", "goals")
+    service.remember("My goal is to understand modern LLM papers", "goals")
     service.remember("I have practical Python experience", "skills")
-    service.remember("I prefer concise project-first explanations", "preferences")
+    service.remember("I write Python services every day", "skills")
+    service.remember("I prefer visual explanations with diagrams", "preferences")
     manifest = load_manifest(MANIFEST)
     manager = PluginGrantManager(workspace)
     grant = manager.apply(manager.plan(manifest).action_id)
@@ -56,32 +61,48 @@ def test_agent_plugin_assets_are_manual_only_and_reference_real_surfaces() -> No
     assert "name: top-down-study" in skill
     assert "disable-model-invocation: true" in claude_skill and "user-invocable: true" in claude_skill
     assert "allow_implicit_invocation: false" in metadata
-    assert "top_down_start" in skill and "top_down_check" in skill
+    for tool in TOOLS:
+        assert tool in skill, tool
+    assert "top_down_learning_context.md" in skill
     assert skill.split("---", 2)[2] == claude_skill.split("---", 2)[2]
 
 
-def test_complete_personalized_learning_loop_uses_only_public_api(tmp_path: Path) -> None:
-    _, api = _ready(tmp_path)
-    plugin = TopDownLearningPlugin(api)
-    session = plugin.start("Build an intelligent parking system")
-    assert session.goal == "Build an intelligent parking system"
-    assert session.prerequisites[0].status == "known"
-    assert session.prerequisites[0].canonical_ids
-    assert session.prerequisites[1].status == "needed"
-    assert session.current_slug == "camera_geometry"
-    assert "project-first" in session.teaching_preference.lower()
-
-    turn = plugin.teach(session)
-    assert turn.prerequisite_slug == "camera_geometry"
-    assert turn.explanation and turn.project_step and turn.learner_prompt
-    assert turn.delivery_style == "concise_project_first"
-    weak = plugin.check(session, "A camera sends images.")
-    assert not weak.passed and weak.next_slug == "camera_geometry"
-    passed = plugin.check(session, "Perspective distortion can be corrected with a homography.")
-    assert passed.passed and passed.next_slug == "vehicle_detection"
+PREREQUISITES = [
+    {"concept": spec.concept, "evidence_terms": list(spec.evidence_terms), "required_for": spec.required_for}
+    for spec in TRANSFORMER_PREREQUISITES
+]
 
 
-def test_manual_agent_plugin_start_check_and_live_revoke(tmp_path: Path) -> None:
+async def _journey(call) -> dict[str, object]:
+    """The first-run flagship journey shared by the in-process and STDIO host tests."""
+    prepared = (await call("top_down_prepare", {
+        "target": "Learn Transformers", "prerequisites": PREREQUISITES,
+        "deliverable": "A runnable single-head attention notebook",
+    })).structured_content
+    assert prepared["user_verified"] is False and "Python (aptuni-inferred)" in prepared["verification_summary"]
+    assert "Softmax" in prepared["clarify"]
+    revised = (await call("top_down_revise", {
+        "context_markdown": prepared["context_markdown"], "foundation": {"Softmax": "familiar"},
+    })).structured_content
+    verified = (await call("top_down_verify", {
+        "context_markdown": revised["context_markdown"],
+        "verification_digest": revised["verification_digest"],
+        "learner_confirmation": "Yes, that's accurate.",
+    })).structured_content
+    chosen = (await call("top_down_choose_delivery", {
+        "context_markdown": verified["context_markdown"], "mode": "local",
+        "teaching_strategy": "Diagram first, then a two-token numeric example the learner predicts.",
+    })).structured_content
+    progressed = (await call("top_down_record_progress", {
+        "context_markdown": chosen["context_markdown"], "concept": "Matrix multiplication",
+        "diagnosis": "partial", "action": "descend", "prerequisite": "Dot product",
+        "learner_output": "You multiply matching numbers?", "summary": "Unsure how rows meet columns",
+    })).structured_content
+    assert progressed["position"] == ["Learn Transformers", "Matrix multiplication", "Dot product"]
+    return progressed
+
+
+def test_manual_agent_plugin_first_run_journey_and_live_revoke(tmp_path: Path) -> None:
     from top_down_learning.mcp_server import create_server
 
     service, api = _ready(tmp_path)
@@ -89,88 +110,48 @@ def test_manual_agent_plugin_start_check_and_live_revoke(tmp_path: Path) -> None
     server = create_server(api)
 
     async def exercise() -> None:
-        started = await server.call_tool(
-            "top_down_start", {"goal": "Build an intelligent parking system"},
-        )
-        payload = started.structured_content
-        assert payload["session"]["current_slug"] == "camera_geometry"
-        assert payload["session"]["completed_slugs"] == []
-        assert payload["session"]["remaining_count"] == 5
-        assert "prerequisites" not in payload["session"]
-        assert "teaching_preference" not in payload["session"]
-        assert payload["continuation"]
-        assert payload["turn"]["learner_prompt"]
-
-        weak = await server.call_tool(
-            "top_down_check",
-            {
-                "continuation": payload["continuation"],
-                "learner_output": "A camera sends images.",
-            },
-        )
-        assert weak.structured_content["check"]["passed"] is False
-        assert weak.structured_content["session"]["current_slug"] == "camera_geometry"
-
-        passed = await server.call_tool(
-            "top_down_check",
-            {
-                "continuation": weak.structured_content["continuation"],
-                "learner_output": "Perspective distortion is corrected with a homography.",
-            },
-        )
-        assert passed.structured_content["check"]["passed"] is True
-        assert passed.structured_content["session"]["completed_slugs"] == ["camera_geometry"]
-        assert passed.structured_content["session"]["current_slug"] == "vehicle_detection"
+        progressed = await _journey(server.call_tool)
+        context = parse_context(progressed["context_markdown"])
+        assert context.preferred_delivery == "local" and "Mermaid" in context.dynamic.teaching_contract
+        exported = (await server.call_tool("top_down_export_cloud", {
+            "context_markdown": progressed["context_markdown"],
+        })).structured_content["cloud_context_markdown"]
+        resumed = (await server.call_tool("top_down_resume", {"context_markdown": exported})).structured_content
+        assert resumed["user_verified"] is True and resumed["delivery"] == "cloud"
 
         assert manager.revoke(api.grant.grant_id)
         with pytest.raises(ToolError, match="plugin_grant_not_found"):
-            await server.call_tool(
-                "top_down_start", {"goal": "Build an intelligent parking system"},
-            )
+            await server.call_tool("top_down_prepare", {"target": "Learn Transformers", "prerequisites": PREREQUISITES})
+        still = await server.call_tool("top_down_resume", {"context_markdown": exported})
+        assert still.structured_content["position"] == resumed["position"]
 
     anyio.run(exercise)
 
 
-def test_progress_cannot_forge_a_valid_completed_prefix(tmp_path: Path) -> None:
+def test_tools_reject_unverified_or_malformed_context_clearly(tmp_path: Path) -> None:
     from top_down_learning.mcp_server import create_server
 
     _, api = _ready(tmp_path)
     server = create_server(api)
 
     async def exercise() -> None:
-        with pytest.raises(ToolError, match="top_down_progress_invalid"):
-            await server.call_tool(
-                "top_down_check",
-                {
-                    "continuation": "camera_geometry".ljust(40, "x"),
-                    "learner_output": "Bounding boxes are observations, not occupancy.",
-                },
-            )
+        prepared = (await server.call_tool("top_down_prepare", {
+            "target": "Learn Transformers", "prerequisites": PREREQUISITES,
+        })).structured_content
+        with pytest.raises(ToolError, match="top_down_verification_required"):
+            await server.call_tool("top_down_choose_delivery", {
+                "context_markdown": prepared["context_markdown"].replace("user_verified: false", "user_verified: true"),
+                "mode": "cloud", "teaching_strategy": "skip verification",
+            })
+        with pytest.raises(ToolError, match="top_down_context_invalid"):
+            await server.call_tool("top_down_resume", {"context_markdown": "# not a context"})
+        with pytest.raises(ToolError):
+            await server.call_tool("top_down_resume", {"context_markdown": "x" * 70000})
 
     anyio.run(exercise)
 
 
-def test_maximum_multibyte_goal_continuation_round_trips(tmp_path: Path) -> None:
-    from top_down_learning.mcp_server import create_server
-
-    _, api = _ready(tmp_path)
-    server = create_server(api)
-
-    async def exercise() -> None:
-        started = await server.call_tool("top_down_start", {"goal": "学" * 500})
-        checked = await server.call_tool(
-            "top_down_check",
-            {
-                "continuation": started.structured_content["continuation"],
-                "learner_output": "A camera sends images.",
-            },
-        )
-        assert checked.structured_content["session"]["current_slug"] == "camera_geometry"
-
-    anyio.run(exercise)
-
-
-def test_real_plugin_stdio_entrypoint_uses_the_exact_configured_grant(tmp_path: Path) -> None:
+def test_real_plugin_stdio_entrypoint_runs_the_journey_with_the_exact_grant(tmp_path: Path) -> None:
     service, api = _ready(tmp_path)
 
     async def exercise() -> None:
@@ -185,14 +166,14 @@ def test_real_plugin_stdio_entrypoint_uses_the_exact_configured_grant(tmp_path: 
         )
         async with Client(params) as client:
             tools = await client.list_tools()
-            assert [tool.name for tool in tools.tools] == [
-                "top_down_start", "top_down_check", "top_down_record_gap",
-            ]
-            started = await client.call_tool(
-                "top_down_start", {"goal": "Build an intelligent parking system"},
-            )
-            assert not started.is_error
-            assert started.structured_content["session"]["current_slug"] == "camera_geometry"
+            assert tuple(tool.name for tool in tools.tools) == TOOLS
+
+            async def call(name: str, arguments: dict[str, object]):
+                result = await client.call_tool(name, arguments)
+                assert not result.is_error, result
+                return result
+
+            await _journey(call)
 
     anyio.run(exercise)
 
@@ -206,67 +187,16 @@ def test_real_plugin_stdio_entrypoint_uses_the_exact_configured_grant(tmp_path: 
     assert missing.returncode != 0 and "top_down_grant_required" in missing.stderr
 
 
-def test_gap_submission_is_explicit_quarantined_and_idempotent(tmp_path: Path) -> None:
-    _, api = _ready(tmp_path)
-    plugin = TopDownLearningPlugin(api)
-    session = plugin.start("Build an intelligent parking system")
-    first = plugin.record_gap(session, "I need more practice explaining homography.")
-    second = plugin.record_gap(session, "I need more practice explaining homography.")
-    assert first.status == "pending_owner_review"
-    assert first.candidate_id == second.candidate_id
-    assert first.created and not second.created
-
-
-def test_learning_journey_works_when_optional_gap_capture_is_not_granted(tmp_path: Path) -> None:
-    workspace = Workspace(tmp_path / "state")
-    service = AptuniService(workspace)
-    service.init(tmp_path / "vault")
-    service.remember("I have practical Python experience", "skills")
-    manifest = load_manifest(MANIFEST)
-    manager = PluginGrantManager(workspace)
-    grant = manager.apply(manager.plan(
-        manifest,
-        capabilities=("context.read",),
-        modules=("knowledge", "skills", "preferences"),
-    ).action_id)
-    plugin = TopDownLearningPlugin(connect(manifest, grant.grant_id, workspace=workspace))
-    session = plugin.start("Build an intelligent parking system")
-    assert session.prerequisites[0].status == "known"
-    with pytest.raises(AptuniAPIError) as denied:
-        plugin.record_gap(session, "I need more practice explaining homography.")
-    assert denied.value.code == "plugin_capability_denied"
-
-
-def test_long_goal_gap_keys_preserve_distinct_feedback(tmp_path: Path) -> None:
-    _, api = _ready(tmp_path)
-    plugin = TopDownLearningPlugin(api)
-    session = plugin.start("Build an intelligent parking system " + "safely " * 40)
-    first = plugin.record_gap(session, "I need practice explaining homography.")
-    second = plugin.record_gap(session, "I need practice applying homography.")
-    assert first.candidate_id != second.candidate_id
-
-
-def test_goal_mentions_and_negated_skills_do_not_prove_a_foundation(tmp_path: Path) -> None:
-    workspace = Workspace(tmp_path / "state")
-    service = AptuniService(workspace)
-    service.init(tmp_path / "vault")
-    service.remember("My goal is to build the intelligent parking system in Python", "goals")
-    service.remember("I do not know Python yet", "skills")
-    manifest = load_manifest(MANIFEST)
-    manager = PluginGrantManager(workspace)
-    grant = manager.apply(manager.plan(manifest).action_id)
-    session = TopDownLearningPlugin(connect(manifest, grant.grant_id, workspace=workspace)).start(
-        "Build an intelligent parking system",
-    )
-    assert session.prerequisites[0].status == "needed"
-
-
-def test_example_has_no_internal_aptuni_imports() -> None:
-    imported: list[str | None] = []
-    for path in sorted((EXAMPLE / "src" / "top_down_learning").glob("*.py")):
-        tree = ast.parse(path.read_text(encoding="utf-8"))
-        imported.extend(node.module for node in ast.walk(tree) if isinstance(node, ast.ImportFrom))
-    assert not [module for module in imported if module and module.startswith("aptuni.") and module != "aptuni.api.v1"]
+def test_host_bundles_share_one_server_and_one_workflow_body() -> None:
+    codex_mcp = json.loads((EXAMPLE / ".mcp.json").read_text(encoding="utf-8"))
+    claude_mcp = json.loads((EXAMPLE / "claude" / ".mcp.json").read_text(encoding="utf-8"))
+    assert codex_mcp == claude_mcp
+    server = codex_mcp["mcpServers"]["top_down_study"]
+    assert server["env_vars"] == ["APTUNI_STATE_DIR", "APTUNI_TOP_DOWN_GRANT_ID"]
+    codex = (EXAMPLE / "skills" / "top-down-study" / "SKILL.md").read_text(encoding="utf-8")
+    claude = (EXAMPLE / "claude" / "skills" / "top-down-study" / "SKILL.md").read_text(encoding="utf-8")
+    assert codex.split("---", 2)[2] == claude.split("---", 2)[2]
+    assert "No separate Aptuni Profile, Memory or Full activation" in codex
 
 
 def test_scaffold_is_public_only_and_creates_no_grant(tmp_path: Path) -> None:

@@ -60,13 +60,23 @@ Local SDK grant and pending-plan files appear in `aptuni privacy status`. A priv
 the exact plugin grants and pending plans frozen into its preview; grants created after that preview
 are not deleted by the older action.
 
-## Flagship example
+## Flagship Plugin #1: Top-Down Learning
 
-[`examples/plugins/top_down_learning`](../../examples/plugins/top_down_learning/) is a complete
-installable Agent plugin and contract pressure test. It accepts the user's concrete goal, reads only
-granted foundation and teaching preferences, derives a plugin-owned prerequisite map for an
-intelligent parking system, alternates short explanation with project action, checks learner output,
-advances or repeats, and optionally submits an explicit gap for owner review. It imports only
-`aptuni.api.v1`; Aptuni core contains no learning special case.
+[`examples/plugins/top_down_learning`](../../examples/plugins/top_down_learning/) is Aptuni's first
+flagship plugin and the reference for building a personalized product on the platform. It starts
+from a learner's target and runs task-scoped retrieval under its exact grant. The learner verifies
+a draft before any teaching begins, and learning then continues through a portable
+`top_down_learning_context.md` (ADR-0026) that local and cloud Agents can both use. It imports only
+`aptuni.api.v1`; Aptuni Core contains no learning special case.
+
+Patterns worth reusing in other plugins:
+
+- **Minimize before writing.** Query per concept and keep labels, levels and relevant lines; never
+  copy raw items, canonical identifiers or provenance into plugin artifacts.
+- **Separate stable and dynamic state.** Bind user verification to a digest of the stable part only.
+- **Use Aptuni only where needed.** Keep every other step a pure transformation of user-owned
+  state, so a delivery or export choice cannot widen authority.
+- **Write explicitly.** Propose memory only on request, quarantined, with the capability optional.
+
 Its Claude Code invocation is `/top-down-learning:top-down-study`; its Codex invocation is
 `$top-down-study`. Both are manual-only and use the same no-egress STDIO tools.

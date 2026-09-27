@@ -1,6 +1,6 @@
 {
   "name": "top-down-learning",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Learn through a concrete goal using owner-approved Aptuni context",
   "author": {
     "name": "Aptuni Contributors"
@@ -9,11 +9,11 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Top-Down Learning",
-    "shortDescription": "Learn by building one concrete goal",
-    "longDescription": "A manual project-first learning workflow using owner-approved Aptuni context.",
+    "shortDescription": "Learn only what you need to reach one target",
+    "longDescription": "Aptuni Flagship Plugin #1: just-in-time foundations from your verified personal context, with a portable learning context for local or cloud Agents.",
     "developerName": "Aptuni Contributors",
     "category": "Education",
     "capabilities": ["Interactive"],
-    "defaultPrompt": ["Build an intelligent parking system"]
+    "defaultPrompt": ["I want to learn Transformers"]
   }
 }

@@ -1,5 +1,5 @@
 interface:
   display_name: "Top-Down Study"
-  short_description: "Learn through one concrete project goal"
+  short_description: "Learn only what you need to reach one target"
 policy:
   allow_implicit_invocation: false

@@ -99,6 +99,7 @@ aptuni adapter apply ACTION_ID    # 在你自己的终端里确认
 | Mem0 本地投影（`infer=False`，删除时重建整个存储） | ✅ 预览 |
 | 显式混合检索（SQLite + 已接受记忆的 Mem0 排名） | ✅ 预览 |
 | Obsidian 所有者评审界面 | ✅ 桌面端 |
+| 旗舰插件：[Top-Down Learning](examples/plugins/top_down_learning/)——从你已经会的地方出发，只学抵达目标真正需要的知识；学习上下文经你确认后，可在本地或云端 Agent 之间迁移 | ✅ Beta |
 | Graphiti | 🗺 里程碑 3 |
 
 运行 `aptuni plugin list --lang zh-CN` 和 `aptuni recipe list --lang zh-CN` 可以在命令行看到同样的信息。

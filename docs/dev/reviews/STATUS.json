@@ -15,6 +15,12 @@
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   },
+  "beta-top-down-flagship": {
+   "kind": "review",
+   "current": "74-beta-top-down-flagship-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "execution": {
    "kind": "review",
    "current": "10-execution-test-third-rereview.md",

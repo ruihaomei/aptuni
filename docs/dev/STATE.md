@@ -3,7 +3,8 @@
 **Updated:** 2026-09-27
 **Current gate:** Beta productization — canonical activation, plugin-declared context and the
 Top-Down Learning flagship are independently approved and the machine-readable Stable readiness
-gate is runnable (Review 73); next is the Top-Down Learning Flagship #1 refinement for the Beta
+gate is runnable (Review 73), and Top-Down Learning is Flagship Plugin #1 with a portable verified
+learning context (ADR-0026, Review 74); next is Beta release integration
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub Standard/Deep, MarginNote 4, Obsidian and official-MCP Notion sources, builtin
 interaction memory, bilingual SQLite/FTS projection, bounded Context API, permissioned MCP STDIO
@@ -11,7 +12,7 @@ server, Claude/Codex adapters, Profile export, the read-only Plugin Advisor, lon
 evaluation, the Obsidian owner interface and the versioned public developer SDK are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stable-readiness-gate=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-beta-top-down-agent-plugin=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stable-readiness-gate=APPROVE_WITH_NON_BLOCKING_NOTES; beta-top-down-flagship=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-beta-top-down-agent-plugin=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -395,10 +396,11 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stabl
 
 ## Next highest-priority task
 
-1. Refine Top-Down Learning into Aptuni Flagship Plugin #1 (Plan 24, ADR-0026): the portable
-   verified `top_down_learning_context.md` (`aptuni.top-down-learning.context@1`), the user
-   verification gate, local adaptive and cloud portable teaching, Claude/Codex journeys and Beta
-   docs. It remains a public-API consumer; no learning logic enters Core.
+1. Integrate Flagship #1 into the Beta release surface. Add a genuine clean-environment journey:
+   fresh uv-tool install of Aptuni `0.2.0b1` plus plugin `0.2.0`, init, grant, and a Claude/Codex
+   first run to a verified local context and a cloud export. Then release notes, and the Beta
+   publication only when policy authorizes it. Then fresh-install User #1 dogfooding of Core,
+   activation UX, both Top-Down modes, the grant experience and learning-context quality.
 2. The owner runs real trials in both context modes (`evaluate trial [--evidence]`, then
    `evaluate score --useful … --rest-noise`) and periodic `evaluate capture`; agents never invent
    labels. Revisit the KI-018 fallback floor only when real owner-labelled `profile_memory` trials
@@ -415,6 +417,12 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stabl
 6. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
+
+- Top-Down Learning Flagship #1 (2026-09-27, Review 74 after one BLOCK round): portable
+  `aptuni.top-down-learning.context@1`, verification gate, just-in-time local loop, cloud export,
+  eight stateless MCP tools and a Transformer demo. Full suite 888 passed, 3 skips, 62 subtests; dev
+  suite, Ruff, strict source/plugin mypy, relay, supply-chain secrets and all three host validators
+  green.
 
 - Stable readiness gate (2026-09-27, Review 73): `tools/stable_gate.py` emits a commit- and
   clean-tree-bound, content-free report. The current report honestly shows FAIL (no bound evidence),

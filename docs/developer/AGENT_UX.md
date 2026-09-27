@@ -74,7 +74,9 @@ through `aptuni.api.v1`; do not activate Aptuni Profile/Memory/Full separately.
   `/top-down-learning:top-down-study`.
 - Codex: install its repository skill plus MCP entry and invoke `$top-down-study`.
 
-Both invocations are manual-only UX safeguards. The workflow starts from a concrete goal, returns
-one missing prerequisite and project action, waits for active learner output, then repeats or
-advances. Optional gap capture is a separate explicit action and remains quarantined for owner
-review. Exact install and grant commands are in the plugin README.
+Both invocations are manual-only UX safeguards. The first run is: target → task-relevant Aptuni
+context → at most three material questions → draft `top_down_learning_context.md` → short learner
+verification → local or cloud → begin. Teaching needs learner output before any progress, and
+missing prerequisites are taught just in time. The portable context continues in any Agent without
+Aptuni. Memory proposals are explicit, optional and quarantined. Exact install and grant commands
+are in the plugin README.

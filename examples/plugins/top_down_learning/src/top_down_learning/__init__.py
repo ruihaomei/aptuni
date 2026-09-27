@@ -1,5 +1,7 @@
-"""Top-Down Learning Agent plugin."""
+"""Top-Down Learning — Aptuni Flagship Plugin #1.
 
-from top_down_learning.plugin import TopDownLearningPlugin, create_plugin
+The package root imports nothing from Aptuni so that ``learning_context`` and ``guidance`` stay
+usable wherever the portable learning context travels, including machines without Aptuni.
+"""
 
-__all__ = ["TopDownLearningPlugin", "create_plugin"]
+__all__: list[str] = []

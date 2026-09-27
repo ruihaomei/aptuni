@@ -53,3 +53,8 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Stable gate: bind `candidate.version` to package metadata and require a final (non-pre-release) version for Stable publication | Review 73 note 5 | Stable readiness |
 | Stable gate: require a records-per-trial floor or report zero-return trials so 30 trials with one record cannot pass G | Review 73 note 6 | Stable readiness |
 | Stable gate: produce B evidence by running the suite/Ruff/mypy, check A–J against an in-repo Beta checklist, add an evidence-input digest to the report, fsync the parent directory | Review 73 notes 9–12 | Stable readiness |
+| Top-Down redaction: cover `./secrets/.env`-style relative paths, `/mnt/…`, UNC paths, `password=` pairs and URL-fragment tokens | Review 74 note 6 | Top-Down hardening |
+| Top-Down verification: `is_affirmative` is a word-list heuristic ("looks ok? what about X" passes); consider requiring the host to echo the exact summary digest in a dedicated confirmation turn | Review 74 note 8 | Top-Down hardening |
+| Public API: an any-term/OR retrieval mode and per-item corroboration counts would remove plugin-side lexicons and per-term query fan-out (see `docs/research/findings/plugin-platform-friction.md`) | Flagship #1 platform feedback | Plugin platform |
+| Top-Down: forged demonstration bullets with distinct timestamps still yield a (quarantined) proposal; consider binding demonstrations to a local seal | Review 74 re-review note 2 | Top-Down hardening |
+| Top-Down: rewrite bare `—`/`›` in targets and concepts instead of rejecting them | Review 74 re-review note 3 | Top-Down UX |

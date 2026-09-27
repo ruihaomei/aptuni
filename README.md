@@ -103,6 +103,7 @@ aptuni adapter apply ACTION_ID     # you confirm in your own terminal
 | Mem0 local projection (`infer=False`, whole-store rebuild deletion) | ✅ preview |
 | Opt-in hybrid search (SQLite + accepted-memory Mem0 ranks) | ✅ preview |
 | Obsidian owner review UI | ✅ desktop |
+| Flagship plugin: [Top-Down Learning](examples/plugins/top_down_learning/) — just-in-time learning from your verified context, portable to local or cloud Agents | ✅ Beta |
 | Graphiti | 🗺 Milestone 3 |
 
 Run `aptuni plugin list` and `aptuni recipe list` to see the same picture from the CLI.

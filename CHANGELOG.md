@@ -8,6 +8,16 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Top-Down Learning is now Aptuni Flagship Plugin #1 (plugin 0.2.0). It uses task-scoped context
+  retrieval, asks at most three material questions and requires an explicit learner verification
+  gate before teaching. It maintains a portable `top_down_learning_context.md`
+  (`aptuni.top-down-learning.context@1`, ADR-0026) with separate stable and dynamic state, an
+  Agent-generated teaching strategy, preference-derived affordances, a just-in-time
+  descend/return loop that requires learner output, and a privacy-minimized cloud export that
+  continues without Aptuni. It uses eight stateless MCP tools shared by Claude Code and Codex.
+  Memory proposals are explicit and quarantined. The previous fixed-catalogue tools are replaced,
+  and 0.1.0 grants must be re-planned.
+
 - A commit-bound machine-readable Stable readiness evaluator covers fresh install, correctness,
   data integrity, privacy, Agent/plugin integration, real owner-labelled quality, longitudinal
   stability, documentation and supply chain. Missing owner evidence remains explicitly insufficient
