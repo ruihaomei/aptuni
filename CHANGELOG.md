@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- A commit-bound machine-readable Stable readiness evaluator covers fresh install, correctness,
+  data integrity, privacy, Agent/plugin integration, real owner-labelled quality, longitudinal
+  stability, documentation and supply chain. Missing owner evidence remains explicitly insufficient
+  or owner-required; it is never converted into PASS.
+
 - Agent plugins may declare required and optional Aptuni context capabilities in their existing
   `aptuni.plugin@1` manifest. Owner grants must include required capabilities, may omit optional
   authority, and preserve live module, revocation and privacy checks; legacy manifests retain their

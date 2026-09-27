@@ -50,3 +50,6 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | `mcp.client.streamable_http` can still log `post_writer` tracebacks to stderr; route the transport logger too once its failure modes are mapped to bounded errors | Review 67 N6 | Next Notion slice |
 | A stored `client.issuer` mismatch makes the SDK re-register and overwrite the Keychain `client` entry even on the non-interactive path (pre-existing) | Review 67 (c) | Next Notion slice |
 | Notion bare-result pass-through: reject text with an exact `<page`/`<properties>` line or the `Here is the result of "fetch"` header but no `<content>` envelope, and require a `<page` line before `<content>`, once the real server's non-enveloped shapes are known | Review 68 notes 1–2 | Next Notion slice |
+| Stable gate: bind `candidate.version` to package metadata and require a final (non-pre-release) version for Stable publication | Review 73 note 5 | Stable readiness |
+| Stable gate: require a records-per-trial floor or report zero-return trials so 30 trials with one record cannot pass G | Review 73 note 6 | Stable readiness |
+| Stable gate: produce B evidence by running the suite/Ruff/mypy, check A–J against an in-repo Beta checklist, add an evidence-input digest to the report, fsync the parent directory | Review 73 notes 9–12 | Stable readiness |

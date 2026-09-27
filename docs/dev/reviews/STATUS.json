@@ -9,6 +9,12 @@
     "01-architecture-review.md"
    ]
   },
+  "beta-stable-readiness-gate": {
+   "kind": "review",
+   "current": "73-beta-stable-readiness-gate-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "execution": {
    "kind": "review",
    "current": "10-execution-test-third-rereview.md",

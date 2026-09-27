@@ -1,6 +1,9 @@
 # --- Session scratch (never committed) ---
 temp/
 
+# --- Build/report artifacts (commit-bound; committing them would stale the binding) ---
+artifacts/
+
 # --- Maintainer-private design history (raw chat log with personal details).
 # Distilled, depersonalized rationale lives in docs/product/DESIGN_RATIONALE.md.
 我觉得比较好的设计和历史.txt
