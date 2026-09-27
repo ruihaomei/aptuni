@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "top_down_study": {
+      "type": "stdio",
+      "command": "top-down-study-mcp",
+      "args": [],
+      "env_vars": [
+        "APTUNI_STATE_DIR",
+        "APTUNI_TOP_DOWN_GRANT_ID"
+      ]
+    }
+  }
+}

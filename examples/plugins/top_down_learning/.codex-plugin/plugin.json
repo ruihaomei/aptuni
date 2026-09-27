@@ -1,0 +1,19 @@
+{
+  "name": "top-down-learning",
+  "version": "1.0.0",
+  "description": "Learn through a concrete goal using owner-approved Aptuni context",
+  "author": {
+    "name": "Aptuni Contributors"
+  },
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Top-Down Learning",
+    "shortDescription": "Learn by building one concrete goal",
+    "longDescription": "A manual project-first learning workflow using owner-approved Aptuni context.",
+    "developerName": "Aptuni Contributors",
+    "category": "Education",
+    "capabilities": ["Interactive"],
+    "defaultPrompt": ["Build an intelligent parking system"]
+  }
+}

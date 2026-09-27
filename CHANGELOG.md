@@ -13,6 +13,11 @@ All notable changes to this project are documented here. The format follows
   authority, and preserve live module, revocation and privacy checks; legacy manifests retain their
   exact digest and behavior (ADR-0024 amendment).
 
+- Top-Down Learning is now an installable manual Agent plugin with native Claude Code
+  `/top-down-learning:top-down-study` and Codex `$top-down-study` skills over one no-egress STDIO
+  workflow. It requires active learner output, advances only demonstrated prerequisite progress,
+  stores no session transcript, and uses only its exact public-API grant.
+
 - Explicit Beta Agent activation (ADR-0025): Aptuni is OFF for ordinary Claude Code and Codex
   tasks. Native host skills map Profile, Memory and Full to host-independent activation intents;
   task scope is the default, while explicit session Full is inspectable and disableable. OFF blocks

@@ -63,3 +63,18 @@ unrelated work when strict transcript isolation matters.
 Manual-only skills are an activation and UX safeguard. They reduce accidental activation, but they
 are not a security boundary and do not prove that a human initiated a model-visible MCP tool call.
 The capable host remains inside the trust boundary described by ADR-0013.
+
+## Flagship Agent plugin: Top-Down Learning
+
+The external-style Top-Down Learning package is in
+`examples/plugins/top_down_learning/`. After its manifest is owner-granted, it receives context
+through `aptuni.api.v1`; do not activate Aptuni Profile/Memory/Full separately.
+
+- Claude Code: load its `claude/` plugin bundle and invoke
+  `/top-down-learning:top-down-study`.
+- Codex: install its repository skill plus MCP entry and invoke `$top-down-study`.
+
+Both invocations are manual-only UX safeguards. The workflow starts from a concrete goal, returns
+one missing prerequisite and project action, waits for active learner output, then repeats or
+advances. Optional gap capture is a separate explicit action and remains quarantined for owner
+review. Exact install and grant commands are in the plugin README.

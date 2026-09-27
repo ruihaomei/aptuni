@@ -208,6 +208,12 @@
    "verdict": "APPROVE",
    "supersedes": []
   },
+  "m3-beta-top-down-agent-plugin": {
+   "kind": "review",
+   "current": "72-beta-top-down-agent-plugin-review.md",
+   "verdict": "APPROVE",
+   "supersedes": []
+  },
   "m3-context-evidence-rank": {
    "kind": "review",
    "current": "66-m3-context-evidence-rank-review.md",

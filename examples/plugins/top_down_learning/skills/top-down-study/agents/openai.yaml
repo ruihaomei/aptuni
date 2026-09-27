@@ -1,0 +1,5 @@
+interface:
+  display_name: "Top-Down Study"
+  short_description: "Learn through one concrete project goal"
+policy:
+  allow_implicit_invocation: false

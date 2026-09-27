@@ -137,6 +137,18 @@ wrappers around shared references/scripts.
 - **Security:** project MCP configuration executes or connects to external systems. Setup must show
   exact commands/URLs, required secrets, and trust consequences before enabling it.
 
+## Verified in Beta flagship packaging (2026-09-27)
+
+- A distributable Codex plugin can keep `.codex-plugin/plugin.json`, `.mcp.json`, and
+  `skills/<name>/SKILL.md` at one root. The local plugin validator accepts `skills` and
+  `mcpServers` paths in the manifest plus `agents/openai.yaml` beside the skill.
+- `policy.allow_implicit_invocation: false` is the Codex manual-only safeguard. Claude Code's
+  `disable-model-invocation` and `user-invocable` fields are not portable Agent Skills frontmatter,
+  so cross-host packages need thin host wrappers whose workflow bodies are checked for equality.
+- An installed STDIO server must receive the exact owner grant id through controlled environment
+  configuration. A clean virtual-environment smoke proved package install, manifest resource
+  loading, grant application, server startup, and a real MCP tool call without repository imports.
+
 ## ADR implications
 
 1. Accept root `AGENTS.md` as the shared development contract and keep it intentionally short.

@@ -1,8 +1,8 @@
 # Project State
 
 **Updated:** 2026-09-27
-**Current gate:** Beta productization — canonical Agent activation is accepted and independently
-approved (ADR-0025, Review 70); next is plugin-declared Aptuni context through `aptuni.api.v1`
+**Current gate:** Beta productization — canonical activation, plugin-declared context and the
+Top-Down Learning flagship are independently approved; next is the automated Stable readiness gate
 **Production code:** in progress. The `aptuni` package lives in `src/aptuni/`; the Vault/CLI core,
 Folder, GitHub Standard/Deep, MarginNote 4, Obsidian and official-MCP Notion sources, builtin
 interaction memory, bilingual SQLite/FTS projection, bounded Context API, permissioned MCP STDIO
@@ -10,7 +10,7 @@ server, Claude/Codex adapters, Profile export, the read-only Plugin Advisor, lon
 evaluation, the Obsidian owner interface and the versioned public developer SDK are runnable. The public repository is
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-beta-top-down-agent-plugin=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 
@@ -358,6 +358,14 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   journey stays runnable when capture is withheld. ADR-0024 carries the amendment and Review 71 is
   **APPROVE**.
 
+- **Top-Down Learning Agent plugin (runnable, Review 72).** The flagship is a separately installable
+  Python package with one no-egress STDIO server and validated manual Claude Code and Codex skills.
+  It receives only an exact owner grant through `aptuni.api.v1`, works without optional memory
+  capture, stops after live revocation, exposes one current teaching turn, requires active learner
+  output and advances through an integrity-bound continuation that callers cannot forge. It stores
+  no transcript or progress file. A fresh isolated uv-tool journey completed install, init, grant,
+  installed-server startup and the first personalized turn. Review 72 is **APPROVE**.
+
 - **Versioned public developer API and SDK plugin platform (runnable, `a1a04fb`, Review 63).** `aptuni.api.v1`
   exposes bounded Profile, Memory, Context and minimized Evidence reads plus quarantined memory
   proposals and read-only review queues through immutable `aptuni.api@1` DTOs. Strict
@@ -373,7 +381,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 ## In progress
 
 - Milestone 1 and its first public release are complete. The selected Milestone 2 priorities,
-  first Milestone 3 developer-platform slice and canonical Beta Agent activation are complete; S10, the Mem0
+  first Milestone 3 developer-platform slice and Beta Agent/plugin UX are complete; S10, the Mem0
   projection preview, the opt-in hybrid retrieval preview, the Obsidian vault source, automatic
   promotion slices A–D, automatic Profile promotion, GitHub Deep, the official Notion MCP source,
   longitudinal maintainer dogfooding, the bounded Obsidian owner interface, public SDK and flagship
@@ -386,10 +394,9 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 
 ## Next highest-priority task
 
-1. Extend the accepted `aptuni.api.v1` manifest/grant contract minimally so third-party Agent
-   plugins declare required and optional Aptuni context capabilities, receive only owner-granted
-   task-relevant context, and cannot bypass live revocation or privacy policy. Then adapt the
-   Top-Down Learning example into the first manually invokable host skill through that public path.
+1. Build the machine-readable Stable readiness report with explicit `PASS`, `FAIL`,
+   `INSUFFICIENT REAL-WORLD DATA` and `OWNER ACTION REQUIRED` states. Reuse existing gates and keep
+   owner-labelled/14-day evidence honest rather than converting absence into success.
 2. The owner runs real trials in both context modes (`evaluate trial [--evidence]`, then
    `evaluate score --useful … --rest-noise`) and periodic `evaluate capture`; agents never invent
    labels. Revisit the KI-018 fallback floor only when real owner-labelled `profile_memory` trials
@@ -406,6 +413,13 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
 6. Keep the 0.1.0 release immutable; any concrete public defect gets a new patch release.
 
 ## Latest validation state
+
+- Top-Down Learning Agent plugin and Beta version selection (2026-09-27, Review 72): Aptuni
+  `0.2.0b1` resolves the plugin's declared API range; a clean uv-tool install plus init/grant/real
+  STDIO journey passed. Final full repository gate: 830 passed, 3 optional-runtime skips and 62
+  subtests; Ruff, strict source/plugin mypy, relay and both host plugin validators green. Review 72
+  independently approves after progress-forgery, install-resolution and Unicode-bound blockers were
+  remediated test-first.
 
 - Beta Agent activation (2026-09-27, `d40d037`): focused contract/adapter/MCP/setup gate
   88 passed; final full repository suite (823 collected), Ruff, strict mypy, relay and diff checks

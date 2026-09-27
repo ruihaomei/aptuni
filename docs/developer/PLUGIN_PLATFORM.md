@@ -63,7 +63,10 @@ are not deleted by the older action.
 ## Flagship example
 
 [`examples/plugins/top_down_learning`](../../examples/plugins/top_down_learning/) is a complete
-contract pressure test. It reads granted goals, foundation and teaching preferences; derives a
-plugin-owned prerequisite map for an intelligent parking system; alternates short explanation with
-project action; checks learner output; advances or repeats; and optionally submits an explicit gap
-for owner review. It imports only `aptuni.api.v1`; Aptuni core contains no learning special case.
+installable Agent plugin and contract pressure test. It accepts the user's concrete goal, reads only
+granted foundation and teaching preferences, derives a plugin-owned prerequisite map for an
+intelligent parking system, alternates short explanation with project action, checks learner output,
+advances or repeats, and optionally submits an explicit gap for owner review. It imports only
+`aptuni.api.v1`; Aptuni core contains no learning special case.
+Its Claude Code invocation is `/top-down-learning:top-down-study`; its Codex invocation is
+`$top-down-study`. Both are manual-only and use the same no-egress STDIO tools.

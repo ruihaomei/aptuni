@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-beta-top-down-agent-plugin=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Current position
 
@@ -18,6 +18,14 @@ and stored grants stay valid, and every operation still revalidates revocation, 
 The Top-Down learning journey works with required context alone; optional memory capture fails
 closed when the owner withholds it. Its implementation checkpoint is `358eed3`; it is local and has
 not been pushed.
+
+The Top-Down Learning flagship is now a real separately installable Agent plugin and Review 72 is
+APPROVE. Claude Code uses `/top-down-learning:top-down-study`; Codex uses `$top-down-study`. Both
+manual skills call the same no-egress STDIO server under one exact owner grant, expose only the
+current task-relevant teaching turn and advance through an integrity-bound continuation. Optional
+gap capture remains quarantined and fail-closed when withheld. Aptuni's selected Beta candidate is
+`0.2.0b1`; a fresh isolated uv-tool install plus init, grant and installed-server call passed. The
+implementation checkpoint is pending the current local commit and has not been pushed.
 
 Milestone 2. Runnable: Vault/CLI core; Folder, GitHub and direct local MarginNote 4 sources; builtin
 interaction memory with quarantined MCP proposals; bilingual SQLite/FTS; bounded Context API; MCP
@@ -57,9 +65,9 @@ The implementation checkpoint is `a1a04fb`; it is local and has not been pushed.
 
 ## Next action
 
-Extend `aptuni.api.v1` manifests and grants minimally for third-party required/optional Aptuni
-context declarations, live task-scoped delivery and owner-visible revocation. Then expose the
-existing Top-Down Learning consumer as the first manual host skill without special-casing Core.
+Build the machine-readable Stable readiness report next. It must aggregate existing executable
+gates while reporting absent owner labels, the 14-day dogfood window and the exact UX Gate as
+`INSUFFICIENT REAL-WORLD DATA` or `OWNER ACTION REQUIRED`, never as PASS.
 
 All three real activation paths are verified, and the deferred Notion hardening is closed at
 `6e05e8a` (Review 68): line-safe envelope parsing, declared native Keychain signatures, bounded
@@ -81,6 +89,14 @@ concrete public defect requires a patch release.
 Keep all MarginNote access read-only; never commit note text, and do not infer release authorization.
 
 ### What just landed
+
+Beta Agent/plugin UX (Reviews 70–72). Aptuni is OFF by default; Profile, Memory and Full use
+host-independent intents behind manual Claude/Codex skills; plugins declare required/optional
+context through the existing public grant contract; and the installable Top-Down Learning flagship
+uses that contract without a Core special case. Review 72's forged-progress, unsatisfied-install and
+Unicode-continuation blockers were remediated test-first. Full gate: 830 passed, 3 skips and 62
+subtests; Ruff, strict source/plugin mypy, relay, host validators and the fresh installed STDIO
+journey are green. The Beta candidate version is `0.2.0b1`.
 
 Notion hardening and owner-labelled evaluation (Reviews 68–69). Credential and envelope notes from
 Reviews 65/67 are closed at `6e05e8a`; `evaluate discard`, `score --rest-noise` and the extended

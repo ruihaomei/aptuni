@@ -1,4 +1,4 @@
-"""Goal-first adaptive learning example built exclusively on ``aptuni.api.v1``."""
+"""Goal-first adaptive learning plugin built exclusively on ``aptuni.api.v1``."""
 
 from __future__ import annotations
 
@@ -153,6 +153,20 @@ class TopDownLearningPlugin:
         missing = tuple(term for term in template.check_terms if term not in normalized)
         if missing:
             return CheckResult(False, missing, template.slug)
+        self._complete_current(session)
+        return CheckResult(True, (), session.current_slug)
+
+    def resume(self, goal: str, completed_slugs: tuple[str, ...]) -> LearningSession:
+        """Rebuild bounded task state and replay only the exact completed prerequisite prefix."""
+        session = self.start(goal)
+        for slug in completed_slugs:
+            if session.current_slug != slug:
+                raise ValueError("top_down_progress_invalid")
+            self._complete_current(session)
+        return session
+
+    @staticmethod
+    def _complete_current(session: LearningSession) -> None:
         values = list(session.prerequisites)
         values[session.current_index] = replace(values[session.current_index], status="completed")
         session.prerequisites = tuple(values)
@@ -160,7 +174,6 @@ class TopDownLearningPlugin:
             (index for index in range(session.current_index + 1, len(values)) if values[index].status == "needed"),
             len(values),
         )
-        return CheckResult(True, (), session.current_slug)
 
     def record_gap(self, session: LearningSession, learner_feedback: str) -> MemoryProposal:
         template = self._current(session)
