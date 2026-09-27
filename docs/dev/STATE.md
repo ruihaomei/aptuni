@@ -358,7 +358,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; execution=
   journey stays runnable when capture is withheld. ADR-0024 carries the amendment and Review 71 is
   **APPROVE**.
 
-- **Top-Down Learning Agent plugin (runnable, Review 72).** The flagship is a separately installable
+- **Top-Down Learning Agent plugin (runnable, `fa84625`, Review 72).** The flagship is a separately installable
   Python package with one no-egress STDIO server and validated manual Claude Code and Codex skills.
   It receives only an exact owner grant through `aptuni.api.v1`, works without optional memory
   capture, stops after live revocation, exposes one current teaching turn, requires active learner

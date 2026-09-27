@@ -25,7 +25,7 @@ manual skills call the same no-egress STDIO server under one exact owner grant, 
 current task-relevant teaching turn and advance through an integrity-bound continuation. Optional
 gap capture remains quarantined and fail-closed when withheld. Aptuni's selected Beta candidate is
 `0.2.0b1`; a fresh isolated uv-tool install plus init, grant and installed-server call passed. The
-implementation checkpoint is pending the current local commit and has not been pushed.
+implementation checkpoint is `fa84625`; it is local and has not been pushed.
 
 Milestone 2. Runnable: Vault/CLI core; Folder, GitHub and direct local MarginNote 4 sources; builtin
 interaction memory with quarantined MCP proposals; bilingual SQLite/FTS; bounded Context API; MCP
