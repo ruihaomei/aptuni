@@ -647,8 +647,8 @@ def _setup_cancel(args: argparse.Namespace, service: Any) -> int:
     for item in rollback:
         if item.startswith(PLUGIN_CLAIM):
             grant_id = item.removeprefix(PLUGIN_CLAIM)
-            plugins.cancel("act-" + grant_id.removeprefix("grant-"))  # a preview left by a crash
-            if plugins.revoke(grant_id):
+            discarded = plugins.cancel("act-" + grant_id.removeprefix("grant-"))  # a preview left by a crash
+            if plugins.revoke(grant_id) or discarded:
                 rolled.append(grant_id)
     if not was_confirmed:
         print(t("setup.cancel.nothing", locale, action_id=args.action_id))

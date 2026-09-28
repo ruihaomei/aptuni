@@ -355,6 +355,9 @@ def _execute(
     prepared_adapter: _PreparedAdapter | None, journal: tuple[Path, dict[str, Any], str],
 ) -> tuple[str, str | None]:
     if step.kind == "plugin_grant":
+        if not any(item.kind == "adapter" for item in plan.steps):
+            # A plugin's reads reach the model of the agent that runs it; never grant without that release.
+            raise SetupError("setup_plugin_without_host", "A plugin grant needs agent access in the same plan.")
         return _run_plugin_grant(service, step, *journal)
     if prepared_adapter is not None:
         return _run_adapter(prepared_adapter)

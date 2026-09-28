@@ -11,9 +11,11 @@
   },
   "beta-agent-led-setup": {
    "kind": "review",
-   "current": "78-beta-agent-led-setup-review.md",
-   "verdict": "BLOCK",
-   "supersedes": []
+   "current": "79-beta-agent-led-setup-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "78-beta-agent-led-setup-review.md"
+   ]
   },
   "beta-attach-consent": {
    "kind": "review",

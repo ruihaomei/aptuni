@@ -345,4 +345,4 @@
 "setup.apply.plugin_grant" = "Plugin grant {grant_id} approved. Revoke it any time: aptuni developer grant revoke {grant_id}"
 "connect.none" = "No Aptuni access for {host} exists yet. Create it with 'aptuni setup plan' (choose {host}), then 'aptuni setup apply ACTION_ID'."
 "setup.error.plugin_needs_host" = "A plugin such as Top-Down Learning runs inside Claude Code or Codex, so what it reads reaches that agent's model provider. Choose an agent and a privacy setting that allows cloud processing, or leave the plugin out. Nothing was planned."
-"setup.plan.release_plugin" = "  - the plugin {name} runs inside these agents, so what it reads from {modules} also reaches {operators}"
+"setup.plan.release_plugin" = "  - In addition, the plugin {name} reads from {modules}; what it reads reaches the model provider of any agent that runs it (here: {operators})"

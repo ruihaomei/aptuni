@@ -201,3 +201,34 @@ def test_a_resumed_apply_reuses_the_claimed_grant(
     (grant,) = _grants(service)
     assert report.plugin_grants == [grant.grant_id]
     assert calls["n"] == 1, "the claimed grant is reused, not created again"
+
+
+def test_apply_refuses_a_plugin_grant_without_agent_access_even_in_a_crafted_plan(tmp_path: Path) -> None:
+    from aptuni.advisor import load_catalog
+    from aptuni.application.setup import SetupStep, create_setup_plan
+    from aptuni.cli.setup_commands import _plugin_target
+
+    service = _service(tmp_path)
+    catalog = load_catalog()
+    from aptuni.advisor import SetupAnswers, recommend
+    rec = recommend(SetupAnswers("en", frozenset(), "basic", "local_only", frozenset()), catalog)
+    steps = (SetupStep("vault", str(tmp_path / "Aptuni")), SetupStep("plugin_grant", _plugin_target(MANIFEST, None)),
+             SetupStep("doctor", "vault"), SetupStep("smoke", "context"))
+    plan = create_setup_plan(
+        service.workspace.state_dir, catalog_digest=catalog.version_digest(), locale="en",
+        answers={"sources": [], "memory": "basic", "privacy": "local_only", "hosts": []},
+        recommendation_digest=rec.digest, recipe_id=rec.recipe_id, vault_path=tmp_path / "Aptuni",
+        modules=("knowledge",), host_files=(), egress=(), bundle_root=tmp_path / "bundles", steps=steps,
+    )
+
+    report = apply_setup_plan(service, plan.action_id, plan.digest)
+
+    assert report.failure == "setup_plugin_without_host" and _grants(service) == []
+
+
+def test_release_line_says_the_plugin_reaches_any_agent_that_runs_it(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    service = _service(tmp_path)
+    assert run(_argv(tmp_path, MANIFEST), service) == 0
+    assert "In addition, the plugin" in capsys.readouterr().out

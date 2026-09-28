@@ -345,4 +345,4 @@
 "setup.apply.plugin_grant" = "插件授权 {grant_id} 已批准。可以随时撤销：aptuni developer grant revoke {grant_id}"
 "connect.none" = "还没有为 {host} 创建 Aptuni 访问。请先运行 'aptuni setup plan'（选择 {host}），再运行 'aptuni setup apply ACTION_ID'。"
 "setup.error.plugin_needs_host" = "Top-Down Learning 这类插件运行在 Claude Code 或 Codex 里面，它读到的内容会到达该智能体的模型提供方。请选择一个智能体，并允许云端处理；或者不装这个插件。没有生成任何计划。"
-"setup.plan.release_plugin" = "  - 插件 {name} 运行在这些智能体里，它从{modules}读到的内容也会到达 {operators}"
+"setup.plan.release_plugin" = "  - 此外，插件 {name} 会读取{modules}；它读到的内容会到达运行它的智能体的模型提供方（这里是：{operators}）"
