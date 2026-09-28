@@ -59,6 +59,21 @@ Aptuni 会把智能体集成写入它自己的目录，**不会**修改宿主自
 若某一步失败，执行会就地停止，并可从断点续跑。`aptuni setup cancel ACTION_ID` 会撤销它授予的
 智能体访问权限，并如实告诉你还剩下什么——你的 Vault、来源和证据永远不会被替你删除。
 
+## 已经有 Vault？（重装或换电脑）
+
+Vault 是一个完全属于你的普通文件夹；Aptuni 保存的其他东西都是可以重建的本地状态。重装之后、
+换到新电脑上，或者本地状态被删除时，请重新连接原来的 Vault，而不是新建一个：
+
+```sh
+aptuni attach ~/Aptuni            # 包含 HEAD.json 的那个文件夹
+aptuni status
+```
+
+`attach` 只读取并校验 Vault，然后让当前安装指向它，Vault 里的任何内容都不会改动。遇到以下情况
+它会拒绝并说明原因：所选文件夹不是 Vault、Vault 校验未通过，或者当前安装已经在使用另一个 Vault。
+`aptuni setup plan --vault ~/Aptuni` 也会识别已有的 Vault，在计划中显示“使用你现有的 Profile
+Vault”，而不是新建。授权和智能体集成属于本地状态，连接之后需要重新规划。
+
 ## 60 秒手动上手
 
 需要先按上面的方式安装 Python 3.13 软件包。

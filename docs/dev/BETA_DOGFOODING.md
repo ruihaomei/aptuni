@@ -37,6 +37,8 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 
 | Date | Area | Severity | Content-free symptom | Test / fix commit | Status |
 |---|---|---|---|---|---|
+| 2026-09-27 | Install / reinstall | P2 | A fresh install could not attach an existing Vault; `init` and `setup apply` refused it and no doc covered reinstall, so the config pointer had to be written by hand. | `tests/integration/test_vault_attach.py`; `aptuni attach PATH` (read-only verify) and setup adoption | Fixed (pending 0.2.0b2) |
+| 2026-09-27 | Plugin grant consent | P3 | `developer grant plan` printed raw JSON with an escaped preview, unlike the readable adapter consent. | `tests/integration/test_grant_consent.py`; bilingual consent screen, `--json` unchanged | Fixed (pending 0.2.0b2) |
 
 ## Gates kept open in parallel
 

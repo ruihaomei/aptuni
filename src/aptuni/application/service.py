@@ -17,6 +17,7 @@ from typing import Any, Literal, cast
 
 from pydantic import ValidationError
 
+from aptuni.application.attach import AttachResult, attach_vault
 from aptuni.application.backup import BackupSummary, create_backup, list_backups, verify_backup
 from aptuni.application.context import (
     MAX_BUDGET,
@@ -141,7 +142,8 @@ class AptuniService(
         if state == vault_path or vault_path in state.parents:
             raise AptuniError("state_inside_vault", "The state directory must be outside the Vault.")
         if (vault_path / "HEAD.json").exists():
-            raise AptuniError("vault_exists", f"A Vault already exists at {vault_path}.")
+            raise AptuniError("vault_exists", f"A Vault already exists at {vault_path}. To use it with this "
+                              f"installation, run: aptuni attach {vault_path}")
         try:
             vault = Vault.init(vault_path, state)
         except VaultDirNotEmptyError as error:
@@ -153,6 +155,12 @@ class AptuniService(
         self.workspace.save(vault_path)
         self._vault = vault
         return self.status()
+
+    def attach(self, vault_path: Path) -> AttachResult:
+        """Reconnect this installation to an existing Vault after a read-only verification."""
+        result = attach_vault(self.workspace, vault_path)
+        self._vault = None
+        return result
 
     def vault(self) -> Vault:
         if self._vault is None:

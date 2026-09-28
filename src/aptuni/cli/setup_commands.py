@@ -289,7 +289,8 @@ def _render_plan(plan: SetupPlan, locale: str, action_state: str = "pending") ->
              t("setup.plan.vault", locale, path=delimited_untrusted(plan.vault_path)), "",
              t("setup.plan.steps", locale)]
     for number, step in enumerate(plan.steps, start=1):
-        text = t(f"setup.plan.step.{step.kind}", locale, target=delimited_untrusted(step.target))
+        kind = "vault_existing" if step.kind == "vault" and (Path(step.target) / "HEAD.json").is_file() else step.kind
+        text = t(f"setup.plan.step.{kind}", locale, target=delimited_untrusted(step.target))
         lines.append(f"  {number}. {text}")
     lines.append("")
     lines += _render_release(plan, locale)

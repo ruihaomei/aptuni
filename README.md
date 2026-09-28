@@ -64,6 +64,23 @@ configuration; you point the host at it yourself. If a step fails, the run stops
 where it left off. `aptuni setup cancel ACTION_ID` revokes the agent access it granted and tells you
 exactly what remains — your Vault, sources and evidence are never deleted for you.
 
+## Already have a Vault? (reinstall or new machine)
+
+Your Vault is a plain folder you own; everything else Aptuni keeps is rebuildable local state. After
+a reinstall, on a new machine, or when the local state was removed, reconnect instead of creating a
+new Vault:
+
+```sh
+aptuni attach ~/Aptuni            # the folder that contains HEAD.json
+aptuni status
+```
+
+`attach` only reads and verifies the Vault, then points this installation at it; nothing inside the
+Vault changes. It refuses a folder that is not a Vault, a Vault that fails verification, and a
+switch away from a Vault this installation already uses. `aptuni setup plan --vault ~/Aptuni` also
+recognizes an existing Vault and shows "use your existing Profile Vault" instead of creating one.
+Grants and host integrations are local state, so plan them again after attaching.
+
 ## 60-second manual quickstart
 
 Requires the installed Python 3.13 package above.

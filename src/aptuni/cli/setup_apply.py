@@ -40,7 +40,7 @@ SOURCE_ROLE = {"source_folder": "notes", "source_github": "repository",
 SMOKE_QUERY = "what should my agent know about me"
 # A step outcome is a success only if it says so here. Anything else stops the run, so a later
 # step -- notably a host grant -- can never run after an earlier failure (Review 33 B5).
-SUCCESS = ("created", "already_present", "ok", "synced", "skipped")
+SUCCESS = ("created", "attached", "already_present", "ok", "synced", "skipped")
 
 
 def _succeeded(outcome: str) -> bool:
@@ -77,7 +77,7 @@ class _PreparedAdapter:
 
 
 def _run_vault(service: AptuniService, step: SetupStep) -> str:
-    """Create the Vault, or adopt the one this plan already names. Never adopt a different Vault."""
+    """Create the Vault, or verify and attach the existing one this plan names. Never adopt a different Vault."""
     existing = service.workspace.vault_path()
     if existing is not None:
         if Path(existing).resolve() != Path(step.target).resolve():
@@ -86,6 +86,9 @@ def _run_vault(service: AptuniService, step: SetupStep) -> str:
                 "A different Vault is already configured; plan again with that path or move it first.",
             )
         return "already_present"
+    if (Path(step.target) / "HEAD.json").is_file():
+        service.attach(Path(step.target))
+        return "attached"
     service.init(Path(step.target))
     return "created"
 

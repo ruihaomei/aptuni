@@ -31,6 +31,7 @@ from aptuni.cli.setup_commands import (
     cmd_recipe,
     cmd_setup,
 )
+from aptuni.cli.vault_cli import add_attach_command, cmd_attach
 from aptuni.domain.invariants import InvariantError
 from aptuni.domain.records import MODULES, SchemaVersionError
 from aptuni.vault.fsgate import UnsupportedFilesystemError
@@ -177,6 +178,8 @@ def build_parser() -> argparse.ArgumentParser:
     init = sub.add_parser("init", help="create your Profile Vault")
     init.add_argument("path", nargs="?", type=Path, default=DEFAULT_VAULT,
                       help=f"Vault location (default: {DEFAULT_VAULT})")
+
+    add_attach_command(sub)
 
     status = sub.add_parser("status", help="show Vault location, size and module switches")
     status.add_argument("--json", action="store_true")
@@ -758,6 +761,7 @@ def _print_purge_preview(preview: Any) -> None:
 
 COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "init": _cmd_init,
+    "attach": cmd_attach,
     "status": _cmd_status,
     "remember": _cmd_remember,
     "facts": _cmd_facts,

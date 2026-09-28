@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -10,7 +11,9 @@ from typing import Any
 from aptuni.api.v1 import CAPABILITIES, load_manifest, scaffold_plugin
 from aptuni.api.v1.grants import PluginGrantManager
 from aptuni.application.service import AptuniService
+from aptuni.cli.grant_consent import render_grant_consent, render_grant_result, render_plan_footer
 from aptuni.domain.records import MODULES
+from aptuni.i18n import normalize_locale, t
 
 
 def add_developer_commands(sub: Any) -> None:
@@ -31,9 +34,11 @@ def add_developer_commands(sub: Any) -> None:
     plan.add_argument("--capability", action="append", choices=CAPABILITIES, dest="capabilities")
     plan.add_argument("--module", action="append", choices=MODULES, dest="modules")
     plan.add_argument("--json", action="store_true")
+    plan.add_argument("--lang", default=None, help="en or zh-CN")
     apply = grants.add_parser("apply", help="owner-confirm one exact plugin grant")
     apply.add_argument("action_id")
     apply.add_argument("--json", action="store_true")
+    apply.add_argument("--lang", default=None, help="en or zh-CN")
     listing = grants.add_parser("list", help="list current local API grants")
     listing.add_argument("--json", action="store_true")
     cancel = grants.add_parser("cancel", help="discard one pending plugin grant preview")
@@ -60,6 +65,11 @@ def cmd_developer(args: Any, service: AptuniService) -> int:
                 capabilities=tuple(args.capabilities) if args.capabilities else None,
                 modules=tuple(args.modules) if args.modules else None,
             )
+            if not args.json:
+                locale = _locale(args)
+                lines = (*render_grant_consent(plan, locale, manifest.name), *render_plan_footer(plan, locale))
+                print("\n".join(lines))
+                return 0
             value = plan.model_dump(mode="json") | {
                 "preview": _preview(
                     plan.plugin_id, plan.plugin_version, plan.capabilities, plan.modules,
@@ -68,12 +78,21 @@ def cmd_developer(args: Any, service: AptuniService) -> int:
             }
         elif args.grant_command == "apply":
             plan = manager.pending(args.action_id)
+            if not args.json:
+                locale = _locale(args)
+                print("\n".join(render_grant_consent(plan, locale)))
+                print()
+                if input(t("consent.prompt", locale)) != "APPLY":
+                    print(t("consent.cancelled", locale))
+                    return 1
+                print("\n".join(render_grant_result(manager.apply(args.action_id), locale)))
+                return 0
             preview = _preview(
                 plan.plugin_id, plan.plugin_version, plan.capabilities, plan.modules,
                 plan.required_capabilities,
             )
-            print(preview, file=sys.stderr if args.json else sys.stdout)
-            if not _owner_confirms_apply(json_mode=args.json):
+            print(preview, file=sys.stderr)
+            if not _owner_confirms_apply(json_mode=True):
                 print("Cancelled; no plugin grant was created.")
                 return 1
             value = manager.apply(args.action_id).model_dump(mode="json")
@@ -86,11 +105,12 @@ def cmd_developer(args: Any, service: AptuniService) -> int:
             value = {"contract": "aptuni.developer@1", "cancelled": manager.cancel(args.action_id)}
         else:
             value = {"contract": "aptuni.developer@1", "revoked": manager.revoke(args.grant_id)}
-    if getattr(args, "json", False):
-        print(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True))
-    else:
-        print(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True))
+    print(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True))
     return 0
+
+
+def _locale(args: Any) -> str:
+    return normalize_locale(getattr(args, "lang", None) or os.environ.get("APTUNI_LANG"))
 
 
 def _preview(
