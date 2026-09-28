@@ -281,7 +281,7 @@
 "consent.egress_none" = "None — Aptuni only grants plugins that declare no network egress, but it cannot enforce what a local program does"
 "consent.no_code" = "Approving only creates a local permission record. Aptuni does not import or run the plugin's code."
 "consent.revoke" = "You can revoke this at any time: {command}"
-"consent.narrow" = "To grant only what is required ({required}), plan again and name each permission you want with --capability."
+"consent.narrow" = "To grant only what is required ({required}), plan again and name each permission you want with {flag}."
 "consent.expires" = "Preview {action_id} expires at {expires}."
 "consent.apply_hint" = "To approve, run this in your own terminal and type APPLY: {command}"
 "consent.approved" = "Approved. Grant ID: {grant_id}"

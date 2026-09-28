@@ -411,7 +411,8 @@ def _plugin_consent(target: str, locale: str) -> list[str]:
     value = json.loads(target)
     return render_consent(plugin_id=value["plugin_id"], version=value["version"],
                           capabilities=tuple(value["capabilities"]), required=tuple(value["required"]),
-                          modules=tuple(value["modules"]), locale=locale, name=value["name"])
+                          modules=tuple(value["modules"]), locale=locale, name=value["name"],
+                          narrow_flag="--plugin-capability")
 
 
 def _retention(value: str, locale: str) -> str:

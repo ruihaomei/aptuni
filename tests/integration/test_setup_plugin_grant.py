@@ -55,6 +55,7 @@ def test_plan_shows_the_plugin_consent_and_creates_nothing(
     assert "✓ Knowledge" in out and "saved in your Vault as a pending item" in out
     assert "Declared network use:" in out
     assert "approve the plugin grant shown below" in out
+    assert "--plugin-capability" in out, "the narrowing hint names the setup flag"
     assert "Top-Down Learning" in out.split("Typing APPLY lets an agent read")[1].split("\n\n")[0], \
         "the release section names the plugin whose reads reach the host operator"
     assert "nothing leaves this device" not in out

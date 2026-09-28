@@ -281,7 +281,7 @@
 "consent.egress_none" = "无 — Aptuni 只向声明不做网络外传的插件发放授权，但无法强制约束本地程序的实际行为"
 "consent.no_code" = "批准只会在本机创建一条权限记录，Aptuni 不会导入或运行插件代码。"
 "consent.revoke" = "你可以随时撤销：{command}"
-"consent.narrow" = "如果只想授予必需的权限（{required}），请重新运行 plan，并用 --capability 逐项写明想授予的权限。"
+"consent.narrow" = "如果只想授予必需的权限（{required}），请重新运行 plan，并用 {flag} 逐项写明想授予的权限。"
 "consent.expires" = "预览 {action_id} 将在 {expires} 过期。"
 "consent.apply_hint" = "确认无误后，请在你自己的终端运行下面的命令并输入 APPLY：{command}"
 "consent.approved" = "已批准。授权 ID：{grant_id}"

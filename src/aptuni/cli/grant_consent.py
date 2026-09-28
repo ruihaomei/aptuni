@@ -27,7 +27,7 @@ def render_grant_consent(plan: PluginGrantPlan, locale: str, name: str | None = 
 
 def render_consent(*, plugin_id: str, version: str, capabilities: tuple[str, ...], required: tuple[str, ...],
                    modules: tuple[str, ...], locale: str, name: str | None = None,
-                   grant_id: str | None = None) -> list[str]:
+                   grant_id: str | None = None, narrow_flag: str = "--capability") -> list[str]:
     """The consent screen for one exact grant; ``grant_id`` is unknown before a setup apply."""
     granted = set(capabilities)
     # Legacy manifests declare no required set; do not label everything they asked for as optional.
@@ -55,7 +55,7 @@ def render_consent(*, plugin_id: str, version: str, capabilities: tuple[str, ...
         "", t("consent.no_code", locale), t("consent.revoke", locale, command=revoke),
     ]
     if optional:
-        lines.append(t("consent.narrow", locale, required=", ".join(required)))
+        lines.append(t("consent.narrow", locale, required=", ".join(required), flag=narrow_flag))
     return lines
 
 
