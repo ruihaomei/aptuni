@@ -393,11 +393,22 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-attac
 
 ## Awaiting maintainer decisions
 
-- None blocking. Real usefulness labels beyond the synthetic activation fixture need the owner's own
+- Whether to publish the Beta fixes below as `0.2.0b2` before the real User #1 host journeys, or to
+  continue those journeys on the published `0.2.0b1`. Publication needs explicit authorization.
+- None otherwise blocking. Real usefulness labels beyond the synthetic activation fixture need the owner's own
   queries and judgments; trials on private sources are the owner's call.
 
 ## Next highest-priority task
 
+0. Beta onboarding fixes (2026-09-28, local, unpushed): `e99b1f6`/`629dba2` attach an existing Vault
+   read-only and show a truthful bilingual plugin consent screen (Reviews 76 BLOCK → 77 approve);
+   `f949f25` guides a new user through product-language source choice with in-flow locations, an
+   Obsidian setup step and later-connect commands; `9f1bca1` prints exact Claude Code/Codex connect
+   commands and drops auto-context catalog copy; `18d8dd2` shows GitHub steps as addresses. A
+   disposable fresh-home install of the candidate wheel passed in English and Chinese: welcome →
+   setup plan/apply → connect commands (Codex commands executed) → MCP OFF/task/session Full/disable
+   → plugin consent/grant → Top-Down prepare → reinstall attach. Limitations are in BACKLOG and
+   `docs/dev/BETA_DOGFOODING.md`. Version is still `0.2.0b1` in source; bump only on authorized release.
 1. Run the real Claude Code and Codex first-run journeys with the maintainer on the published Beta;
    record them in `docs/dev/releases/0.2.0b1.md`. Day 0 of the 14-day User #1 window is the first
    real journey (`docs/dev/BETA_DOGFOODING.md`). Keep the UX Gate open until the exact phrase

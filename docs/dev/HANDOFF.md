@@ -4,6 +4,14 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-attac
 
 ## Current position
 
+**Beta onboarding checkpoint (2026-09-28, local, unpushed): `18d8dd2`.** Real Beta findings from the
+User #1 reinstall and a disposable brand-new-user install are fixed test-first: `aptuni attach`
+(read-only verify), a truthful bilingual plugin consent screen (Review 76 BLOCK → Review 77
+APPROVE WITH NON-BLOCKING NOTES), a product-language source menu with in-flow locations and an
+Obsidian setup step, exact Claude Code/Codex connect commands, and a welcome screen. Fresh-home
+English and Chinese journeys pass. Next: the maintainer decides between publishing `0.2.0b2` and
+continuing on `0.2.0b1`; then the real User #1 grants (three owner `APPLY`s) and host journeys.
+
 Canonical Beta Agent activation is runnable under accepted ADR-0025 and approved by Review 70.
 Official Claude Code and Codex bundles start OFF, have no automatic personal-context hook, and map
 manual-only Profile/Memory/Full skills to host-independent intents. Task activation is one bounded

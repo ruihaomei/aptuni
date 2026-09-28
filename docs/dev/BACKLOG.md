@@ -64,3 +64,7 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Attach: add a snapshot test attaching a Vault with an interrupted restore or purge, the case `recover()` would rewrite | Review 76 note 6 | Attach hardening |
 | Setup preview: the recommendation block before the plan is long (internal plugin ids, ~10 benefits and ~10 trade-offs); consider a short summary with details on request | Beta new-user journey 2026-09-28 | Onboarding |
 | Setup plan: retention and scope ids (`externally_controlled_unknown`, `identity.read`…) and ISO expiry timestamps are shown raw; localize them | Beta new-user journey 2026-09-28 | Onboarding i18n |
+| Codex connect text: `codex mcp add` registers the server for all projects (skills are per project); say so | Beta new-user journey 2026-09-28 | Onboarding |
+| Top-Down plugin: the grant ID must be exported as `APTUNI_TOP_DOWN_GRANT_ID` before launching the host, documented only in the plugin README; print it after grant apply or let the plugin find its own grant | Beta new-user journey 2026-09-28 | Plugin UX (next plugin version) |
+| Top-Down context file headings are English for Chinese learners | Beta new-user journey 2026-09-28 | Plugin i18n |
+| Setup memory question offers `automatic`/`temporal` experiences; confirm each is installable in Beta or mark it | Beta new-user journey 2026-09-28 | Onboarding |

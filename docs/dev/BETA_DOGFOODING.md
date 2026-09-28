@@ -57,3 +57,4 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 
 | Day | Date | Journeys exercised | Trials scored | Defects opened / closed | Notes |
 |---|---|---|---|---|---|
+| pre-Day 0 | 2026-09-27/28 | User #1 reinstall/attach; disposable brand-new-user install (en, zh-CN) through setup, connect, MCP activation, plugin grant, Top-Down prepare | 0 | 6 opened / 6 fixed locally | Day 0 not yet: no real host first-run journey has succeeded |
