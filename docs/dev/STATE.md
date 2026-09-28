@@ -393,22 +393,17 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
 
 ## Awaiting maintainer decisions
 
-- Whether to publish the Beta fixes below as `0.2.0b2` before the real User #1 host journeys, or to
-  continue those journeys on the published `0.2.0b1`. Publication needs explicit authorization.
-- None otherwise blocking. Real usefulness labels beyond the synthetic activation fixture need the owner's own
-  queries and judgments; trials on private sources are the owner's call.
+- None blocking. The maintainer authorized publishing `0.2.0b2` (2026-09-29).
 
 ## Next highest-priority task
 
-0. Beta onboarding fixes (2026-09-28, local, unpushed): `e99b1f6`/`629dba2` attach an existing Vault
-   read-only and show a truthful bilingual plugin consent screen (Reviews 76 BLOCK → 77 approve);
-   `f949f25` guides a new user through product-language source choice with in-flow locations, an
-   Obsidian setup step and later-connect commands; `9f1bca1` prints exact Claude Code/Codex connect
-   commands and drops auto-context catalog copy; `18d8dd2` shows GitHub steps as addresses. A
-   disposable fresh-home install of the candidate wheel passed in English and Chinese: welcome →
-   setup plan/apply → connect commands (Codex commands executed) → MCP OFF/task/session Full/disable
-   → plugin consent/grant → Top-Down prepare → reinstall attach. Limitations are in BACKLOG and
-   `docs/dev/BETA_DOGFOODING.md`. Version is still `0.2.0b1` in source; bump only on authorized release.
+0. Aptuni `0.2.0b2` + Top-Down Learning `0.2.1` (release candidate `e5f3282`, maintainer-authorized):
+   the onboarding fixes above plus agent-led setup — `aptuni guide agent`, one owner APPLY that can
+   include a plugin grant (refused without host egress; Reviews 78 BLOCK → 79 approve), `aptuni
+   connect`, a persistent Claude local marketplace, repo marketplaces for Top-Down, and plugin grant
+   self-discovery. Disposable fresh-home runs passed in English and Chinese, including the one-APPLY
+   agent flow. After publication, reinstall User #1 from PyPI, `aptuni attach` the real Vault, and
+   leave grants and host connection for the Day 0 session.
 1. Run the real Claude Code and Codex first-run journeys with the maintainer on the published Beta;
    record them in `docs/dev/releases/0.2.0b1.md`. Day 0 of the 14-day User #1 window is the first
    real journey (`docs/dev/BETA_DOGFOODING.md`). Keep the UX Gate open until the exact phrase

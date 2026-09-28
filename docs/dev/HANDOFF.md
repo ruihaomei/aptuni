@@ -4,13 +4,12 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
 
 ## Current position
 
-**Beta onboarding checkpoint (2026-09-28, local, unpushed): `18d8dd2`.** Real Beta findings from the
-User #1 reinstall and a disposable brand-new-user install are fixed test-first: `aptuni attach`
-(read-only verify), a truthful bilingual plugin consent screen (Review 76 BLOCK → Review 77
-APPROVE WITH NON-BLOCKING NOTES), a product-language source menu with in-flow locations and an
-Obsidian setup step, exact Claude Code/Codex connect commands, and a welcome screen. Fresh-home
-English and Chinese journeys pass. Next: the maintainer decides between publishing `0.2.0b2` and
-continuing on `0.2.0b1`; then the real User #1 grants (three owner `APPLY`s) and host journeys.
+**Beta 0.2.0b2 release candidate (2026-09-29): `e5f3282`, maintainer-authorized.** Adds agent-led
+setup (`aptuni guide agent`; one owner APPLY including an optional plugin grant; `aptuni connect`;
+persistent Claude marketplace install) on top of the onboarding fixes (attach, truthful consent,
+product-language sources, connect commands). Reviews 76–79 are resolved. Top-Down Learning 0.2.1
+finds its own grant. Next: publish, reinstall User #1 from PyPI with `aptuni attach`, then Day 0 in
+a fresh Agent session led by `aptuni guide agent`.
 
 Canonical Beta Agent activation is runnable under accepted ADR-0025 and approved by Review 70.
 Official Claude Code and Codex bundles start OFF, have no automatic personal-context hook, and map
