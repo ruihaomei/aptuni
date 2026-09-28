@@ -4,12 +4,11 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
 
 ## Current position
 
-**Beta 0.2.0b2 release candidate (2026-09-29): `e5f3282`, maintainer-authorized.** Adds agent-led
-setup (`aptuni guide agent`; one owner APPLY including an optional plugin grant; `aptuni connect`;
-persistent Claude marketplace install) on top of the onboarding fixes (attach, truthful consent,
-product-language sources, connect commands). Reviews 76–79 are resolved. Top-Down Learning 0.2.1
-finds its own grant. Next: publish, reinstall User #1 from PyPI with `aptuni attach`, then Day 0 in
-a fresh Agent session led by `aptuni guide agent`.
+**Beta 0.2.0b3 (2026-09-29, maintainer-authorized).** 0.2.0b2 is public (record
+`docs/dev/releases/0.2.0b2.md`). A returning-user P1 found while preparing Day 0 — setup planned a new
+`~/Aptuni` after `aptuni attach` and failed after APPLY — is fixed in 0.2.0b3, with scripted
+MarginNote deferred like Notion. Top-Down Learning stays 0.2.1. Next: reinstall User #1 from PyPI
+b3 with `aptuni attach`, then Day 0 in a fresh Agent session led by `aptuni guide agent`.
 
 Canonical Beta Agent activation is runnable under accepted ADR-0025 and approved by Review 70.
 Official Claude Code and Codex bundles start OFF, have no automatic personal-context hook, and map

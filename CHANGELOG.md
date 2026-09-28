@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0b3] — 2026-09-29
+
+Bug-fix Beta for returning users before the User #1 Day 0 journey. Top-Down Learning stays 0.2.1.
+
 ### Fixed
 
 - After `aptuni attach`, guided setup uses the attached Vault by default instead of planning a new
@@ -203,7 +207,8 @@ First public pre-alpha release of the Milestone 1 personal context core.
 - Module-scoped host grants, network-denied MCP STDIO, conservative host-confinement reporting, and
   tracked-secret checks in the release gate.
 
-[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.2.0b2...HEAD
+[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.2.0b3...HEAD
+[0.2.0b3]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b3
 [0.2.0b2]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b2
 [0.2.0b1]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b1
 [0.1.0]: https://github.com/ruihaomei/aptuni/releases/tag/v0.1.0

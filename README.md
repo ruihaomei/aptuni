@@ -1,9 +1,9 @@
-<p align="center"><img src="https://raw.githubusercontent.com/ruihaomei/aptuni/v0.2.0b2/assets/brand/logo/aptuni-icon.svg" width="120" alt="Aptuni"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/ruihaomei/aptuni/v0.2.0b3/assets/brand/logo/aptuni-icon.svg" width="120" alt="Aptuni"></p>
 
 <h1 align="center">Aptuni</h1>
 <p align="center"><b>Context, attuned to you.</b></p>
 <p align="center">Personal context · Memory · MCP · Local-first</p>
-<p align="center"><a href="https://github.com/ruihaomei/aptuni/blob/v0.2.0b2/README.zh-CN.md">简体中文</a> · <a href="https://github.com/ruihaomei/aptuni/blob/v0.2.0b2/LICENSE">Apache-2.0</a> · v0.2.0b2 beta</p>
+<p align="center"><a href="https://github.com/ruihaomei/aptuni/blob/v0.2.0b3/README.zh-CN.md">简体中文</a> · <a href="https://github.com/ruihaomei/aptuni/blob/v0.2.0b3/LICENSE">Apache-2.0</a> · v0.2.0b3 beta</p>
 
 **Aptuni gives AI agents the right personal context without giving them everything about you.**
 The more you use it, the better it understands what matters.
@@ -11,10 +11,10 @@ The more you use it, the better it understands what matters.
 You stop re-explaining yourself to every agent. Your agent gets a small, relevant, verifiable slice
 of who you are for the task at hand, and you keep the whole thing in open files you own.
 
-> **Status: Beta (0.2.0b2).** The core, Agent activation and the plugin platform run end to end on
+> **Status: Beta (0.2.0b3).** The core, Agent activation and the plugin platform run end to end on
 > supported macOS and Ubuntu 24.04/ext4 systems, and Top-Down Learning ships as Flagship Plugin #1.
 > Interfaces may still change before Stable. See [what works now](#what-works-today) and the
-> [roadmap](https://github.com/ruihaomei/aptuni/blob/v0.2.0b2/docs/dev/ROADMAP.md).
+> [roadmap](https://github.com/ruihaomei/aptuni/blob/v0.2.0b3/docs/dev/ROADMAP.md).
 
 ## Why Aptuni
 
@@ -33,7 +33,7 @@ of who you are for the task at hand, and you keep the whole thing in open files 
 
 Paste this into Claude Code or Codex:
 
-> Install and set up Aptuni for me: run `uv tool install aptuni==0.2.0b2` (install uv first if it is
+> Install and set up Aptuni for me: run `uv tool install aptuni==0.2.0b3` (install uv first if it is
 > missing), then run `aptuni guide agent` and follow it.
 
 Your agent asks a few questions in the chat — your language, which parts of you Aptuni may learn
@@ -48,7 +48,7 @@ Aptuni, which stays OFF until you turn it on for a task.
 Install the public package with Python 3.13 and [uv](https://docs.astral.sh/uv/):
 
 ```sh
-uv tool install aptuni==0.2.0b2
+uv tool install aptuni==0.2.0b3
 aptuni --version
 ```
 
@@ -142,7 +142,7 @@ aptuni adapter apply ACTION_ID     # you confirm in your own terminal
 | Mem0 local projection (`infer=False`, whole-store rebuild deletion) | ✅ preview |
 | Opt-in hybrid search (SQLite + accepted-memory Mem0 ranks) | ✅ preview |
 | Obsidian owner review UI | ✅ desktop |
-| Flagship plugin: [Top-Down Learning](https://github.com/ruihaomei/aptuni/tree/v0.2.0b2/examples/plugins/top_down_learning) — just-in-time learning from your verified context, portable to local or cloud Agents | ✅ Beta |
+| Flagship plugin: [Top-Down Learning](https://github.com/ruihaomei/aptuni/tree/v0.2.0b3/examples/plugins/top_down_learning) — just-in-time learning from your verified context, portable to local or cloud Agents | ✅ Beta |
 | Graphiti | 🗺 Milestone 3 |
 
 Run `aptuni plugin list` and `aptuni recipe list` to see the same picture from the CLI.
@@ -163,8 +163,8 @@ Sources ──► Evidence ──► Profile + Memory ──► Context ──�
 - **Sources change safely.** Every sync is an immutable snapshot plus a reviewable delta. A deleted
   file withdraws evidence; it never silently rewrites history. Ambiguous changes wait for you.
 
-Design decisions live in [`docs/dev/DECISIONS/`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b2/docs/dev/DECISIONS/README.md), and the product
-requirements in [`docs/product/PRD.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b2/docs/product/PRD.md).
+Design decisions live in [`docs/dev/DECISIONS/`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b3/docs/dev/DECISIONS/README.md), and the product
+requirements in [`docs/product/PRD.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b3/docs/product/PRD.md).
 
 ## Recipes
 
@@ -184,7 +184,7 @@ Aptuni never scans your machine on its own, and discovering a source does not me
 permission to read it. Raw conversations are not kept by default. Agents see only modules you
 expose, within a budget, and the adapter preview tells you exactly what leaves your device (for
 example, context an agent reads is processed by that agent's model provider). See
-[`SECURITY.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b2/SECURITY.md) and the [threat model](https://github.com/ruihaomei/aptuni/blob/v0.2.0b2/docs/dev/THREAT_MODEL.md).
+[`SECURITY.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b3/SECURITY.md) and the [threat model](https://github.com/ruihaomei/aptuni/blob/v0.2.0b3/docs/dev/THREAT_MODEL.md).
 
 These commands make that concrete:
 
@@ -357,9 +357,9 @@ that already has files in it.
 ## Contributing
 
 Plugins, recipes, translations and bug reports are welcome. Start with
-[`CONTRIBUTING.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b2/CONTRIBUTING.md). Adding a plugin to the Advisor catalog is one TOML file
+[`CONTRIBUTING.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b3/CONTRIBUTING.md). Adding a plugin to the Advisor catalog is one TOML file
 plus two message lines.
 
 ## License
 
-[Apache-2.0](https://github.com/ruihaomei/aptuni/blob/v0.2.0b2/LICENSE). Third-party notices are in [`THIRD_PARTY_NOTICES.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b2/THIRD_PARTY_NOTICES.md).
+[Apache-2.0](https://github.com/ruihaomei/aptuni/blob/v0.2.0b3/LICENSE). Third-party notices are in [`THIRD_PARTY_NOTICES.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b3/THIRD_PARTY_NOTICES.md).

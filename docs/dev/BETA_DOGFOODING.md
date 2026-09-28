@@ -43,7 +43,7 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 | 2026-09-28 | First-run onboarding | P3 | Bare `aptuni` printed a usage error, `No Vault configured` pointed only to `init`, and the README's first step assumed a cloned repository. | `test_onboarding.py`, `test_cli.py`; welcome screen, setup/attach hint, README first step | Fixed in 0.2.0b2 |
 | 2026-09-28 | Agent connection | P1 | After setup/adapter apply the user was told to "point the host at the bundle" with no command; a new user could not connect Claude Code or Codex. | `tests/integration/test_host_connect.py`; exact `claude --plugin-dir` and Codex skill copy + `codex mcp add` lines derived from the bundle, bilingual | Fixed in 0.2.0b2 |
 | 2026-09-28 | Setup recommendation copy | P2 | Catalog copy promised context "without you asking" and an identity card "at session start", contradicting Beta OFF-by-default. | `test_host_connect.py::test_agent_catalog_copy_does_not_promise_automatic_context` | Fixed in 0.2.0b2 |
-| 2026-09-29 | Returning-user setup | P1 | After attaching a Vault at a custom path, setup planned a new `~/Aptuni` and failed with `setup_vault_conflict` after APPLY; scripted MarginNote required a store path the Agent guide does not ask for. | `test_vault_attach.py`, `test_onboarding.py` | Fixed after 0.2.0b2 (unreleased) |
+| 2026-09-29 | Returning-user setup | P1 | After attaching a Vault at a custom path, setup planned a new `~/Aptuni` and failed with `setup_vault_conflict` after APPLY; scripted MarginNote required a store path the Agent guide does not ask for. | `test_vault_attach.py`, `test_onboarding.py` | Fixed in 0.2.0b3 |
 
 ## Gates kept open in parallel
 
