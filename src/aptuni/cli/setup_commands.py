@@ -384,6 +384,12 @@ def _render_release(plan: SetupPlan, locale: str) -> list[str]:
                        destination=delimited_untrusted(item["destination"]),
                        retention=_retention(item["retention"], locale),
                        scope_count=item["scope_count"], scopes=item["scopes"]))
+    operators = ", ".join(dict.fromkeys(delimited_untrusted(item["operator"]) for item in plan.egress))
+    for step in plan.steps:
+        if step.kind == "plugin_grant":
+            value = json.loads(step.target)
+            lines.append(t("setup.plan.release_plugin", locale, name=delimited_untrusted(value["name"]),
+                           modules=_module_names(value["modules"], locale), operators=operators))
     lines += [t("setup.plan.release_change", locale), ""]
     return lines
 
@@ -479,6 +485,10 @@ def _setup_plan(args: argparse.Namespace, service: Any) -> int:  # noqa: PLR0911
         plugin_target = _plugin_target(args.plugin_manifest, args.plugin_capabilities)
     except (AptuniAPIError, OSError, ValueError) as error:
         print("aptuni: " + t("setup.error.plugin_manifest", locale, reason=str(error)), file=sys.stderr)
+        return 2
+    if plugin_target is not None and (answers.privacy == "local_only" or not set(answers.hosts) & set(HOST_ADAPTER)):
+        # A plugin's reads reach the model of the agent that runs it; no such release exists here.
+        print("aptuni: " + t("setup.error.plugin_needs_host", locale), file=sys.stderr)
         return 2
     modules = tuple(dict.fromkeys(args.modules or DEFAULT_SETUP_MODULES))
     vault = Path(args.vault).expanduser().resolve() if args.vault else DEFAULT_VAULT
@@ -634,8 +644,12 @@ def _setup_cancel(args: argparse.Namespace, service: Any) -> int:
     manager = AdapterManager(service.workspace)
     plugins = PluginGrantManager(service.workspace)
     rolled = [item for item in rollback if item.startswith("grant-") and manager.revoke(item)]
-    rolled += [item.removeprefix(PLUGIN_CLAIM) for item in rollback
-               if item.startswith(PLUGIN_CLAIM) and plugins.revoke(item.removeprefix(PLUGIN_CLAIM))]
+    for item in rollback:
+        if item.startswith(PLUGIN_CLAIM):
+            grant_id = item.removeprefix(PLUGIN_CLAIM)
+            plugins.cancel("act-" + grant_id.removeprefix("grant-"))  # a preview left by a crash
+            if plugins.revoke(grant_id):
+                rolled.append(grant_id)
     if not was_confirmed:
         print(t("setup.cancel.nothing", locale, action_id=args.action_id))
         return 0

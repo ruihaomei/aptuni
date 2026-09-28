@@ -53,8 +53,9 @@ For each choice, ask right away and check that the location exists (`ls`):
 
 ## 6. Optional: Top-Down Learning
 
-Ask whether they want the Top-Down Learning plugin (learn a target from what they already know). If
-yes, run `uv tool install "git+https://github.com/ruihaomei/aptuni@v{{version}}#subdirectory=examples/plugins/top_down_learning"`
+Only if the user allows cloud processing and chose at least one agent (the plugin runs inside that
+agent, so what it reads reaches the agent's model provider): ask whether they want the Top-Down
+Learning plugin (learn a target from what they already know). If yes, run `uv tool install "git+https://github.com/ruihaomei/aptuni@v{{version}}#subdirectory=examples/plugins/top_down_learning"`
 and add `--plugin-manifest "$(top-down-study-mcp --manifest-path)"` to the plan below. Its access is
 then approved in the same single APPLY.
 

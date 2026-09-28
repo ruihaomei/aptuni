@@ -249,7 +249,10 @@ def _run_plugin_grant(
     leaves it for ``setup cancel`` to revoke; a resumed run reuses a claimed grant that exists.
     """
     target = json.loads(step.target)
-    manifest = load_manifest(Path(target["manifest"]))
+    try:
+        manifest = load_manifest(Path(target["manifest"]))
+    except (OSError, ValueError) as error:
+        raise SetupError("plugin_manifest_changed", "The plugin manifest is gone or no longer valid.") from error
     if manifest.digest() != target["digest"]:
         raise SetupError("plugin_manifest_changed", "The plugin manifest changed after the plan was made.")
     manager = PluginGrantManager(service.workspace)

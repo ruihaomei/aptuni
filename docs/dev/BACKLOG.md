@@ -68,3 +68,6 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Top-Down plugin: the grant ID must be exported as `APTUNI_TOP_DOWN_GRANT_ID` before launching the host, documented only in the plugin README; print it after grant apply or let the plugin find its own grant | Beta new-user journey 2026-09-28 | Plugin UX (next plugin version) |
 | Top-Down context file headings are English for Chinese learners | Beta new-user journey 2026-09-28 | Plugin i18n |
 | Setup memory question offers `automatic`/`temporal` experiences; confirm each is installable in Beta or mark it | Beta new-user journey 2026-09-28 | Onboarding |
+| Setup: `--module` does not narrow a plugin grant's modules (disclosed on the consent screen); consider `--plugin-module` | Review 78 N5 | Setup |
+| `aptuni connect`: choose the newest grant by a recorded creation time, and after a revoke tell the owner to uninstall the Claude plugin | Review 78 N7 | Host connect |
+| APPLY prompts: consider requiring a real TTY for `setup apply` like `developer grant apply` (agent-guide rule is behavioural) | Review 78 N8 | Owner confirmation |

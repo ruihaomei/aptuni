@@ -30,8 +30,8 @@ def _service(tmp_path: Path) -> AptuniService:
 
 
 def _argv(tmp_path: Path, manifest: Path, *extra: str, locale: str = "en") -> list[str]:
-    return ["setup", "plan", "--lang", locale, "--source", "other", "--memory", "basic", "--privacy", "local_only",
-            "--no-host", "--vault", str(tmp_path / "Aptuni"), "--plugin-manifest", str(manifest), *extra]
+    return ["setup", "plan", "--lang", locale, "--source", "other", "--memory", "basic", "--privacy", "quality",
+            "--host", "claude_code", "--vault", str(tmp_path / "Aptuni"), "--plugin-manifest", str(manifest), *extra]
 
 
 def _plan(service: AptuniService, tmp_path: Path, capsys: pytest.CaptureFixture[str], manifest: Path = MANIFEST,
@@ -54,7 +54,10 @@ def test_plan_shows_the_plugin_consent_and_creates_nothing(
     assert '"Top-Down Learning" (dev.aptuni.top_down_learning' in out
     assert "✓ Knowledge" in out and "saved in your Vault as a pending item" in out
     assert "Declared network use:" in out
-    assert "approve the plugin grant shown above" in out
+    assert "approve the plugin grant shown below" in out
+    assert "Top-Down Learning" in out.split("Typing APPLY lets an agent read")[1].split("\n\n")[0], \
+        "the release section names the plugin whose reads reach the host operator"
+    assert "nothing leaves this device" not in out
     assert not (tmp_path / "Aptuni").exists() and _grants(service) == []
 
 
@@ -62,7 +65,7 @@ def test_chinese_plan_shows_the_plugin_consent(tmp_path: Path, capsys: pytest.Ca
     service = _service(tmp_path)
     assert run(_argv(tmp_path, MANIFEST, locale="zh-CN"), service) == 0
     out = capsys.readouterr().out
-    assert "请求访问你的 Aptuni 个人上下文" in out and "批准上面显示的插件授权" in out
+    assert "请求访问你的 Aptuni 个人上下文" in out and "批准下面显示的插件授权" in out
 
 
 def test_one_apply_creates_exactly_the_shown_grant(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -144,3 +147,57 @@ def test_a_manifest_that_declares_egress_is_refused_at_plan_time(
     service = _service(tmp_path)
     assert run(_argv(tmp_path, copy), service) == 2
     assert "egress" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("privacy_args", [
+    ("--privacy", "local_only", "--no-host"),
+    ("--privacy", "quality", "--no-host"),
+    ("--privacy", "local_only", "--host", "claude_code"),
+])
+def test_a_plugin_grant_is_refused_when_no_agent_may_receive_context(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], privacy_args: tuple[str, ...],
+) -> None:
+    service = _service(tmp_path)
+    argv = ["setup", "plan", "--lang", "en", "--source", "other", "--memory", "basic", *privacy_args,
+            "--vault", str(tmp_path / "Aptuni"), "--plugin-manifest", str(MANIFEST)]
+    assert run(argv, service) == 2
+    assert "runs inside Claude Code or Codex" in capsys.readouterr().err
+    assert _grants(service) == []
+
+
+def test_a_missing_manifest_at_apply_fails_cleanly(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    copy = tmp_path / "plugin" / "aptuni-plugin.toml"
+    copy.parent.mkdir()
+    shutil.copy(MANIFEST, copy)
+    service = _service(tmp_path)
+    plan = _plan(service, tmp_path, capsys, copy)
+    copy.unlink()
+
+    report = apply_setup_plan(service, plan["action_id"], plan["digest"])
+
+    assert report.failure == "plugin_manifest_changed" and _grants(service) == []
+
+
+def test_a_resumed_apply_reuses_the_claimed_grant(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = _service(tmp_path)
+    plan = _plan(service, tmp_path, capsys)
+    real_apply = PluginGrantManager.apply
+    calls = {"n": 0}
+
+    def crash_once(self: PluginGrantManager, action_id: str):  # type: ignore[no-untyped-def]
+        grant = real_apply(self, action_id)
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise OSError("simulated crash")
+        return grant
+
+    monkeypatch.setattr(PluginGrantManager, "apply", crash_once)
+    apply_setup_plan(service, plan["action_id"], plan["digest"])
+    report = apply_setup_plan(service, plan["action_id"], plan["digest"])
+
+    assert report.terminal_state == "complete"
+    (grant,) = _grants(service)
+    assert report.plugin_grants == [grant.grant_id]
+    assert calls["n"] == 1, "the claimed grant is reused, not created again"

@@ -45,7 +45,9 @@ def render_preview(rec: Recommendation, catalog: Catalog, locale: str, *, footer
                 t("advisor.preview.docker", locale,
                   value=t("advisor.preview.yes" if rec.docker else "advisor.preview.no", locale)),
                 t("advisor.preview.difficulty", locale, value=t(f"advisor.difficulty.{rec.difficulty}", locale)),
-                *_privacy(rec, locale), t("advisor.preview.details", locale)]
+                *_privacy(rec, locale),
+                *([t("advisor.preview.network", locale, origins=", ".join(rec.network))] if rec.network else []),
+                t("advisor.preview.details", locale)]
     lines += ["", t("advisor.preview.selected", locale), *_items(catalog, rec.selected, locale)]
     if rec.deferred:
         lines += [t("advisor.preview.deferred", locale), *_items(catalog, rec.deferred, locale)]

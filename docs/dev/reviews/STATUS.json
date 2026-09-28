@@ -9,6 +9,12 @@
     "01-architecture-review.md"
    ]
   },
+  "beta-agent-led-setup": {
+   "kind": "review",
+   "current": "78-beta-agent-led-setup-review.md",
+   "verdict": "BLOCK",
+   "supersedes": []
+  },
   "beta-attach-consent": {
    "kind": "review",
    "current": "77-beta-attach-consent-rereview.md",
