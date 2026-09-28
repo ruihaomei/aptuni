@@ -29,8 +29,8 @@ SETUP_TTL = timedelta(minutes=30)
 ACTION_RE = re.compile(r"^setup-[0-9a-f]{16}$")
 SCHEMA_VERSION = 1
 STEP_KINDS = (
-    "vault", "source_folder", "source_obsidian", "source_github", "source_marginnote", "sync", "adapter", "doctor",
-    "smoke",
+    "vault", "source_folder", "source_obsidian", "source_github", "source_marginnote", "sync", "adapter",
+    "plugin_grant", "doctor", "smoke",
 )
 TERMINAL_STATES = ("complete", "incomplete_resumable")
 

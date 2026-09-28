@@ -31,10 +31,24 @@ of who you are for the task at hand, and you keep the whole thing in open files 
 
 ## Install with your agent
 
+Paste this into Claude Code or Codex:
+
+> Install and set up Aptuni for me: run `uv tool install aptuni==0.2.0b2` (install uv first if it is
+> missing), then run `aptuni guide agent` and follow it.
+
+Your agent asks a few questions in the chat — your language, which parts of you Aptuni may learn
+from, whether cloud models may process your data, which agents to connect and whether you want the
+Top-Down Learning plugin — and runs every command itself. You type exactly one command in your own
+terminal, `aptuni setup apply ACTION_ID`, and then `APPLY`: an agent is never allowed to approve
+access to your data for you. The agent then connects Claude Code or Codex and tells you how to use
+Aptuni, which stays OFF until you turn it on for a task.
+
+### Or set it up yourself in a terminal
+
 Install the public package with Python 3.13 and [uv](https://docs.astral.sh/uv/):
 
 ```sh
-uv tool install aptuni==0.2.0b1
+uv tool install aptuni==0.2.0b2
 aptuni --version
 ```
 
@@ -51,12 +65,6 @@ asks for the exact folder or repository right away. Notion and MarginNote need a
 authorization or a macOS permission prompt, so the plan lists the exact commands to run afterwards.
 Nothing is created until you confirm the plan with `aptuni setup apply ACTION_ID` and type `APPLY`.
 
-Or, with this repository open in Claude Code or Codex, say:
-
-> Read this repository and set up Aptuni for me.
-
-The agent reads [`AGENTS.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b1/AGENTS.md), asks which language you prefer, then walks through what
-sources you have, how you want to be remembered, and whether cloud models may process your data.
 
 You can drive the same flow yourself. It is two commands, and the first one creates only a private,
 expiring plan record — no Vault, source, grant, or host bundle:

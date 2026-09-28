@@ -1,0 +1,13 @@
+{
+  "name": "aptuni",
+  "owner": {
+    "name": "Aptuni Contributors"
+  },
+  "plugins": [
+    {
+      "name": "top-down-learning",
+      "source": "./examples/plugins/top_down_learning/claude",
+      "description": "Learn through a concrete goal using owner-approved Aptuni context"
+    }
+  ]
+}

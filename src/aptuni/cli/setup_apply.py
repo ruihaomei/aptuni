@@ -15,6 +15,8 @@ from typing import Any
 
 from aptuni.adapters.manager import AdapterManager
 from aptuni.advisor import load_catalog
+from aptuni.api.v1 import AptuniAPIError, load_manifest
+from aptuni.api.v1.grants import PluginGrantManager
 from aptuni.application.errors import AptuniError
 from aptuni.application.marginnote_ingest import MarginNoteSourceSpec
 from aptuni.application.service import AptuniService
@@ -40,6 +42,7 @@ SOURCE_ROLE = {"source_folder": "notes", "source_obsidian": "notes", "source_git
 SMOKE_QUERY = "what should my agent know about me"
 # A step outcome is a success only if it says so here. Anything else stops the run, so a later
 # step -- notably a host grant -- can never run after an earlier failure (Review 33 B5).
+PLUGIN_CLAIM = "plugin:"
 SUCCESS = ("created", "attached", "already_present", "ok", "synced", "skipped")
 
 
@@ -54,6 +57,7 @@ class SetupReport:
     terminal_state: str
     results: dict[str, str] = field(default_factory=dict)
     grants: list[str] = field(default_factory=list)
+    plugin_grants: list[str] = field(default_factory=list)
     host_files: list[str] = field(default_factory=list)
     doctor_ok: bool = False
     smoke_ok: bool = False
@@ -63,7 +67,8 @@ class SetupReport:
         return {
             "action_id": self.action_id, "vault_path": self.vault_path,
             "terminal_state": self.terminal_state, "results": dict(self.results),
-            "grants": list(self.grants), "host_files": list(self.host_files),
+            "grants": list(self.grants), "plugin_grants": list(self.plugin_grants),
+            "host_files": list(self.host_files),
             "doctor_ok": self.doctor_ok, "smoke_ok": self.smoke_ok, "failure": self.failure,
         }
 
@@ -235,6 +240,34 @@ def _run_adapter(prepared: _PreparedAdapter) -> tuple[str, str | None]:
     return "created", grant.grant_id
 
 
+def _run_plugin_grant(
+    service: AptuniService, step: SetupStep, intent_path: Path, intent: dict[str, Any], key: str,
+) -> tuple[str, str | None]:
+    """Create the plugin grant shown in the plan, bound to the manifest digest frozen there.
+
+    The grant id is claimed in the journal before the grant is written, so a crash in between still
+    leaves it for ``setup cancel`` to revoke; a resumed run reuses a claimed grant that exists.
+    """
+    target = json.loads(step.target)
+    manifest = load_manifest(Path(target["manifest"]))
+    if manifest.digest() != target["digest"]:
+        raise SetupError("plugin_manifest_changed", "The plugin manifest changed after the plan was made.")
+    manager = PluginGrantManager(service.workspace)
+    for claim in intent["created"]:
+        if str(claim).startswith(PLUGIN_CLAIM):
+            try:
+                existing = manager.load(str(claim).removeprefix(PLUGIN_CLAIM))
+            except AptuniAPIError:
+                continue
+            if existing.manifest_digest == target["digest"]:
+                return f"already_present:{existing.grant_id}", None
+    pending = manager.plan(manifest, capabilities=tuple(target["capabilities"]), modules=tuple(target["modules"]))
+    grant_id = "grant-" + pending.action_id.removeprefix("act-")
+    record_step(intent_path, intent, key, "prepared", PLUGIN_CLAIM + grant_id)
+    manager.apply(pending.action_id)
+    return f"created:{grant_id}", None
+
+
 def _sync_sources(service: AptuniService, plan: SetupPlan, report: SetupReport) -> str:
     """Sync only sources named by this digest-bound plan; never sweep pre-existing sources."""
     synced = 0
@@ -268,6 +301,8 @@ def apply_setup_plan(
             action_id, str(finished.get("vault_path", "")), "complete",
             results=dict(finished.get("results", {})),
             grants=[item for item in finished.get("created", []) if str(item).startswith("grant-")],
+            plugin_grants=[str(item).removeprefix(PLUGIN_CLAIM) for item in finished.get("created", [])
+                           if str(item).startswith(PLUGIN_CLAIM)],
             host_files=[str(item) for item in finished.get("host_files", [])],
             doctor_ok=bool(finished.get("doctor_ok")), smoke_ok=bool(finished.get("smoke_ok")),
         )
@@ -289,8 +324,7 @@ def apply_setup_plan(
                 record_step(intent_path, intent, key, "prepared", prepared_adapter.grant_id)
                 report.results[key] = "prepared"
         try:
-            outcome, created = (_run_adapter(prepared_adapter) if prepared_adapter is not None
-                                else _run_step(service, step, plan, report))
+            outcome, created = _execute(service, step, plan, report, prepared_adapter, (intent_path, intent, key))
         except (AptuniError, OSError) as error:
             code = error.code if isinstance(error, AptuniError) else "io_error"
             report.results[key] = f"failed:{code}"
@@ -303,12 +337,25 @@ def apply_setup_plan(
             grant_id = created if created else outcome.partition(":")[2]
             if grant_id.startswith("grant-") and grant_id not in report.grants:
                 report.grants.append(grant_id)
+        if step.kind == "plugin_grant":
+            _carry_completed(step, report, intent, outcome)
         if not _succeeded(outcome):
             report.failure = outcome.split(":", 1)[-1]
             return report
     report.terminal_state = "complete"
     finish_setup_intent(state_dir, action_id, intent, plan, report)
     return report
+
+
+def _execute(
+    service: AptuniService, step: SetupStep, plan: SetupPlan, report: SetupReport,
+    prepared_adapter: _PreparedAdapter | None, journal: tuple[Path, dict[str, Any], str],
+) -> tuple[str, str | None]:
+    if step.kind == "plugin_grant":
+        return _run_plugin_grant(service, step, *journal)
+    if prepared_adapter is not None:
+        return _run_adapter(prepared_adapter)
+    return _run_step(service, step, plan, report)
 
 
 def _plan_of(intent: dict[str, Any]) -> SetupPlan:
@@ -323,6 +370,10 @@ def _carry_completed(
         report.doctor_ok = outcome == "ok"
     elif step.kind == "smoke":
         report.smoke_ok = outcome == "ok"
+    elif step.kind == "plugin_grant":
+        grant_id = outcome.partition(":")[2]
+        if grant_id.startswith("grant-") and grant_id not in report.plugin_grants:
+            report.plugin_grants.append(grant_id)
     elif step.kind == "adapter":
         reused = outcome.partition(":")[2]
         grants = [reused] if reused.startswith("grant-") else [

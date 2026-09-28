@@ -18,6 +18,7 @@ from aptuni.application.workspace import DEFAULT_VAULT, Workspace
 from aptuni.cli.backup_commands import add_backup_commands, cmd_backup
 from aptuni.cli.developer_cli import add_developer_commands, cmd_developer
 from aptuni.cli.evaluation_cli import add_evaluation_commands, cmd_evaluate
+from aptuni.cli.guide_cli import add_guide_commands, cmd_connect, cmd_guide
 from aptuni.cli.host_connect import connect_lines
 from aptuni.cli.marginnote_commands import MARGINNOTE_COMMANDS, add_marginnote_parsers, cmd_marginnote
 from aptuni.cli.memory_cli import add_memory_commands, cmd_memory, cmd_observe
@@ -182,6 +183,7 @@ def build_parser() -> argparse.ArgumentParser:
                       help=f"Vault location (default: {DEFAULT_VAULT})")
 
     add_attach_command(sub)
+    add_guide_commands(sub)
 
     status = sub.add_parser("status", help="show Vault location, size and module switches")
     status.add_argument("--json", action="store_true")
@@ -764,6 +766,8 @@ def _print_purge_preview(preview: Any) -> None:
 COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "init": _cmd_init,
     "attach": cmd_attach,
+    "guide": cmd_guide,
+    "connect": cmd_connect,
     "status": _cmd_status,
     "remember": _cmd_remember,
     "facts": _cmd_facts,

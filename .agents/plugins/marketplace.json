@@ -1,0 +1,19 @@
+{
+  "name": "aptuni",
+  "interface": {
+    "displayName": "Aptuni"
+  },
+  "plugins": [
+    {
+      "name": "top-down-learning",
+      "source": {
+        "source": "local",
+        "path": "./examples/plugins/top_down_learning"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Education"
+    }
+  ]
+}

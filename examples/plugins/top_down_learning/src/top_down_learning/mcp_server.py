@@ -30,6 +30,7 @@ from pydantic import BaseModel, ConfigDict, Field  # noqa: E402
 
 from aptuni.api.v1 import AptuniAPI, AptuniAPIError, connect, load_manifest  # noqa: E402
 from top_down_learning.context_parser import parse_context  # noqa: E402
+from top_down_learning.grant_lookup import GrantLookupError, resolve_grant_id  # noqa: E402
 from top_down_learning.learning_context import MAX_CONTEXT_BYTES, ContextError, render_context  # noqa: E402
 from top_down_learning.portable import export_cloud  # noqa: E402
 from top_down_learning.workflow import Draft, PrerequisiteSpec, TopDownLearning  # noqa: E402
@@ -208,12 +209,17 @@ def create_server(api: AptuniAPI) -> MCPServer:
 
 
 def main() -> None:
-    grant_id = os.environ.get("APTUNI_TOP_DOWN_GRANT_ID", "")
-    if not grant_id:
-        raise SystemExit("top_down_grant_required")
     manifest_resource = files("top_down_learning").joinpath("aptuni-plugin.toml")
     with as_file(manifest_resource) as manifest_path:
-        api = connect(load_manifest(manifest_path), grant_id)
+        if "--manifest-path" in sys.argv[1:]:
+            print(manifest_path)
+            return
+        manifest = load_manifest(manifest_path)
+        try:
+            grant_id = resolve_grant_id(manifest, os.environ)
+        except GrantLookupError as error:
+            raise SystemExit(str(error)) from None
+        api = connect(manifest, grant_id)
     create_server(api).run(transport="stdio")
 
 

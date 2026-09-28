@@ -28,10 +28,22 @@
 
 ## 让智能体帮你安装
 
+把下面这句话粘贴给 Claude Code 或 Codex：
+
+> 帮我安装并配置 Aptuni：运行 `uv tool install aptuni==0.2.0b2`（如果没有 uv 就先装 uv），然后运行
+> `aptuni guide agent --lang zh-CN` 并按它的步骤来。
+
+智能体会在聊天里问你几个问题——使用的语言、希望 Aptuni 了解你的哪些部分、个人数据能否交给云端模型处理、
+要连接哪些智能体、是否需要 Top-Down Learning 插件——并自己运行所有命令。你只需要在自己的终端里输入一条
+命令 `aptuni setup apply ACTION_ID`，再输入 `APPLY`：智能体永远不能替你批准对你数据的访问。之后智能体会
+帮你连接 Claude Code 或 Codex，并告诉你如何使用；在你为某个任务打开之前，Aptuni 始终保持关闭。
+
+### 或者自己在终端里配置
+
 使用 Python 3.13 和 [uv](https://docs.astral.sh/uv/) 安装公开软件包：
 
 ```sh
-uv tool install aptuni==0.2.0b1
+uv tool install aptuni==0.2.0b2
 aptuni --version
 ```
 
@@ -47,12 +59,6 @@ Aptuni 从哪些方面了解你：本地文件夹、Obsidian、GitHub、Notion �
 浏览器授权或 macOS 权限确认，所以计划里会列出之后要运行的准确命令。在你用
 `aptuni setup apply ACTION_ID` 确认计划并输入 `APPLY` 之前，不会创建任何东西。
 
-或者，在 Claude Code 或 Codex 中打开本仓库，然后说：
-
-> 阅读这个仓库，帮我配置好 Aptuni。
-
-智能体会阅读 [`AGENTS.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b1/AGENTS.md)，先询问你使用哪种语言，再了解：你有哪些资料来源、
-希望它如何记住你、个人数据能否交给云端模型处理。
 
 你也可以自己执行同一套流程。只要两条命令；第一条只创建一份私有、会过期的方案记录，
 不会创建 Vault、来源、授权或宿主 bundle：

@@ -237,3 +237,42 @@ def test_host_manifests_and_server_report_the_package_version() -> None:
     for path in (EXAMPLE / ".codex-plugin" / "plugin.json", EXAMPLE / "claude" / ".claude-plugin" / "plugin.json"):
         assert json.loads(path.read_text(encoding="utf-8"))["version"] == version
     assert f'version="{version}"' in (EXAMPLE / "src" / "top_down_learning" / "mcp_server.py").read_text()
+
+
+def _grant_row(grant_id: str, digest: str, created_at: str, plugin_id: str = "dev.aptuni.top_down_learning") -> dict:
+    return {"grant_id": grant_id, "plugin_id": plugin_id, "manifest_digest": digest, "created_at": created_at}
+
+
+def test_plugin_picks_its_own_newest_matching_grant_without_an_environment_variable() -> None:
+    from top_down_learning.grant_lookup import GrantLookupError, resolve_grant_id
+
+    manifest = load_manifest(MANIFEST)
+    digest = manifest.digest()
+    rows = [
+        _grant_row("grant-old", digest, "2026-09-28T10:00:00Z"),
+        _grant_row("grant-new", digest, "2026-09-28T11:00:00Z"),
+        _grant_row("grant-stale", "sha256:" + "0" * 64, "2026-09-28T12:00:00Z"),
+        _grant_row("grant-other", digest, "2026-09-28T13:00:00Z", plugin_id="dev.example.other"),
+    ]
+    assert resolve_grant_id(manifest, {}, lambda: rows) == "grant-new"
+    assert resolve_grant_id(manifest, {"APTUNI_TOP_DOWN_GRANT_ID": "grant-pinned"}, lambda: rows) == "grant-pinned"
+    with pytest.raises(GrantLookupError) as error:
+        resolve_grant_id(manifest, {}, lambda: rows[2:])
+    assert "aptuni developer grant plan" in str(error.value)
+
+
+def test_real_stdio_server_finds_the_owner_grant_on_its_own(tmp_path: Path) -> None:
+    service, _ = _ready(tmp_path)
+
+    async def exercise() -> None:
+        params = StdioServerParameters(
+            command=sys.executable,
+            args=["-m", "top_down_learning.mcp_server"],
+            env={"APTUNI_STATE_DIR": str(service.workspace.state_dir), "PYTHONPATH": str(EXAMPLE / "src"),
+                 "HOME": str(tmp_path)},
+        )
+        async with Client(params) as client:
+            tools = await client.list_tools()
+            assert tuple(tool.name for tool in tools.tools) == TOOLS
+
+    anyio.run(exercise)

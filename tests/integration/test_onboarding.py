@@ -200,6 +200,7 @@ def test_bare_aptuni_welcomes_a_new_user_with_the_first_command(
     assert main([]) == 0
     out = capsys.readouterr().out
     assert "aptuni setup plan" in out and "aptuni attach" in out and "第一次使用" in out
+    assert "aptuni guide agent" in out
 
 
 def test_commands_before_setup_point_to_setup_or_attach(

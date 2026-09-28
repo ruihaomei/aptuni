@@ -22,6 +22,8 @@ from aptuni.adapters.manager import BUNDLE_FILES, SCOPES, AdapterManager, host_d
 from aptuni.advisor import AdvisorError, CatalogError, SetupAnswers, load_catalog, recommend
 from aptuni.advisor.preview import plugin_name, render_preview
 from aptuni.advisor.recommend import HOSTS, MEMORY_EXPERIENCES, PRIVACY_MODES, SOURCE_KINDS
+from aptuni.api.v1 import CAPABILITIES, AptuniAPIError, load_manifest
+from aptuni.api.v1.grants import PluginGrantManager
 from aptuni.application.setup import (
     SetupError,
     SetupPlan,
@@ -35,9 +37,10 @@ from aptuni.application.setup import (
 )
 from aptuni.application.workspace import DEFAULT_VAULT
 from aptuni.cli import onboarding
+from aptuni.cli.grant_consent import render_consent
 from aptuni.cli.host_connect import connect_lines
 from aptuni.cli.render import delimited_untrusted
-from aptuni.cli.setup_apply import HOST_ADAPTER, apply_setup_plan, planned_sources
+from aptuni.cli.setup_apply import HOST_ADAPTER, PLUGIN_CLAIM, apply_setup_plan, planned_sources
 from aptuni.domain.records import MODULES
 from aptuni.i18n import I18nError, has_message, normalize_locale, t
 from aptuni.sources.github import DEFAULT_API_ORIGIN, GitHubSourceSpec, SourceIdentityError
@@ -271,6 +274,10 @@ def add_guided_setup_command(sub: Any) -> None:
     margin_scope.add_argument("--marginnote-notebook", action="append", dest="marginnote_notebooks")
     margin_scope.add_argument("--marginnote-all-notebooks", action="store_true")
     plan.add_argument("--module", action="append", choices=MODULES, default=None, dest="modules")
+    plan.add_argument("--plugin-manifest", type=Path, default=None,
+                      help="also approve this installed plugin's Aptuni grant in the same confirmation")
+    plan.add_argument("--plugin-capability", action="append", choices=CAPABILITIES, default=None,
+                      dest="plugin_capabilities", help="grant only these plugin capabilities (repeatable)")
     plan.add_argument("--json", action="store_true")
 
     apply_parser = setup_sub.add_parser("apply", help="apply one exact plan after a terminal confirmation")
@@ -339,6 +346,9 @@ def _render_plan(plan: SetupPlan, locale: str, action_state: str = "pending") ->
         text = t(f"setup.plan.step.{kind}", locale, target=delimited_untrusted(_shown_target(step.kind, step.target)))
         lines.append(f"  {number}. {text}")
     lines.append("")
+    for step in plan.steps:
+        if step.kind == "plugin_grant":
+            lines += [*_plugin_consent(step.target, locale), ""]
     later = onboarding.later_lines(frozenset(plan.answers.get("sources", ())),
                                    frozenset(step.kind for step in plan.steps), locale)
     if later:
@@ -379,14 +389,23 @@ def _render_release(plan: SetupPlan, locale: str) -> list[str]:
 
 
 def _shown_target(kind: str, target: str) -> str:
-    """Show a GitHub step as its repository address (and ref) rather than its frozen JSON target."""
-    if kind != "source_github":
+    """Show GitHub and plugin steps by name rather than by their frozen JSON targets."""
+    if kind not in ("source_github", "plugin_grant"):
         return target
     try:
         value = json.loads(target)
+        if kind == "plugin_grant":
+            return f"{value['plugin_id']} {value['version']}"
         return str(value["repository_url"]) + (f" @ {value['ref']}" if value.get("ref") else "")
     except (json.JSONDecodeError, KeyError, TypeError):
         return target
+
+
+def _plugin_consent(target: str, locale: str) -> list[str]:
+    value = json.loads(target)
+    return render_consent(plugin_id=value["plugin_id"], version=value["version"],
+                          capabilities=tuple(value["capabilities"]), required=tuple(value["required"]),
+                          modules=tuple(value["modules"]), locale=locale, name=value["name"])
 
 
 def _retention(value: str, locale: str) -> str:
@@ -456,9 +475,16 @@ def _setup_plan(args: argparse.Namespace, service: Any) -> int:  # noqa: PLR0911
         print("aptuni: " + t("setup.error.missing_source", locale, sources=names,
                              flags=" ".join(flag for _, flag in missing)), file=sys.stderr)
         return 2
+    try:
+        plugin_target = _plugin_target(args.plugin_manifest, args.plugin_capabilities)
+    except (AptuniAPIError, OSError, ValueError) as error:
+        print("aptuni: " + t("setup.error.plugin_manifest", locale, reason=str(error)), file=sys.stderr)
+        return 2
     modules = tuple(dict.fromkeys(args.modules or DEFAULT_SETUP_MODULES))
     vault = Path(args.vault).expanduser().resolve() if args.vault else DEFAULT_VAULT
     steps = _plan_steps(answers, folders, obsidian, github_targets, marginnote_target, vault)
+    if plugin_target is not None:
+        steps = (*steps[:-2], SetupStep("plugin_grant", plugin_target), *steps[-2:])
     plan = create_setup_plan(
         service.workspace.state_dir, catalog_digest=catalog.version_digest(), locale=answers.locale,
         answers={"sources": sorted(answers.sources), "memory": answers.memory, "privacy": answers.privacy,
@@ -474,6 +500,25 @@ def _setup_plan(args: argparse.Namespace, service: Any) -> int:  # noqa: PLR0911
     print()
     print("\n".join(_render_plan(plan, answers.locale)))
     return 0
+
+
+def _plugin_target(manifest_path: Path | None, capabilities: list[str] | None) -> str | None:
+    """Freeze exactly what the plugin grant will be: manifest digest, capabilities and modules."""
+    if manifest_path is None:
+        return None
+    path = manifest_path.expanduser().resolve()
+    manifest = load_manifest(path)
+    if manifest.egress != ("none",):
+        raise ValueError("this plugin declares network egress; setup only grants local no-egress plugins")
+    selected = tuple(capabilities or manifest.requested_capabilities)
+    if not set(selected) <= set(manifest.requested_capabilities):
+        raise ValueError("the grant cannot exceed the capabilities the plugin requests")
+    if not set(manifest.required_capabilities) <= set(selected):
+        raise ValueError("the grant must include every capability the plugin requires")
+    return json.dumps({"manifest": str(path), "digest": manifest.digest(), "plugin_id": manifest.id,
+                       "name": manifest.name, "version": manifest.version, "capabilities": list(selected),
+                       "required": list(manifest.required_capabilities), "modules": list(manifest.modules)},
+                      ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
 def _github_target(repository: str, api_origin: str, ref: str | None, token_env: str | None) -> str:
@@ -572,6 +617,8 @@ def _print_report(report: Any, plan: SetupPlan, locale: str) -> int:
             if lines:
                 print("\n".join(("", *lines)))
         print(t("setup.apply.relaunch", locale))
+    for grant_id in report.plugin_grants:
+        print(t("setup.apply.plugin_grant", locale, grant_id=grant_id))
     print(t("setup.apply.host_status", locale))
     print(t("setup.apply.privacy", locale))
     print(t("setup.apply.rollback", locale, action_id=report.action_id))
@@ -585,7 +632,10 @@ def _setup_cancel(args: argparse.Namespace, service: Any) -> int:
     plan = load_setup_plan(service.workspace.state_dir, args.action_id)
     was_confirmed, rollback = cancel_setup_plan(service.workspace.state_dir, args.action_id)
     manager = AdapterManager(service.workspace)
+    plugins = PluginGrantManager(service.workspace)
     rolled = [item for item in rollback if item.startswith("grant-") and manager.revoke(item)]
+    rolled += [item.removeprefix(PLUGIN_CLAIM) for item in rollback
+               if item.startswith(PLUGIN_CLAIM) and plugins.revoke(item.removeprefix(PLUGIN_CLAIM))]
     if not was_confirmed:
         print(t("setup.cancel.nothing", locale, action_id=args.action_id))
         return 0

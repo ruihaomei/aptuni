@@ -300,7 +300,7 @@
 "consent.module.memory" = "记忆"
 
 # ---------------------------------------------------------------- 首次使用引导
-"welcome" = "Aptuni — 懂你的上下文。\n\n  第一次使用？     aptuni setup plan     （回答几个问题；在你输入 APPLY 之前不会改动任何东西）\n  已经有 Vault？   aptuni attach 路径\n  全部命令：       aptuni --help"
+"welcome" = "Aptuni — 懂你的上下文。\n\n  在聊天中配置：    让 Claude Code 或 Codex 运行 'aptuni guide agent --lang zh-CN' 并照做\n  第一次使用？     aptuni setup plan     （回答几个问题；在你输入 APPLY 之前不会改动任何东西）\n  已经有 Vault？   aptuni attach 路径\n  全部命令：       aptuni --help"
 "not_initialized" = "当前安装还没有设置 Vault。第一次使用？请运行：aptuni setup plan。已经有 Vault？请运行：aptuni attach 路径"
 "onboarding.intro" = "\n欢迎使用 Aptuni。它保存的所有内容都在本机的一个私人文件夹里，也就是你的 Vault：\n  • Profile（了解我）— 关于你的稳定信息：知识、技能、目标、偏好。\n  • Memory（记住我们的经历）— 你和智能体在合作中选择记下来的内容。\n  • 证据 — 来自你批准的信息源的精简摘录，让每一条结论都能追溯来源。\n智能体默认关闭：只有你为某个任务打开 Profile、Memory 或 Full，Aptuni 才会提供信息。\n下面的每个选择以后都可以修改或撤销。\n"
 "onboarding.sources.question" = "Aptuni 可以从你已有的资料中了解你。你希望它了解你的哪些部分？"
@@ -331,7 +331,7 @@
 "setup.error.missing_source" = "你选择了{sources}，但没有指明 Aptuni 具体要读取哪一个。请加上 {flags} 后重新运行，或者直接在终端运行 'aptuni setup plan'，按提示一步步选择。"
 
 # ---------------------------------------------------------------- 让智能体用上 bundle
-"connect.claude.title" = "连接 Claude Code — 用这个 bundle 启动它（Aptuni 不会修改 Claude 自身的设置）："
+"connect.claude.title" = "连接 Claude Code — 把这个 bundle 作为插件安装一次（Aptuni 不会修改 Claude 自身的设置；如果以前连接过，先运行 'claude plugin uninstall aptuni@aptuni-local' 和 'claude plugin marketplace remove aptuni-local'）："
 "connect.claude.use" = "  在这个会话里，需要时输入 /aptuni:profile、/aptuni:memory 或 /aptuni:full；/aptuni:session 可查看或关闭会话模式。"
 "connect.codex.title" = "连接 Codex — 在你使用 Codex 的项目文件夹里运行（技能只装进这个项目；MCP 服务会注册到你所有的 Codex 项目，但在调用前保持关闭）："
 "connect.codex.use" = "  然后在该项目里开启新的 Codex 会话，需要时输入 $aptuni-profile、$aptuni-memory 或 $aptuni-full；$aptuni-session 可查看或关闭会话模式。"
@@ -339,3 +339,8 @@
 
 "advisor.preview.details" = "想看组件、好处和取舍：用同样的回答运行 'aptuni advise'。"
 "setup.retention.externally_controlled_unknown" = "由提供方控制（细节未知）"
+"connect.claude.once" = "  或者不安装，只在这一次会话里使用："
+"setup.plan.step.plugin_grant" = "批准上面显示的插件授权：{target}"
+"setup.error.plugin_manifest" = "无法为这个插件 manifest 授权：{reason}。没有生成任何计划。"
+"setup.apply.plugin_grant" = "插件授权 {grant_id} 已批准。可以随时撤销：aptuni developer grant revoke {grant_id}"
+"connect.none" = "还没有为 {host} 创建 Aptuni 访问。请先运行 'aptuni setup plan'（选择 {host}），再运行 'aptuni setup apply ACTION_ID'。"

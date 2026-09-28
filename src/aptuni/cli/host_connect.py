@@ -20,7 +20,10 @@ __all__ = ["connect_lines"]
 def connect_lines(bundle: Path, locale: str) -> list[str]:
     """Return the connect instructions for one bundle, or nothing if it is not a known host bundle."""
     if (bundle / ".claude-plugin" / "plugin.json").is_file():
-        return [t("connect.claude.title", locale), f"    claude --plugin-dir {shlex.quote(str(bundle))}",
+        quoted = shlex.quote(str(bundle))
+        return [t("connect.claude.title", locale), f"    claude plugin marketplace add {quoted}",
+                "    claude plugin install aptuni@aptuni-local",
+                t("connect.claude.once", locale), f"    claude --plugin-dir {quoted}",
                 t("connect.claude.use", locale), t("connect.off", locale)]
     config = bundle / "config.toml"
     if config.is_file():

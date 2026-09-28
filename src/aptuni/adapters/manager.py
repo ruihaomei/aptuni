@@ -25,7 +25,7 @@ Host = Literal["claude", "codex"]
 # reads it from here, so the promise cannot drift from the code that writes the files.
 BUNDLE_FILES: dict[str, tuple[str, ...]] = {
     "claude": (
-        ".mcp.json", ".claude-plugin/plugin.json", "skills/profile/SKILL.md",
+        ".mcp.json", ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json", "skills/profile/SKILL.md",
         "skills/memory/SKILL.md", "skills/full/SKILL.md", "skills/session/SKILL.md",
     ),
     "codex": (
@@ -181,6 +181,14 @@ class AdapterManager:
                     "version": ADAPTER_BUNDLE_VERSION,
                     "author": {"name": "Aptuni Contributors"},
                 },
+            )
+            # The bundle is also a one-plugin local marketplace, so the owner (or their agent) can
+            # install it persistently with `claude plugin install aptuni@aptuni-local`.
+            self._write_json(
+                bundle / ".claude-plugin" / "marketplace.json",
+                {"name": "aptuni-local", "owner": {"name": "Aptuni Contributors"},
+                 "metadata": {"description": "This device's Aptuni integration for one owner grant"},
+                 "plugins": [{"name": "aptuni", "source": "./"}]},
             )
             for name, intent in (("profile", "aptuni.profile"), ("memory", "aptuni.memory"), ("full", "aptuni.full")):
                 self._write_text(bundle / "skills" / name / "SKILL.md", self._skill(name, intent, claude=True))
