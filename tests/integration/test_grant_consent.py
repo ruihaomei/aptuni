@@ -42,7 +42,7 @@ def test_default_plan_is_a_readable_consent_screen_rendered_from_the_real_plan(
     action_id = _pending_id(service)
     assert not out.lstrip().startswith("{"), "the default output must not be raw JSON"
     assert "\\n" not in out
-    assert '"Top-Down Learning" (dev.aptuni.top_down_learning 0.2.0) requests access' in out, "plugin text is delimited"
+    assert '"Top-Down Learning" (dev.aptuni.top_down_learning 0.2.1) requests access' in out, "plugin text is delimited"
     assert "✓ Knowledge" in out and "✓ Skills" in out and "✓ Preferences" in out
     assert "✗ Identity" not in out, "only the modules in the plan are listed"
     assert "✓ Suggest new memories (optional)" in out
@@ -92,7 +92,7 @@ def test_default_apply_shows_consent_then_a_readable_result(
 
     out = capsys.readouterr().out
     grant_id = "grant-" + action_id.removeprefix("act-")
-    assert "dev.aptuni.top_down_learning 0.2.0 requests access" in out
+    assert "dev.aptuni.top_down_learning 0.2.1 requests access" in out
     assert f"Approved. Grant ID: {grant_id}" in out
     assert f"aptuni developer grant revoke {grant_id}" in out
     assert not any(line.lstrip().startswith("{") for line in out.splitlines())

@@ -1,6 +1,6 @@
 [project]
 name = "aptuni-top-down-learning"
-version = "0.2.0"
+version = "0.2.1"
 description = "Manual Top-Down Learning Agent plugin for Aptuni"
 requires-python = ">=3.13"
 license = "Apache-2.0"

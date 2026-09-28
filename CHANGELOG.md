@@ -6,6 +6,43 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0b2] — 2026-09-29
+
+Second Beta, from the first real User #1 reinstall and a disposable brand-new-user install in
+English and Chinese. Aptuni can now be set up from inside a Claude Code or Codex chat with one owner
+APPLY. Top-Down Learning plugin 0.2.1 finds its own grant.
+
+### Added
+
+- `aptuni guide agent`: a packaged playbook the user's Agent follows in chat. The Agent asks the
+  questions and runs the commands; the owner types only `aptuni setup apply ACTION_ID` and APPLY.
+- `aptuni attach PATH` reconnects a fresh installation to an existing Vault after a read-only
+  verification, without changing anything inside it; guided setup also reuses an existing Vault.
+- `setup plan --plugin-manifest` puts a plugin's grant consent into the setup plan, so one APPLY
+  covers Vault, sources, agent access and the plugin; `setup cancel` revokes it.
+- `aptuni connect claude|codex` prints the exact host commands for the current grant. The Claude
+  bundle doubles as a local marketplace for `claude plugin install aptuni@aptuni-local`.
+- Repository marketplaces for Claude Code and Codex install Top-Down Learning with two commands.
+- An Obsidian setup step; first-run questions in product language ("which parts of you may Aptuni
+  learn from") with the exact location asked in the same flow; a welcome screen for bare `aptuni`.
+
+### Changed
+
+- Plugin grant previews and applies show a readable English/Chinese consent screen built from the
+  real plan (`--json` is unchanged). It states that memory suggestions are stored in the Vault as
+  pending items and that network use is the plugin's declaration.
+- `setup apply` and `adapter apply` print the exact Claude Code and Codex connect commands. The setup
+  plan shows a short recommendation, localized retention and expiry, and module names in Chinese.
+- Agent catalog copy no longer promises automatic context: Aptuni stays OFF until invoked.
+- Top-Down Learning 0.2.1 no longer needs `APTUNI_TOP_DOWN_GRANT_ID`; it uses the newest owner
+  grant bound to its exact manifest digest and prints its manifest path. Re-plan its grant.
+
+### Fixed
+
+- Choosing a folder in interactive setup no longer ends in an English flag error; Obsidian and
+  Notion choices are no longer silently dropped; unsupported sources are not offered.
+- Setup steps for GitHub show the repository address instead of internal JSON.
+
 ## [0.2.0b1] — 2026-09-27
 
 First Beta. Aptuni becomes a personal context platform for Agent plugins: canonical Profile, Memory
@@ -159,6 +196,7 @@ First public pre-alpha release of the Milestone 1 personal context core.
 - Module-scoped host grants, network-denied MCP STDIO, conservative host-confinement reporting, and
   tracked-secret checks in the release gate.
 
-[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.2.0b1...HEAD
+[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.2.0b2...HEAD
+[0.2.0b2]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b2
 [0.2.0b1]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b1
 [0.1.0]: https://github.com/ruihaomei/aptuni/releases/tag/v0.1.0

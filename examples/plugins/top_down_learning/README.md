@@ -91,42 +91,46 @@ optional `memory.propose` capability fails closed when it is withheld.
 
 ## Install and authorize
 
-With the published Beta, where `aptuni` comes from PyPI and the plugin from the exact release tag:
+The easiest path is to ask your Agent to run `aptuni guide agent` and say you want Top-Down
+Learning: it installs the plugin, adds its grant to the same setup plan, and you type one APPLY.
+
+By hand, with the published Beta (`aptuni` from PyPI, the plugin from the exact release tag):
 
 ```sh
-git clone --depth 1 --branch v0.2.0b1 https://github.com/ruihaomei/aptuni.git aptuni-v0.2.0b1
-uv tool install aptuni==0.2.0b1
-uv tool install ./aptuni-v0.2.0b1/examples/plugins/top_down_learning
-MANIFEST=aptuni-v0.2.0b1/examples/plugins/top_down_learning/src/top_down_learning/aptuni-plugin.toml
-aptuni developer inspect "$MANIFEST"
-aptuni developer grant plan "$MANIFEST"
-aptuni developer grant apply ACT_ID        # type APPLY to confirm
-export APTUNI_TOP_DOWN_GRANT_ID=GRANT_ID
+uv tool install aptuni==0.2.0b2
+uv tool install "git+https://github.com/ruihaomei/aptuni@v0.2.0b2#subdirectory=examples/plugins/top_down_learning"
+aptuni developer grant plan "$(top-down-study-mcp --manifest-path)"
+aptuni developer grant apply ACTION_ID        # read the consent screen, then type APPLY
 ```
 
-The plugin wheel and sdist are also attached to the GitHub Release with their SHA-256 sums. Below,
-`/path/to/aptuni` means that checkout (`aptuni-v0.2.0b1`). Each `uv tool` environment carries its
-own copy of `aptuni`, so upgrade both tools together.
+The plugin finds its own grant: it uses the newest owner grant bound to its exact manifest digest
+(`aptuni developer grant list`). Set `APTUNI_TOP_DOWN_GRANT_ID` only to pin a specific grant. The
+plugin wheel and sdist are also attached to the GitHub Release with their SHA-256 sums. Each
+`uv tool` environment carries its own copy of `aptuni`, so upgrade both tools together.
 
 The plan grants the required `context.read` and, by default, the optional `memory.propose`. To
-withhold memory capture, add `--capability context.read` to `grant plan`. Version 0.2.0 changes the
-manifest, so a 0.1.0 grant must be re-planned.
+withhold memory capture, add `--capability context.read` to `grant plan`. A new plugin version
+changes the manifest, so plan its grant again after upgrading.
 
-**Claude Code:** `claude --plugin-dir /path/to/aptuni/examples/plugins/top_down_learning/claude`, then
-invoke `/top-down-learning:top-down-study`. The skill is user-only and has no automatic hook.
-
-**Codex:** in the project where you want to learn:
+**Claude Code:**
 
 ```sh
-mkdir -p .agents/skills
-cp -R /path/to/aptuni/examples/plugins/top_down_learning/skills/top-down-study .agents/skills/
-codex mcp add top_down_study \
-  --env APTUNI_TOP_DOWN_GRANT_ID="$APTUNI_TOP_DOWN_GRANT_ID" \
-  -- top-down-study-mcp
+claude plugin marketplace add ruihaomei/aptuni
+claude plugin install top-down-learning@aptuni
 ```
 
-Add `--env APTUNI_STATE_DIR=…` if it is not the default. Then invoke `$top-down-study`. Implicit
-invocation is disabled.
+Start a new session and invoke `/top-down-learning:top-down-study`. The skill is user-only and has
+no automatic hook. (For one session only: `claude --plugin-dir PATH/examples/plugins/top_down_learning/claude`.)
+
+**Codex:**
+
+```sh
+codex plugin marketplace add ruihaomei/aptuni
+codex plugin add top-down-learning@aptuni
+```
+
+Start a new session and invoke `$top-down-study`. Implicit invocation is disabled. Add
+`APTUNI_STATE_DIR` to the server environment only if you use a non-default state directory.
 
 ## Boundaries and limits
 
