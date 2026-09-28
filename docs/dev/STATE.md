@@ -397,13 +397,10 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
 
 ## Next highest-priority task
 
-0. Aptuni `0.2.0b2` + Top-Down Learning `0.2.1` (release candidate `e5f3282`, maintainer-authorized):
-   the onboarding fixes above plus agent-led setup — `aptuni guide agent`, one owner APPLY that can
-   include a plugin grant (refused without host egress; Reviews 78 BLOCK → 79 approve), `aptuni
-   connect`, a persistent Claude local marketplace, repo marketplaces for Top-Down, and plugin grant
-   self-discovery. Disposable fresh-home runs passed in English and Chinese, including the one-APPLY
-   agent flow. After publication, reinstall User #1 from PyPI, `aptuni attach` the real Vault, and
-   leave grants and host connection for the Day 0 session.
+0. Aptuni `0.2.0b3` is public (records `docs/dev/releases/0.2.0b2.md`, `0.2.0b3.md`); Top-Down
+   Learning `0.2.1`. User #1 runs public 0.2.0b3 with the real Vault attached (bytes unchanged); no
+   grants or host integrations exist yet. Day 0 is the first real Agent-led journey in a fresh
+   Claude Code or Codex session (`aptuni guide agent`), recorded in `BETA_DOGFOODING.md`.
 1. Run the real Claude Code and Codex first-run journeys with the maintainer on the published Beta;
    record them in `docs/dev/releases/0.2.0b1.md`. Day 0 of the 14-day User #1 window is the first
    real journey (`docs/dev/BETA_DOGFOODING.md`). Keep the UX Gate open until the exact phrase

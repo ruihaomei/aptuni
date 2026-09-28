@@ -4,11 +4,11 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
 
 ## Current position
 
-**Beta 0.2.0b3 (2026-09-29, maintainer-authorized).** 0.2.0b2 is public (record
+**Beta 0.2.0b3 is public (2026-09-29, maintainer-authorized; record `docs/dev/releases/0.2.0b3.md`).** 0.2.0b2 is public (record
 `docs/dev/releases/0.2.0b2.md`). A returning-user P1 found while preparing Day 0 — setup planned a new
 `~/Aptuni` after `aptuni attach` and failed after APPLY — is fixed in 0.2.0b3, with scripted
-MarginNote deferred like Notion. Top-Down Learning stays 0.2.1. Next: reinstall User #1 from PyPI
-b3 with `aptuni attach`, then Day 0 in a fresh Agent session led by `aptuni guide agent`.
+MarginNote deferred like Notion. Top-Down Learning stays 0.2.1. User #1 now runs public b3 with the real Vault
+attached (unchanged). Next: Day 0 in a fresh Agent session led by `aptuni guide agent`.
 
 Canonical Beta Agent activation is runnable under accepted ADR-0025 and approved by Review 70.
 Official Claude Code and Codex bundles start OFF, have no automatic personal-context hook, and map
