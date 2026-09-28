@@ -227,8 +227,8 @@ def test_an_expired_plan_cannot_be_applied(
 
 def test_apply_refuses_to_adopt_a_different_vault(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     service = _service(tmp_path)
-    service.init(tmp_path / "Existing")
     plan = _plan(service, tmp_path, capsys=capsys)
+    service.init(tmp_path / "Existing")  # configured after planning; planning itself now refuses this
     report = apply_setup_plan(service, plan["action_id"], plan["digest"])
 
     assert report.terminal_state == "incomplete_resumable"

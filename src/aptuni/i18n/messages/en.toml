@@ -346,3 +346,4 @@
 "connect.none" = "No Aptuni access for {host} exists yet. Create it with 'aptuni setup plan' (choose {host}), then 'aptuni setup apply ACTION_ID'."
 "setup.error.plugin_needs_host" = "A plugin such as Top-Down Learning runs inside Claude Code or Codex, so what it reads reaches that agent's model provider. Choose an agent and a privacy setting that allows cloud processing, or leave the plugin out. Nothing was planned."
 "setup.plan.release_plugin" = "  - In addition, the plugin {name} reads from {modules}; what it reads reaches the model provider of any agent that runs it (here: {operators})"
+"setup.error.other_vault" = "This installation already uses the Vault at {configured}. Plan without --vault to keep using it, or pass --vault with that path. Nothing was planned."

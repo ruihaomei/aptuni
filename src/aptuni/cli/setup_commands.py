@@ -469,18 +469,7 @@ def _setup_plan(args: argparse.Namespace, service: Any) -> int:  # noqa: PLR0911
     except (SourceIdentityError, ValueError) as error:
         print("aptuni: " + str(error), file=sys.stderr)
         return 2
-    missing: list[tuple[str, str]] = []
-    if answers.sources & {"folder", "application_materials"} and not folders:
-        missing.append(("folder", "--folder PATH"))
-    if "github" in answers.sources and not github_targets:
-        missing.append(("github", "--github URL"))
-    if "marginnote" in answers.sources and marginnote_target is None and not interactive:
-        missing.append(("marginnote", "--marginnote-store PATH --marginnote-all-notebooks"))
-    if missing:
-        names = "、".join(t(f"onboarding.name.{kind}", locale) for kind, _ in missing) if locale == "zh-CN" \
-            else ", ".join(t(f"onboarding.name.{kind}", locale) for kind, _ in missing)
-        print("aptuni: " + t("setup.error.missing_source", locale, sources=names,
-                             flags=" ".join(flag for _, flag in missing)), file=sys.stderr)
+    if not _sources_located(answers, locale, folders, github_targets):
         return 2
     try:
         plugin_target = _plugin_target(args.plugin_manifest, args.plugin_capabilities)
@@ -492,7 +481,9 @@ def _setup_plan(args: argparse.Namespace, service: Any) -> int:  # noqa: PLR0911
         print("aptuni: " + t("setup.error.plugin_needs_host", locale), file=sys.stderr)
         return 2
     modules = tuple(dict.fromkeys(args.modules or DEFAULT_SETUP_MODULES))
-    vault = Path(args.vault).expanduser().resolve() if args.vault else DEFAULT_VAULT
+    vault = _planned_vault(args, service, locale)
+    if vault is None:
+        return 2
     steps = _plan_steps(answers, folders, obsidian, github_targets, marginnote_target, vault)
     if plugin_target is not None:
         steps = (*steps[:-2], SetupStep("plugin_grant", plugin_target), *steps[-2:])
@@ -530,6 +521,38 @@ def _plugin_target(manifest_path: Path | None, capabilities: list[str] | None) -
                        "name": manifest.name, "version": manifest.version, "capabilities": list(selected),
                        "required": list(manifest.required_capabilities), "modules": list(manifest.modules)},
                       ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _planned_vault(args: argparse.Namespace, service: Any, locale: str) -> Path | None:
+    """The configured Vault by default; refuse another one before the owner types APPLY."""
+    configured = service.workspace.vault_path()
+    vault = Path(args.vault).expanduser().resolve() if args.vault else Path(configured or DEFAULT_VAULT)
+    if configured is not None and Path(configured).resolve() != vault.resolve():
+        print("aptuni: " + t("setup.error.other_vault", locale, configured=delimited_untrusted(str(configured))),
+              file=sys.stderr)
+        return None
+    return vault
+
+
+def _sources_located(answers: SetupAnswers, locale: str, folders: tuple[str, ...],
+                     github_targets: tuple[str, ...]) -> bool:
+    """Every chosen folder or GitHub source must name its exact location.
+
+    Notion, MarginNote without a store, and Obsidian without a path are listed as later steps with
+    exact commands instead, in interactive and scripted setup alike.
+    """
+    missing: list[tuple[str, str]] = []
+    if answers.sources & {"folder", "application_materials"} and not folders:
+        missing.append(("folder", "--folder PATH"))
+    if "github" in answers.sources and not github_targets:
+        missing.append(("github", "--github URL"))
+    if missing:
+        names = "、".join(t(f"onboarding.name.{kind}", locale) for kind, _ in missing) if locale == "zh-CN" \
+            else ", ".join(t(f"onboarding.name.{kind}", locale) for kind, _ in missing)
+        print("aptuni: " + t("setup.error.missing_source", locale, sources=names,
+                             flags=" ".join(flag for _, flag in missing)), file=sys.stderr)
+        return False
+    return True
 
 
 def _github_target(repository: str, api_origin: str, ref: str | None, token_env: str | None) -> str:

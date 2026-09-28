@@ -346,3 +346,4 @@
 "connect.none" = "还没有为 {host} 创建 Aptuni 访问。请先运行 'aptuni setup plan'（选择 {host}），再运行 'aptuni setup apply ACTION_ID'。"
 "setup.error.plugin_needs_host" = "Top-Down Learning 这类插件运行在 Claude Code 或 Codex 里面，它读到的内容会到达该智能体的模型提供方。请选择一个智能体，并允许云端处理；或者不装这个插件。没有生成任何计划。"
 "setup.plan.release_plugin" = "  - 此外，插件 {name} 会读取{modules}；它读到的内容会到达运行它的智能体的模型提供方（这里是：{operators}）"
+"setup.error.other_vault" = "当前安装已经在使用 {configured} 处的 Vault。不加 --vault 重新运行即可继续使用它，或者用 --vault 指定这个路径。没有生成任何计划。"

@@ -182,3 +182,35 @@ def test_attach_reports_an_unreadable_record_schema_as_unverified(
         service.attach(vault)
     assert error.value.code == "vault_unverified"
     assert service.workspace.vault_path() is None
+
+
+def test_setup_after_attach_uses_the_attached_vault_by_default(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    vault = _existing_vault(tmp_path)
+    service = _fresh(tmp_path)
+    service.attach(vault)
+    capsys.readouterr()
+
+    assert cli_run(["setup", "plan", "--lang", "en", "--source", "other", "--memory", "basic",
+                    "--privacy", "local_only", "--no-host", "--json"], service) == 0
+    plan = json.loads(capsys.readouterr().out)
+
+    assert plan["vault_path"] == str(vault.resolve())
+    report = apply_setup_plan(service, plan["action_id"], plan["digest"])
+    assert report.terminal_state == "complete"
+    assert report.results[f"vault:{vault.resolve()}"] == "already_present"
+
+
+def test_setup_refuses_a_different_vault_at_plan_time(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    vault = _existing_vault(tmp_path)
+    service = _fresh(tmp_path)
+    service.attach(vault)
+    capsys.readouterr()
+
+    assert cli_run(["setup", "plan", "--lang", "zh-CN", "--source", "other", "--memory", "basic",
+                    "--privacy", "local_only", "--no-host", "--vault", str(tmp_path / "Other")], service) == 2
+    err = capsys.readouterr().err
+    assert str(vault.resolve()) in err and "--vault" in err

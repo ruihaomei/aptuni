@@ -253,3 +253,14 @@ def test_memory_question_is_honest_about_beta_availability(
     assert "not available in this Beta" in prompts[2]
     _, zh_prompts, _ = _plan_interactively(tmp_path / "zh", monkeypatch, ["2", "", "1", "3", ""])
     assert "本 Beta 暂不可用" in zh_prompts[2]
+
+
+def test_scripted_notion_and_marginnote_are_listed_to_connect_later(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    service = _service(tmp_path)
+    assert run(["setup", "plan", "--lang", "en", "--source", "notion", "--source", "marginnote",
+                "--memory", "basic", "--privacy", "local_only", "--no-host",
+                "--vault", str(tmp_path / "Aptuni")], service) == 0
+    out = capsys.readouterr().out
+    assert "aptuni source connect-notion" in out and "aptuni source discover-marginnote" in out

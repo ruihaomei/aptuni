@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- After `aptuni attach`, guided setup uses the attached Vault by default instead of planning a new
+  `~/Aptuni` and failing after APPLY; a different `--vault` is refused before APPLY.
+- Scripted setup lists Notion and MarginNote as later steps with exact commands instead of
+  requiring a MarginNote store path, matching the interactive flow and the Agent guide.
+
 ## [0.2.0b2] — 2026-09-29
 
 Second Beta, from the first real User #1 reinstall and a disposable brand-new-user install in
