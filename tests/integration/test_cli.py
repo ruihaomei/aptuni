@@ -53,7 +53,7 @@ def test_errors_are_reported_without_tracebacks() -> None:
     with tempfile.TemporaryDirectory() as raw:
         result = run(Path(raw) / "state", "status")
         assert result.returncode == 1
-        assert "aptuni init" in result.stderr
+        assert "aptuni setup plan" in result.stderr and "aptuni attach" in result.stderr
         assert "Traceback" not in result.stderr
 
 

@@ -169,7 +169,8 @@ class AptuniService(
             except UNREADABLE as error:
                 raise AptuniError("config_unreadable", f"Aptuni config is unreadable: {error}") from error
             if path is None:
-                raise AptuniError("not_initialized", "No Vault configured. Run `aptuni init` first.")
+                raise AptuniError("not_initialized", "No Vault is set up on this installation yet. New here? "
+                                  "Run: aptuni setup plan. Already have a Vault? Run: aptuni attach PATH")
             try:
                 self._vault = Vault.open(path, self.workspace.state_dir)
             except FileNotFoundError as error:

@@ -84,7 +84,7 @@ def test_interactive_questions_ask_language_first_and_retry_invalid_answers(monk
 
     answers = collect_answers(_namespace(), interactive=True, ask=ask)
     assert "Which language" in prompts[0]
-    assert "智能体" in prompts[1]
+    assert "了解你的哪些部分" in prompts[1]
     assert answers.locale == "zh-CN"
     assert answers.sources == frozenset({"github", "folder"})
     assert answers.memory == "basic" and answers.privacy == "local_only"

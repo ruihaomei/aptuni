@@ -35,7 +35,7 @@ HOST_ADAPTER = {"claude_code": "claude", "codex": "codex"}
 # What a folder of notes ingests *into*. This is not the adapter read scope: `plan.modules`
 # says what an agent may later read, which is a separate, per-module consent.
 FOLDER_INGEST_MODULES = ("knowledge",)
-SOURCE_ROLE = {"source_folder": "notes", "source_github": "repository",
+SOURCE_ROLE = {"source_folder": "notes", "source_obsidian": "notes", "source_github": "repository",
                "source_marginnote": "study-notes"}
 SMOKE_QUERY = "what should my agent know about me"
 # A step outcome is a success only if it says so here. Anything else stops the run, so a later
@@ -101,6 +101,15 @@ def _run_source_folder(service: AptuniService, step: SetupStep) -> tuple[str, st
                 return f"already_present:{source.id}", None
             raise SetupError("setup_source_conflict", "That folder is already configured differently.")
     source = service.add_folder_source(root, FOLDER_INGEST_MODULES, "notes")
+    return "created", source.id
+
+
+def _run_source_obsidian(service: AptuniService, step: SetupStep) -> tuple[str, str | None]:
+    root = str(Path(step.target))
+    existing = _existing_source(service, "obsidian", (root,), SOURCE_ROLE[step.kind])
+    if existing is not None:
+        return f"already_present:{existing.id}", None
+    source = service.add_obsidian_source(Path(root), FOLDER_INGEST_MODULES, SOURCE_ROLE[step.kind])
     return "created", source.id
 
 
@@ -180,6 +189,8 @@ def _run_source_marginnote(service: AptuniService, step: SetupStep) -> tuple[str
 def _source_expectation(step: SetupStep) -> tuple[str, tuple[str, ...], str] | None:
     if step.kind == "source_folder":
         return "folder", (str(Path(step.target)),), SOURCE_ROLE[step.kind]
+    if step.kind == "source_obsidian":
+        return "obsidian", (str(Path(step.target)),), SOURCE_ROLE[step.kind]
     if step.kind == "source_github":
         return "github", _github_spec(step.target).roots(), SOURCE_ROLE[step.kind]
     if step.kind == "source_marginnote":
@@ -327,6 +338,8 @@ def _run_step(  # noqa: PLR0911 - one explicit branch per frozen step kind
         return _run_vault(service, step), None
     if step.kind == "source_folder":
         return _run_source_folder(service, step)
+    if step.kind == "source_obsidian":
+        return _run_source_obsidian(service, step)
     if step.kind == "source_github":
         return _run_source_github(service, step)
     if step.kind == "source_marginnote":

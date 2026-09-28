@@ -34,6 +34,7 @@ from aptuni.cli.setup_commands import (
 from aptuni.cli.vault_cli import add_attach_command, cmd_attach
 from aptuni.domain.invariants import InvariantError
 from aptuni.domain.records import MODULES, SchemaVersionError
+from aptuni.i18n import normalize_locale, t
 from aptuni.vault.fsgate import UnsupportedFilesystemError
 from aptuni.vault.store import ConflictError, VaultIntegrityError
 
@@ -795,6 +796,9 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
 
 
 def run(argv: Sequence[str], service: AptuniService) -> int:
+    if not argv:
+        print(t("welcome", normalize_locale(os.environ.get("APTUNI_LANG"))))
+        return 0
     args = build_parser().parse_args(argv)
     return COMMANDS[args.command](args, service)
 
@@ -804,7 +808,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         return run(sys.argv[1:] if argv is None else argv, service)
     except AptuniError as error:
-        print(f"aptuni: {error.message}", file=sys.stderr)
+        message = t("not_initialized", normalize_locale(os.environ.get("APTUNI_LANG"))) \
+            if error.code == "not_initialized" else error.message
+        print(f"aptuni: {message}", file=sys.stderr)
         return 1
     except BrokenPipeError:
         # The reader (for example ``| head``) closed the pipe; this is not a Vault problem.

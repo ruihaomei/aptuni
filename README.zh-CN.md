@@ -35,7 +35,19 @@ uv tool install aptuni==0.2.0b1
 aptuni --version
 ```
 
-在 Claude Code 或 Codex 中打开本仓库，然后说：
+然后在终端运行引导式配置，回答几个问题即可：
+
+```sh
+aptuni setup plan
+```
+
+它会先问你使用哪种语言，用三句话说明 Aptuni 保存什么（Profile、Memory、证据），再问你希望
+Aptuni 从哪些方面了解你：本地文件夹、Obsidian、GitHub、Notion 或 MarginNote。直接回车可以全部跳过，
+以后随时能再添加。你选中的每个信息源，它会立刻询问具体的文件夹或仓库。Notion 和 MarginNote 需要
+浏览器授权或 macOS 权限确认，所以计划里会列出之后要运行的准确命令。在你用
+`aptuni setup apply ACTION_ID` 确认计划并输入 `APPLY` 之前，不会创建任何东西。
+
+或者，在 Claude Code 或 Codex 中打开本仓库，然后说：
 
 > 阅读这个仓库，帮我配置好 Aptuni。
 

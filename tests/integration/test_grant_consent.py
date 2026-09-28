@@ -132,5 +132,6 @@ def test_chinese_consent_is_truthful_about_stored_suggestions(
 
     out = capsys.readouterr().out
     assert "作为待审核项保存在你的 Vault 中" in out
+    assert "接受后，它才会成为记忆" in out
     assert "不会保存" not in out
     assert "无法强制" in out

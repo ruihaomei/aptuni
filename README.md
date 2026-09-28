@@ -38,7 +38,20 @@ uv tool install aptuni==0.2.0b1
 aptuni --version
 ```
 
-Open this repository in Claude Code or Codex and say:
+Then run the guided setup in a terminal and answer a few questions:
+
+```sh
+aptuni setup plan
+```
+
+It asks your language, explains in three lines what Aptuni keeps (Profile, Memory, Evidence), and
+asks which parts of you Aptuni may learn from — a local folder, Obsidian, GitHub, Notion or
+MarginNote. Press Enter to skip them all; you can add sources later. For each source you choose it
+asks for the exact folder or repository right away. Notion and MarginNote need a browser
+authorization or a macOS permission prompt, so the plan lists the exact commands to run afterwards.
+Nothing is created until you confirm the plan with `aptuni setup apply ACTION_ID` and type `APPLY`.
+
+Or, with this repository open in Claude Code or Codex, say:
 
 > Read this repository and set up Aptuni for me.
 

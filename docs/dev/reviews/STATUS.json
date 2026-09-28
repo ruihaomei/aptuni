@@ -9,6 +9,14 @@
     "01-architecture-review.md"
    ]
   },
+  "beta-attach-consent": {
+   "kind": "review",
+   "current": "77-beta-attach-consent-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "76-beta-attach-consent-review.md"
+   ]
+  },
   "beta-stable-readiness-gate": {
    "kind": "review",
    "current": "73-beta-stable-readiness-gate-review.md",

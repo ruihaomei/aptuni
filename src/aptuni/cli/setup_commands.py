@@ -13,6 +13,7 @@ import os
 import shutil
 import sys
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +33,7 @@ from aptuni.application.setup import (
     setup_action_state,
 )
 from aptuni.application.workspace import DEFAULT_VAULT
+from aptuni.cli import onboarding
 from aptuni.cli.render import delimited_untrusted
 from aptuni.cli.setup_apply import HOST_ADAPTER, apply_setup_plan, planned_sources
 from aptuni.domain.records import MODULES
@@ -133,25 +135,32 @@ def _choice(options: tuple[str, ...]) -> Callable[[str], str]:
     return parse
 
 
-def _many(options: tuple[str, ...]) -> Callable[[str], frozenset[str]]:
-    def parse(raw: str) -> frozenset[str]:
-        values = frozenset(v.strip() for v in raw.replace("，", ",").split(",") if v.strip())
-        if not values <= set(options):
-            raise ValueError(raw)
-        return values
-    return parse
+@dataclass(frozen=True)
+class SourceTargets:
+    """Exact source locations collected in the first-run flow; empty when given as options."""
+
+    folders: tuple[str, ...] = ()
+    obsidian: str | None = None
+    github: tuple[str, ...] = ()
 
 
-def collect_answers(args: argparse.Namespace, interactive: bool, ask: InputFn | None = None) -> SetupAnswers:
-    """Merge options with interactive answers, asking the PRD §50 questions in order."""
-    ask = ask or input
+def _ask_language(args: argparse.Namespace, interactive: bool, ask: InputFn) -> str:
     if args.lang is None and interactive:
-        locale = _ask(t("advisor.question.language", "en"), lambda raw: normalize_locale(raw, strict=True), ask, "en")
-    else:
-        locale = _locale(args)
-    sources = frozenset(args.sources or ())
+        locale: str = _ask(t("advisor.question.language", "en"), lambda raw: normalize_locale(raw, strict=True),
+                           ask, "en")
+        print(onboarding.intro(locale))
+        return locale
+    return _locale(args)
+
+
+def _ask_sources(args: argparse.Namespace, interactive: bool, ask: InputFn, locale: str) -> frozenset[str]:
     if args.sources is None and interactive:
-        sources = _ask(t("advisor.question.sources", locale), _many(SOURCE_KINDS), ask, locale)
+        return onboarding.ask_sources(ask, locale)
+    return frozenset(args.sources or ())
+
+
+def _ask_rest(args: argparse.Namespace, interactive: bool, ask: InputFn, locale: str,
+              sources: frozenset[str]) -> SetupAnswers:
     memory = args.memory or (_ask(t("advisor.question.memory", locale), _choice(MEMORY_EXPERIENCES), ask, locale)
                              if interactive else None)
     privacy = args.privacy or (_ask(t("advisor.question.privacy", locale), _choice(PRIVACY_MODES), ask, locale)
@@ -167,11 +176,42 @@ def collect_answers(args: argparse.Namespace, interactive: bool, ask: InputFn | 
         detected = detect_hosts() if (interactive or args.detect_hosts) else frozenset()
         if interactive:
             if detected:
-                print(t("advisor.question.detected", locale, hosts=", ".join(sorted(detected))))
-            hosts = _ask(t("advisor.question.hosts", locale), _many(HOSTS), ask, locale)
+                names = ", ".join(onboarding.HOST_NAMES.get(host, host) for host in sorted(detected))
+                print(t("advisor.question.detected", locale, hosts=names))
+            hosts = onboarding.ask_hosts(ask, locale)
         else:
             hosts = detected
     return SetupAnswers(locale=locale, sources=sources, memory=memory, privacy=privacy, hosts=hosts)
+
+
+def collect_answers(args: argparse.Namespace, interactive: bool, ask: InputFn | None = None) -> SetupAnswers:
+    """Merge options with interactive answers, asking the PRD §50 questions in order."""
+    ask = ask or input
+    locale = _ask_language(args, interactive, ask)
+    return _ask_rest(args, interactive, ask, locale, _ask_sources(args, interactive, ask, locale))
+
+
+def collect_setup(args: argparse.Namespace, interactive: bool,
+                  ask: InputFn | None = None) -> tuple[SetupAnswers, SourceTargets]:
+    """Like ``collect_answers``, and ask where each chosen source is right after it is chosen."""
+    ask = ask or input
+    locale = _ask_language(args, interactive, ask)
+    sources = _ask_sources(args, interactive, ask, locale)
+    targets = SourceTargets()
+    if interactive:
+        targets = SourceTargets(
+            folders=(onboarding.ask_folder(ask, locale),) if "folder" in sources and not args.folders else (),
+            obsidian=onboarding.ask_obsidian(ask, locale) if "obsidian" in sources and not args.obsidian else None,
+            github=(onboarding.ask_github(ask, locale, _github_url),)
+            if "github" in sources and not args.github_repositories else (),
+        )
+    return _ask_rest(args, interactive, ask, locale, sources), targets
+
+
+def _github_url(raw: str) -> str:
+    """Validate a repository address offline and return it unchanged."""
+    GitHubSourceSpec.build(raw)
+    return raw
 
 
 def cmd_advise(args: argparse.Namespace, _service: object) -> int:
@@ -216,6 +256,7 @@ def add_guided_setup_command(sub: Any) -> None:
     plan.add_argument("--vault", default=None, help="where the Profile Vault goes")
     plan.add_argument("--folder", action="append", default=None, dest="folders",
                       help="an exact folder to approve as a source (repeatable); never discovered for you")
+    plan.add_argument("--obsidian", default=None, help="an exact Obsidian vault folder to approve as a source")
     plan.add_argument("--github", action="append", default=None, dest="github_repositories",
                       help="an exact GitHub https repository URL to approve (repeatable)")
     plan.add_argument("--github-ref", help="branch, tag, or commit to follow for each --github repository")
@@ -247,6 +288,7 @@ def add_guided_setup_command(sub: Any) -> None:
 def _plan_steps(
     answers: SetupAnswers,
     folders: tuple[str, ...],
+    obsidian: str | None,
     github_targets: tuple[str, ...],
     marginnote_target: str | None,
     vault: Path,
@@ -254,10 +296,12 @@ def _plan_steps(
     """Exactly what will happen, in order. Every target is explicit; nothing is inferred at apply."""
     steps = [SetupStep("vault", str(vault))]
     steps += [SetupStep("source_folder", folder) for folder in folders]
+    if obsidian is not None:
+        steps.append(SetupStep("source_obsidian", obsidian))
     steps += [SetupStep("source_github", target) for target in github_targets]
     if marginnote_target is not None:
         steps.append(SetupStep("source_marginnote", marginnote_target))
-    if folders or github_targets or marginnote_target is not None:
+    if folders or obsidian or github_targets or marginnote_target is not None:
         steps.append(SetupStep("sync", "approved"))
     if answers.privacy != "local_only":
         steps += [SetupStep("adapter", host) for host in sorted(answers.hosts) if host in HOST_ADAPTER]
@@ -293,6 +337,10 @@ def _render_plan(plan: SetupPlan, locale: str, action_state: str = "pending") ->
         text = t(f"setup.plan.step.{kind}", locale, target=delimited_untrusted(step.target))
         lines.append(f"  {number}. {text}")
     lines.append("")
+    later = onboarding.later_lines(frozenset(plan.answers.get("sources", ())),
+                                   frozenset(step.kind for step in plan.steps), locale)
+    if later:
+        lines += [*later, ""]
     lines += _render_release(plan, locale)
     if plan.host_files:
         lines += [t("setup.plan.host_files", locale),
@@ -337,7 +385,7 @@ def _setup_plan(args: argparse.Namespace, service: Any) -> int:  # noqa: PLR0911
     locale = _locale(args)
     interactive = sys.stdin.isatty() and not args.json
     try:
-        answers = collect_answers(args, interactive)
+        answers, targets = collect_setup(args, interactive)
         catalog = load_catalog()
         rec = recommend(answers, catalog)
     except (EOFError, KeyboardInterrupt):
@@ -351,28 +399,33 @@ def _setup_plan(args: argparse.Namespace, service: Any) -> int:  # noqa: PLR0911
         key = "advisor.error.missing_answer" if code == "missing_answer" else "advisor.error.invalid_answer"
         print("aptuni: " + t(key, locale, name=name), file=sys.stderr)
         return 2
-    folders = tuple(str(Path(folder).expanduser().resolve()) for folder in (args.folders or ()))
+    locale = answers.locale
+    folders = tuple(str(Path(folder).expanduser().resolve()) for folder in (*(args.folders or ()), *targets.folders))
+    obsidian = targets.obsidian or (str(Path(args.obsidian).expanduser().resolve()) if args.obsidian else None)
     try:
         github_targets = tuple(_github_target(repository, args.github_api_origin, args.github_ref,
                                                args.github_token_env)
-                               for repository in (args.github_repositories or ()))
+                               for repository in (*(args.github_repositories or ()), *targets.github))
         marginnote_target = _marginnote_target(args)
     except (SourceIdentityError, ValueError) as error:
         print("aptuni: " + str(error), file=sys.stderr)
         return 2
-    missing = []
+    missing: list[tuple[str, str]] = []
     if answers.sources & {"folder", "application_materials"} and not folders:
-        missing.append("--folder")
+        missing.append(("folder", "--folder PATH"))
     if "github" in answers.sources and not github_targets:
-        missing.append("--github")
-    if "marginnote" in answers.sources and marginnote_target is None:
-        missing.append("--marginnote-store plus a notebook scope")
+        missing.append(("github", "--github URL"))
+    if "marginnote" in answers.sources and marginnote_target is None and not interactive:
+        missing.append(("marginnote", "--marginnote-store PATH --marginnote-all-notebooks"))
     if missing:
-        print("aptuni: exact configuration required for shipped source(s): " + ", ".join(missing), file=sys.stderr)
+        names = "、".join(t(f"onboarding.name.{kind}", locale) for kind, _ in missing) if locale == "zh-CN" \
+            else ", ".join(t(f"onboarding.name.{kind}", locale) for kind, _ in missing)
+        print("aptuni: " + t("setup.error.missing_source", locale, sources=names,
+                             flags=" ".join(flag for _, flag in missing)), file=sys.stderr)
         return 2
     modules = tuple(dict.fromkeys(args.modules or DEFAULT_SETUP_MODULES))
     vault = Path(args.vault).expanduser().resolve() if args.vault else DEFAULT_VAULT
-    steps = _plan_steps(answers, folders, github_targets, marginnote_target, vault)
+    steps = _plan_steps(answers, folders, obsidian, github_targets, marginnote_target, vault)
     plan = create_setup_plan(
         service.workspace.state_dir, catalog_digest=catalog.version_digest(), locale=answers.locale,
         answers={"sources": sorted(answers.sources), "memory": answers.memory, "privacy": answers.privacy,

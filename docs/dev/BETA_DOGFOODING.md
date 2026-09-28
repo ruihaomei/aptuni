@@ -39,6 +39,8 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 |---|---|---|---|---|---|
 | 2026-09-27 | Install / reinstall | P2 | A fresh install could not attach an existing Vault; `init` and `setup apply` refused it and no doc covered reinstall, so the config pointer had to be written by hand. | `tests/integration/test_vault_attach.py`; `aptuni attach PATH` (read-only verify) and setup adoption | Fixed (pending 0.2.0b2) |
 | 2026-09-27 | Plugin grant consent | P3 | `developer grant plan` printed raw JSON with an escaped preview, unlike the readable adapter consent. | `tests/integration/test_grant_consent.py`; bilingual consent screen, `--json` unchanged | Fixed (pending 0.2.0b2) |
+| 2026-09-28 | First-run onboarding | P1 | Interactive setup offered sources as connector ids (incl. unsupported ones); choosing a folder ended in an English flag error after all questions; choosing Obsidian/Notion was acknowledged in the recommendation but never connected or explained. | `tests/integration/test_onboarding.py`; product-language source menu, in-flow folder/Obsidian/GitHub location, `source_obsidian` step, later-connect commands, localized errors | Fixed (pending 0.2.0b2) |
+| 2026-09-28 | First-run onboarding | P3 | Bare `aptuni` printed a usage error, `No Vault configured` pointed only to `init`, and the README's first step assumed a cloned repository. | `test_onboarding.py`, `test_cli.py`; welcome screen, setup/attach hint, README first step | Fixed (pending 0.2.0b2) |
 
 ## Gates kept open in parallel
 
