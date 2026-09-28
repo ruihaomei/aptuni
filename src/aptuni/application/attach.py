@@ -14,6 +14,7 @@ from pathlib import Path
 
 from aptuni.application.errors import AptuniError
 from aptuni.application.workspace import Workspace
+from aptuni.domain.records import SchemaVersionError
 from aptuni.vault.fsgate import UnsupportedFilesystemError
 from aptuni.vault.store import Vault, VaultIntegrityError
 
@@ -52,7 +53,8 @@ def attach_vault(workspace: Workspace, vault_path: Path) -> AttachResult:
     os.chmod(state, 0o700)
     try:
         report = Vault(vault_path, state).verify()
-    except (VaultIntegrityError, UnsupportedFilesystemError, OSError, ValueError, KeyError, TypeError) as error:
+    except (VaultIntegrityError, SchemaVersionError, UnsupportedFilesystemError, OSError, ValueError, KeyError,
+            TypeError) as error:
         raise _unverified(vault_path, type(error).__name__) from error
     if not report.ok:
         raise _unverified(vault_path, "; ".join(report.problems))

@@ -105,3 +105,32 @@ def test_json_plan_keeps_the_machine_contract(tmp_path: Path, capsys: pytest.Cap
     value = json.loads(capsys.readouterr().out)
     assert value["contract"] == "aptuni.plugin-grant-plan@1"
     assert "Required capabilities: context.read" in value["preview"]
+
+
+def test_consent_is_truthful_that_suggestions_are_stored_as_pending_items(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    service = _service(tmp_path)
+
+    assert run(["developer", "grant", "plan", str(MANIFEST), "--lang", "en"], service) == 0
+
+    out = capsys.readouterr().out
+    assert "saved in your Vault as a pending item" in out
+    assert "becomes Memory only if you accept it" in out
+    assert "stays in history until you purge it" in out
+    assert "nothing is kept" not in out.lower()
+    assert "It can change your existing Profile, Memory or sources:" in out
+    assert "Declared network use:" in out and "cannot enforce" in out
+
+
+def test_chinese_consent_is_truthful_about_stored_suggestions(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    service = _service(tmp_path)
+
+    assert run(["developer", "grant", "plan", str(MANIFEST), "--lang", "zh-CN"], service) == 0
+
+    out = capsys.readouterr().out
+    assert "作为待审核项保存在你的 Vault 中" in out
+    assert "不会保存" not in out
+    assert "无法强制" in out

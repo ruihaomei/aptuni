@@ -163,3 +163,22 @@ def test_guided_setup_reuses_an_existing_vault_on_reinstall(
     assert report.results[f"vault:{vault.resolve()}"] == "attached"
     assert _snapshot(vault) == before
     assert [fact.statement for fact in service.facts()] == ["Prefers worked examples before theory."]
+
+
+def test_attach_reports_an_unreadable_record_schema_as_unverified(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from aptuni.domain.records import SchemaVersionError
+    from aptuni.vault.store import Vault
+
+    vault = _existing_vault(tmp_path)
+
+    def newer_schema(self: Vault) -> None:
+        raise SchemaVersionError("record schema is newer than this installation")
+
+    monkeypatch.setattr(Vault, "verify", newer_schema)
+    service = _fresh(tmp_path)
+    with pytest.raises(AptuniError) as error:
+        service.attach(vault)
+    assert error.value.code == "vault_unverified"
+    assert service.workspace.vault_path() is None

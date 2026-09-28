@@ -30,9 +30,12 @@ def cmd_attach(args: argparse.Namespace, service: AptuniService) -> int:
     except AptuniError as error:
         if error.code not in _LOCALIZED_ERRORS:
             raise
-        configured = service.workspace.vault_path()
+        try:
+            configured = str(service.workspace.vault_path())
+        except (OSError, ValueError, KeyError, TypeError):
+            configured = "?"
         print("aptuni: " + t(f"attach.error.{error.code}", locale, path=delimited_untrusted(str(path)),
-                             configured=delimited_untrusted(str(configured)),
+                             configured=delimited_untrusted(configured),
                              config=delimited_untrusted(str(service.workspace.config_path))), file=sys.stderr)
         return 1
     shown = delimited_untrusted(str(result.vault_path))

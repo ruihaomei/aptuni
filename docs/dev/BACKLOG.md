@@ -60,3 +60,5 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Top-Down: rewrite bare `—`/`›` in targets and concepts instead of rejecting them | Review 74 re-review note 3 | Top-Down UX |
 | `aptuni developer grant apply` raises an unhandled `EOFError` traceback when stdin is closed; print a bounded "confirmation required" error and exit non-zero | Clean-install journey 2026-09-27 | CLI polish |
 | Plugin NOTICE: tailor it to the plugin distribution (it references root-only brand and notice paths) | Review 75 note 6 | Plugin packaging |
+| Setup: freeze whether the Vault step creates or attaches in the plan digest instead of deciding at render/apply time (both outcomes are safe) | Review 76 note 5 | Setup |
+| Attach: add a snapshot test attaching a Vault with an interrupted restore or purge, the case `recover()` would rewrite | Review 76 note 6 | Attach hardening |

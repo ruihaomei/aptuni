@@ -1,8 +1,10 @@
 """The consent screen a person reads before approving a plugin grant (Beta finding P3).
 
 Everything shown is derived from the real ``PluginGrantPlan``. Public API v1 has no capability that
-writes Profile, Memory or sources directly, and ``PluginGrantManager.plan`` refuses any egress other
-than ``none``, so those two lines state invariants rather than plugin claims.
+edits or deletes existing Profile, Memory or source records. ``memory.propose`` does store each
+suggestion in the Vault as a quarantined candidate, and the screen says so (Review of e99b1f6).
+``PluginGrantManager.plan`` refuses manifests that declare egress, but Aptuni does not sandbox the
+plugin, so the network line is stated as a declaration, not a guarantee.
 """
 
 from __future__ import annotations
