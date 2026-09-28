@@ -221,3 +221,34 @@ def test_github_steps_show_the_repository_address_not_internal_json(
     out = capsys.readouterr().out
     assert "https://github.com/octocat/Hello-World" in out
     assert "api_origin" not in out and "token_env" not in out
+
+
+def test_setup_plan_shows_a_short_recommendation_and_keeps_details_in_advise(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    service = _service(tmp_path)
+    argv = ["--lang", "en", "--source", "other", "--memory", "basic", "--privacy", "quality", "--host", "codex"]
+    assert run(["setup", "plan", *argv, "--vault", str(tmp_path / "Aptuni")], service) == 0
+    plan_out = capsys.readouterr().out
+    assert "[agent.mcp]" not in plan_out and "Benefits:" not in plan_out and "Trade-offs:" not in plan_out
+    assert "Starter Lite" in plan_out and "aptuni advise" in plan_out
+    assert run(["advise", *argv], service) == 0
+    assert "Benefits:" in capsys.readouterr().out
+
+
+def test_chinese_plan_localizes_retention_and_expiry(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    service = _service(tmp_path)
+    assert run(["setup", "plan", "--lang", "zh-CN", "--source", "other", "--memory", "basic", "--privacy", "quality",
+                "--host", "codex", "--vault", str(tmp_path / "Aptuni")], service) == 0
+    out = capsys.readouterr().out
+    assert "externally_controlled_unknown" not in out and "由提供方控制" in out
+    assert "+00:00" not in out and " UTC" in out
+
+
+def test_memory_question_is_honest_about_beta_availability(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _, prompts, _ = _plan_interactively(tmp_path, monkeypatch, ["1", "", "1", "3", ""])
+    assert "not available in this Beta" in prompts[2]
+    _, zh_prompts, _ = _plan_interactively(tmp_path / "zh", monkeypatch, ["2", "", "1", "3", ""])
+    assert "本 Beta 暂不可用" in zh_prompts[2]

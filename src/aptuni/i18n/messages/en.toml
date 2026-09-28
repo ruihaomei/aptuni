@@ -134,7 +134,7 @@
 # ---------------------------------------------------------------- advisor questions
 "advisor.question.language" = "Which language would you like to use?\n  1. English\n  2. 简体中文"
 "advisor.question.sources" = "What information would you like to use to help your agent understand you?\nChoose any (comma-separated) or press Enter to skip:\n  folder, application_materials, github, marginnote, obsidian, notion, zotero, other"
-"advisor.question.memory" = "How would you like your agent to remember you?\n  1. basic — remember confirmed profile information and stable preferences\n  2. automatic — learn useful things from everyday conversations\n  3. temporal — understand how your people, projects and interests change over time"
+"advisor.question.memory" = "How would you like your agent to remember you?\n  1. basic — remember confirmed profile information and stable preferences\n  2. automatic — learn useful things from everyday conversations (not available in this Beta yet; 1 is used)\n  3. temporal — understand how your people, projects and interests change over time (not available in this Beta yet; 1 is used)"
 "advisor.question.privacy" = "Can your personal data be processed by cloud models?\n  1. Yes — prioritize quality\n  2. Yes — but minimize cloud processing\n  3. No — everything must stay local"
 "advisor.question.hosts" = "Which agents do you use? (comma-separated; Enter for none)\n  claude_code, codex, cursor, claude_desktop"
 "advisor.question.detected" = "Detected on this machine: {hosts}"
@@ -333,6 +333,9 @@
 # ---------------------------------------------------------------- connect a host to its bundle
 "connect.claude.title" = "Connect Claude Code — start it with this bundle (Aptuni never edits Claude's own settings):"
 "connect.claude.use" = "  In that session, type /aptuni:profile, /aptuni:memory or /aptuni:full when a task needs you; /aptuni:session shows or turns off session mode."
-"connect.codex.title" = "Connect Codex — run these in the project folder where you use Codex:"
+"connect.codex.title" = "Connect Codex — run these in the project folder where you use Codex (the skills go into this project; the MCP entry is registered for all your Codex projects and stays OFF until invoked):"
 "connect.codex.use" = "  Start a new Codex session there and type $aptuni-profile, $aptuni-memory or $aptuni-full when a task needs you; $aptuni-session shows or turns off session mode."
 "connect.off" = "  Aptuni stays OFF until you invoke one of these; nothing about you is shared automatically."
+
+"advisor.preview.details" = "Components, benefits and trade-offs: run 'aptuni advise' with the same answers."
+"setup.retention.externally_controlled_unknown" = "controlled by the provider (details unknown)"

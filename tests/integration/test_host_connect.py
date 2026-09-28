@@ -60,6 +60,7 @@ def test_codex_adapter_apply_prints_skill_copy_and_mcp_registration_from_the_bun
     assert "codex mcp add aptuni -- " in out
     assert f"-m aptuni.mcp.server --activation-required --grant {grant_id}" in out
     assert "$aptuni-profile" in out
+    assert "all your Codex projects" in out
 
 
 def test_codex_registration_forwards_a_custom_state_directory(

@@ -385,7 +385,7 @@ def test_b2_the_confirmation_discloses_operator_destination_and_retention(
 
     assert "OpenAI" in out, "the operator receiving personal context must be named"
     assert "Codex configured model endpoint" in out
-    assert "externally_controlled_unknown" in out
+    assert "controlled by the provider (details unknown)" in out
     assert "4 scopes" in out
     assert "memory.review.read" in out
     assert "identity.read, context.read, evidence.read" in out
@@ -514,7 +514,8 @@ def test_b6_the_report_does_not_claim_the_host_config_was_modified(
     assert str(service.workspace.state_dir / "adapters" / "bundles") in out.replace('\\/', '/') or \
         "bundles" in out, "the bundle location must be shown"
     assert "Estimated setup:" in out and "Difficulty:" in out
-    assert "Privacy:" in out and "Benefits:" in out and "Trade-offs:" in out
+    assert "Privacy:" in out and "aptuni advise" in out, "benefits and trade-offs stay one command away"
+    assert "released to \"codex\" — operator \"OpenAI\"" in out, "the privacy trade-off is stated per operator"
 
 
 def test_n5_end_of_input_at_the_confirmation_is_a_clean_cancellation(

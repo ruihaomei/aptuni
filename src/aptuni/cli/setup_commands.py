@@ -14,6 +14,7 @@ import shutil
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -38,7 +39,7 @@ from aptuni.cli.host_connect import connect_lines
 from aptuni.cli.render import delimited_untrusted
 from aptuni.cli.setup_apply import HOST_ADAPTER, apply_setup_plan, planned_sources
 from aptuni.domain.records import MODULES
-from aptuni.i18n import I18nError, normalize_locale, t
+from aptuni.i18n import I18nError, has_message, normalize_locale, t
 from aptuni.sources.github import DEFAULT_API_ORIGIN, GitHubSourceSpec, SourceIdentityError
 
 HOST_EXECUTABLES = {"claude_code": "claude", "codex": "codex"}
@@ -355,7 +356,7 @@ def _render_plan(plan: SetupPlan, locale: str, action_state: str = "pending") ->
     lines += [t("setup.plan.confinement", locale),
               t("setup.plan.rollback", locale), "",
               t(state_key, locale),
-              t("setup.plan.expires", locale, expires=plan.expires_at, digest=plan.digest),
+              t("setup.plan.expires", locale, expires=_when(plan.expires_at), digest=plan.digest),
               t("setup.plan.confirm_hint", locale, action_id=plan.action_id)]
     return lines
 
@@ -371,7 +372,7 @@ def _render_release(plan: SetupPlan, locale: str) -> list[str]:
         lines.append(t("setup.plan.release_to", locale, host=delimited_untrusted(item["host"]),
                        operator=delimited_untrusted(item["operator"]),
                        destination=delimited_untrusted(item["destination"]),
-                       retention=delimited_untrusted(item["retention"]),
+                       retention=_retention(item["retention"], locale),
                        scope_count=item["scope_count"], scopes=item["scopes"]))
     lines += [t("setup.plan.release_change", locale), ""]
     return lines
@@ -386,6 +387,19 @@ def _shown_target(kind: str, target: str) -> str:
         return str(value["repository_url"]) + (f" @ {value['ref']}" if value.get("ref") else "")
     except (json.JSONDecodeError, KeyError, TypeError):
         return target
+
+
+def _retention(value: str, locale: str) -> str:
+    key = f"setup.retention.{value}"
+    return t(key, locale) if has_message(key, locale) else delimited_untrusted(value)
+
+
+def _when(value: str) -> str:
+    """Show an ISO timestamp as minutes in UTC; leave anything unexpected untouched."""
+    try:
+        return datetime.fromisoformat(value).astimezone(UTC).strftime("%Y-%m-%d %H:%M UTC")
+    except (TypeError, ValueError):
+        return value
 
 
 def _module_names(modules: tuple[str, ...] | list[str], locale: str) -> str:
@@ -456,7 +470,7 @@ def _setup_plan(args: argparse.Namespace, service: Any) -> int:  # noqa: PLR0911
     if args.json:
         print(json.dumps(plan.to_dict(), ensure_ascii=False, indent=1))
         return 0
-    print("\n".join(render_preview(rec, catalog, answers.locale)))
+    print("\n".join(render_preview(rec, catalog, answers.locale, footer=False, brief=True)))
     print()
     print("\n".join(_render_plan(plan, answers.locale)))
     return 0
@@ -497,7 +511,7 @@ def _setup_apply(args: argparse.Namespace, service: Any) -> int:
     rec = recommend(answers, catalog)
     if rec.digest != plan.recommendation_digest or rec.recipe_id != plan.recipe_id:
         raise SetupError("setup_action_invalid", "The frozen setup recommendation no longer matches its plan.")
-    print("\n".join((*render_preview(rec, catalog, locale, footer=False), "",
+    print("\n".join((*render_preview(rec, catalog, locale, footer=False, brief=True), "",
                      *_render_plan(plan, locale, action_state))))
     try:
         typed = input(t("setup.apply.prompt", locale)).strip()
