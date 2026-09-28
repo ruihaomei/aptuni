@@ -18,6 +18,7 @@ from aptuni.application.workspace import DEFAULT_VAULT, Workspace
 from aptuni.cli.backup_commands import add_backup_commands, cmd_backup
 from aptuni.cli.developer_cli import add_developer_commands, cmd_developer
 from aptuni.cli.evaluation_cli import add_evaluation_commands, cmd_evaluate
+from aptuni.cli.host_connect import connect_lines
 from aptuni.cli.marginnote_commands import MARGINNOTE_COMMANDS, add_marginnote_parsers, cmd_marginnote
 from aptuni.cli.memory_cli import add_memory_commands, cmd_memory, cmd_observe
 from aptuni.cli.obsidian_interface_cli import add_interface_commands, cmd_interface
@@ -636,7 +637,7 @@ def _cmd_adapter(args: argparse.Namespace, service: AptuniService) -> int:
             _print_json({"grant_id": grant.grant_id, "host": grant.host, "bundle": str(bundle)})
         else:
             print(f"Prepared {grant.host} adapter bundle at {bundle}")
-            print("Review and install the generated host configuration, then start a new host session.")
+            print("\n".join(connect_lines(bundle, normalize_locale(os.environ.get("APTUNI_LANG")))))
         return 0
     grant = manager.load_grant(args.grant_id)
     response = service.identity_card(

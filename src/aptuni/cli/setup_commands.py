@@ -34,6 +34,7 @@ from aptuni.application.setup import (
 )
 from aptuni.application.workspace import DEFAULT_VAULT
 from aptuni.cli import onboarding
+from aptuni.cli.host_connect import connect_lines
 from aptuni.cli.render import delimited_untrusted
 from aptuni.cli.setup_apply import HOST_ADAPTER, apply_setup_plan, planned_sources
 from aptuni.domain.records import MODULES
@@ -364,8 +365,8 @@ def _render_release(plan: SetupPlan, locale: str) -> list[str]:
     if not plan.egress:
         hosts = plan.answers.get("hosts", [])
         key = "setup.plan.release_local_host" if hosts else "setup.plan.release_none"
-        return [t(key, locale, modules=", ".join(plan.modules), hosts=", ".join(hosts)), ""]
-    lines = [t("setup.plan.release", locale, modules=", ".join(plan.modules))]
+        return [t(key, locale, modules=_module_names(plan.modules, locale), hosts=", ".join(hosts)), ""]
+    lines = [t("setup.plan.release", locale, modules=_module_names(plan.modules, locale))]
     for item in plan.egress:
         lines.append(t("setup.plan.release_to", locale, host=delimited_untrusted(item["host"]),
                        operator=delimited_untrusted(item["operator"]),
@@ -374,6 +375,13 @@ def _render_release(plan: SetupPlan, locale: str) -> list[str]:
                        scope_count=item["scope_count"], scopes=item["scopes"]))
     lines += [t("setup.plan.release_change", locale), ""]
     return lines
+
+
+def _module_names(modules: tuple[str, ...] | list[str], locale: str) -> str:
+    """Keep the exact module ids that ``aptuni module set`` takes; add the local name in Chinese."""
+    if locale != "zh-CN":
+        return ", ".join(modules)
+    return "、".join(f"{t(f'consent.module.{module}', locale)}（{module}）" for module in modules)
 
 
 def cmd_setup(args: argparse.Namespace, service: Any) -> int:
@@ -532,6 +540,10 @@ def _print_report(report: Any, plan: SetupPlan, locale: str) -> int:
         for name in report.host_files:
             print(f"  - {delimited_untrusted(name)}")
         print(t("setup.plan.host_not_modified", locale))
+        for grant in report.grants:
+            lines = connect_lines(Path(plan.bundle_root) / grant, locale)
+            if lines:
+                print("\n".join(("", *lines)))
         print(t("setup.apply.relaunch", locale))
     print(t("setup.apply.host_status", locale))
     print(t("setup.apply.privacy", locale))

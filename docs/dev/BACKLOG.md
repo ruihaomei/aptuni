@@ -62,3 +62,5 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Plugin NOTICE: tailor it to the plugin distribution (it references root-only brand and notice paths) | Review 75 note 6 | Plugin packaging |
 | Setup: freeze whether the Vault step creates or attaches in the plan digest instead of deciding at render/apply time (both outcomes are safe) | Review 76 note 5 | Setup |
 | Attach: add a snapshot test attaching a Vault with an interrupted restore or purge, the case `recover()` would rewrite | Review 76 note 6 | Attach hardening |
+| Setup preview: the recommendation block before the plan is long (internal plugin ids, ~10 benefits and ~10 trade-offs); consider a short summary with details on request | Beta new-user journey 2026-09-28 | Onboarding |
+| Setup plan: retention and scope ids (`externally_controlled_unknown`, `identity.read`…) and ISO expiry timestamps are shown raw; localize them | Beta new-user journey 2026-09-28 | Onboarding i18n |
