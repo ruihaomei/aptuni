@@ -335,7 +335,7 @@ def _render_plan(plan: SetupPlan, locale: str, action_state: str = "pending") ->
              t("setup.plan.steps", locale)]
     for number, step in enumerate(plan.steps, start=1):
         kind = "vault_existing" if step.kind == "vault" and (Path(step.target) / "HEAD.json").is_file() else step.kind
-        text = t(f"setup.plan.step.{kind}", locale, target=delimited_untrusted(step.target))
+        text = t(f"setup.plan.step.{kind}", locale, target=delimited_untrusted(_shown_target(step.kind, step.target)))
         lines.append(f"  {number}. {text}")
     lines.append("")
     later = onboarding.later_lines(frozenset(plan.answers.get("sources", ())),
@@ -375,6 +375,17 @@ def _render_release(plan: SetupPlan, locale: str) -> list[str]:
                        scope_count=item["scope_count"], scopes=item["scopes"]))
     lines += [t("setup.plan.release_change", locale), ""]
     return lines
+
+
+def _shown_target(kind: str, target: str) -> str:
+    """Show a GitHub step as its repository address (and ref) rather than its frozen JSON target."""
+    if kind != "source_github":
+        return target
+    try:
+        value = json.loads(target)
+        return str(value["repository_url"]) + (f" @ {value['ref']}" if value.get("ref") else "")
+    except (json.JSONDecodeError, KeyError, TypeError):
+        return target
 
 
 def _module_names(modules: tuple[str, ...] | list[str], locale: str) -> str:
@@ -526,7 +537,9 @@ def _answers_from_plan(plan: SetupPlan) -> SetupAnswers:
 def _print_report(report: Any, plan: SetupPlan, locale: str) -> int:
     print(t("setup.apply.result", locale, action_id=report.action_id, state=report.terminal_state))
     for key, result in report.results.items():
-        print(t("setup.apply.step_result", locale, step=delimited_untrusted(key), result=result))
+        kind, _, target = key.partition(":")
+        print(t("setup.apply.step_result", locale, step=delimited_untrusted(f"{kind}:{_shown_target(kind, target)}"),
+                result=result))
     if report.terminal_state != "complete":
         print(t("setup.apply.resumable", locale, failure=report.failure or "an earlier step"))
         print(t("setup.apply.rollback", locale, action_id=report.action_id))

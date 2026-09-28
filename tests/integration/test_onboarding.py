@@ -209,3 +209,15 @@ def test_commands_before_setup_point_to_setup_or_attach(
     assert main(["status"]) == 1
     err = capsys.readouterr().err
     assert "aptuni setup plan" in err and "aptuni attach" in err
+
+
+def test_github_steps_show_the_repository_address_not_internal_json(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    service = _service(tmp_path)
+    assert run(["setup", "plan", "--lang", "zh-CN", "--source", "github", "--github",
+                "https://github.com/octocat/Hello-World", "--memory", "basic", "--privacy", "local_only",
+                "--no-host", "--vault", str(tmp_path / "Aptuni")], service) == 0
+    out = capsys.readouterr().out
+    assert "https://github.com/octocat/Hello-World" in out
+    assert "api_origin" not in out and "token_env" not in out
