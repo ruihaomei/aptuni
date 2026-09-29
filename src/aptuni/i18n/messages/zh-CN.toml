@@ -194,7 +194,7 @@
 "setup.plan.already_complete" = "该配置已经完成。输入 APPLY 只会校验回执并报告既有结果。"
 "setup.plan.confirm_hint" = "确认无误后再执行：aptuni setup apply {action_id}"
 "setup.plan.expires" = "该方案将在 {expires} 过期，并绑定摘要 {digest}"
-"setup.plan.token_env" = "输入 APPLY 之前，请先在同一个终端里设置 {name}（一个只读 GitHub token）；没有它，私有仓库会被跳过，并列出来供稍后重试。"
+"setup.plan.token_env" = "输入 APPLY 之前，请先在同一个终端里设置 {name}（一个只读 GitHub token）；没有它，本方案中的 GitHub 仓库都不会被读取，会列出来供稍后重试。"
 "setup.plan.confirmed" = "已确认：续跑不会过期。绑定摘要 {digest}"
 "setup.apply.prompt" = "输入 APPLY 以创建上面列出的全部内容："
 "setup.apply.cancelled" = "已取消，未创建任何内容。"
@@ -384,3 +384,4 @@
 "source.remove.prompt" = "输入 APPLY 以移除："
 "source.remove.cancelled" = "已取消，未做任何更改。"
 "source.remove.done" = "已移除 {source_id}，撤回了 {count} 条证据。"
+"source.remove.repair" = "这个信息源已被移除，但旧版 Aptuni 又读取了它，新增了 {count} 条证据。Aptuni 将撤回它们，任何智能体都不会看到。"

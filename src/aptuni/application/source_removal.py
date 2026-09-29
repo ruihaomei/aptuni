@@ -29,6 +29,9 @@ class SourceRemovalPreview:
     source: SourceConfig
     evidence_ids: tuple[str, ...]
     digest: str
+    #: The source is already removed, but an older build synced it again (Review 80 B2): applying
+    #: writes only the missing retractions, never a second removal event.
+    repair: bool = False
 
 
 class SourceRemoval:
@@ -63,6 +66,10 @@ class SourceRemoval:
             preview = _preview(records, source_id)
             if preview.digest != digest:
                 raise AptuniError("confirmation_stale", "The source changed since the preview; nothing was removed.")
+            if preview.repair:
+                retractions = [_retraction(records.get(item), preview.digest) for item in preview.evidence_ids]
+                self._commit(retractions, seq)
+                return len(retractions)
             now = utc_now()
             event = ReviewEvent(
                 record_type="review_event", id=new_id("rev"), schema_version=1, recorded_at=now,
@@ -81,20 +88,22 @@ def _preview(records: RecordSet, source_id: str) -> SourceRemovalPreview:
         raise AptuniError("source_not_found", f"No source with id {source_id}.") from error
     if source.record_type != "source_config":
         raise AptuniError("source_not_found", f"No source with id {source_id}.")
-    if source_id in records.removed_source_ids():
-        raise AptuniError("source_removed", "This source was already removed.")
     evidence_ids = tuple(sorted(item.id for item in records.current_evidence(source_id)
                                 if item.change_kind != "retraction"))
-    digest = sha256_text(json.dumps({"action": "source_remove", "source_id": source_id, "evidence": evidence_ids},
+    repair = source_id in records.removed_source_ids()
+    if repair and not evidence_ids:
+        raise AptuniError("source_removed", "This source was already removed.")
+    action = "source_remove_repair" if repair else "source_remove"
+    digest = sha256_text(json.dumps({"action": action, "source_id": source_id, "evidence": evidence_ids},
                                     sort_keys=True, separators=(",", ":")))
-    return SourceRemovalPreview(source, evidence_ids, digest)
+    return SourceRemovalPreview(source, evidence_ids, digest, repair)
 
 
-def _retraction(previous: Evidence, event_id: str) -> Evidence:
+def _retraction(previous: Evidence, seed: str) -> Evidence:
     """Withdraw one evidence item exactly as a sync retraction does, keeping its history."""
     return Evidence.model_validate({
         **previous.model_dump(),
-        "id": deterministic_id("evd", f"remove:{event_id}:{previous.id}"),
+        "id": deterministic_id("evd", f"remove:{seed}:{previous.id}"),
         "recorded_at": utc_now(), "supersedes": (previous.id,), "change_kind": "retraction",
         "signals": (), "observed_at": utc_now(),
     })

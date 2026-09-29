@@ -148,3 +148,29 @@ def test_owner_review_counts_ignore_source_removals(tmp_path: Path) -> None:
     before = owner_review_decisions(service.records())
     service.remove_source(source_id, service.source_removal_preview(source_id).digest)
     assert owner_review_decisions(service.records()) == before
+
+
+def test_remove_repairs_evidence_an_older_build_synced_after_removal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Review 80 B2: 0.2.0b3 does not honour a removal and can sync the source again."""
+    service, source_id, root = _setup(tmp_path)
+    service.remove_source(source_id, service.source_removal_preview(source_id).digest)
+    with monkeypatch.context() as older_build:
+        older_build.setattr(RecordSet, "removed_source_ids", lambda _self: set())
+        older_build.setattr(RecordSet, "_check_source_removal", lambda _self, _checked: None)
+        (root / "a.md").write_text("edited by an older build", encoding="utf-8")
+        service.sync(source_id)
+    assert not service.doctor().ok, "the surviving evidence breaks the removal invariant"
+
+    preview = service.source_removal_preview(source_id)
+    assert len(preview.evidence_ids) >= 1
+    service.remove_source(source_id, preview.digest)
+
+    assert service.doctor().ok
+    assert _exposed_from(service, source_id) == []
+    events = [r for r in service.records().records() if r.record_type == "review_event" and r.target_id == source_id]
+    assert len(events) == 1, "a repair writes only retractions, never a second removal event"
+    with pytest.raises(AptuniError) as done:
+        service.source_removal_preview(source_id)
+    assert done.value.code == "source_removed"

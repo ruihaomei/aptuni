@@ -71,3 +71,7 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Setup: `--module` does not narrow a plugin grant's modules (disclosed on the consent screen); consider `--plugin-module` | Review 78 N5 | Setup |
 | `aptuni connect`: choose the newest grant by a recorded creation time, and after a revoke tell the owner to uninstall the Claude plugin | Review 78 N7 | Host connect |
 | APPLY prompts: consider requiring a real TTY for `setup apply` like `developer grant apply` (agent-guide rule is behavioural) | Review 78 N8 | Owner confirmation |
+| Setup `--json`: exit 0 with `failure: null` when sources were deferred; tell Agents to read `source_failures` | Review 80 N3 | Setup / Agent guide |
+| 0.2.0b3 rejects `sync:src_…` journal entries, so an older build cannot replay or cancel a setup that deferred a source | Review 80 N5 | Compatibility |
+| ADR-0027 gaps: `status` counts include removed sources; Obsidian `recent_changes` shows a bare `revoke`; redundant purge-scope clause; `source remove` accepts piped APPLY (reversible, matches `memory forget`) | Review 80 N6 | Source removal |
+| English confirmation screens can now print non-ASCII (CJK names) and may fail on a non-UTF-8 stdout | Review 80 N7 | Rendering |

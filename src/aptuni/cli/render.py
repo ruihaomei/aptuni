@@ -14,6 +14,7 @@ spaces -- is still escaped and flagged.
 from __future__ import annotations
 
 import json
+import unicodedata
 
 MAX_RENDERED = 500
 
@@ -32,8 +33,11 @@ _READABLE = (
 
 
 def _readable(character: str) -> bool:
+    """An assigned CJK letter that is its own NFC form: no blank boxes, no compatibility twins (Review 80 B1)."""
     point = ord(character)
-    return any(low <= point <= high for low, high in _READABLE)
+    return (any(low <= point <= high for low, high in _READABLE)
+            and unicodedata.category(character) in ("Lo", "Lm")
+            and unicodedata.normalize("NFC", character) == character)
 
 
 def _escaped(character: str) -> str:

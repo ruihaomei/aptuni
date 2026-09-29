@@ -41,3 +41,15 @@ def test_a_mixed_name_keeps_the_ideographs_and_escapes_only_the_confusable_part(
 def test_quotes_and_controls_still_cannot_break_the_delimiters() -> None:
     rendered = delimited_untrusted('申"\n')
     assert rendered.startswith('"申\\"\\n"') and "control-escaped" in rendered
+
+
+@pytest.mark.parametrize(("name", "escaped"), [
+    ("豈", "\\uf900"),              # compatibility ideograph, NFC-equal to U+8C48
+    ("﩮", "\\ufa6e"),              # unassigned code point inside the compatibility block
+    ("\U0002f800", "\\ud87e\\udc00"),   # compatibility ideograph supplement
+    ("\U0002ee60", "\\ud87b\\ude60"),   # unassigned code point in the extension planes
+])
+def test_unassigned_and_compatibility_code_points_stay_escaped(name: str, escaped: str) -> None:
+    """Review 80 B1: an unassigned point draws as a blank box; a compatibility ideograph is a twin."""
+    rendered = delimited_untrusted(name)
+    assert escaped in rendered and rendered.endswith("[non-ascii/confusable-escaped]")

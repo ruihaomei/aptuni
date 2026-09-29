@@ -29,7 +29,8 @@ def cmd_source_remove(args: argparse.Namespace, service: Any) -> int:
     label = delimited_untrusted(source.roots[0] if source.roots else source.id)
     count = len(preview.evidence_ids)
     print(t("source.remove.title", locale, source=label, source_id=source.id))
-    print(t("source.remove.effect", locale, count=count, source_id=source.id))
+    effect = "source.remove.repair" if preview.repair else "source.remove.effect"
+    print(t(effect, locale, count=count, source_id=source.id))
     print(t("source.remove.again", locale))
     try:
         typed = input(t("source.remove.prompt", locale)).strip()

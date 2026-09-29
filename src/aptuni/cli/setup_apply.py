@@ -22,6 +22,7 @@ from aptuni.application.errors import AptuniError
 from aptuni.application.marginnote_ingest import MarginNoteSourceSpec
 from aptuni.application.service import AptuniService
 from aptuni.application.setup import (
+    SOURCE_RETRY_RESULT,
     SetupError,
     SetupPlan,
     SetupStep,
@@ -311,7 +312,8 @@ def _sync_sources(service: AptuniService, plan: SetupPlan, report: SetupReport, 
 def _failure_reason(error: AptuniError) -> str:
     """The provider's own code (e.g. ``github_credential_unavailable``) when it names one."""
     cause = str(error.__cause__ or "")
-    return cause if cause.replace("_", "").isalnum() and cause.islower() else error.code
+    # Only a value the journal reader accepts is written, so the setup always stays resumable.
+    return cause if SOURCE_RETRY_RESULT.fullmatch(RETRY_LATER + cause) else error.code
 
 
 def _source_label(source: Any) -> str:

@@ -60,7 +60,9 @@ We choose **Option C**.
 ## Consequences
 
 - **Positive:** reversible, auditable removal that every released build can read.
-- **Negative / risks:** review-event consumers written later must filter by target type; the
+- **Negative / risks:** builds before 0.2.0b4 do not honour a removal and can sync the source
+  again; `aptuni source remove` then offers a repair that writes only the missing retractions
+  (Review 80 B2), and `doctor` reports the gap until it is repaired. Review-event consumers written later must filter by target type; the
   invariant and the evaluation filter cover the ones that exist today.
 - **Follow-ups:** show removed sources in `source list --all` if owners ask for it.
 

@@ -82,7 +82,8 @@ to its digest, so an edited plan can never be applied.
 
 Aptuni writes the agent integration into its own directory and does **not** modify your host's
 configuration; you point the host at it yourself. If a step fails, the run stops there and resumes
-where it left off. `aptuni setup cancel ACTION_ID` revokes the agent access it granted and tells you
+where it left off; a source that cannot be read right now does not stop it and is listed with a
+retry command. `aptuni setup cancel ACTION_ID` revokes the agent access it granted and tells you
 exactly what remains — your Vault, sources and evidence are never deleted for you.
 
 ## Already have a Vault? (reinstall or new machine)

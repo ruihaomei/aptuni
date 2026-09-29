@@ -25,6 +25,12 @@
     "76-beta-attach-consent-review.md"
    ]
   },
+  "beta-day0-fixes": {
+   "kind": "review",
+   "current": "80-beta-day0-fixes-review.md",
+   "verdict": "BLOCK",
+   "supersedes": []
+  },
   "beta-stable-readiness-gate": {
    "kind": "review",
    "current": "73-beta-stable-readiness-gate-review.md",

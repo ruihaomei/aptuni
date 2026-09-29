@@ -218,7 +218,7 @@ class RecordSet:
     def _check_source_removal(self, checked: list[Any]) -> None:
         """ADR-0027: a source is removed by exactly one owner revoke that withdraws all it contributed."""
         removals = [event for event in self._of_type("review_event")
-                    if self._by_id[event.target_id].record_type == "source_config"]
+                    if getattr(self._by_id.get(event.target_id), "record_type", None) == "source_config"]
         for event in removals:
             if (event.decision, event.actor, event.rationale_code) != ("revoke", "user_cli", SOURCE_REMOVED):
                 raise InvariantError(f"{event.id} is not a valid source removal")
