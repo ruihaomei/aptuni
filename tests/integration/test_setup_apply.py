@@ -597,7 +597,7 @@ def test_n9_the_chinese_preview_escapes_a_chinese_path_without_losing_it(
     out = capsys.readouterr().out
 
     assert "setup.plan." not in out
-    assert "\\u7b14\\u8bb0" in out, "the Chinese path is escaped, not dropped"
+    assert "笔记" in out, "the Chinese path is shown readably, not dropped (Beta Day 0)"
     assert "没有任何数据离开本机" in out
 
 
