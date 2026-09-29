@@ -232,12 +232,17 @@ class SourceCommands:
         return NotionMcpClient().disconnect()
 
     def sources(self) -> list[SourceConfig]:
-        return [r for r in self.records().records() if r.record_type == "source_config"]
+        """Sources in use; a source the owner removed (ADR-0027) is no longer listed."""
+        records = self.records()
+        removed = records.removed_source_ids()
+        return [r for r in records.records() if r.record_type == "source_config" and r.id not in removed]
 
     @staticmethod
     def _source_in(records: RecordSet, source_id: str) -> SourceConfig:
         for record in records.records():
             if record.record_type == "source_config" and record.id == source_id:
+                if source_id in records.removed_source_ids():
+                    raise AptuniError("source_removed", "This source was removed; approve it again to use it.")
                 return record  # type: ignore[no-any-return]
         raise AptuniError("source_not_found", f"No source with id {source_id}.")
 

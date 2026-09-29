@@ -57,6 +57,7 @@ from aptuni.application.restore import (
 )
 from aptuni.application.review_commands import ReviewCommands, ReviewReminder
 from aptuni.application.source_commands import SourceCommands
+from aptuni.application.source_removal import SourceRemoval
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
 from aptuni.domain.invariants import InvariantError, RecordSet
@@ -129,7 +130,7 @@ class MemoryReviewFeed:
 
 
 class AptuniService(
-    SourceCommands, MemoryCommands, ReviewCommands, EvaluationCommands, ObsidianInterfaceCommands,
+    SourceCommands, SourceRemoval, MemoryCommands, ReviewCommands, EvaluationCommands, ObsidianInterfaceCommands,
 ):
     def __init__(self, workspace: Workspace) -> None:
         self.workspace = workspace

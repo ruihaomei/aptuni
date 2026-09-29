@@ -145,6 +145,7 @@ def _add_source_scope(by_id: dict[str, Any], selected: set[str], source_ids: set
         record.id for record in by_id.values()
         if (record.record_type == "source_config" and record.id in source_ids)
         or (record.record_type == "evidence" and record.provenance.source_id in source_ids)
+        or (record.record_type == "review_event" and record.target_id in source_ids)  # ADR-0027 removal
     } - selected
     selected.update(additions)
     return bool(additions)

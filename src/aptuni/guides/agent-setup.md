@@ -80,7 +80,8 @@ terminal (in Claude Code desktop: the Terminal panel) and run exactly:
 and type APPLY there. Reading many sources can take minutes; progress appears as it runs. Wait until
 they say it is done, then run `aptuni status` and `aptuni setup status`. A source that could not be
 read does not stop setup: the result lists it with the reason, and the user can retry it later with
-`aptuni sync SOURCE_ID` (again in a terminal that has any token it needs).
+`aptuni sync SOURCE_ID` (again in a terminal that has any token it needs), or stop using it with
+`aptuni source remove SOURCE_ID` (the user types APPLY; its evidence is withdrawn, history kept).
 
 ## 8. Connect the agents
 

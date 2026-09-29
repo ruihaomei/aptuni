@@ -18,6 +18,7 @@ from aptuni.domain.temporal import partial_date_range
 
 MASTERY_RE = re.compile(r"\b(proficient|expert|mastery|mastered|fluent in)\b|精通|熟练掌握|专家级", re.IGNORECASE)
 LINK_FIELDS = ("evidence_ids", "memory_ids", "derived_from", "contradicts")
+SOURCE_REMOVED = "source_removed"  # rationale of the one review event that removes a source (ADR-0027)
 EXPOSABLE_TYPES = ("fact", "memory", "evidence")
 
 
@@ -68,6 +69,7 @@ class RecordSet:
         self._check_memory_lifecycle(checked)
         self._check_profile_promotion(checked)
         self._check_evidence_support(checked)
+        self._check_source_removal(checked)
         self._check_idempotency()
 
     def _check_unique_ids(self) -> None:
@@ -213,6 +215,30 @@ class RecordSet:
                         f"{record.id} claims signal {record.predicate!r} without evidence carrying it"
                     )
 
+    def _check_source_removal(self, checked: list[Any]) -> None:
+        """ADR-0027: a source is removed by exactly one owner revoke that withdraws all it contributed."""
+        removals = [event for event in self._of_type("review_event")
+                    if self._by_id[event.target_id].record_type == "source_config"]
+        for event in removals:
+            if (event.decision, event.actor, event.rationale_code) != ("revoke", "user_cli", SOURCE_REMOVED):
+                raise InvariantError(f"{event.id} is not a valid source removal")
+        counts = Counter(event.target_id for event in removals)
+        if any(count > 1 for count in counts.values()):
+            raise InvariantError("a source was removed more than once")
+        touched = {record.id for record in checked}
+        for source_id in counts:
+            current = self.current_evidence(source_id)
+            relevant = touched & ({source_id} | {e.id for e in current} | {e.id for e in removals})
+            if relevant and any(item.change_kind != "retraction" for item in current):
+                raise InvariantError(f"removed source {source_id} still has current evidence")
+
+    def removed_source_ids(self) -> set[str]:
+        """Sources the owner removed (ADR-0027); they are never synced, listed or exposed again."""
+        return {event.target_id for event in self._of_type("review_event")
+                if event.decision == "revoke" and event.rationale_code == SOURCE_REMOVED
+                and self._by_id.get(event.target_id) is not None
+                and self._by_id[event.target_id].record_type == "source_config"}
+
     def _check_idempotency(self) -> None:
         keys = Counter(obs.idempotency_key for obs in self._of_type("observation"))
         repeated = [key for key, count in keys.items() if count > 1]
@@ -306,6 +332,8 @@ class RecordSet:
                 continue
             if record.record_type in ("fact", "evidence") and record.change_kind == "retraction":
                 continue
+            if record.record_type == "evidence" and record.provenance.source_id in withdrawn:
+                continue  # ADR-0027 defense in depth: nothing from a removed source is exposed
             if getattr(record, "review_status", None) in ("quarantined", "pending_review"):
                 continue
             if record.record_type == "memory" and (record.candidate_id not in accepted

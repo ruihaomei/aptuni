@@ -251,9 +251,7 @@ class EvaluationCommands:
             ) + sum(
                 profile_review_state_of(fact, records) == "auto_promoted_pending_review" for fact in promoted
             ),
-            "review_decisions": sum(
-                record.record_type == "review_event" and record.actor == "user_cli"
-                for record in records.records()),
+            "review_decisions": owner_review_decisions(records),
             "extended_metrics_available": True,
         }
         with source_operations_lock(self.workspace.state_dir):
@@ -603,3 +601,10 @@ class EvaluationCommands:
             if not managed or child.is_symlink() or not child.is_file():
                 raise AptuniError("evaluation_state_unsafe", "The evaluation state location is not safe.")
         return children
+
+
+def owner_review_decisions(records: RecordSet) -> int:
+    """Owner review decisions on memories and facts; a source removal (ADR-0027) is not one."""
+    removed = records.removed_source_ids()
+    return sum(record.record_type == "review_event" and record.actor == "user_cli"
+               and record.target_id not in removed for record in records.records())

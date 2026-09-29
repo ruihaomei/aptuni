@@ -33,6 +33,7 @@ from aptuni.cli.setup_commands import (
     cmd_recipe,
     cmd_setup,
 )
+from aptuni.cli.source_remove_cli import add_source_remove_parser, cmd_source_remove
 from aptuni.cli.status_cli import add_status_command, cmd_status
 from aptuni.cli.vault_cli import add_attach_command, cmd_attach
 from aptuni.domain.invariants import InvariantError
@@ -89,6 +90,7 @@ def _add_source_commands(sub: Any) -> None:
     notion_disconnect = source_sub.add_parser("disconnect-notion", help="remove Aptuni's Notion MCP authorization")
     notion_disconnect.add_argument("--json", action="store_true")
     add_marginnote_parsers(source_sub)
+    add_source_remove_parser(source_sub)
     source_list = source_sub.add_parser("list", help="list approved sources")
     source_list.add_argument("--json", action="store_true")
 
@@ -393,6 +395,8 @@ def _cmd_source(args: argparse.Namespace, service: AptuniService) -> int:
         return 0
     if args.source_command in MARGINNOTE_COMMANDS:
         return cmd_marginnote(args, service, _source_json)
+    if args.source_command == "remove":
+        return cmd_source_remove(args, service)
     sources = service.sources()
     if args.json:
         _print_json([_source_json(source) for source in sources])
