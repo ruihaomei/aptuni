@@ -75,3 +75,4 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | 0.2.0b3 rejects `sync:src_…` journal entries, so an older build cannot replay or cancel a setup that deferred a source | Review 80 N5 | Compatibility |
 | ADR-0027 gaps: `status` counts include removed sources; Obsidian `recent_changes` shows a bare `revoke`; redundant purge-scope clause; `source remove` accepts piped APPLY (reversible, matches `memory forget`) | Review 80 N6 | Source removal |
 | English confirmation screens can now print non-ASCII (CJK names) and may fail on a non-UTF-8 stdout | Review 80 N7 | Rendering |
+| Source removal repair: test that backup works after a repair and that a stale repair preview is refused; show the purge hint on the repair screen | Review 81 notes 1–2 | Source removal |

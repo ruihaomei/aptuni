@@ -6,6 +6,39 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0b4] — 2026-09-29
+
+Fixes from the User #1 Beta Day 0 journey, where an agent-led setup with sixteen sources stopped
+before any agent access was written. Top-Down Learning stays 0.2.1.
+
+### Added
+
+- `aptuni source remove SOURCE_ID` stops using an approved source: after a typed APPLY its evidence
+  is withdrawn so no agent sees it, history is kept, and the same location can be approved again
+  (ADR-0027). `aptuni privacy purge` still deletes a source for good.
+  Upgrade every installation before removing a source: older builds do not honour a removal and
+  can read the source again; running `aptuni source remove` again withdraws what they added.
+- `aptuni setup apply` prints progress for every step and every source while it runs.
+- `aptuni status --lang` (and `APTUNI_LANG`); `--json` is unchanged.
+
+### Changed
+
+- A source that cannot be read during setup no longer stops it: setup completes, and the result
+  lists that source with a plain reason and the exact `aptuni sync` (or `source remove`) command.
+- Setup plans stay valid for 24 hours, and a confirmed setup never expires while it resumes.
+- A plan that approves GitHub sources with `--github-token-env` says to set that variable in the
+  same terminal before APPLY.
+- Chinese, Japanese and Korean folder names are shown readably on plans and consent screens;
+  look-alike and invisible characters stay escaped and flagged.
+- The Agent guide forbids runnable placeholder commands and explains least-scope GitHub tokens.
+
+### Fixed
+
+- A GitHub repository with files larger than Aptuni reads (such as multi-megabyte notebooks) no
+  longer fails as a whole: those files are skipped with a note.
+- A GitHub error while reading files is reported as `github_sync_failed` with its real reason,
+  not as the misleading "the source changed while syncing".
+
 ## [0.2.0b3] — 2026-09-29
 
 Bug-fix Beta for returning users before the User #1 Day 0 journey. Top-Down Learning stays 0.2.1.

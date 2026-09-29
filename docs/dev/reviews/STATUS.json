@@ -27,9 +27,11 @@
   },
   "beta-day0-fixes": {
    "kind": "review",
-   "current": "80-beta-day0-fixes-review.md",
-   "verdict": "BLOCK",
-   "supersedes": []
+   "current": "81-beta-day0-fixes-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "80-beta-day0-fixes-review.md"
+   ]
   },
   "beta-stable-readiness-gate": {
    "kind": "review",

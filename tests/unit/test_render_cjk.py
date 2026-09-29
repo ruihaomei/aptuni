@@ -44,8 +44,8 @@ def test_quotes_and_controls_still_cannot_break_the_delimiters() -> None:
 
 
 @pytest.mark.parametrize(("name", "escaped"), [
-    ("豈", "\\uf900"),              # compatibility ideograph, NFC-equal to U+8C48
-    ("﩮", "\\ufa6e"),              # unassigned code point inside the compatibility block
+    ("\uf900", "\\uf900"),              # compatibility ideograph, NFC-equal to U+8C48
+    ("\ufa6e", "\\ufa6e"),              # unassigned code point inside the compatibility block
     ("\U0002f800", "\\ud87e\\udc00"),   # compatibility ideograph supplement
     ("\U0002ee60", "\\ud87b\\ude60"),   # unassigned code point in the extension planes
 ])
