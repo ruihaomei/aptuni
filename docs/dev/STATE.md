@@ -414,7 +414,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
 
 ## Awaiting maintainer decisions
 
-- None blocking. The maintainer authorized publishing `0.2.0b2` (2026-09-29).
+- None blocking. The maintainer authorized publishing `0.2.0b5` (2026-09-30).
 
 ## Next highest-priority task
 
@@ -424,7 +424,10 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
    `0.2.0b4` (Reviews 80 BLOCK → 81 APPROVE_WITH_NON_BLOCKING_NOTES; ADR-0027 source removal).
    0.2.0b4 is public (record `docs/dev/releases/0.2.0b4.md`). User #1
    upgrades and re-runs `aptuni setup apply setup-27676f7afb011ba3` (confirmed, never expires) in
-   the terminal with `APTUNI_GITHUB_TOKEN` to reach grants, connect and first use.
+   the terminal with `APTUNI_GITHUB_TOKEN` to reach grants, connect and first use. Setup then
+   completed on 0.2.0b4. `0.2.0b5` (maintainer-authorized 2026-09-30) ships ADR-0028 (Reviews 82 →
+   84) and the empty-repository fix; User #1 then runs `aptuni source authorize` on the MarginNote
+   source after a backup.
 1. Run the real Claude Code and Codex first-run journeys with the maintainer on the published Beta;
    record them in `docs/dev/releases/0.2.0b1.md`. Day 0 of the 14-day User #1 window is the first
    real journey (`docs/dev/BETA_DOGFOODING.md`). Keep the UX Gate open until the exact phrase

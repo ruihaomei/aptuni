@@ -34,6 +34,9 @@ MANIFESTS = frozenset({"pyproject.toml", "package.json", "requirements.txt", "ca
 SOURCE_SUFFIXES = frozenset({".py", ".ts", ".js", ".rs", ".go", ".java", ".ipynb", ".r", ".jl"})
 TEXT_SUFFIXES = SOURCE_SUFFIXES | frozenset({".md", ".txt", ".toml", ".json", ".yaml", ".yml", ".ini", ".cfg"})
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+#: Git's empty-tree object id: the stable snapshot identity of a repository with no commit yet.
+EMPTY_TREE_SHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+REPOSITORY_EMPTY = "github_repository_empty"
 DEFAULT_BUDGET = 40
 DEFAULT_API_ORIGIN = "https://api.github.com"
 API_VERSION = "2022-11-28"
@@ -253,6 +256,8 @@ class GitHubApi:
                 if result.headers.get("x-ratelimit-remaining") == "0":
                     raise GitHubApiError("github_rate_limited_reset")
                 raise GitHubApiError("github_access_denied")
+            if result.status == 409 and _says_repository_empty(result.body):
+                raise GitHubApiError(REPOSITORY_EMPTY)
             if result.status != 200:
                 raise GitHubApiError("github_request_failed")
             content_type = result.headers.get("content-type", "").split(";", 1)[0].strip().lower()
@@ -284,7 +289,13 @@ class GitHubApi:
         default_branch = repo.get("default_branch")
         assert isinstance(repository_id, int) and isinstance(full_name, str) and isinstance(default_branch, str)
         requested_ref = self.spec.ref or default_branch
-        commit, _ = self._json(f"/repos/{slug}/commits/{urllib.parse.quote(requested_ref, safe='')}")
+        try:
+            commit, _ = self._json(f"/repos/{slug}/commits/{urllib.parse.quote(requested_ref, safe='')}")
+        except GitHubApiError as error:
+            if str(error) != REPOSITORY_EMPTY:
+                raise
+            return GitHubTree({"repository_id": repository_id, "full_name": full_name, "commit": EMPTY_TREE_SHA,
+                               "truncated": False, "tree": []}, default_branch, ("repository_empty",))
         commit_sha = commit.get("sha") if isinstance(commit, dict) else None
         if not isinstance(commit_sha, str) or not SHA_RE.fullmatch(commit_sha):
             raise GitHubApiError("github_commit_response_invalid")
@@ -357,9 +368,13 @@ class GitHubApi:
             query = urllib.parse.urlencode({
                 "author": actor, "per_page": DEEP_PAGE_SIZE, "page": page, "sha": branch,
             })
-            value, _ = self._json(
-                f"/repos/{slug}/commits?{query}", max_bytes=MAX_DEEP_PAGE_BYTES,
-            )
+            try:
+                value, _ = self._json(f"/repos/{slug}/commits?{query}", max_bytes=MAX_DEEP_PAGE_BYTES)
+            except GitHubApiError as error:
+                if str(error) != REPOSITORY_EMPTY:
+                    raise
+                notes.add("repository_empty")
+                break
             if not isinstance(value, list) or len(value) > DEEP_PAGE_SIZE:
                 raise GitHubApiError("github_deep_commits_response_invalid")
             for raw in value:
@@ -683,6 +698,15 @@ class GitHubActivityScan:
     parser: tuple[str, str]
     repository_id: int
     notes: tuple[str, ...]
+
+
+def _says_repository_empty(body: bytes) -> bool:
+    """GitHub's exact answer for a repository without commits; any other 409 stays a failure."""
+    try:
+        value = json.loads(body)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return False
+    return isinstance(value, dict) and value.get("message") == "Git Repository is empty."
 
 
 def _aware_iso(value: Any) -> str:

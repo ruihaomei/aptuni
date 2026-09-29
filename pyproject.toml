@@ -1,6 +1,6 @@
 [project]
 name = "aptuni"
-version = "0.2.0b4"
+version = "0.2.0b5"
 description = "Aptuni — a local-first personal context layer that grows more attuned to you over time."
 readme = "README.md"
 license = "Apache-2.0"

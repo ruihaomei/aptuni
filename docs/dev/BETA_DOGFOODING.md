@@ -54,7 +54,7 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 | 2026-09-29 | GitHub source sync | P1 | A repository with multi-megabyte notebooks failed its whole sync (`github_response_too_large`), although the tree already reports each file's size. | `test_github_oversized.py` | Fixed in 0.2.0b4 |
 | 2026-09-29 | Error reporting | P2 | A GitHub error while reading files surfaced as `sync_retry` ("the source changed while syncing"), hiding the real cause; diagnosing it needed a manual `aptuni sync`. | `test_github_oversized.py::test_a_github_failure_while_reading_files_keeps_its_own_code` | Fixed in 0.2.0b4 |
 | 2026-09-29 | Agent guide / shells | P3 | A command run through the chat's own shell (`!`) did not see a variable exported in the owner's terminal tab. | `test_agent_guide_day0.py` (same-terminal rule in the guide) | Fixed in 0.2.0b4 |
-| 2026-09-29 | GitHub source sync | P2 | An empty repository (GitHub answers `409 Git Repository is empty`) is reported as a failed source (`github_request_failed`) instead of syncing as zero files; three of User #1's repos showed as failures on 0.2.0b4. | — | Open |
+| 2026-09-29 | GitHub source sync | P2 | An empty repository (GitHub answers `409 Git Repository is empty`) is reported as a failed source (`github_request_failed`) instead of syncing as zero files; three of User #1's repos showed as failures on 0.2.0b4. | `tests/integration/test_github_empty_repository.py` | Fixed in 0.2.0b5 |
 
 ## Gates kept open in parallel
 

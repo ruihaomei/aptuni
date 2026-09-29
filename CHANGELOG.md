@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0b5] — 2026-09-30
+
+Your approved sources now form your Profile. On a Vault with ~27k Evidence records the Profile
+had stayed empty because nothing turned source Evidence into Profile facts. Top-Down Learning stays 0.2.1.
+
 ### Added
 
 - Authoritative `studied`, `applied` and `demonstrated` Evidence now creates active Profile Facts
@@ -25,6 +30,11 @@ All notable changes to this project are documented here. The format follows
   studied (history kept) and form Profile Facts. Owner rejections and edits hold across later
   source changes, and `aptuni profile review accept` is refused for these already-active Facts.
 - Source sync output reports how many Profile Facts it wrote.
+
+### Fixed
+
+- An empty GitHub repository (GitHub's `409 Git Repository is empty`) syncs as zero files with a
+  `repository_empty` note instead of failing as `github_request_failed`; any other conflict still fails.
 
 ## [0.2.0b4] — 2026-09-29
 
@@ -260,7 +270,9 @@ First public pre-alpha release of the Milestone 1 personal context core.
 - Module-scoped host grants, network-denied MCP STDIO, conservative host-confinement reporting, and
   tracked-secret checks in the release gate.
 
-[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.2.0b3...HEAD
+[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.2.0b5...HEAD
+[0.2.0b5]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b5
+[0.2.0b4]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b4
 [0.2.0b3]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b3
 [0.2.0b2]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b2
 [0.2.0b1]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b1
