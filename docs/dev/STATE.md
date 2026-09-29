@@ -425,7 +425,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
    0.2.0b4 is public (record `docs/dev/releases/0.2.0b4.md`). User #1
    upgrades and re-runs `aptuni setup apply setup-27676f7afb011ba3` (confirmed, never expires) in
    the terminal with `APTUNI_GITHUB_TOKEN` to reach grants, connect and first use. Setup then
-   completed on 0.2.0b4. `0.2.0b5` (maintainer-authorized 2026-09-30) ships ADR-0028 (Reviews 82 →
+   completed on 0.2.0b4. `0.2.0b5` is public (2026-09-30; record `docs/dev/releases/0.2.0b5.md`) and ships ADR-0028 (Reviews 82 →
    84) and the empty-repository fix; User #1 then runs `aptuni source authorize` on the MarginNote
    source after a backup.
 1. Run the real Claude Code and Codex first-run journeys with the maintainer on the published Beta;

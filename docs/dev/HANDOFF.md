@@ -23,8 +23,8 @@ Evidence re-derived as corrections, Facts in one commit); derivation/validation 
 sync ~5.6 s, grant ~4.3 s, doctor ~3 s). Review 83 blocked on a single-Fact purge freezing sync;
 the writer now treats ledger-purged lineage ids as a permanent withdrawal. Review 84 is
 APPROVE_WITH_NON_BLOCKING_NOTES; notes are in BACKLOG. Full pytest (1043), Ruff, strict mypy and relay
-are green; checkpoint `e8d72a9`. **0.2.0b5 is being released (maintainer-authorized 2026-09-30)**
-with ADR-0028 and the empty-GitHub-repository fix (Day 0 P2). After it is installed, User #1 backs up
+are green; checkpoint `e8d72a9`. **Aptuni 0.2.0b5 is public (2026-09-30, maintainer-authorized;
+record `docs/dev/releases/0.2.0b5.md`)** with ADR-0028 and the empty-GitHub-repository fix (Day 0 P2). After it is installed, User #1 backs up
 and runs `aptuni source authorize <MarginNote source id> --grant knowledge.studied` themselves; the
 agent never runs it for them.
 
