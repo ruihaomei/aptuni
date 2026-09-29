@@ -33,6 +33,7 @@ from aptuni.cli.setup_commands import (
     cmd_recipe,
     cmd_setup,
 )
+from aptuni.cli.status_cli import add_status_command, cmd_status
 from aptuni.cli.vault_cli import add_attach_command, cmd_attach
 from aptuni.domain.invariants import InvariantError
 from aptuni.domain.records import MODULES, SchemaVersionError
@@ -185,8 +186,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_attach_command(sub)
     add_guide_commands(sub)
 
-    status = sub.add_parser("status", help="show Vault location, size and module switches")
-    status.add_argument("--json", action="store_true")
+    add_status_command(sub)
 
     remember = sub.add_parser("remember", help="record something true about you")
     remember.add_argument("statement")
@@ -269,26 +269,6 @@ def _review_line(service: AptuniService) -> str | None:
         return None
     return (f"{reminder.pending} memory(ies) Aptuni added on its own are waiting for review. "
             "See them with: aptuni memory review list")
-
-
-def _cmd_status(args: argparse.Namespace, service: AptuniService) -> int:
-    status = service.status()
-    reminder = service.review_reminder()
-    if args.json:
-        _print_json({"vault": str(status.vault_path), "state_dir": str(status.state_dir), "seq": status.seq,
-                     "policy_epoch": status.policy_epoch, "counts": status.counts,
-                     "modules": _modules_json(status),
-                     "review": {"pending": reminder.pending, "due": reminder.due,
-                                "reason": reminder.reason}})
-        return 0
-    print(f"Vault: {status.vault_path}  (commit {status.seq}, policy epoch {status.policy_epoch})")
-    print("Records: " + (", ".join(f"{k}={v}" for k, v in sorted(status.counts.items())) or "none"))
-    hidden = [m for m, (_, expose) in status.modules.items() if not expose]
-    print("Hidden from agents: " + (", ".join(hidden) or "nothing"))
-    line = _review_line(service)
-    if line:
-        print(line)
-    return 0
 
 
 def _cmd_remember(args: argparse.Namespace, service: AptuniService) -> int:
@@ -768,7 +748,7 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "attach": cmd_attach,
     "guide": cmd_guide,
     "connect": cmd_connect,
-    "status": _cmd_status,
+    "status": cmd_status,
     "remember": _cmd_remember,
     "facts": _cmd_facts,
     "correct": _cmd_correct,
