@@ -25,7 +25,7 @@ the writer now treats ledger-purged lineage ids as a permanent withdrawal. Revie
 APPROVE_WITH_NON_BLOCKING_NOTES; notes are in BACKLOG. Full pytest (1043), Ruff, strict mypy and relay
 are green; checkpoint `e8d72a9`. **Aptuni 0.2.0b5 is public (2026-09-30, maintainer-authorized;
 record `docs/dev/releases/0.2.0b5.md`)** with ADR-0028 and the empty-GitHub-repository fix (Day 0 P2).
-**0.2.0b6 (maintainer-authorized 2026-09-30)** fixes the first real `source authorize`: 2 of 26,417
+**Aptuni 0.2.0b6 is public (2026-09-30; record `docs/dev/releases/0.2.0b6.md`)** and fixes the first real `source authorize`: 2 of 26,417
 titles ('mastery', 'proficient') tripped the no-proficiency invariant and refused the whole batch;
 such topics now stay Evidence (verified on a scratch copy of the real Vault: 26,415 facts). After it is installed, User #1 backs up
 and runs `aptuni source authorize <MarginNote source id> --grant knowledge.studied` themselves; the
