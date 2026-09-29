@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0b6] — 2026-09-30
+
+Fix for the first real `aptuni source authorize` run. Top-Down Learning stays 0.2.1.
+
 ### Fixed
 
 - `aptuni source authorize` and source sync no longer fail as a whole when a note title reads as a
@@ -276,7 +280,8 @@ First public pre-alpha release of the Milestone 1 personal context core.
 - Module-scoped host grants, network-denied MCP STDIO, conservative host-confinement reporting, and
   tracked-secret checks in the release gate.
 
-[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.2.0b5...HEAD
+[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.2.0b6...HEAD
+[0.2.0b6]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b6
 [0.2.0b5]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b5
 [0.2.0b4]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b4
 [0.2.0b3]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b3

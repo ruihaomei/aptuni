@@ -1,9 +1,9 @@
-<p align="center"><img src="https://raw.githubusercontent.com/ruihaomei/aptuni/v0.2.0b5/assets/brand/logo/aptuni-icon.svg" width="120" alt="Aptuni"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/ruihaomei/aptuni/v0.2.0b6/assets/brand/logo/aptuni-icon.svg" width="120" alt="Aptuni"></p>
 
 <h1 align="center">Aptuni</h1>
 <p align="center"><b>越用，越懂你。</b></p>
 <p align="center">个人上下文 · 记忆 · MCP · 本地优先</p>
-<p align="center"><a href="https://github.com/ruihaomei/aptuni/blob/v0.2.0b5/README.md">English</a> · <a href="https://github.com/ruihaomei/aptuni/blob/v0.2.0b5/LICENSE">Apache-2.0</a> · v0.2.0b5 Beta 版</p>
+<p align="center"><a href="https://github.com/ruihaomei/aptuni/blob/v0.2.0b6/README.md">English</a> · <a href="https://github.com/ruihaomei/aptuni/blob/v0.2.0b6/LICENSE">Apache-2.0</a> · v0.2.0b6 Beta 版</p>
 
 **Aptuni 把恰到好处的“你”提供给你的 AI 智能体，而不是把关于你的一切都交出去。**
 它是一个会随着使用逐渐更懂你的个人上下文层。
@@ -11,9 +11,9 @@
 你不必再向每个智能体反复介绍自己。智能体只会拿到与当前任务相关、可核查的一小部分信息，
 而全部数据以开放格式保存在你自己的设备上。
 
-> **状态：Beta（0.2.0b5）。** 核心、智能体激活与插件平台已在受支持的 macOS 与 Ubuntu 24.04/ext4
+> **状态：Beta（0.2.0b6）。** 核心、智能体激活与插件平台已在受支持的 macOS 与 Ubuntu 24.04/ext4
 > 系统上端到端可用，Top-Down Learning 作为 1 号旗舰插件随版本发布。正式版之前接口仍可能变化。参见[当前可用功能](#当前可用功能)与
-> [路线图](https://github.com/ruihaomei/aptuni/blob/v0.2.0b5/docs/dev/ROADMAP.md)。
+> [路线图](https://github.com/ruihaomei/aptuni/blob/v0.2.0b6/docs/dev/ROADMAP.md)。
 
 ## 为什么选择 Aptuni
 
@@ -30,7 +30,7 @@
 
 把下面这句话粘贴给 Claude Code 或 Codex：
 
-> 帮我安装并配置 Aptuni：运行 `uv tool install aptuni==0.2.0b5`（如果没有 uv 就先装 uv），然后运行
+> 帮我安装并配置 Aptuni：运行 `uv tool install aptuni==0.2.0b6`（如果没有 uv 就先装 uv），然后运行
 > `aptuni guide agent --lang zh-CN` 并按它的步骤来。
 
 智能体会在聊天里问你几个问题——使用的语言、希望 Aptuni 了解你的哪些部分、个人数据能否交给云端模型处理、
@@ -43,7 +43,7 @@
 使用 Python 3.13 和 [uv](https://docs.astral.sh/uv/) 安装公开软件包：
 
 ```sh
-uv tool install aptuni==0.2.0b5
+uv tool install aptuni==0.2.0b6
 aptuni --version
 ```
 
@@ -132,7 +132,7 @@ aptuni adapter apply ACTION_ID    # 在你自己的终端里确认
 | Mem0 本地投影（`infer=False`，删除时重建整个存储） | ✅ 预览 |
 | 显式混合检索（SQLite + 已接受记忆的 Mem0 排名） | ✅ 预览 |
 | Obsidian 所有者评审界面 | ✅ 桌面端 |
-| 旗舰插件：[Top-Down Learning](https://github.com/ruihaomei/aptuni/tree/v0.2.0b5/examples/plugins/top_down_learning)——从你已经会的地方出发，只学抵达目标真正需要的知识；学习上下文经你确认后，可在本地或云端 Agent 之间迁移 | ✅ Beta |
+| 旗舰插件：[Top-Down Learning](https://github.com/ruihaomei/aptuni/tree/v0.2.0b6/examples/plugins/top_down_learning)——从你已经会的地方出发，只学抵达目标真正需要的知识；学习上下文经你确认后，可在本地或云端 Agent 之间迁移 | ✅ Beta |
 | Graphiti | 🗺 里程碑 3 |
 
 运行 `aptuni plugin list --lang zh-CN` 和 `aptuni recipe list --lang zh-CN` 可以在命令行看到同样的信息。
@@ -151,8 +151,8 @@ aptuni adapter apply ACTION_ID    # 在你自己的终端里确认
 - **资料变化是安全的。** 每次同步都是不可变快照加可审阅的变更；删除文件只会撤回证据，
   不会悄悄改写历史；有歧义的变化会等你确认。
 
-设计决策见 [`docs/dev/DECISIONS/`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b5/docs/dev/DECISIONS/README.md)，产品需求见
-[`docs/product/PRD.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b5/docs/product/PRD.md)。
+设计决策见 [`docs/dev/DECISIONS/`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b6/docs/dev/DECISIONS/README.md)，产品需求见
+[`docs/product/PRD.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b6/docs/product/PRD.md)。
 
 ## 配方
 
@@ -169,8 +169,8 @@ aptuni adapter apply ACTION_ID    # 在你自己的终端里确认
 
 Aptuni 不会主动扫描你的电脑；发现某个来源并不等于获得读取许可。默认不保存原始对话。
 智能体只能在预算内看到你开放的模块；适配器预览会明确告诉你哪些数据会离开本机
-（例如，智能体读取的上下文会由该智能体的模型提供方处理）。详见 [`SECURITY.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b5/SECURITY.md)
-与[威胁模型](https://github.com/ruihaomei/aptuni/blob/v0.2.0b5/docs/dev/THREAT_MODEL.md)。
+（例如，智能体读取的上下文会由该智能体的模型提供方处理）。详见 [`SECURITY.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b6/SECURITY.md)
+与[威胁模型](https://github.com/ruihaomei/aptuni/blob/v0.2.0b6/docs/dev/THREAT_MODEL.md)。
 
 这几条命令让这一点变得具体：
 
@@ -322,9 +322,9 @@ aptuni backup restore confirm <action>             # 只对这一份预览生效
 
 ## 参与贡献
 
-欢迎贡献插件、配方、翻译和问题报告，请先阅读 [`CONTRIBUTING.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b5/CONTRIBUTING.md)。
+欢迎贡献插件、配方、翻译和问题报告，请先阅读 [`CONTRIBUTING.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b6/CONTRIBUTING.md)。
 向插件顾问添加一个插件只需要一个 TOML 文件和两行消息文本。
 
 ## 许可证
 
-[Apache-2.0](https://github.com/ruihaomei/aptuni/blob/v0.2.0b5/LICENSE)。第三方声明见 [`THIRD_PARTY_NOTICES.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b5/THIRD_PARTY_NOTICES.md)。
+[Apache-2.0](https://github.com/ruihaomei/aptuni/blob/v0.2.0b6/LICENSE)。第三方声明见 [`THIRD_PARTY_NOTICES.md`](https://github.com/ruihaomei/aptuni/blob/v0.2.0b6/THIRD_PARTY_NOTICES.md)。

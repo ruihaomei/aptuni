@@ -427,7 +427,8 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
    the terminal with `APTUNI_GITHUB_TOKEN` to reach grants, connect and first use. Setup then
    completed on 0.2.0b4. `0.2.0b5` is public (2026-09-30; record `docs/dev/releases/0.2.0b5.md`) and ships ADR-0028 (Reviews 82 →
    84) and the empty-repository fix; User #1 then runs `aptuni source authorize` on the MarginNote
-   source after a backup.
+   source after a backup. On b5 that run was refused atomically (2 titles tripped the no-proficiency
+   invariant); `0.2.0b6` (maintainer-authorized 2026-09-30) keeps such topics as Evidence.
 1. Run the real Claude Code and Codex first-run journeys with the maintainer on the published Beta;
    record them in `docs/dev/releases/0.2.0b1.md`. Day 0 of the 14-day User #1 window is the first
    real journey (`docs/dev/BETA_DOGFOODING.md`). Keep the UX Gate open until the exact phrase
