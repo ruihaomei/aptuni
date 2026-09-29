@@ -401,7 +401,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
    repositories for User #1, then stopped at the sync step (missing token, then a repository with
    multi-megabyte notebooks) before any grant was written. Ten defects were logged and fixed for
    `0.2.0b4` (Reviews 80 BLOCK → 81 APPROVE_WITH_NON_BLOCKING_NOTES; ADR-0027 source removal).
-   Release prep is committed locally; publishing waits for the maintainer. After publishing, User #1
+   0.2.0b4 is public (record `docs/dev/releases/0.2.0b4.md`). User #1
    upgrades and re-runs `aptuni setup apply setup-27676f7afb011ba3` (confirmed, never expires) in
    the terminal with `APTUNI_GITHUB_TOKEN` to reach grants, connect and first use.
 1. Run the real Claude Code and Codex first-run journeys with the maintainer on the published Beta;

@@ -4,14 +4,14 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
 
 ## Current position
 
-**Aptuni 0.2.0b4 is prepared locally (not pushed, not published).** Day 0 on public 0.2.0b3
+**Aptuni 0.2.0b4 is public (2026-09-29, maintainer-authorized; record `docs/dev/releases/0.2.0b4.md`).** Day 0 on public 0.2.0b3
 stopped at setup's sync step before any grant; ten defects are fixed test-first in `41b27c2..`
 (oversized GitHub files skipped; real GitHub error codes; unreadable sources reported instead of
 stopping setup, with progress; token notice, 24 h plans, confirmed setups never expire; readable
 CJK with confusables escaped; `status --lang`; Agent-guide token/placeholder rules;
 `aptuni source remove` per ADR-0027 with a repair path for older builds). Reviews 80 BLOCK → 81
-APPROVE_WITH_NON_BLOCKING_NOTES; notes in BACKLOG. Next: maintainer authorizes the 0.2.0b4
-release; then User #1 upgrades and resumes `setup-27676f7afb011ba3`.
+APPROVE_WITH_NON_BLOCKING_NOTES; notes in BACKLOG. Next: User #1 upgrades to 0.2.0b4 and
+resumes `setup-27676f7afb011ba3`.
 
 **Beta 0.2.0b3 is public (2026-09-29, maintainer-authorized; record `docs/dev/releases/0.2.0b3.md`).** 0.2.0b2 is public (record
 `docs/dev/releases/0.2.0b2.md`). A returning-user P1 found while preparing Day 0 — setup planned a new
