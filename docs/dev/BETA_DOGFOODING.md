@@ -44,6 +44,13 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 | 2026-09-28 | Agent connection | P1 | After setup/adapter apply the user was told to "point the host at the bundle" with no command; a new user could not connect Claude Code or Codex. | `tests/integration/test_host_connect.py`; exact `claude --plugin-dir` and Codex skill copy + `codex mcp add` lines derived from the bundle, bilingual | Fixed in 0.2.0b2 |
 | 2026-09-28 | Setup recommendation copy | P2 | Catalog copy promised context "without you asking" and an identity card "at session start", contradicting Beta OFF-by-default. | `test_host_connect.py::test_agent_catalog_copy_does_not_promise_automatic_context` | Fixed in 0.2.0b2 |
 | 2026-09-29 | Returning-user setup | P1 | After attaching a Vault at a custom path, setup planned a new `~/Aptuni` and failed with `setup_vault_conflict` after APPLY; scripted MarginNote required a store path the Agent guide does not ask for. | `test_vault_attach.py`, `test_onboarding.py` | Fixed in 0.2.0b3 |
+| 2026-09-29 | Setup apply / source sync | P1 | One failing source (missing GitHub credential, then a retryable `sync_retry`) stops the whole setup at the sync step, so agent grants, bundles and the plugin grant are never written; the only recovery is re-running APPLY. | — | Open (Day 0) |
+| 2026-09-29 | Source management | P1 | Once approved, a source cannot be removed or paused from the CLI (`aptuni source` has no remove/disable), so "connect only public repos" was impossible after private repos failed. | — | Open (Day 0) |
+| 2026-09-29 | Setup apply progress | P2 | A resumed apply that syncs many GitHub repositories runs for minutes with no progress output, and other `aptuni` commands block meanwhile. | — | Open (Day 0) |
+| 2026-09-29 | Setup plan / credentials | P2 | A plan with private GitHub repos and `--github-token-env` never says the variable must be set before APPLY; the ~30-minute plan expiry is too short to create a token, and a plan can expire mid-journey. | — | Open (Day 0) |
+| 2026-09-29 | Agent guide copy | P2 | The Agent put a placeholder token in a runnable shell block and the user ran it; the guide should forbid runnable placeholders and tell the Agent how to handle private-repo tokens. | — | Open (Day 0) |
+| 2026-09-29 | Plan rendering (zh-CN) | P3 | Chinese folder paths are shown as `\uXXXX` escapes with `[non-ascii/confusable-escaped]`, unreadable for Chinese users. | — | Open (Day 0) |
+| 2026-09-29 | CLI consistency | P3 | `aptuni status` rejects `--lang` while other commands accept it. | — | Open (Day 0) |
 
 ## Gates kept open in parallel
 
