@@ -28,6 +28,8 @@ from aptuni.domain.temporal import utc_now
 SETUP_TTL = timedelta(minutes=30)
 ACTION_RE = re.compile(r"^setup-[0-9a-f]{16}$")
 SCHEMA_VERSION = 1
+SOURCE_RETRY_KEY = re.compile(r"sync:src_[0-9A-Z]{26}")
+SOURCE_RETRY_RESULT = re.compile(r"retry_later:[a-z0-9_]{1,80}")
 STEP_KINDS = (
     "vault", "source_folder", "source_obsidian", "source_github", "source_marginnote", "sync", "adapter",
     "plugin_grant", "doctor", "smoke",
@@ -254,6 +256,11 @@ def record_step(intent_path: Path, intent: dict[str, Any], key: str, result: str
     _write_private_json(intent_path, intent)
 
 
+def _source_retry(key: str, result: str) -> bool:
+    """A per-source sync outcome left for a later ``aptuni sync``; it never marks a step done."""
+    return bool(SOURCE_RETRY_KEY.fullmatch(key)) and bool(SOURCE_RETRY_RESULT.fullmatch(result))
+
+
 def _validate_progress(value: dict[str, Any], plan: SetupPlan, action_id: str) -> None:
     """Reject malformed journals before their values can skip or fabricate setup steps."""
     results = value.get("results")
@@ -264,7 +271,7 @@ def _validate_progress(value: dict[str, Any], plan: SetupPlan, action_id: str) -
         or plan.action_id != action_id
         or not isinstance(results, dict)
         or any(not isinstance(key, str) or not isinstance(result, str)
-               or key not in valid_keys for key, result in results.items())
+               or (key not in valid_keys and not _source_retry(key, result)) for key, result in results.items())
         or not isinstance(created, list)
         or any(not isinstance(item, str) for item in created)
     ):

@@ -41,6 +41,8 @@ from aptuni.cli.grant_consent import render_consent
 from aptuni.cli.host_connect import connect_lines
 from aptuni.cli.render import delimited_untrusted
 from aptuni.cli.setup_apply import HOST_ADAPTER, PLUGIN_CLAIM, apply_setup_plan, planned_sources
+from aptuni.cli.setup_progress import failure_lines
+from aptuni.cli.setup_progress import printer as progress_printer
 from aptuni.domain.records import MODULES
 from aptuni.i18n import I18nError, has_message, normalize_locale, t
 from aptuni.sources.github import DEFAULT_API_ORIGIN, GitHubSourceSpec, SourceIdentityError
@@ -602,11 +604,11 @@ def _setup_apply(args: argparse.Namespace, service: Any) -> int:
         print(t("setup.apply.cancelled" if action_state == "pending"
                 else "setup.apply.declined_resume", locale))
         return 1
-    report = apply_setup_plan(service, args.action_id, plan.digest)
+    report = apply_setup_plan(service, args.action_id, plan.digest, progress=progress_printer(locale))
     if args.json:
         print(json.dumps(report.to_dict(), ensure_ascii=False, indent=1))
         return 0 if report.terminal_state == "complete" else 2
-    return _print_report(report, plan, locale)
+    return _print_report(report, plan, locale, service)
 
 
 def _answers_from_plan(plan: SetupPlan) -> SetupAnswers:
@@ -627,7 +629,7 @@ def _answers_from_plan(plan: SetupPlan) -> SetupAnswers:
         raise SetupError("setup_action_invalid", "The setup plan contains invalid advisor answers.") from error
 
 
-def _print_report(report: Any, plan: SetupPlan, locale: str) -> int:
+def _print_report(report: Any, plan: SetupPlan, locale: str, service: Any) -> int:
     print(t("setup.apply.result", locale, action_id=report.action_id, state=report.terminal_state))
     for key, result in report.results.items():
         kind, _, target = key.partition(":")
@@ -653,6 +655,8 @@ def _print_report(report: Any, plan: SetupPlan, locale: str) -> int:
         print(t("setup.apply.relaunch", locale))
     for grant_id in report.plugin_grants:
         print(t("setup.apply.plugin_grant", locale, grant_id=grant_id))
+    for line in failure_lines(report.source_failures, service.sources(), locale):
+        print(line)
     print(t("setup.apply.host_status", locale))
     print(t("setup.apply.privacy", locale))
     print(t("setup.apply.rollback", locale, action_id=report.action_id))

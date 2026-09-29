@@ -423,10 +423,12 @@ def test_b4_cancel_never_claims_nothing_was_created_when_a_vault_exists(
     assert (tmp_path / "Aptuni" / "HEAD.json").exists()
 
 
-def test_b5_a_failing_sync_stops_the_run_before_any_host_grant(
+def test_b5_a_failing_sync_is_disclosed_never_swallowed(
     tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Review 33 B5: a swallowed step failure let a grant be created after it."""
+    """Review 33 B5 forbade a *swallowed* sync failure. Since Beta Day 0 (owner decision,
+    2026-09-29) an unreadable source no longer blocks agent access, but it is always disclosed:
+    it is journaled, reported with its reason, and survives a finished-setup replay."""
     service = _service(tmp_path)
     plan = _plan(service, tmp_path, "--folder", str(_notes(tmp_path)), "--host", "codex", capsys=capsys)
 
@@ -436,10 +438,11 @@ def test_b5_a_failing_sync_stops_the_run_before_any_host_grant(
     monkeypatch.setattr(AptuniService, "sync", lambda _self, source_id: refuse(source_id))
     report = apply_setup_plan(service, plan["action_id"], plan["digest"])
 
-    assert report.terminal_state == "incomplete_resumable"
-    assert report.failure == "source_unavailable"
-    assert report.grants == [], "no grant may be created after a failed step"
-    assert not (service.workspace.state_dir / "adapters" / "grants").exists()
+    (source,) = service.sources()
+    assert report.terminal_state == "complete"
+    assert report.source_failures == {source.id: "source_unavailable"}
+    replay = apply_setup_plan(service, plan["action_id"], plan["digest"])
+    assert replay.source_failures == {source.id: "source_unavailable"}, "the receipt keeps the disclosure"
 
 
 def test_b5_a_failing_doctor_stops_the_run(

@@ -9,6 +9,7 @@ resumed apply can never create a second grant.
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -44,6 +45,15 @@ SMOKE_QUERY = "what should my agent know about me"
 # step -- notably a host grant -- can never run after an earlier failure (Review 33 B5).
 PLUGIN_CLAIM = "plugin:"
 SUCCESS = ("created", "attached", "already_present", "ok", "synced", "skipped")
+# A source that could not be read is reported and retried later; it never blocks agent access
+# (Beta Day 0). Approving a source is still a step whose failure stops the run.
+RETRY_LATER = "retry_later:"
+#: ``progress(message_key, **fields)``: the CLI localizes and prints it while a step runs.
+Progress = Callable[..., None]
+
+
+def _no_progress(_key: str, **_fields: Any) -> None:
+    return None
 
 
 def _succeeded(outcome: str) -> bool:
@@ -62,6 +72,7 @@ class SetupReport:
     doctor_ok: bool = False
     smoke_ok: bool = False
     failure: str | None = None
+    source_failures: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -70,6 +81,7 @@ class SetupReport:
             "grants": list(self.grants), "plugin_grants": list(self.plugin_grants),
             "host_files": list(self.host_files),
             "doctor_ok": self.doctor_ok, "smoke_ok": self.smoke_ok, "failure": self.failure,
+            "source_failures": dict(self.source_failures),
         }
 
 
@@ -271,25 +283,43 @@ def _run_plugin_grant(
     return f"created:{grant_id}", None
 
 
-def _sync_sources(service: AptuniService, plan: SetupPlan, report: SetupReport) -> str:
-    """Sync only sources named by this digest-bound plan; never sweep pre-existing sources."""
+def _sync_sources(service: AptuniService, plan: SetupPlan, report: SetupReport, progress: Progress) -> str:
+    """Sync only sources named by this digest-bound plan; never sweep pre-existing sources.
+
+    A source that cannot be read now is recorded with its concrete reason and left for a later
+    ``aptuni sync``; the other sources and the rest of the setup still run.
+    """
     synced = 0
     planned = planned_sources(service, plan)
     expected_count = sum(step.kind.startswith("source_") for step in plan.steps)
     if len(planned) != expected_count:
         return "failed:source_not_found"
-    for source in planned:
+    for index, source in enumerate(planned, start=1):
+        progress("setup.progress.source", source=_source_label(source), index=index, total=len(planned))
         try:
             service.sync(source.id)
             synced += 1
+            report.results.pop(f"sync:{source.id}", None)
+            report.source_failures.pop(source.id, None)
         except AptuniError as error:
-            report.results[f"sync:{source.id}"] = f"failed:{error.code}"
-            return f"failed:{error.code}"
+            reason = _failure_reason(error)
+            report.results[f"sync:{source.id}"] = RETRY_LATER + reason
+            report.source_failures[source.id] = reason
     return f"synced:{synced}"
 
 
+def _failure_reason(error: AptuniError) -> str:
+    """The provider's own code (e.g. ``github_credential_unavailable``) when it names one."""
+    cause = str(error.__cause__ or "")
+    return cause if cause.replace("_", "").isalnum() and cause.islower() else error.code
+
+
+def _source_label(source: Any) -> str:
+    return str(source.roots[0]) if source.roots else str(source.id)
+
+
 def apply_setup_plan(
-    service: AptuniService, action_id: str, confirmed_digest: str,
+    service: AptuniService, action_id: str, confirmed_digest: str, progress: Progress | None = None,
 ) -> SetupReport:
     """Run one confirmed plan to a terminal state, resuming a previously committed intent."""
     state_dir = service.workspace.state_dir
@@ -308,13 +338,17 @@ def apply_setup_plan(
                            if str(item).startswith(PLUGIN_CLAIM)],
             host_files=[str(item) for item in finished.get("host_files", [])],
             doctor_ok=bool(finished.get("doctor_ok")), smoke_ok=bool(finished.get("smoke_ok")),
+            source_failures=_failures_of(finished.get("results", {})),
         )
     intent_path, intent = commit_setup_intent(state_dir, action_id, confirmed_digest)
     plan = _plan_of(intent)
     report = SetupReport(action_id, plan.vault_path, "incomplete_resumable",
-                         results=dict(intent["results"]), host_files=list(plan.host_files))
-    for step in plan.steps:
+                         results=dict(intent["results"]), host_files=list(plan.host_files),
+                         source_failures=_failures_of(intent["results"]))
+    emit = progress or _no_progress
+    for number, step in enumerate(plan.steps, start=1):
         key = step.key()
+        emit("setup.progress.step", index=number, total=len(plan.steps), kind=step.kind)
         if _succeeded(report.results.get(key, "")):
             _carry_completed(step, report, intent, report.results[key])
             continue
@@ -327,7 +361,7 @@ def apply_setup_plan(
                 record_step(intent_path, intent, key, "prepared", prepared_adapter.grant_id)
                 report.results[key] = "prepared"
         try:
-            outcome, created = _execute(service, step, plan, report, prepared_adapter, (intent_path, intent, key))
+            outcome, created = _execute(service, step, plan, report, prepared_adapter, (intent_path, intent, key), emit)
         except (AptuniError, OSError) as error:
             code = error.code if isinstance(error, AptuniError) else "io_error"
             report.results[key] = f"failed:{code}"
@@ -335,6 +369,7 @@ def apply_setup_plan(
             record_step(intent_path, intent, key, report.results[key])
             return report
         report.results[key] = outcome
+        _journal_source_failures(intent_path, intent, report)
         record_step(intent_path, intent, key, outcome, created)
         if step.kind == "adapter":
             grant_id = created if created else outcome.partition(":")[2]
@@ -350,9 +385,24 @@ def apply_setup_plan(
     return report
 
 
+def _failures_of(results: dict[str, Any]) -> dict[str, str]:
+    return {key.removeprefix("sync:"): str(value).removeprefix(RETRY_LATER) for key, value in results.items()
+            if key.startswith("sync:src_") and str(value).startswith(RETRY_LATER)}
+
+
+def _journal_source_failures(intent_path: Path, intent: dict[str, Any], report: SetupReport) -> None:
+    """Keep per-source outcomes durable so a resumed or finished setup still reports them."""
+    for key in [key for key in intent["results"] if key.startswith("sync:src_")]:
+        if key not in report.results:
+            del intent["results"][key]
+    for key, value in report.results.items():
+        if key.startswith("sync:src_"):
+            intent["results"][key] = value
+
+
 def _execute(
     service: AptuniService, step: SetupStep, plan: SetupPlan, report: SetupReport,
-    prepared_adapter: _PreparedAdapter | None, journal: tuple[Path, dict[str, Any], str],
+    prepared_adapter: _PreparedAdapter | None, journal: tuple[Path, dict[str, Any], str], progress: Progress,
 ) -> tuple[str, str | None]:
     if step.kind == "plugin_grant":
         if not any(item.kind == "adapter" for item in plan.steps):
@@ -361,7 +411,7 @@ def _execute(
         return _run_plugin_grant(service, step, *journal)
     if prepared_adapter is not None:
         return _run_adapter(prepared_adapter)
-    return _run_step(service, step, plan, report)
+    return _run_step(service, step, plan, report, progress)
 
 
 def _plan_of(intent: dict[str, Any]) -> SetupPlan:
@@ -389,7 +439,7 @@ def _carry_completed(
 
 
 def _run_step(  # noqa: PLR0911 - one explicit branch per frozen step kind
-    service: AptuniService, step: SetupStep, plan: SetupPlan, report: SetupReport,
+    service: AptuniService, step: SetupStep, plan: SetupPlan, report: SetupReport, progress: Progress,
 ) -> tuple[str, str | None]:
     if step.kind == "vault":
         return _run_vault(service, step), None
@@ -402,7 +452,7 @@ def _run_step(  # noqa: PLR0911 - one explicit branch per frozen step kind
     if step.kind == "source_marginnote":
         return _run_source_marginnote(service, step)
     if step.kind == "sync":
-        return _sync_sources(service, plan, report), None
+        return _sync_sources(service, plan, report, progress), None
     if step.kind == "doctor":
         report.doctor_ok = service.doctor().ok
         return ("ok" if report.doctor_ok else "failed:doctor"), None
