@@ -33,6 +33,7 @@ from aptuni.cli.setup_commands import (
     cmd_recipe,
     cmd_setup,
 )
+from aptuni.cli.source_authority_cli import add_source_authority_parser, cmd_source_authority
 from aptuni.cli.source_remove_cli import add_source_remove_parser, cmd_source_remove
 from aptuni.cli.status_cli import add_status_command, cmd_status
 from aptuni.cli.vault_cli import add_attach_command, cmd_attach
@@ -91,6 +92,7 @@ def _add_source_commands(sub: Any) -> None:
     notion_disconnect.add_argument("--json", action="store_true")
     add_marginnote_parsers(source_sub)
     add_source_remove_parser(source_sub)
+    add_source_authority_parser(source_sub)
     source_list = source_sub.add_parser("list", help="list approved sources")
     source_list.add_argument("--json", action="store_true")
 
@@ -370,6 +372,10 @@ def _cmd_notion_source(args: argparse.Namespace, service: AptuniService) -> int:
     return 0
 
 
+#: Owner decisions on an approved source, each confirmed by a typed APPLY (ADR-0027, ADR-0028).
+OWNER_SOURCE_COMMANDS = {"remove": cmd_source_remove, "authorize": cmd_source_authority}
+
+
 def _cmd_source(args: argparse.Namespace, service: AptuniService) -> int:
     if args.source_command in ("add-folder", "add-obsidian"):
         return _cmd_add_local_source(args, service)
@@ -395,8 +401,8 @@ def _cmd_source(args: argparse.Namespace, service: AptuniService) -> int:
         return 0
     if args.source_command in MARGINNOTE_COMMANDS:
         return cmd_marginnote(args, service, _source_json)
-    if args.source_command == "remove":
-        return cmd_source_remove(args, service)
+    if args.source_command in OWNER_SOURCE_COMMANDS:
+        return OWNER_SOURCE_COMMANDS[args.source_command](args, service)
     sources = service.sources()
     if args.json:
         _print_json([_source_json(source) for source in sources])
@@ -416,12 +422,16 @@ def _cmd_sync(args: argparse.Namespace, service: AptuniService) -> int:
         "review_items": report.review_items,
         "notes": list(report.notes),
         "evidence_written": report.evidence_written,
+        "profile_written": report.profile_written,
     }
     if args.json:
         _print_json(value)
     else:
         changes = ", ".join(f"{kind}={count}" for kind, count in sorted(report.counts.items())) or "no changes"
-        print(f"Synced {report.source_id}: {changes}; evidence={report.evidence_written}; review={report.review_items}")
+        print(
+            f"Synced {report.source_id}: {changes}; evidence={report.evidence_written}; "
+            f"profile={report.profile_written}; review={report.review_items}"
+        )
     return 0
 
 

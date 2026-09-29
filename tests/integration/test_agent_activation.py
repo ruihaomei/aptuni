@@ -51,6 +51,33 @@ def test_task_profile_is_single_use_and_next_ordinary_task_is_off(tmp_path) -> N
     anyio.run(exercise)
 
 
+def test_task_profile_can_use_relevant_cold_start_evidence_without_calling_full(tmp_path) -> None:
+    service, _, access = _ready(tmp_path)
+    docs = tmp_path / "notes"
+    docs.mkdir()
+    (docs / "parking.md").write_text(
+        "Intelligent parking systems need occupancy sensors and calibrated detection.",
+        encoding="utf-8",
+    )
+    source = service.add_folder_source(docs, modules=("projects",), role="project_notes")
+    service.sync(source.id)
+    server = create_server(service, access, activation_required=True)
+
+    async def exercise() -> None:
+        result = await server.call_tool(
+            "aptuni_activate_context",
+            {
+                "intent": "aptuni.profile", "scope": "task", "query": "parking sensors",
+                "modules": ["projects"], "max_units": 5000,
+            },
+        )
+        items = result.structured_content["context"]["items"]
+        assert "evidence" in {item["kind"] for item in items}
+        assert result.structured_content["activation"]["session_mode"] == "off"
+
+    anyio.run(exercise)
+
+
 def test_task_memory_is_memory_only_and_creates_no_session_state(tmp_path) -> None:
     service, memory_id, access = _ready(tmp_path)
     server = create_server(service, access, activation_required=True)

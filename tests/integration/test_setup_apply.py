@@ -785,6 +785,8 @@ def test_case_c_exact_github_and_marginnote_sources_are_created_from_the_plan(
     report = apply_setup_plan(service, plan["action_id"], plan["digest"])
     assert report.terminal_state == "complete"
     assert {source.source_type for source in service.sources()} == {"folder", "github", "marginnote4"}
+    margin = next(source for source in service.sources() if source.source_type == "marginnote4")
+    assert margin.authority.primary_for == ("knowledge.studied",)
 
 
 def test_named_shipped_source_without_exact_configuration_creates_no_plan(
@@ -892,3 +894,97 @@ def test_resume_repairs_each_missing_adapter_bundle_file(
     assert {
         path.relative_to(bundle).as_posix() for path in bundle.rglob("*") if path.is_file()
     } == set(BUNDLE_FILES[adapter_host])
+
+
+def _marginnote_plan(
+    service: AptuniService, tmp_path: Path, capsys: pytest.CaptureFixture[str], locale: str = "en",
+) -> tuple[dict, str]:
+    store = build_store(tmp_path / "mn" / "MarginNotes.sqlite", base_cards())
+    argv = ["setup", "plan", "--lang", locale, "--source", "marginnote", "--memory", "basic",
+            "--privacy", "quality", "--no-host", "--vault", str(tmp_path / "Aptuni"),
+            "--marginnote-store", str(store), "--marginnote-all-notebooks"]
+    assert cli_run([*argv, "--json"], service) == 0
+    plan = json.loads(capsys.readouterr().out)
+    assert cli_run(["setup", "status", "--lang", locale], service) == 0
+    capsys.readouterr()
+    assert cli_run(argv, service) == 0
+    return plan, capsys.readouterr().out
+
+
+@pytest.mark.parametrize(("locale", "phrase"), [("en", "automatically add"), ("zh-CN", "自动加入")])
+def test_marginnote_profile_authority_is_frozen_into_the_plan_and_rendered(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch, locale: str, phrase: str,
+) -> None:
+    """Review 82 B3: the Profile authority is digest-bound and stated on the confirmation surface."""
+    service = _service(tmp_path)
+    plan, rendered = _marginnote_plan(service, tmp_path, capsys, locale)
+
+    step = next(step for step in plan["steps"] if step["kind"] == "source_marginnote")
+    assert json.loads(step["target"])["primary_for"] == ["knowledge.studied"]
+    assert phrase in rendered and "Profile" in rendered
+
+    monkeypatch.setattr(AptuniService, "sync", lambda _self, _source_id: None)
+    assert apply_setup_plan(service, plan["action_id"], plan["digest"]).terminal_state == "complete"
+    [source] = service.sources()
+    assert source.authority.primary_for == ("knowledge.studied",)
+
+
+def test_a_tampered_marginnote_authority_fails_closed(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    service = _service(tmp_path)
+    plan, _ = _marginnote_plan(service, tmp_path, capsys)
+    path = service.workspace.state_dir / "setup" / "pending" / f"{plan['action_id']}.json"
+    value = json.loads(path.read_text(encoding="utf-8"))
+    for step in value["steps"]:
+        if step["kind"] == "source_marginnote":
+            target = json.loads(step["target"])
+            target["primary_for"] = ["knowledge.demonstrated"]
+            step["target"] = json.dumps(target)
+    path.write_text(json.dumps(value), encoding="utf-8")
+
+    with pytest.raises(SetupError) as invalid:
+        load_setup_plan(service.workspace.state_dir, plan["action_id"])
+    assert invalid.value.code == "setup_action_invalid"
+
+
+def test_an_older_pending_marginnote_plan_keeps_its_confirmed_exposure_only_meaning(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A plan confirmed before ADR-0028 never silently gains Profile authority when applied now."""
+    from aptuni.cli import setup_commands
+
+    original = setup_commands._marginnote_target
+
+    def legacy(args: object) -> str | None:
+        value = original(args)  # type: ignore[arg-type]
+        if value is None:
+            return None
+        decoded = json.loads(value)
+        return json.dumps({"store": decoded["store"], "notebooks": decoded["notebooks"]},
+                          ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+    monkeypatch.setattr(setup_commands, "_marginnote_target", legacy)
+    service = _service(tmp_path)
+    plan, rendered = _marginnote_plan(service, tmp_path, capsys)
+    assert "automatically add" not in rendered
+
+    monkeypatch.setattr(AptuniService, "sync", lambda _self, _source_id: None)
+    assert apply_setup_plan(service, plan["action_id"], plan["digest"]).terminal_state == "complete"
+    [source] = service.sources()
+    assert source.authority.primary_for == ()
+
+
+def test_an_existing_exposure_only_marginnote_source_is_not_silently_upgraded(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = _service(tmp_path)
+    service.init(tmp_path / "Aptuni")
+    plan, _ = _marginnote_plan(service, tmp_path, capsys)
+    store = tmp_path / "mn" / "MarginNotes.sqlite"
+    existing = service.add_marginnote_source(store.resolve(), None, ("knowledge",), "study-notes")
+    monkeypatch.setattr(AptuniService, "sync", lambda _self, _source_id: None)
+
+    report = apply_setup_plan(service, plan["action_id"], plan["digest"])
+
+    assert report.failure == "setup_source_authority_differs"
+    [source] = service.sources()
+    assert source.id == existing.id and source.authority.primary_for == ()

@@ -148,10 +148,20 @@ def _github_spec(target: str) -> GitHubSourceSpec:
         raise SetupError("setup_action_invalid", "The setup plan contains an invalid GitHub source.") from error
 
 
-def _marginnote_spec(target: str) -> MarginNoteSourceSpec:
+#: ADR-0028 item 7: the one Profile authority a setup plan may confirm for MarginNote study notes.
+MARGINNOTE_PROFILE_AUTHORITY = ("knowledge.studied",)
+
+
+def _marginnote_spec(target: str) -> tuple[MarginNoteSourceSpec, tuple[str, ...]]:
+    """Parse a frozen MarginNote step and the authority its owner confirmed (Review 82 B3).
+
+    A plan confirmed before ADR-0028 has no ``primary_for`` key; it keeps exactly the exposure-only
+    meaning it was confirmed with, so applying it with a newer build never adds Profile authority.
+    """
     try:
         value = json.loads(target)
-        if not isinstance(value, dict) or set(value) != {"store", "notebooks"}:
+        if not isinstance(value, dict) or set(value) not in ({"store", "notebooks"},
+                                                             {"store", "notebooks", "primary_for"}):
             raise TypeError
         if not isinstance(value["store"], str):
             raise TypeError
@@ -159,22 +169,40 @@ def _marginnote_spec(target: str) -> MarginNoteSourceSpec:
         if raw is not None and (not isinstance(raw, list) or not raw
                                 or any(not isinstance(item, str) or not item for item in raw)):
             raise TypeError
-        return MarginNoteSourceSpec(Path(value["store"]), None if raw is None else frozenset(raw))
+        authority = value.get("primary_for", [])
+        if authority not in ([], list(MARGINNOTE_PROFILE_AUTHORITY)):
+            raise TypeError
+        spec = MarginNoteSourceSpec(Path(value["store"]), None if raw is None else frozenset(raw))
+        return spec, tuple(authority)
     except (json.JSONDecodeError, KeyError, TypeError, ValueError) as error:
         raise SetupError("setup_action_invalid", "The setup plan contains an invalid MarginNote source.") from error
 
 
-def _source_matches(source: Any, source_type: str, roots: tuple[str, ...], role: str) -> bool:
+def _source_matches(source: Any, source_type: str, roots: tuple[str, ...], role: str,
+                    authority: tuple[str, ...] = ()) -> bool:
     return (source.source_type == source_type and tuple(source.roots) == roots
-            and tuple(source.module_mapping) == FOLDER_INGEST_MODULES and source.semantic_role == role)
+            and tuple(source.module_mapping) == FOLDER_INGEST_MODULES and source.semantic_role == role
+            and tuple(sorted(source.authority.primary_for)) == tuple(sorted(authority)))
 
 
-def _existing_source(service: AptuniService, source_type: str, roots: tuple[str, ...], role: str) -> Any | None:
+def _existing_source(service: AptuniService, source_type: str, roots: tuple[str, ...], role: str,
+                     authority: tuple[str, ...] = ()) -> Any | None:
     same_identity = [source for source in service.sources()
                      if source.source_type == source_type and tuple(source.roots) == roots]
-    exact = next((source for source in same_identity if _source_matches(source, source_type, roots, role)), None)
+    exact = next((source for source in same_identity
+                  if _source_matches(source, source_type, roots, role, authority)), None)
     if exact is not None:
         return exact
+    differing = next((source for source in same_identity
+                      if _source_matches(source, source_type, roots, role, tuple(source.authority.primary_for))), None)
+    if differing is not None:
+        message = "That source is already approved with a different Profile authority; setup never changes it."
+        if source_type == "marginnote4" and set(authority) - set(differing.authority.primary_for) == {
+            "knowledge.studied"
+        }:
+            message += (" To let it form Profile facts, run "
+                        f"'aptuni source authorize {differing.id} --grant knowledge.studied'.")
+        raise SetupError("setup_source_authority_differs", message)
     if same_identity:
         raise SetupError("setup_source_conflict", "That source is already configured differently.")
     return None
@@ -193,26 +221,27 @@ def _run_source_github(service: AptuniService, step: SetupStep) -> tuple[str, st
 
 
 def _run_source_marginnote(service: AptuniService, step: SetupStep) -> tuple[str, str | None]:
-    spec = _marginnote_spec(step.target)
-    existing = _existing_source(service, "marginnote4", spec.roots(), SOURCE_ROLE[step.kind])
+    spec, authority = _marginnote_spec(step.target)
+    existing = _existing_source(service, "marginnote4", spec.roots(), SOURCE_ROLE[step.kind], authority)
     if existing is not None:
         return f"already_present:{existing.id}", None
     notebooks = None if spec.notebooks is None else tuple(sorted(spec.notebooks))
     source = service.add_marginnote_source(
-        spec.store, notebooks, FOLDER_INGEST_MODULES, SOURCE_ROLE[step.kind],
+        spec.store, notebooks, FOLDER_INGEST_MODULES, SOURCE_ROLE[step.kind], primary_for=authority,
     )
     return "created", source.id
 
 
-def _source_expectation(step: SetupStep) -> tuple[str, tuple[str, ...], str] | None:
+def _source_expectation(step: SetupStep) -> tuple[str, tuple[str, ...], str, tuple[str, ...]] | None:
     if step.kind == "source_folder":
-        return "folder", (str(Path(step.target)),), SOURCE_ROLE[step.kind]
+        return "folder", (str(Path(step.target)),), SOURCE_ROLE[step.kind], ()
     if step.kind == "source_obsidian":
-        return "obsidian", (str(Path(step.target)),), SOURCE_ROLE[step.kind]
+        return "obsidian", (str(Path(step.target)),), SOURCE_ROLE[step.kind], ()
     if step.kind == "source_github":
-        return "github", _github_spec(step.target).roots(), SOURCE_ROLE[step.kind]
+        return "github", _github_spec(step.target).roots(), SOURCE_ROLE[step.kind], ()
     if step.kind == "source_marginnote":
-        return "marginnote4", _marginnote_spec(step.target).roots(), SOURCE_ROLE[step.kind]
+        spec, authority = _marginnote_spec(step.target)
+        return "marginnote4", spec.roots(), SOURCE_ROLE[step.kind], authority
     return None
 
 
@@ -227,8 +256,9 @@ def planned_sources(service: AptuniService, plan: SetupPlan) -> list[Any]:
         expectation = _source_expectation(step)
         if expectation is None:
             continue
-        source_type, roots, role = expectation
-        source = next((item for item in sources if _source_matches(item, source_type, roots, role)), None)
+        source_type, roots, role, authority = expectation
+        source = next((item for item in sources
+                       if _source_matches(item, source_type, roots, role, authority)), None)
         if source is not None:
             planned.append(source)
     return planned

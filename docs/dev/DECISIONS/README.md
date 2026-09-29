@@ -48,4 +48,5 @@ community contributors' agents) must read the ADRs relevant to its task before e
 | [ADR-0025](ADR-0025-explicit-agent-activation.md) | Keep Agent personalization OFF until a canonical activation intent is invoked | Proposed |
 | [ADR-0026](ADR-0026-top-down-portable-learning-context.md) | Make the portable verified learning context the Top-Down Learning continuity layer | Accepted |
 | [ADR-0027](ADR-0027-owner-source-removal.md) | Let the owner remove an approved source by revoking it and retracting its evidence | Accepted |
+| [ADR-0028](ADR-0028-evidence-derived-profile.md) | Build cold-start Profile automatically from authoritative Evidence | Accepted |
 <!-- ADR-INDEX:END -->

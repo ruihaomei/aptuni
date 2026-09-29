@@ -25,8 +25,10 @@ from aptuni.domain.ids import new_id, sha256_text
 from aptuni.domain.invariants import RecordSet
 from aptuni.domain.records import Fact, Memory, ReviewEvent, ReviewPolicy
 from aptuni.domain.temporal import utc_now
+from aptuni.policy.evidence_profile import EVIDENCE_PROFILE_TYPE, derive_evidence_profile
 from aptuni.policy.modules import can_ingest
 from aptuni.policy.profile_promotion import (
+    AUTO_PROFILE_TYPES,
     ProfileReviewState,
     profile_promotion_records,
     profile_review_state_of,
@@ -88,6 +90,9 @@ class ReviewCommands:
     """Mixed into ``AptuniService``; relies on its snapshot/commit helpers."""
 
     workspace: Workspace
+
+    def vault(self) -> Any:
+        raise NotImplementedError
 
     def snapshot(self) -> tuple[int, RecordSet]:
         raise NotImplementedError
@@ -164,7 +169,7 @@ class ReviewCommands:
 
     # ------------------------------------------------------- Profile promotion/review
     def refresh_profile(self) -> list[Fact]:
-        """Promote eligible older pins in one idempotent canonical commit."""
+        """Backfill eligible pinned Memories and authoritative source Evidence."""
         seq, records = self.snapshot()
         written: list[Any] = []
         visible = records
@@ -173,6 +178,12 @@ class ReviewCommands:
             if created:
                 written.extend(created)
                 visible = RecordSet([*visible.records(), *created])
+        removed = records.removed_source_ids()
+        sources = {record.id: record for record in records.records()
+                   if record.record_type == "source_config" and record.id not in removed}
+        written.extend(derive_evidence_profile(
+            visible.current_evidence(), visible, sources, purged=frozenset(self.vault().ledger_digests()),
+        ))
         if written:
             self._commit(written, seq)
         return [record for record in written if record.record_type == "fact"]
@@ -186,7 +197,7 @@ class ReviewCommands:
         records = self.records()
         fact = next((record for record in records.records()
                      if record.record_type == "fact" and record.id == fact_id
-                     and record.type == "profile.promoted_memory"), None)
+                     and record.type in AUTO_PROFILE_TYPES), None)
         if fact is None:
             raise AptuniError("fact_not_current", f"No current fact with id {fact_id}.")
         return profile_review_state_of(fact, records)
@@ -195,9 +206,14 @@ class ReviewCommands:
         seq, records = self.snapshot()
         fact = next((record for record in records.records()
                      if record.record_type == "fact" and record.id == fact_id
-                     and record.type == "profile.promoted_memory"), None)
+                     and record.type in AUTO_PROFILE_TYPES), None)
         if fact is None:
             raise AptuniError("fact_not_current", f"No current fact with id {fact_id}.")
+        if fact.type == EVIDENCE_PROFILE_TYPE and action == "accept":
+            raise AptuniError(
+                "profile_action_unsupported",
+                "Evidence-derived Profile facts are already active; reject or edit them instead.",
+            )
         existing = [record for record in records.records()
                     if record.record_type == "review_event" and record.target_id == fact_id
                     and record.decision == action]
@@ -215,6 +231,16 @@ class ReviewCommands:
         )
         self._commit([event], seq)
         return profile_review_state_of(fact, self.records())
+
+    def edit_profile_fact(self, fact_id: str, statement: str) -> str:
+        """Replace an auto-derived Profile claim with the owner's correction, preserving history."""
+        records = self.records()
+        fact = next((record for record in records.current_facts()
+                     if record.id == fact_id and record.type in AUTO_PROFILE_TYPES), None)
+        if fact is None:
+            raise AptuniError("fact_not_current", f"No current fact with id {fact_id}.")
+        corrected = self.correct(fact_id, statement)  # type: ignore[attr-defined]
+        return str(corrected.id)
 
     def edit_memory(self, memory_id: str, statement: str) -> str:
         """Correct a promoted memory: the replacement supersedes it and the original stays."""

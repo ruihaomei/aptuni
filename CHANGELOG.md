@@ -6,6 +6,26 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Authoritative `studied`, `applied` and `demonstrated` Evidence now creates active Profile Facts
+  during source sync without per-item approval (ADR-0028). The Facts keep exact Evidence lineage,
+  are deterministic on replay, and can be rejected or corrected retrospectively in the CLI or
+  Obsidian. `aptuni profile refresh` backfills eligible existing Evidence.
+
+### Changed
+
+- Profile activation can retrieve permitted Evidence as well as Facts, so an approved cold-start
+  source is useful before it has produced stable Facts. Plain document exposure remains Evidence
+  and never becomes a durable skill or proficiency claim.
+- Guided setup records MarginNote study notes as authority for `knowledge.studied`; the plan
+  confirmation says so, and a plan confirmed by an earlier version keeps its reference-only meaning.
+- `aptuni source authorize SOURCE_ID --grant knowledge.studied` lets an existing MarginNote source
+  count as evidence of what you studied after a typed APPLY; its current items are re-read as
+  studied (history kept) and form Profile Facts. Owner rejections and edits hold across later
+  source changes, and `aptuni profile review accept` is refused for these already-active Facts.
+- Source sync output reports how many Profile Facts it wrote.
+
 ## [0.2.0b4] — 2026-09-29
 
 Fixes from the User #1 Beta Day 0 journey, where an agent-led setup with sixteen sources stopped

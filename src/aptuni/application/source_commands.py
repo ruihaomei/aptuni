@@ -40,6 +40,7 @@ from aptuni.domain.ids import new_id
 from aptuni.domain.invariants import RecordSet
 from aptuni.domain.records import AuthorityPolicy, ModulePolicy, SourceConfig
 from aptuni.domain.temporal import utc_now
+from aptuni.policy.evidence_profile import derive_evidence_profile
 from aptuni.policy.modules import can_ingest
 from aptuni.sources.delivery import DeliveryError, DeliveryGuard
 from aptuni.sources.github import GitHubApi, GitHubApiError, GitHubSourceSpec, SourceIdentityError
@@ -235,7 +236,8 @@ class SourceCommands:
         """Sources in use; a source the owner removed (ADR-0027) is no longer listed."""
         records = self.records()
         removed = records.removed_source_ids()
-        return [r for r in records.records() if r.record_type == "source_config" and r.id not in removed]
+        return [records.effective_source(r) for r in records.records()
+                if r.record_type == "source_config" and r.id not in removed]
 
     @staticmethod
     def _source_in(records: RecordSet, source_id: str) -> SourceConfig:
@@ -243,7 +245,7 @@ class SourceCommands:
             if record.record_type == "source_config" and record.id == source_id:
                 if source_id in records.removed_source_ids():
                     raise AptuniError("source_removed", "This source was removed; approve it again to use it.")
-                return record  # type: ignore[no-any-return]
+                return records.effective_source(record)
         raise AptuniError("source_not_found", f"No source with id {source_id}.")
 
     # ---------------------------------------------------------------- inspection
@@ -302,7 +304,17 @@ class SourceCommands:
         guard = state.delivery if state else DeliveryGuard()
         try:
             if guard.admit(scan.delta) == "duplicate":
-                return SyncReport(config.id, {}, 0, scan.notes, 0)
+                profile_records = self._commit_evidence_profile(
+                    [], current, records, config, seq,
+                )
+                return SyncReport(
+                    config.id,
+                    {},
+                    0,
+                    scan.notes,
+                    0,
+                    sum(record.record_type == "fact" for record in profile_records),
+                )
             operations = guard.gate(scan.delta)
             evidence = [record for op in operations if op.review_state != "needs_review"
                         for record in [ingest.evidence_for(op, scan.delta.delta_id, scan.delta.sequence)] if record]
@@ -317,12 +329,36 @@ class SourceCommands:
             scan.snapshot, parser, scan.delta.sequence, guard, review, scan.notes, provider_data
         )
         store.save_pending(PendingSourceState(final_state, scan.delta, expected_ids))
-        if evidence:
-            self._commit(evidence, seq)
+        profile_records = self._commit_evidence_profile(
+            evidence, current, records, config, seq,
+        )
         store.save(final_state)
         store.clear_pending()
         return SyncReport(config.id, summarize(operations), len(review_entries(operations)), scan.notes,
-                          len(evidence))
+                          len(evidence), sum(record.record_type == "fact" for record in profile_records))
+
+    def _commit_evidence_profile(
+        self,
+        evidence: list[Any],
+        current: dict[str, Any],
+        records: RecordSet,
+        config: SourceConfig,
+        seq: int,
+    ) -> list[Any]:
+        """Atomically commit a source delta and its current Evidence-derived Profile.
+
+        Current Evidence is reconsidered too, so a no-op sync backfills after a policy change.
+        Lineage is resolved against the pre-delta snapshot (Review 82 B1) in one pass (B5).
+        """
+        replaced = {target for item in evidence for target in item.supersedes}
+        candidates = [item for item in current.values() if item.id not in replaced]
+        candidates.extend(evidence)
+        profile_records = derive_evidence_profile(
+            candidates, records, {config.id: config}, purged=frozenset(self.vault().ledger_digests()),
+        )
+        if evidence or profile_records:
+            self._commit([*evidence, *profile_records], seq)
+        return profile_records
 
     @staticmethod
     def _recover_pending(

@@ -198,6 +198,10 @@ class Memory(Envelope):
     statement: str = Field(min_length=1, max_length=500)
 
 
+#: ADR-0028: the owner-confirmed source-authority grants a v3 review event may record, by rationale.
+AUTHORITY_GRANTS: dict[str, str] = {"source_authority_studied": "knowledge.studied"}
+
+
 class ReviewEvent(Frozen):
     """An append-only review decision (ADR-0011, extended by ADR-0018).
 
@@ -207,7 +211,7 @@ class ReviewEvent(Frozen):
 
     record_type: Literal["review_event"]
     id: RecordId
-    schema_version: Literal[1, 2]
+    schema_version: Literal[1, 2, 3]
     recorded_at: AwareDatetime
     target_id: RecordId
     decision: Literal["accept", "reject", "revoke", "promote", "pin"]
@@ -222,6 +226,19 @@ class ReviewEvent(Frozen):
         """`policy_auto` and `pin` exist only at v2, so a v1 reader never sees them (ADR-0018 §7)."""
         if self.schema_version < 2 and (self.actor == "policy_auto" or self.decision == "pin"):
             raise ValueError("actor 'policy_auto' and decision 'pin' require review_event schema_version 2")
+        evidence_promotion = (self.actor, self.decision, self.rationale_code) == (
+            "policy_auto", "promote", "policy_authoritative_evidence"
+        ) and self.target_id.startswith("fct_")
+        authority_grant = (self.actor, self.decision) == ("user_cli", "accept") and (
+            self.rationale_code in AUTHORITY_GRANTS and self.target_id.startswith("src_")
+        )
+        if self.schema_version == 3 and not (evidence_promotion or authority_grant):
+            raise ValueError(
+                "review_event schema_version 3 is reserved for authoritative Evidence promotion "
+                "and owner source-authority grants"
+            )
+        if self.schema_version < 3 and self.rationale_code in AUTHORITY_GRANTS:
+            raise ValueError("a source-authority grant requires review_event schema_version 3")
         return self
 
 
@@ -287,7 +304,7 @@ _RECORD_ADAPTER: TypeAdapter[CanonicalRecord] = TypeAdapter(
 
 #: Versions this build can read, per record type. Only ``review_event`` has ever needed a second
 #: version (ADR-0018 §7); bumping one type does not rewrite the version of any other.
-SUPPORTED_SCHEMA_VERSIONS: dict[str, tuple[int, ...]] = {"review_event": (1, 2)}
+SUPPORTED_SCHEMA_VERSIONS: dict[str, tuple[int, ...]] = {"review_event": (1, 2, 3)}
 
 
 def supported_versions(record_type: Any) -> tuple[int, ...]:

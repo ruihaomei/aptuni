@@ -13,6 +13,7 @@ from aptuni.policy.promotion import review_policy_of, review_state_of
 
 ProfilePromotionAction = Literal["promote", "hold", "deny"]
 ProfileReviewState = Literal["accepted", "auto_promoted_pending_review", "revoked"]
+AUTO_PROFILE_TYPES = frozenset({"profile.promoted_memory", "profile.evidence_signal"})
 
 PROFILE_RETENTION = RetentionLabel(
     retention_class="canonical", purpose="profile", expires_at=None, full_content=False,
@@ -113,6 +114,10 @@ def profile_review_state_of(fact: Any, records: RecordSet) -> ProfileReviewState
     if any(event.decision in ("reject", "revoke") for event in events):
         return "revoked"
     if any(event.decision == "accept" for event in events):
+        return "accepted"
+    if fact.type == "profile.evidence_signal":
+        # ADR-0028: the exact authority policy is the approval. Human actions are correction or
+        # rejection, never a second per-item approval queue.
         return "accepted"
     promoted = any(
         event.record_type == "review_event"

@@ -40,7 +40,13 @@ from aptuni.cli import onboarding
 from aptuni.cli.grant_consent import render_consent
 from aptuni.cli.host_connect import connect_lines
 from aptuni.cli.render import delimited_untrusted
-from aptuni.cli.setup_apply import HOST_ADAPTER, PLUGIN_CLAIM, apply_setup_plan, planned_sources
+from aptuni.cli.setup_apply import (
+    HOST_ADAPTER,
+    MARGINNOTE_PROFILE_AUTHORITY,
+    PLUGIN_CLAIM,
+    apply_setup_plan,
+    planned_sources,
+)
 from aptuni.cli.setup_progress import failure_lines
 from aptuni.cli.setup_progress import printer as progress_printer
 from aptuni.domain.records import MODULES
@@ -347,6 +353,8 @@ def _render_plan(plan: SetupPlan, locale: str, action_state: str = "pending") ->
         kind = "vault_existing" if step.kind == "vault" and (Path(step.target) / "HEAD.json").is_file() else step.kind
         text = t(f"setup.plan.step.{kind}", locale, target=delimited_untrusted(_shown_target(step.kind, step.target)))
         lines.append(f"  {number}. {text}")
+        if step.kind == "source_marginnote" and _marginnote_authority(step.target):
+            lines.append(f"     {t('setup.plan.marginnote_profile', locale)}")
     lines.append("")
     for step in plan.steps:
         if step.kind == "plugin_grant":
@@ -406,12 +414,24 @@ def _render_release(plan: SetupPlan, locale: str) -> list[str]:
     return lines
 
 
+def _marginnote_authority(target: str) -> tuple[str, ...]:
+    """The Profile authority a MarginNote step confirms; an older plan has none (Review 82 B3)."""
+    try:
+        value = json.loads(target)
+        return tuple(value.get("primary_for", ())) if isinstance(value, dict) else ()
+    except (json.JSONDecodeError, TypeError):
+        return ()
+
+
 def _shown_target(kind: str, target: str) -> str:
     """Show GitHub and plugin steps by name rather than by their frozen JSON targets."""
-    if kind not in ("source_github", "plugin_grant"):
+    if kind not in ("source_github", "plugin_grant", "source_marginnote"):
         return target
     try:
         value = json.loads(target)
+        if kind == "source_marginnote":
+            return json.dumps({"store": value["store"], "notebooks": value["notebooks"]},
+                              ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         if kind == "plugin_grant":
             return f"{value['plugin_id']} {value['version']}"
         return str(value["repository_url"]) + (f" @ {value['ref']}" if value.get("ref") else "")
@@ -587,7 +607,8 @@ def _marginnote_target(args: argparse.Namespace) -> str | None:
     resolved = store.expanduser().resolve()
     if not resolved.is_file():
         raise ValueError("the exact MarginNote store does not exist")
-    return json.dumps({"store": str(resolved), "notebooks": None if all_notebooks else sorted(set(notebooks))},
+    return json.dumps({"store": str(resolved), "notebooks": None if all_notebooks else sorted(set(notebooks)),
+                       "primary_for": list(MARGINNOTE_PROFILE_AUTHORITY)},
                       ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 

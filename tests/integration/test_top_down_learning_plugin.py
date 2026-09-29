@@ -179,7 +179,10 @@ def test_real_plugin_stdio_entrypoint_runs_the_journey_with_the_exact_grant(tmp_
 
     missing = subprocess.run(
         [sys.executable, "-m", "top_down_learning.mcp_server"],
-        env={"PYTHONPATH": str(EXAMPLE / "src")},
+        env={
+            "APTUNI_STATE_DIR": str(tmp_path / "no-grant-state"),
+            "PYTHONPATH": str(EXAMPLE / "src"),
+        },
         capture_output=True,
         text=True,
         check=False,

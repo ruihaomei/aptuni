@@ -217,6 +217,7 @@ class SyncReport:
     review_items: int
     notes: tuple[str, ...]
     evidence_written: int
+    profile_written: int
 
 
 def _read_approved_file(root: Path, relative: str, max_bytes: int = DEFAULT_MAX_BYTES) -> bytes:

@@ -13,7 +13,15 @@ from collections.abc import Iterable
 from datetime import datetime
 from typing import Any
 
-from aptuni.domain.records import SIGNALS, CanonicalRecord, ModulePolicy
+from aptuni.domain.evidence_profile import (
+    AUTHORITY_GRANT_SOURCE_TYPES,
+    EVIDENCE_PROFILE_TYPE,
+    EVIDENCE_PROMOTION_REASON,
+    EvidenceLineage,
+    EvidenceProfileError,
+    check_evidence_profile_fact,
+)
+from aptuni.domain.records import AUTHORITY_GRANTS, SIGNALS, CanonicalRecord, ModulePolicy, SourceConfig
 from aptuni.domain.temporal import partial_date_range
 
 MASTERY_RE = re.compile(r"\b(proficient|expert|mastery|mastered|fluent in)\b|精通|熟练掌握|专家级", re.IGNORECASE)
@@ -43,6 +51,7 @@ class RecordSet:
     def __init__(self, records: Iterable[CanonicalRecord]) -> None:
         self._records: list[Any] = list(records)
         self._by_id: dict[str, Any] = {record.id: record for record in self._records}
+        self._lineage: EvidenceLineage | None = None
 
     def __len__(self) -> int:
         return len(self._records)
@@ -55,6 +64,19 @@ class RecordSet:
 
     def get(self, record_id: str) -> Any:
         return self._by_id[record_id]
+
+    def lineage(self) -> EvidenceLineage:
+        """Supersession, owner-decision and authority indexes, built once for this immutable view."""
+        if self._lineage is None:
+            self._lineage = EvidenceLineage(self._records)
+        return self._lineage
+
+    def effective_source(self, source: SourceConfig) -> SourceConfig:
+        """A source with its owner-granted authority applied (ADR-0028 amendment); never committed."""
+        authority = self.lineage().authority(source)
+        if authority == tuple(sorted(source.authority.primary_for)):
+            return source
+        return source.model_copy(update={"authority": source.authority.model_copy(update={"primary_for": authority})})
 
     # ------------------------------------------------------------------ validation
     def validate(self, only: set[str] | None = None) -> None:
@@ -118,10 +140,22 @@ class RecordSet:
                 if self._by_id[source].record_type not in ("observation", "evidence"):
                     raise InvariantError(f"{candidate.id} derives from a non-observation/evidence record")
 
+    def _promotion_indexes(self) -> tuple[dict[str, list[Any]], dict[str, list[Any]]]:
+        """Promoted-memory Facts by Memory and policy promotions by target, built once (Review 82 B5)."""
+        facts_by_memory: dict[str, list[Any]] = {}
+        for candidate in self._of_type("fact"):
+            if candidate.type == "profile.promoted_memory":
+                for memory_id in candidate.memory_ids:
+                    facts_by_memory.setdefault(memory_id, []).append(candidate)
+        promotions: dict[str, list[Any]] = {}
+        for event in self._of_type("review_event"):
+            if event.decision == "promote" and event.actor == "policy_auto":
+                promotions.setdefault(event.target_id, []).append(event)
+        return facts_by_memory, promotions
+
     def _check_profile_promotion(self, checked: list[Any]) -> None:
-        """Bind a policy promotion targeting a Memory to exactly one lineage-linked Fact."""
-        facts = self._of_type("fact")
-        events = self._of_type("review_event")
+        """Bind policy promotions to exact Memory or authoritative-Evidence lineage."""
+        facts_by_memory, promotions = self._promotion_indexes()
         for fact in (record for record in checked
                      if record.record_type == "fact" and record.type == "profile.promoted_memory"):
             if len(fact.memory_ids) != 1:
@@ -130,29 +164,34 @@ class RecordSet:
             if self._by_id[memory_id].record_type != "memory":
                 raise InvariantError(f"{fact.id} profile promotion source is not a memory")
             memory = self._by_id[memory_id]
-            promotion_events = [event for event in events if event.decision == "promote"
-                                and event.actor == "policy_auto" and event.target_id == memory_id]
+            promotion_events = promotions.get(memory_id, [])
             if not promotion_events:
                 raise InvariantError(f"{fact.id} has no policy promotion event for its memory")
             if len(promotion_events) != 1:
                 raise InvariantError(f"{memory_id} has more than one profile promotion event")
-            linked = [candidate for candidate in facts if memory_id in candidate.memory_ids
-                      and candidate.type == "profile.promoted_memory"]
-            if len(linked) != 1:
+            if len(facts_by_memory.get(memory_id, [])) != 1:
                 raise InvariantError(f"{memory_id} has more than one promoted profile fact")
             event = promotion_events[0]
             if not self._profile_fact_exact(fact, memory, event):
                 raise InvariantError(f"{fact.id} does not exactly preserve its promoted memory claim")
+        for fact in (record for record in checked
+                     if record.record_type == "fact" and record.type == EVIDENCE_PROFILE_TYPE):
+            self._check_evidence_profile_fact(fact, promotions)
         for event in (record for record in checked if record.record_type == "review_event"
                       and record.decision == "promote" and record.actor == "policy_auto"):
-            self._check_profile_promotion_event(event, facts)
+            self._check_profile_promotion_event(event, facts_by_memory, promotions)
 
-    def _check_profile_promotion_event(self, event: Any, facts: list[Any]) -> None:
+    def _check_evidence_profile_fact(self, fact: Any, promotions: dict[str, list[Any]]) -> None:
+        try:
+            check_evidence_profile_fact(fact, self.lineage(), promotions.get(fact.id, []))
+        except EvidenceProfileError as error:
+            raise InvariantError(str(error)) from error
+
+    def _check_profile_promotion_event(
+        self, event: Any, facts_by_memory: dict[str, list[Any]], promotions: dict[str, list[Any]],
+    ) -> None:
         target = self._by_id[event.target_id]
-        matching_events = [candidate for candidate in self._of_type("review_event")
-                           if candidate.decision == "promote" and candidate.actor == "policy_auto"
-                           and candidate.target_id == event.target_id]
-        if len(matching_events) != 1:
+        if len(promotions.get(event.target_id, [])) != 1:
             raise InvariantError(f"{event.target_id} has more than one policy promotion event")
         if target.record_type == "candidate_memory":
             linked_memories = [record for record in self._of_type("memory")
@@ -163,15 +202,18 @@ class RecordSet:
                     f"{event.id} candidate promotion must admit exactly one root memory"
                 )
         elif target.record_type == "memory":
-            linked = [fact for fact in facts if event.target_id in fact.memory_ids
-                      and fact.type == "profile.promoted_memory"]
-            if len(linked) != 1:
+            if len(facts_by_memory.get(event.target_id, [])) != 1:
                 raise InvariantError(
                     f"{event.id} profile promotion must admit exactly one linked fact"
                 )
+        elif target.record_type == "fact" and target.type == EVIDENCE_PROFILE_TYPE:
+            if event.schema_version != 3 or event.rationale_code != EVIDENCE_PROMOTION_REASON:
+                raise InvariantError(f"{event.id} is not an authoritative Evidence promotion")
+            self._check_evidence_profile_fact(target, promotions)
         else:
             raise InvariantError(
-                f"{event.id} policy promotion target must be a candidate_memory or memory"
+                f"{event.id} policy promotion target must be a candidate_memory, memory, "
+                "or authoritative Evidence-derived fact"
             )
 
     @staticmethod
@@ -216,12 +258,18 @@ class RecordSet:
                     )
 
     def _check_source_removal(self, checked: list[Any]) -> None:
-        """ADR-0027: a source is removed by exactly one owner revoke that withdraws all it contributed."""
-        removals = [event for event in self._of_type("review_event")
-                    if getattr(self._by_id.get(event.target_id), "record_type", None) == "source_config"]
+        """ADR-0027: a source is removed by exactly one owner revoke that withdraws all it contributed.
+
+        The only other owner decision on a source is an ADR-0028 authority grant, checked here too.
+        """
+        source_events = [event for event in self._of_type("review_event")
+                         if getattr(self._by_id.get(event.target_id), "record_type", None) == "source_config"]
+        grants = [event for event in source_events if event.rationale_code in AUTHORITY_GRANTS]
+        removals = [event for event in source_events if event.rationale_code not in AUTHORITY_GRANTS]
         for event in removals:
             if (event.decision, event.actor, event.rationale_code) != ("revoke", "user_cli", SOURCE_REMOVED):
                 raise InvariantError(f"{event.id} is not a valid source removal")
+        self._check_authority_grants(grants, removals)
         counts = Counter(event.target_id for event in removals)
         if any(count > 1 for count in counts.values()):
             raise InvariantError("a source was removed more than once")
@@ -231,6 +279,22 @@ class RecordSet:
             relevant = touched & ({source_id} | {e.id for e in current} | {e.id for e in removals})
             if relevant and any(item.change_kind != "retraction" for item in current):
                 raise InvariantError(f"removed source {source_id} still has current evidence")
+
+    def _check_authority_grants(self, grants: list[Any], removals: list[Any]) -> None:
+        removed_at = {event.target_id: event.recorded_at for event in removals}
+        seen: set[tuple[str, str]] = set()
+        for event in grants:
+            source = self._by_id[event.target_id]
+            key = (event.target_id, event.rationale_code)
+            if (
+                (event.schema_version, event.decision, event.actor) != (3, "accept", "user_cli")
+                or source.source_type != AUTHORITY_GRANT_SOURCE_TYPES[event.rationale_code]
+                or AUTHORITY_GRANTS[event.rationale_code] in source.authority.primary_for
+                or key in seen
+                or (event.target_id in removed_at and removed_at[event.target_id] <= event.recorded_at)
+            ):
+                raise InvariantError(f"{event.id} is not a valid source-authority grant")
+            seen.add(key)
 
     def removed_source_ids(self) -> set[str]:
         """Sources the owner removed (ADR-0027); they are never synced, listed or exposed again."""
@@ -254,10 +318,8 @@ class RecordSet:
 
     def superseded_by(self, record_id: str) -> str | None:
         """Derived reverse link (only ``supersedes`` is authoritative)."""
-        for record in self._records:
-            if record_id in getattr(record, "supersedes", ()):
-                return str(record.id)
-        return None
+        successor = self.lineage().successor(record_id)
+        return None if successor is None else str(successor.id)
 
     @staticmethod
     def _superseding_kinds(known: list[Any]) -> dict[str, str]:
@@ -269,9 +331,24 @@ class RecordSet:
         superseded = self._superseding_kinds(known)
         withdrawn = {r.target_id for r in known if r.record_type == "review_event"
                      and r.decision in ("reject", "revoke")}
-        return [r for r in known if r.record_type == "fact" and r.id not in superseded
-                and r.id not in withdrawn
-                and r.change_kind != "retraction"]
+        current_evidence = {
+            record.id for record in known
+            if record.record_type == "evidence" and record.id not in superseded
+            and record.change_kind != "retraction"
+            and record.provenance.source_id not in withdrawn
+        }
+        return [
+            record
+            for record in known
+            if record.record_type == "fact"
+            and record.id not in superseded
+            and record.id not in withdrawn
+            and record.change_kind != "retraction"
+            and (
+                record.type != EVIDENCE_PROFILE_TYPE
+                or bool(set(record.evidence_ids) & current_evidence)
+            )
+        ]
 
     def facts_valid_at(self, when: str, as_known_at: datetime | None = None) -> list[Any]:
         """Facts whose valid-time interval contains ``when`` (world changes keep old intervals)."""
@@ -326,6 +403,12 @@ class RecordSet:
         reviews = [r for r in known if r.record_type == "review_event"]
         withdrawn = {e.target_id for e in reviews if e.decision in ("reject", "revoke")}
         accepted = {e.target_id for e in reviews if e.decision in ("accept", "promote")}
+        current_evidence = {
+            record.id for record in known
+            if record.record_type == "evidence" and record.id not in superseded
+            and record.change_kind != "retraction"
+            and record.provenance.source_id not in withdrawn
+        }
         result = []
         for record in known:
             if record.record_type not in EXPOSABLE_TYPES or record.id in superseded or record.id in withdrawn:
@@ -334,6 +417,10 @@ class RecordSet:
                 continue
             if record.record_type == "evidence" and record.provenance.source_id in withdrawn:
                 continue  # ADR-0027 defense in depth: nothing from a removed source is exposed
+            if record.record_type == "fact" and record.type == EVIDENCE_PROFILE_TYPE and not (
+                set(record.evidence_ids) & current_evidence
+            ):
+                continue
             if getattr(record, "review_status", None) in ("quarantined", "pending_review"):
                 continue
             if record.record_type == "memory" and (record.candidate_id not in accepted

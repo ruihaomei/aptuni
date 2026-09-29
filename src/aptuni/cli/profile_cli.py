@@ -9,7 +9,9 @@ from typing import Any
 def add_profile_commands(sub: Any) -> None:
     profile = sub.add_parser("profile", help="promote and review stable Profile facts")
     actions = profile.add_subparsers(dest="profile_command", required=True, metavar="ACTION")
-    refresh = actions.add_parser("refresh", help="promote eligible pinned memories")
+    refresh = actions.add_parser(
+        "refresh", help="promote eligible pinned memories and authoritative source Evidence"
+    )
     refresh.add_argument("--json", action="store_true")
     review = actions.add_parser("review", help="review automatically promoted Profile facts")
     review_actions = review.add_subparsers(dest="profile_review_command", required=True, metavar="ACTION")
@@ -19,6 +21,10 @@ def add_profile_commands(sub: Any) -> None:
         parser = review_actions.add_parser(name, help=f"{name} one promoted Profile fact")
         parser.add_argument("fact_id")
         parser.add_argument("--json", action="store_true")
+    edit = review_actions.add_parser("edit", help="correct one promoted Profile fact")
+    edit.add_argument("fact_id")
+    edit.add_argument("statement")
+    edit.add_argument("--json", action="store_true")
 
 
 def _dump(value: object) -> None:
@@ -31,6 +37,7 @@ def _item(fact: Any, state: str) -> dict[str, object]:
         "module": fact.module,
         "statement": fact.statement,
         "memory_ids": list(fact.memory_ids),
+        "evidence_ids": list(fact.evidence_ids),
         "review_state": state,
     }
 
@@ -43,6 +50,10 @@ def cmd_profile(args: Any, service: Any) -> int:
         else:
             print(f"Promoted {len(promoted)} stable Profile fact(s).")
         return 0
+    return _cmd_profile_review(args, service)
+
+
+def _cmd_profile_review(args: Any, service: Any) -> int:
     action = args.profile_review_command
     if action == "list":
         pending = service.profile_review_pending()
@@ -53,6 +64,13 @@ def cmd_profile(args: Any, service: Any) -> int:
         else:
             for fact in pending:
                 print(f"{fact.id}  [{fact.module}]  {fact.statement}")
+        return 0
+    if action == "edit":
+        corrected_id = service.edit_profile_fact(args.fact_id, args.statement)
+        if args.json:
+            _dump({"fact_id": args.fact_id, "corrected_id": corrected_id, "review_state": "accepted"})
+        else:
+            print(f"Profile fact {args.fact_id} corrected as {corrected_id}.")
         return 0
     state = service.review_profile_fact(args.fact_id, action)
     if args.json:

@@ -99,7 +99,7 @@ class AgentActivation:
         if intent == "aptuni.profile":
             return self.service.context(
                 query, modules=modules, budget=budget, limit=limit, audience="host_mcp",
-                access=self.access(), _record_types=("fact",),
+                access=self.access(), include_evidence=True, _record_types=("fact", "evidence"),
             )
         if intent == "aptuni.memory":
             return self.service.context(

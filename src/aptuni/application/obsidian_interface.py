@@ -11,7 +11,11 @@ from typing import Any, Literal
 from aptuni.application.errors import AptuniError
 from aptuni.application.workspace import Workspace
 from aptuni.domain.invariants import RecordSet
-from aptuni.policy.profile_promotion import ProfileReviewState, profile_review_state_of
+from aptuni.policy.profile_promotion import (
+    AUTO_PROFILE_TYPES,
+    ProfileReviewState,
+    profile_review_state_of,
+)
 from aptuni.policy.promotion import ReviewState, pending_review_memories, review_state_of
 
 CONTRACT = "aptuni.obsidian@1"
@@ -113,6 +117,9 @@ class ObsidianInterfaceCommands:
         raise NotImplementedError
 
     def edit_memory(self, memory_id: str, statement: str) -> str:
+        raise NotImplementedError
+
+    def edit_profile_fact(self, fact_id: str, statement: str) -> str:
         raise NotImplementedError
 
     def memory_forget_preview(self, memory_id: str) -> Any:
@@ -255,10 +262,20 @@ class ObsidianInterfaceCommands:
                 }
             self.forget_memory_confirmed(record_id, confirmed_digest)
             return self._action_result(record_id, action, "revoked")
-        if (record.record_type == "fact" and record.type == "profile.promoted_memory"
+        if (record.record_type == "fact" and record.type in AUTO_PROFILE_TYPES
                 and action in {"accept", "reject"}):
             state = self.review_profile_fact(record_id, action)  # type: ignore[arg-type]
             return self._action_result(record_id, action, state)
+        if record.record_type == "fact" and record.type in AUTO_PROFILE_TYPES and action == "edit":
+            if statement is None or not statement.strip():
+                raise AptuniError("obsidian_statement_required", "Edit requires a non-empty replacement statement.")
+            replacement = self.edit_profile_fact(record_id, statement)
+            return {
+                "contract": CONTRACT,
+                "action": action,
+                "record_id": replacement,
+                "review_state": "accepted",
+            }
         raise AptuniError(
             "obsidian_action_unsupported", "That action is not supported for this canonical record type."
         )
@@ -373,10 +390,16 @@ class ObsidianInterfaceCommands:
             if (record.id not in records.revoked_ids()
                     and records.superseded_by(record.id) is None):
                 actions.extend(("accept", "edit", "reject", "pin", "forget"))
-        elif record.record_type == "fact" and record.type == "profile.promoted_memory":
+        elif record.record_type == "fact" and record.type in AUTO_PROFILE_TYPES:
             review_state = profile_review_state_of(record, records)
-            if review_state == "auto_promoted_pending_review":
-                actions.extend(("accept", "reject"))
+            if (
+                record.type == "profile.evidence_signal"
+                and review_state != "revoked"
+                and records.superseded_by(record.id) is None
+            ):
+                actions.extend(("edit", "reject"))
+            elif review_state == "auto_promoted_pending_review":
+                actions.extend(("accept", "edit", "reject"))
         return {
             "id": str(record.id),
             "kind": str(record.record_type),

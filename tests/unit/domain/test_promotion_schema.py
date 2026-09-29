@@ -46,13 +46,21 @@ def _policy(**overrides: Any) -> dict[str, Any]:
 
 
 class ReviewEventVersionTests(unittest.TestCase):
-    def test_version_one_and_two_are_both_accepted(self) -> None:
+    def test_versions_one_two_and_three_are_accepted(self) -> None:
         self.assertEqual(1, parse_record(_event()).schema_version)
         self.assertEqual(2, parse_record(_event(schema_version=2)).schema_version)
+        promoted = parse_record(_event(
+            schema_version=3,
+            target_id=new_id("fct"),
+            actor="policy_auto",
+            decision="promote",
+            rationale_code="policy_authoritative_evidence",
+        ))
+        self.assertEqual(3, promoted.schema_version)
 
-    def test_version_three_is_rejected_with_the_migration_message(self) -> None:
+    def test_version_four_is_rejected_with_the_migration_message(self) -> None:
         with self.assertRaises(SchemaVersionError) as caught:
-            parse_record(_event(schema_version=3))
+            parse_record(_event(schema_version=4))
         self.assertIn("migration", str(caught.exception))
 
     def test_other_record_types_stay_at_version_one(self) -> None:
@@ -77,9 +85,26 @@ class ReviewEventVersionTests(unittest.TestCase):
         self.assertEqual("pin", pinned.decision)
 
     def test_an_unknown_actor_is_rejected_at_every_version(self) -> None:
-        for version in (1, 2):
+        for version in (1, 2, 3):
             with self.assertRaises(ValueError, msg=str(version)):
                 parse_record(_event(schema_version=version, actor="model"))
+
+    def test_version_three_is_reserved_for_policy_evidence_promotion(self) -> None:
+        for overrides in (
+            {"actor": "user_cli"},
+            {"decision": "accept"},
+            {"rationale_code": "policy_promote"},
+        ):
+            raw = {
+                "schema_version": 3,
+                "target_id": new_id("fct"),
+                "actor": "policy_auto",
+                "decision": "promote",
+                "rationale_code": "policy_authoritative_evidence",
+                **overrides,
+            }
+            with self.assertRaises(ValueError, msg=str(overrides)):
+                parse_record(_event(**raw))
 
 
 class ReviewPolicyRecordTests(unittest.TestCase):

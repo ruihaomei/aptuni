@@ -17,7 +17,7 @@ from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import sha256_text
 from aptuni.domain.invariants import RecordSet
 from aptuni.domain.temporal import utc_now
-from aptuni.policy.profile_promotion import profile_review_state_of
+from aptuni.policy.profile_promotion import AUTO_PROFILE_TYPES, profile_review_state_of
 from aptuni.policy.promotion import review_state_of
 from aptuni.vault.locks import source_operations_lock
 
@@ -120,7 +120,7 @@ class EvaluationCommands:
                 for record in records.records()
             ),
             "profile_pending_review": sum(
-                record.record_type == "fact" and record.type == "profile.promoted_memory"
+                record.record_type == "fact" and record.type in AUTO_PROFILE_TYPES
                 and profile_review_state_of(record, records) == "auto_promoted_pending_review"
                 for record in records.records()
             ),
@@ -217,7 +217,7 @@ class EvaluationCommands:
         seq, records = self.snapshot()
         memories = [record for record in records.records() if record.record_type == "memory"]
         promoted = [record for record in records.records()
-                    if record.record_type == "fact" and record.type == "profile.promoted_memory"]
+                    if record.record_type == "fact" and record.type in AUTO_PROFILE_TYPES]
         snapshot = {
             "captured_at": utc_now().isoformat(),
             "vault_seq": seq,
@@ -604,7 +604,7 @@ class EvaluationCommands:
 
 
 def owner_review_decisions(records: RecordSet) -> int:
-    """Owner review decisions on memories and facts; a source removal (ADR-0027) is not one."""
-    removed = records.removed_source_ids()
+    """Owner review decisions on memories and facts; a source removal or authority grant is not one."""
+    sources = {record.id for record in records.records() if record.record_type == "source_config"}
     return sum(record.record_type == "review_event" and record.actor == "user_cli"
-               and record.target_id not in removed for record in records.records())
+               and record.target_id not in sources for record in records.records())

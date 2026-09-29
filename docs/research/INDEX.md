@@ -37,3 +37,11 @@ agents building Aptuni.
   tooling friction found while building Flagship Plugin #1; read it before a plugin-platform slice.
 - Spike evidence: `docs/dev/spikes/` (S01–S05A results and their reviews) and
   `spikes/s05b_marginnote/README.md` (real MarginNote 4 history replay, 2026-09-19).
+
+## Product findings
+
+- Cold-start Profile promotion (ADR-0028): canonical source Evidence carrying an explicitly
+  authorized `studied`, `applied` or `demonstrated` signal creates an active, exact-lineage Profile
+  Fact atomically and idempotently. Exposure stays Evidence; Profile activation may retrieve it for
+  task-time grounding without converting it into a durable competence claim. Source material never
+  becomes interaction Memory merely because it was ingested.

@@ -56,6 +56,7 @@ from aptuni.application.restore import (
     pending_restores,
 )
 from aptuni.application.review_commands import ReviewCommands, ReviewReminder
+from aptuni.application.source_authority import SourceAuthority
 from aptuni.application.source_commands import SourceCommands
 from aptuni.application.source_removal import SourceRemoval
 from aptuni.application.workspace import Workspace
@@ -75,7 +76,7 @@ from aptuni.domain.temporal import utc_now
 from aptuni.memory.mem0_local import create_local_mem0_client
 from aptuni.memory.provider import Mem0Projection
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
-from aptuni.policy.profile_promotion import profile_review_state_of
+from aptuni.policy.profile_promotion import AUTO_PROFILE_TYPES, profile_review_state_of
 from aptuni.policy.promotion import pending_review_memories, review_policy_of, review_state_of
 from aptuni.retrieval.hybrid import reciprocal_rank_fusion
 from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SearchRow, SqliteProjection, documents_for
@@ -130,7 +131,8 @@ class MemoryReviewFeed:
 
 
 class AptuniService(
-    SourceCommands, SourceRemoval, MemoryCommands, ReviewCommands, EvaluationCommands, ObsidianInterfaceCommands,
+    SourceCommands, SourceRemoval, SourceAuthority, MemoryCommands, ReviewCommands, EvaluationCommands,
+    ObsidianInterfaceCommands,
 ):
     def __init__(self, workspace: Workspace) -> None:
         self.workspace = workspace
@@ -514,7 +516,11 @@ class AptuniService(
                 self._authorize_host(access, scope="evidence.read", modules=selected)
         elif access is not None:
             raise AptuniError("invalid_context", "Host access is valid only for the host_mcp audience.")
-        if _record_types is not None and (_record_types not in (("fact",), ("memory",)) or include_evidence):
+        valid_internal = (
+            (_record_types in (("fact",), ("memory",)) and not include_evidence)
+            or (_record_types == ("fact", "evidence") and include_evidence)
+        )
+        if _record_types is not None and not valid_internal:
             raise AptuniError("invalid_context", "The internal context record-type restriction is invalid.")
         record_types = _record_types or (("fact", "memory", "evidence") if include_evidence else ("fact", "memory"))
         for _ in range(3):
@@ -545,7 +551,7 @@ class AptuniService(
                     record,
                     review_state_of(record, records) if record.record_type == "memory" else (
                         profile_review_state_of(record, records)
-                        if record.record_type == "fact" and record.type == "profile.promoted_memory"
+                        if record.record_type == "fact" and record.type in AUTO_PROFILE_TYPES
                         else None
                     ),
                 )
