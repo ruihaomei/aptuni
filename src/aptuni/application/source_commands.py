@@ -301,7 +301,9 @@ class SourceCommands:
             operations = guard.gate(scan.delta)
             evidence = [record for op in operations if op.review_state != "needs_review"
                         for record in [ingest.evidence_for(op, scan.delta.delta_id, scan.delta.sequence)] if record]
-        except (DeliveryError, SourceChangedDuringSync, GitHubApiError) as error:
+        except GitHubApiError as error:
+            raise AptuniError("github_sync_failed", f"GitHub sync stopped safely ({error}).") from error
+        except (DeliveryError, SourceChangedDuringSync) as error:
             raise AptuniError("sync_retry", f"The source changed while syncing; run sync again ({error}).") from error
         expected_ids = tuple(sorted(record.id for record in evidence)) if evidence else ()
         guard.record(scan.delta)

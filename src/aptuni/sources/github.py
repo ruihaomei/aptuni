@@ -762,6 +762,14 @@ def _validated(data: dict[str, Any]) -> tuple[int, str, str, bool, dict[str, str
     return repository_id, commit, str(data.get("full_name", "")), bool(data.get("truncated")), blobs
 
 
+def _oversized_paths(data: dict[str, Any]) -> set[str]:
+    """Blobs the tree already reports as too large to read; they are skipped, never fetched."""
+    return {
+        entry["path"] for entry in data["tree"]
+        if entry.get("type") == "blob" and type(entry.get("size")) is int and entry["size"] > MAX_BLOB_BYTES
+    }
+
+
 def scan_github(
     data: dict[str, Any],
     source_id: str,
@@ -776,6 +784,10 @@ def scan_github(
     excluded = {_excluded_path(path) for path in blobs}
     notes.update(reason for reason in excluded if reason is not None)
     eligible = {path for path in blobs if _selection_reason(path)[1] not in {"other", "excluded"}}
+    oversized = eligible & _oversized_paths(data)
+    if oversized:
+        notes.add("oversized_files_skipped")
+        eligible -= oversized
 
     previous_reasons = {
         item.locator.extension.fields["path"]: item.locator.extension.fields["selection_reason"]
