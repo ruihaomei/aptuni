@@ -194,6 +194,8 @@
 "setup.plan.already_complete" = "This setup is already complete. APPLY only verifies its receipt and reports the existing result."
 "setup.plan.confirm_hint" = "Apply only after review: aptuni setup apply {action_id}"
 "setup.plan.expires" = "This plan expires at {expires} and is bound to digest {digest}"
+"setup.plan.token_env" = "Before you type APPLY, set {name} in that same terminal to a read-only GitHub token; without it, private repositories are skipped and listed for a later retry."
+"setup.plan.confirmed" = "Already confirmed: resuming does not expire. Bound to digest {digest}"
 "setup.apply.prompt" = "Type APPLY to create exactly what is listed above: "
 "setup.apply.cancelled" = "Cancelled. Nothing was created."
 "setup.apply.declined_resume" = "Stopped. No additional setup step ran; earlier journaled effects remain."

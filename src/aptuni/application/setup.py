@@ -25,7 +25,9 @@ from aptuni.domain.ids import sha256_text
 from aptuni.domain.records import MODULES
 from aptuni.domain.temporal import utc_now
 
-SETUP_TTL = timedelta(minutes=30)
+# Long enough for an owner to create a token or read the plan carefully (Beta Day 0); a confirmed
+# setup never expires while it resumes.
+SETUP_TTL = timedelta(hours=24)
 ACTION_RE = re.compile(r"^setup-[0-9a-f]{16}$")
 SCHEMA_VERSION = 1
 SOURCE_RETRY_KEY = re.compile(r"sync:src_[0-9A-Z]{26}")

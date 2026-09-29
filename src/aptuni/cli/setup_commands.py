@@ -355,6 +355,9 @@ def _render_plan(plan: SetupPlan, locale: str, action_state: str = "pending") ->
                                    frozenset(step.kind for step in plan.steps), locale)
     if later:
         lines += [*later, ""]
+    tokens = _token_envs(plan)
+    if tokens:
+        lines += [*(t("setup.plan.token_env", locale, name=name) for name in tokens), ""]
     lines += _render_release(plan, locale)
     if plan.host_files:
         lines += [t("setup.plan.host_files", locale),
@@ -368,9 +371,16 @@ def _render_plan(plan: SetupPlan, locale: str, action_state: str = "pending") ->
     lines += [t("setup.plan.confinement", locale),
               t("setup.plan.rollback", locale), "",
               t(state_key, locale),
-              t("setup.plan.expires", locale, expires=_when(plan.expires_at), digest=plan.digest),
+              t("setup.plan.expires", locale, expires=_when(plan.expires_at), digest=plan.digest)
+              if action_state == "pending" else t("setup.plan.confirmed", locale, digest=plan.digest),
               t("setup.plan.confirm_hint", locale, action_id=plan.action_id)]
     return lines
+
+
+def _token_envs(plan: SetupPlan) -> list[str]:
+    """Environment variables the approved GitHub sources read at APPLY (names only, never values)."""
+    names = {json.loads(step.target).get("token_env") for step in plan.steps if step.kind == "source_github"}
+    return sorted(name for name in names if isinstance(name, str) and name)
 
 
 def _render_release(plan: SetupPlan, locale: str) -> list[str]:
