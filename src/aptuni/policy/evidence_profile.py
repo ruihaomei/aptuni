@@ -23,7 +23,7 @@ from aptuni.domain.evidence_profile import (
     strongest_signal,
     successor_change_kind,
 )
-from aptuni.domain.invariants import RecordSet
+from aptuni.domain.invariants import MASTERY_RE, RecordSet
 from aptuni.domain.records import Fact, Module, Provenance, RetentionLabel, ReviewEvent, SourceConfig
 from aptuni.domain.temporal import utc_now
 from aptuni.policy.promotion import review_policy_of
@@ -53,8 +53,9 @@ class EvidenceProfileWriter:
             or signal is None
             or f"{evidence.module}.{signal}" not in self._lineage.authority(source)
             or not self._module_allows(evidence.module)
+            or MASTERY_RE.search(evidence_profile_statement(signal, evidence.subject))
         ):
-            return []
+            return []  # a title such as "Mastery learning" would read as a proficiency claim: stays Evidence
         fact_id = evidence_fact_id(evidence.id)
         event_id = evidence_event_id(evidence.id)
         if self._lineage.get(fact_id) is not None or self._lineage.get(event_id) is not None:

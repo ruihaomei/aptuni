@@ -169,3 +169,33 @@ def test_the_expose_switch_hides_evidence_derived_profile_from_hosts(tmp_path: P
     service.set_module("knowledge", expose=False)
 
     assert not fact_ids & {record.id for record in service.exposable()}
+
+
+def test_a_topic_that_reads_as_a_proficiency_claim_stays_evidence_and_never_blocks_the_batch(
+    tmp_path: Path,
+) -> None:
+    """User #1 (0.2.0b5): two of 26,417 notes had 'mastery'/'proficient' in their titles; the upgrade
+    was refused as a whole because 'Studied … mastery …' trips the no-proficiency guard."""
+    service = AptuniService(Workspace(tmp_path / "state"))
+    service.init(tmp_path / "Vault")
+    cards = base_cards()
+    cards[4].title = "Mastery learning"
+    cards[5].title = "Proficient readers"
+    store = build_store(tmp_path / "mn" / "MarginNotes.sqlite", cards)
+    source = service.add_marginnote_source(store, ("NB-A",), ("knowledge",), "study-notes")
+    service.sync(source.id)
+    preview = service.source_authority_preview(source.id, STUDIED)
+
+    result = service.grant_source_authority(source.id, STUDIED, preview.digest)
+
+    assert result.evidence_written == 5 and result.profile_written == 3
+    subjects = {fact.subject for fact in service.facts()}
+    assert not any("Mastery" in subject or "Proficient" in subject for subject in subjects)
+    assert any("Mastery" in item.subject for item in service.evidence(source.id)), "still reference Evidence"
+    assert service.doctor().ok
+
+    fresh = AptuniService(Workspace(tmp_path / "fresh-state"))
+    fresh.init(tmp_path / "fresh-vault")
+    authoritative = fresh.add_marginnote_source(store, ("NB-A",), ("knowledge",), "study-notes",
+                                                primary_for=(STUDIED,))
+    assert fresh.sync(authoritative.id).profile_written == 3

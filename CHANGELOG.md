@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- `aptuni source authorize` and source sync no longer fail as a whole when a note title reads as a
+  proficiency claim (for example "Mastery learning"): that topic stays reference Evidence and every
+  other topic still forms a Profile Fact. Found on User #1's Vault (2 of 26,417 topics).
+
 ## [0.2.0b5] — 2026-09-30
 
 Your approved sources now form your Profile. On a Vault with ~27k Evidence records the Profile
