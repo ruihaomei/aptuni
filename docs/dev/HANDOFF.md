@@ -16,7 +16,7 @@ copy, deleted): 3,737 downgrades, 22,678 studied Facts remain, idempotent.
 
 **Release:** 0.2.0b7 is public (maintainer chose "Publish 0.2.0b7" on 2026-09-30; PyPI + GitHub
 pre-release from `638d5d0`, byte-identical artifacts; record `docs/dev/releases/0.2.0b7.md`).
-**Next:** User #1 upgrades (`uv tool upgrade aptuni`), backs up and runs, themselves: `aptuni source reclassify <MarginNote source id>`, optionally
+**Next:** User #1 upgrades (`uv tool install aptuni==0.2.0b7`; the tool is exact-pinned, so `uv tool upgrade` stays on the old version), backs up and runs, themselves: `aptuni source reclassify <MarginNote source id>`, optionally
 `aptuni source authorize <GitHub source id> --grant knowledge.applied` per repository after a sync,
 then `aptuni knowledge` and a real `$aptuni-profile` / `/aptuni:profile` task. Do not tune the
 classifier thresholds before owner-labelled evidence.
