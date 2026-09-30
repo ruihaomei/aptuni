@@ -31,7 +31,8 @@ owner claims kept separate, six-step evidence ladder labelled "not a proficiency
 omits the rows they cite. Rehearsal on a deleted scratch copy of the real Vault: `doctor` passes
 under the new invariant; reclassify downgrades 3,737 isolated cards in 3.6 s, 22,678 studied Facts
 remain, the second run is a no-op. Review 85 is APPROVE_WITH_NON_BLOCKING_NOTES (notes 1–3, 5–8
-applied; 4 and 9 in BACKLOG). Checkpoints `fd8d0b6` + remediation; not released.
+applied; 4 and 9 in BACKLOG). Checkpoints `fd8d0b6` + `adb5764`. **0.2.0b7 is being released on the
+maintainer's explicit "Publish 0.2.0b7" (2026-09-30); record `docs/dev/releases/0.2.0b7.md`.**
 
 ## Previous slice — Evidence-derived cold-start Profile
 

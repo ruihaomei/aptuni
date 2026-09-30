@@ -6,6 +6,35 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0b7] — 2026-09-30
+
+General Knowledge Evidence Model (ADR-0029). Top-Down Learning stays 0.2.1.
+
+### Added
+
+- `aptuni knowledge [QUERY]` shows a derived Knowledge State per concept: counts of exposure,
+  studied, applied and demonstrated Evidence, their sources, your own claims kept separate, and an
+  evidence level that is explicitly not a proficiency score.
+- `aptuni source reclassify SOURCE_ID` re-checks each item of a source with the current classifier
+  and changes it only after you type `APPLY`; history, rejections and edits are kept.
+- GitHub Standard repositories now record per-repository concept usage (applied, imported, declared
+  or mentioned; never code text), and `aptuni source authorize SOURCE_ID --grant knowledge.applied`
+  lets real, constructed-and-called library use count as applied Evidence.
+
+### Changed
+
+- Source authority is a ceiling, enforced by the Vault: an item carries `studied` or `applied` only
+  when its own content shows it. A MarginNote card counts as studied when it organises sub-topics,
+  collects several excerpts or carries your annotation; an isolated card stays reference material.
+- `aptuni source authorize` re-derives items through this classifier instead of labelling every item.
+- `$aptuni-profile` / `/aptuni:profile` lead with at most five cited Knowledge State lines instead of
+  many individual `Studied …` facts.
+
+### Compatibility
+
+- Existing Vaults validate unchanged. A Vault that holds a `knowledge.applied` grant or the new
+  source-state fields is refused by 0.2.0b6 and older (fail closed).
+
 ## [0.2.0b6] — 2026-09-30
 
 Fix for the first real `aptuni source authorize` run. Top-Down Learning stays 0.2.1.
@@ -280,7 +309,8 @@ First public pre-alpha release of the Milestone 1 personal context core.
 - Module-scoped host grants, network-denied MCP STDIO, conservative host-confinement reporting, and
   tracked-secret checks in the release gate.
 
-[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.2.0b6...HEAD
+[Unreleased]: https://github.com/ruihaomei/aptuni/compare/v0.2.0b7...HEAD
+[0.2.0b7]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b7
 [0.2.0b6]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b6
 [0.2.0b5]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b5
 [0.2.0b4]: https://github.com/ruihaomei/aptuni/releases/tag/v0.2.0b4

@@ -15,8 +15,8 @@ state), `sources/github_concepts.py`, `application/knowledge_commands.py`,
 remediation applied. Full pytest, Ruff, strict mypy and relay green. Real-Vault rehearsal (scratch
 copy, deleted): 3,737 downgrades, 22,678 studied Facts remain, idempotent.
 
-**Next:** publish 0.2.0b7 only on the maintainer's explicit "Publish" (release policy), then User #1
-backs up and runs, themselves: `aptuni source reclassify <MarginNote source id>`, optionally
+**Release:** the maintainer chose "Publish 0.2.0b7" on 2026-09-30 (record `docs/dev/releases/0.2.0b7.md`).
+**Next:** User #1 upgrades (`uv tool upgrade aptuni`), backs up and runs, themselves: `aptuni source reclassify <MarginNote source id>`, optionally
 `aptuni source authorize <GitHub source id> --grant knowledge.applied` per repository after a sync,
 then `aptuni knowledge` and a real `$aptuni-profile` / `/aptuni:profile` task. Do not tune the
 classifier thresholds before owner-labelled evidence.
