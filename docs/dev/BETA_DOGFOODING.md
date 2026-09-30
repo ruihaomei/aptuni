@@ -55,6 +55,7 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 | 2026-09-29 | Error reporting | P2 | A GitHub error while reading files surfaced as `sync_retry` ("the source changed while syncing"), hiding the real cause; diagnosing it needed a manual `aptuni sync`. | `test_github_oversized.py::test_a_github_failure_while_reading_files_keeps_its_own_code` | Fixed in 0.2.0b4 |
 | 2026-09-29 | Agent guide / shells | P3 | A command run through the chat's own shell (`!`) did not see a variable exported in the owner's terminal tab. | `test_agent_guide_day0.py` (same-terminal rule in the guide) | Fixed in 0.2.0b4 |
 | 2026-09-29 | GitHub source sync | P2 | An empty repository (GitHub answers `409 Git Repository is empty`) is reported as a failed source (`github_request_failed`) instead of syncing as zero files; three of User #1's repos showed as failures on 0.2.0b4. | `tests/integration/test_github_empty_repository.py` | Fixed in 0.2.0b5 |
+| 2026-09-30 | Profile / `source authorize` | P1 | The first real upgrade of a 26,417-topic MarginNote source was refused as a whole: 2 titles rendered a statement the no-proficiency invariant rejects. Nothing was written. | `tests/integration/test_source_authority.py`; `2cc818d` | Fixed in 0.2.0b6 |
 
 ## Gates kept open in parallel
 
@@ -72,3 +73,4 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 | pre-Day 0 | 2026-09-27/28 | User #1 reinstall/attach; disposable brand-new-user install (en, zh-CN) through setup, connect, MCP activation, plugin grant, Top-Down prepare | 0 | 6 opened / 6 fixed locally | Day 0 not yet: no real host first-run journey has succeeded |
 | pre-Day 0 | 2026-09-29 | Agent-led setup (guide, one APPLY with plugin grant, connect) in a disposable home | 0 | 0 opened; Reviews 78 BLOCK → 79 approve | Day 0 starts in a fresh Agent session on public 0.2.0b2 |
 | Day 0 | 2026-09-29 | Setup APPLY completed on public 0.2.0b4 (12 sources synced, 3 empty repos reported, grants + plugin grant written, doctor and smoke OK) | 0 | 10 fixed in 0.2.0b4; 1 opened | Host connection and first real journey next |
+| Day 1 | 2026-09-30 | Owner backed up, then ran `source authorize` on the MarginNote source: refused on 0.2.0b5 (Vault unchanged), applied on 0.2.0b6 — 26,415 Profile facts, 2 topics kept as Evidence, commit 38, doctor healthy; Profile context query answered | 0 | 1 opened and fixed (0.2.0b6) | First real task with the Profile skill; reject/edit what is wrong |
