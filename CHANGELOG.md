@@ -32,8 +32,9 @@ General Knowledge Evidence Model (ADR-0029). Top-Down Learning stays 0.2.1.
 
 ### Compatibility
 
-- Existing Vaults validate unchanged. A Vault that holds a `knowledge.applied` grant or the new
-  source-state fields is refused by 0.2.0b6 and older (fail closed).
+- Existing Vaults validate unchanged. Both of the following fail closed: 0.2.0b6 and older cannot
+  open a Vault that holds a `knowledge.applied` grant, and they refuse to sync a MarginNote or GitHub
+  source last synced by 0.2.0b7.
 
 ## [0.2.0b6] — 2026-09-30
 

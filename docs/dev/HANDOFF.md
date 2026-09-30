@@ -4,8 +4,7 @@ Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent
 
 ## Current position
 
-**General Knowledge Evidence Model (ADR-0029) is implemented, reviewed and checkpointed locally; not
-released.** Authority is a ceiling (Vault invariant), MarginNote cards and GitHub concept items are
+**General Knowledge Evidence Model (ADR-0029) is implemented, reviewed and public as Aptuni 0.2.0b7.** Authority is a ceiling (Vault invariant), MarginNote cards and GitHub concept items are
 classified item by item, `source authorize` re-derives through the classifier (now also
 `--grant knowledge.applied` for GitHub), `aptuni source reclassify SOURCE_ID` migrates ADR-0028
 blanket labels after a typed APPLY, and a derived Knowledge State powers `aptuni knowledge [QUERY]`
@@ -15,7 +14,8 @@ state), `sources/github_concepts.py`, `application/knowledge_commands.py`,
 remediation applied. Full pytest, Ruff, strict mypy and relay green. Real-Vault rehearsal (scratch
 copy, deleted): 3,737 downgrades, 22,678 studied Facts remain, idempotent.
 
-**Release:** the maintainer chose "Publish 0.2.0b7" on 2026-09-30 (record `docs/dev/releases/0.2.0b7.md`).
+**Release:** 0.2.0b7 is public (maintainer chose "Publish 0.2.0b7" on 2026-09-30; PyPI + GitHub
+pre-release from `638d5d0`, byte-identical artifacts; record `docs/dev/releases/0.2.0b7.md`).
 **Next:** User #1 upgrades (`uv tool upgrade aptuni`), backs up and runs, themselves: `aptuni source reclassify <MarginNote source id>`, optionally
 `aptuni source authorize <GitHub source id> --grant knowledge.applied` per repository after a sync,
 then `aptuni knowledge` and a real `$aptuni-profile` / `/aptuni:profile` task. Do not tune the
