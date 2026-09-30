@@ -9,7 +9,7 @@ import pytest
 from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService
 from aptuni.application.workspace import Workspace
-from marginnote_fixture import base_cards, build_store
+from marginnote_fixture import build_store, studied_cards
 
 BAGGING = "Ensemble methods › Random forest › Bagging"
 
@@ -17,7 +17,7 @@ BAGGING = "Ensemble methods › Random forest › Bagging"
 def _service(tmp_path: Path) -> tuple[AptuniService, str, Path]:
     service = AptuniService(Workspace(tmp_path / "state"))
     service.init(tmp_path / "Vault")
-    store = build_store(tmp_path / "mn" / "MarginNotes.sqlite", base_cards())
+    store = build_store(tmp_path / "mn" / "MarginNotes.sqlite", studied_cards())
     source = service.add_marginnote_source(
         store, ("NB-A",), ("knowledge",), "study-notes", primary_for=("knowledge.studied",),
     )
@@ -26,7 +26,7 @@ def _service(tmp_path: Path) -> tuple[AptuniService, str, Path]:
 
 
 def _retitle(service: AptuniService, source_id: str, store: Path, title: str) -> None:
-    cards = base_cards()
+    cards = studied_cards()
     cards[4].title = title
     build_store(store, cards)
     service.sync(source_id)

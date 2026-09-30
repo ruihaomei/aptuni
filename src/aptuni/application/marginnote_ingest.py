@@ -1,24 +1,27 @@
 """MarginNote 4 ingestion: native-ID concept deltas -> minimized knowledge Evidence (ADR-0015).
 
 Evidence carries a bounded label path (``subject``) and a structured ≤280-character summary of
-coverage, depth, source and time (``excerpt``). No excerpt bodies or comments are stored. The
-``studied`` signal is emitted only when the user's authority policy for this source lists
-``knowledge.studied``; otherwise a card is ``exposure`` evidence like any other source.
+coverage, depth, source and time (``excerpt``). No excerpt bodies or comments are stored. Each card is
+classified on its own (ADR-0029): a card that organises sub-concepts, collects further excerpts or
+carries an annotation is ``studied``, an isolated card is ``exposure``, and ``studied`` is emitted
+only when the source's authority (the ceiling) lists ``knowledge.studied``.
 """
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from aptuni.application.ingest import SOURCE_RETENTION, SourceState, _canonical_locator
 from aptuni.domain.ids import deterministic_id
 from aptuni.domain.records import Evidence, Provenance, Signal, SourceConfig
 from aptuni.domain.temporal import utc_now
+from aptuni.knowledge.classify import capped, marginnote_signal
 from aptuni.sources.marginnote4 import MarginNoteScan, build_digest, read_snapshot, scan_marginnote
 from aptuni.sources.records import CandidateDelta, Operation
 
-STUDIED_DIMENSION = "knowledge.studied"
 ALL_NOTEBOOKS = "*"
 
 
@@ -56,9 +59,11 @@ class MarginNoteIngest:
         self.policy_epoch = policy_epoch
         self.current = current
         self.existing_ids = existing_ids
-        studied = module == "knowledge" and STUDIED_DIMENSION in config.authority.primary_for
-        self.signals: tuple[Signal, ...] = ("studied",) if studied else ("exposure",)
         self._scan: MarginNoteScan | None = None
+
+    def _signals(self, fields: Mapping[str, Any]) -> tuple[Signal, ...]:
+        signal = marginnote_signal(fields)
+        return capped(signal, self.module, self.config.authority.primary_for)
 
     def scan(self, state: SourceState | None) -> MarginNoteScan:
         snapshot = read_snapshot(self.spec.store, self.spec.notebooks)
@@ -99,6 +104,6 @@ class MarginNoteIngest:
                                   locator=_canonical_locator(locator)),
             trust="untrusted_source", retention=SOURCE_RETENTION, policy_epoch=self.policy_epoch, confidence=None,
             review_status="auto_derived", supersedes=(previous.id,) if previous else (), change_kind=kind,
-            subject=label, signals=() if retraction else self.signals,
+            subject=label, signals=() if retraction else self._signals(locator.extension.fields),
             excerpt=text, content_hash=content_hash, observed_at=now,
         )

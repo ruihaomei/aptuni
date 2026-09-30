@@ -82,3 +82,11 @@ def base_cards() -> dict[int, Card]:
 
 def unknown_digest() -> str:
     return base64.b64encode(b"not-a-verified-layout").decode("ascii")
+
+
+def studied_cards() -> dict[int, Card]:
+    """``base_cards`` where every card shows study (ADR-0029): the leaves carry the owner's annotation."""
+    cards = base_cards()
+    for key in (3, 4, 5, 8):
+        cards[key].comments = True
+    return cards

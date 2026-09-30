@@ -198,8 +198,11 @@ class Memory(Envelope):
     statement: str = Field(min_length=1, max_length=500)
 
 
-#: ADR-0028: the owner-confirmed source-authority grants a v3 review event may record, by rationale.
-AUTHORITY_GRANTS: dict[str, str] = {"source_authority_studied": "knowledge.studied"}
+#: ADR-0028/0029: the owner-confirmed source-authority grants a v3 review event may record, by rationale.
+AUTHORITY_GRANTS: dict[str, str] = {
+    "source_authority_studied": "knowledge.studied",
+    "source_authority_applied": "knowledge.applied",
+}
 
 
 class ReviewEvent(Frozen):

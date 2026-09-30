@@ -34,6 +34,7 @@ from aptuni.application.context import (
 from aptuni.application.errors import AptuniError
 from aptuni.application.evaluation import EvaluationCommands
 from aptuni.application.export import ExportReport, export_profile
+from aptuni.application.knowledge_commands import KnowledgeCommands
 from aptuni.application.memory_commands import MemoryCommands
 from aptuni.application.obsidian_interface import ObsidianInterfaceCommands
 from aptuni.application.privacy import (
@@ -132,7 +133,7 @@ class MemoryReviewFeed:
 
 class AptuniService(
     SourceCommands, SourceRemoval, SourceAuthority, MemoryCommands, ReviewCommands, EvaluationCommands,
-    ObsidianInterfaceCommands,
+    ObsidianInterfaceCommands, KnowledgeCommands,
 ):
     def __init__(self, workspace: Workspace) -> None:
         self.workspace = workspace

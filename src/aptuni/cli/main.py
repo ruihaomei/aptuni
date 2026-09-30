@@ -20,6 +20,7 @@ from aptuni.cli.developer_cli import add_developer_commands, cmd_developer
 from aptuni.cli.evaluation_cli import add_evaluation_commands, cmd_evaluate
 from aptuni.cli.guide_cli import add_guide_commands, cmd_connect, cmd_guide
 from aptuni.cli.host_connect import connect_lines
+from aptuni.cli.knowledge_cli import add_knowledge_command, cmd_knowledge
 from aptuni.cli.marginnote_commands import MARGINNOTE_COMMANDS, add_marginnote_parsers, cmd_marginnote
 from aptuni.cli.memory_cli import add_memory_commands, cmd_memory, cmd_observe
 from aptuni.cli.obsidian_interface_cli import add_interface_commands, cmd_interface
@@ -33,7 +34,11 @@ from aptuni.cli.setup_commands import (
     cmd_recipe,
     cmd_setup,
 )
-from aptuni.cli.source_authority_cli import add_source_authority_parser, cmd_source_authority
+from aptuni.cli.source_authority_cli import (
+    add_source_authority_parser,
+    cmd_source_authority,
+    cmd_source_reclassify,
+)
 from aptuni.cli.source_remove_cli import add_source_remove_parser, cmd_source_remove
 from aptuni.cli.status_cli import add_status_command, cmd_status
 from aptuni.cli.vault_cli import add_attach_command, cmd_attach
@@ -226,6 +231,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_guided_setup_command(sub)
     add_memory_commands(sub)
     add_profile_commands(sub)
+    add_knowledge_command(sub)
     add_evaluation_commands(sub)
     add_interface_commands(sub)
     add_developer_commands(sub)
@@ -372,8 +378,9 @@ def _cmd_notion_source(args: argparse.Namespace, service: AptuniService) -> int:
     return 0
 
 
-#: Owner decisions on an approved source, each confirmed by a typed APPLY (ADR-0027, ADR-0028).
-OWNER_SOURCE_COMMANDS = {"remove": cmd_source_remove, "authorize": cmd_source_authority}
+#: Owner decisions on an approved source, each confirmed by a typed APPLY (ADR-0027, 0028, 0029).
+OWNER_SOURCE_COMMANDS = {"remove": cmd_source_remove, "authorize": cmd_source_authority,
+                         "reclassify": cmd_source_reclassify}
 
 
 def _cmd_source(args: argparse.Namespace, service: AptuniService) -> int:
@@ -785,6 +792,7 @@ COMMANDS: dict[str, Callable[[argparse.Namespace, AptuniService], int]] = {
     "observe": cmd_observe,
     "memory": cmd_memory,
     "profile": cmd_profile,
+    "knowledge": cmd_knowledge,
     "evaluate": cmd_evaluate,
     "interface": cmd_interface,
     "developer": cmd_developer,

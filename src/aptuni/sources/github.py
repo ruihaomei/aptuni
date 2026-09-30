@@ -19,7 +19,7 @@ import urllib.parse
 import urllib.request
 from collections import Counter, deque
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import PurePosixPath
 from typing import Any, Protocol
@@ -689,6 +689,7 @@ class GitHubScan:
     parser: tuple[str, str]
     repository_id: int
     notes: tuple[str, ...]
+    provider_data: dict[str, Any] = field(default_factory=dict)  # non-canonical per-source state
 
 
 @dataclass(frozen=True)

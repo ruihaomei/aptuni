@@ -13,13 +13,13 @@ from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import deterministic_id, sha256_text
 from aptuni.domain.invariants import InvariantError, RecordSet
 from aptuni.domain.records import AuthorityPolicy
-from marginnote_fixture import base_cards, build_store
+from marginnote_fixture import build_store, studied_cards
 
 
 def _synced(tmp_path: Path, *, authority: tuple[str, ...] = ("knowledge.studied",)) -> tuple[AptuniService, str]:
     service = AptuniService(Workspace(tmp_path / "state"))
     service.init(tmp_path / "Vault")
-    store = build_store(tmp_path / "mn" / "MarginNotes.sqlite", base_cards())
+    store = build_store(tmp_path / "mn" / "MarginNotes.sqlite", studied_cards())
     source = service.add_marginnote_source(store, ("NB-A",), ("knowledge",), "study-notes", primary_for=authority)
     service.sync(source.id)
     return service, source.id
@@ -108,7 +108,7 @@ def test_an_event_digest_mismatch_is_rejected(tmp_path: Path) -> None:
 def test_a_successor_that_drops_its_predecessor_link_is_rejected(tmp_path: Path) -> None:
     service, source_id = _synced(tmp_path)
     store = tmp_path / "mn" / "MarginNotes.sqlite"
-    cards = base_cards()
+    cards = studied_cards()
     cards[4].title = "Bootstrap aggregation"
     build_store(store, cards)
     service.sync(source_id)

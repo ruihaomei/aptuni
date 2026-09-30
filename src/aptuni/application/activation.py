@@ -96,10 +96,9 @@ class AgentActivation:
         budget: int,
         limit: int,
     ) -> ContextResponse:
-        if intent == "aptuni.profile":
-            return self.service.context(
-                query, modules=modules, budget=budget, limit=limit, audience="host_mcp",
-                access=self.access(), include_evidence=True, _record_types=("fact", "evidence"),
+        if intent == "aptuni.profile":  # ADR-0029 item 9: compact Knowledge State first
+            return self.service.profile_context(
+                query, modules=modules, budget=budget, limit=limit, audience="host_mcp", access=self.access(),
             )
         if intent == "aptuni.memory":
             return self.service.context(

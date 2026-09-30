@@ -283,7 +283,8 @@ class SourceCommands:
         try:
             scan = ingest.scan(state)
             if config.source_type in {"github", "github_deep"}:
-                provider_data = {"repository_id": scan.repository_id}  # type: ignore[union-attr]
+                provider_data = {"repository_id": scan.repository_id,  # type: ignore[union-attr]
+                                 **getattr(scan, "provider_data", {})}
             elif config.source_type == "notion":
                 provider_data = {"principal_id": scan.principal_id}  # type: ignore[union-attr]
         except (GitHubApiError, SourceIdentityError) as error:

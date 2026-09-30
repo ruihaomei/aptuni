@@ -10,7 +10,7 @@ from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService
 from aptuni.application.workspace import Workspace
 from aptuni.cli.main import run as cli_run
-from marginnote_fixture import base_cards, build_store
+from marginnote_fixture import build_store, studied_cards
 
 STUDIED = "knowledge.studied"
 
@@ -19,7 +19,7 @@ def _released_vault(tmp_path: Path) -> tuple[AptuniService, str, Path]:
     """The User #1 state: a MarginNote source approved with empty authority and exposure Evidence."""
     service = AptuniService(Workspace(tmp_path / "state"))
     service.init(tmp_path / "Vault")
-    store = build_store(tmp_path / "mn" / "MarginNotes.sqlite", base_cards())
+    store = build_store(tmp_path / "mn" / "MarginNotes.sqlite", studied_cards())
     source = service.add_marginnote_source(store, ("NB-A",), ("knowledge",), "study-notes")
     service.sync(source.id)
     return service, source.id, store
@@ -68,7 +68,7 @@ def test_confirmed_upgrade_rederives_evidence_and_forms_profile_preserving_linea
 def test_upgrade_is_idempotent_stale_safe_and_later_syncs_stay_studied(tmp_path: Path) -> None:
     service, source_id, store = _released_vault(tmp_path)
     stale = service.source_authority_preview(source_id, STUDIED)
-    cards = base_cards()
+    cards = studied_cards()
     cards[3].title = "Gradient boosting"
     build_store(store, cards)
     service.sync(source_id)
@@ -178,7 +178,7 @@ def test_a_topic_that_reads_as_a_proficiency_claim_stays_evidence_and_never_bloc
     was refused as a whole because 'Studied … mastery …' trips the no-proficiency guard."""
     service = AptuniService(Workspace(tmp_path / "state"))
     service.init(tmp_path / "Vault")
-    cards = base_cards()
+    cards = studied_cards()
     cards[4].title = "Mastery learning"
     cards[5].title = "Proficient readers"
     store = build_store(tmp_path / "mn" / "MarginNotes.sqlite", cards)

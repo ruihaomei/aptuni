@@ -25,7 +25,7 @@ DERIVE_PEAK_BYTES = 256 * 1024 * 1024
 
 def _cards(count: int) -> dict[int, Card]:
     cards = {1: Card(title="Study map", children=list(range(2, count + 1)))}
-    cards.update({key: Card(title=f"Topic {key}") for key in range(2, count + 1)})
+    cards.update({key: Card(title=f"Topic {key}", comments=True) for key in range(2, count + 1)})
     return cards
 
 

@@ -245,6 +245,8 @@ class RecordSet:
 
     def _check_evidence_support(self, checked: list[Any]) -> None:
         for record in checked:
+            if record.record_type == "evidence":
+                self._check_evidence_ceiling(record)
             statement = getattr(record, "statement", "")
             if record.record_type in ("fact", "memory") and MASTERY_RE.search(statement):
                 raise InvariantError(f"{record.id} asserts mastery; evidence supports signals, not proficiency")
@@ -256,6 +258,19 @@ class RecordSet:
                     raise InvariantError(
                         f"{record.id} claims signal {record.predicate!r} without evidence carrying it"
                     )
+
+    def _check_evidence_ceiling(self, evidence: Any) -> None:
+        """ADR-0029 item 2: authority is a ceiling; a stronger signal needs ``<module>.<signal>``."""
+        strong = [signal for signal in evidence.signals if signal != "exposure"]
+        if not strong:
+            return
+        source = self._by_id.get(evidence.provenance.source_id or "")
+        if source is None or source.record_type != "source_config":
+            raise InvariantError(f"{evidence.id} carries {strong} without an approved source")
+        authority = set(self.lineage().authority(source))
+        beyond = [signal for signal in strong if f"{evidence.module}.{signal}" not in authority]
+        if beyond:
+            raise InvariantError(f"{evidence.id} carries {beyond} beyond its source authority")
 
     def _check_source_removal(self, checked: list[Any]) -> None:
         """ADR-0027: a source is removed by exactly one owner revoke that withdraws all it contributed.

@@ -18,8 +18,11 @@ SEMANTIC_SIGNALS = ("demonstrated", "applied", "studied")  # strongest first
 EVIDENCE_PROFILE_TYPE = "profile.evidence_signal"
 EVIDENCE_PROMOTION_REASON = "policy_authoritative_evidence"
 EVIDENCE_PROMOTION_NONCE = "policy_auto"
-#: Source types whose ingest honours a granted dimension, by grant rationale (ADR-0028 amendment).
-AUTHORITY_GRANT_SOURCE_TYPES: dict[str, str] = {"source_authority_studied": "marginnote4"}
+#: Source types whose ingest honours a granted dimension, by grant rationale (ADR-0028, ADR-0029).
+AUTHORITY_GRANT_SOURCE_TYPES: dict[str, str] = {
+    "source_authority_studied": "marginnote4",
+    "source_authority_applied": "github",
+}
 
 
 class EvidenceProfileError(ValueError):

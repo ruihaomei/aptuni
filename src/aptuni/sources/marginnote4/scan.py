@@ -40,6 +40,7 @@ def _locator(source_id: str, digest: Digest, note_id: str) -> SourceLocator:
         "revision": concept.revision, "parent_id": concept.parent_id, "depth": concept.depth,
         "sibling_index": concept.sibling_index, "child_count": len(concept.children),
         "subtree_concepts": concept.subtree_concepts, "excerpt_count": concept.subtree_excerpts,
+        "annotated": concept.annotated,  # ADR-0029: the owner's own annotations make a card studied
     }
     return SourceLocator(source_id, "marginnote", note_id, Extension(*SCHEMA, fields))
 

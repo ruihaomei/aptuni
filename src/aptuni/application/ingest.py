@@ -25,10 +25,13 @@ from aptuni.domain.records import (
     LocatorExtension,
     Provenance,
     RetentionLabel,
+    Signal,
     SourceConfig,
 )
 from aptuni.domain.records import SourceLocator as CanonicalLocator
 from aptuni.domain.temporal import utc_now
+from aptuni.knowledge.classify import CONCEPT_SCHEMA, capped, github_concept_signal
+from aptuni.knowledge.concepts import concept_by_id
 from aptuni.sources.codec import (
     delta_from_json,
     delta_to_json,
@@ -46,6 +49,9 @@ from aptuni.sources.github import (
     scan_github,
     scan_github_activity,
 )
+from aptuni.sources.github_concepts import CACHE_KEY as CONCEPT_CACHE_KEY
+from aptuni.sources.github_concepts import ConceptScan, concept_excerpt, is_concept_item, scan_concepts
+from aptuni.sources.reconcile import snapshot_id_for
 from aptuni.sources.records import CandidateDelta, Operation, Snapshot
 from aptuni.sources.records import SourceLocator as SourceItemLocator
 
@@ -335,6 +341,7 @@ class GitHubIngest:
         self.current = current
         self.existing_ids = existing_ids
         self.client = client
+        self._blobs: dict[str, bytes] = {}  # one fetch per blob per sync (concept usage + excerpt)
 
     def scan(self, state: SourceState | None) -> GitHubScan:
         fetched = self.client.fetch_tree()
@@ -343,6 +350,8 @@ class GitHubIngest:
             repository_id = state.provider_data.get("repository_id")
             if not isinstance(repository_id, int):
                 raise SourceChangedDuringSync("github_state_identity_missing")
+            files_only = Snapshot(state.snapshot.snapshot_id, state.snapshot.source_id, state.snapshot.coverage,
+                                  tuple(i for i in state.snapshot.items if not is_concept_item(i)))
             prior_delta = CandidateDelta.build(
                 self.config.id,
                 state.snapshot.snapshot_id,
@@ -351,10 +360,32 @@ class GitHubIngest:
                 (),
                 sequence=state.sequence,
             )
-            previous = GitHubScan(state.snapshot, prior_delta, state.parser, repository_id, state.notes)
+            previous = GitHubScan(files_only, prior_delta, state.parser, repository_id, state.notes)
         scan = scan_github(fetched.data, self.config.id, previous, GITHUB_PARSER)
-        return GitHubScan(scan.snapshot, scan.delta, scan.parser, scan.repository_id,
-                          tuple(sorted(set(scan.notes) | set(fetched.notes))))
+        concepts = self._concepts(scan, state)
+        items = tuple(sorted((*scan.snapshot.items, *concepts.items), key=lambda item: item.locator.subject_id))
+        coverage = scan.snapshot.coverage
+        snapshot = Snapshot(snapshot_id_for(self.config.id, coverage, items), self.config.id, coverage, items)
+        delta = CandidateDelta.build(
+            self.config.id, state.snapshot.snapshot_id if state else None, snapshot.snapshot_id, GITHUB_PARSER,
+            (*scan.delta.operations, *concepts.operations), sequence=scan.delta.sequence,
+        )
+        return GitHubScan(snapshot, delta, scan.parser, scan.repository_id,
+                          tuple(sorted(set(scan.notes) | set(fetched.notes))), concepts.cache)
+
+    def _concepts(self, scan: GitHubScan, state: SourceState | None) -> ConceptScan:
+        """ADR-0029: per-repository concept usage from the selected files (cached per blob)."""
+        files = [(str(item.locator.extension.fields["path"]), str(item.locator.extension.fields["blob"]))
+                 for item in scan.snapshot.items if not item.held]
+        owner = next((str(item.locator.extension.fields.get("owner_name", "")) for item in scan.snapshot.items), "")
+        cache = state.provider_data.get(CONCEPT_CACHE_KEY, {}) if state is not None else {}
+        return scan_concepts(self.config.id, state.snapshot if state else None, files, scan.snapshot.coverage,
+                             cache if isinstance(cache, dict) else {}, self._blob, scan.repository_id, owner)
+
+    def _blob(self, sha: str) -> bytes:
+        if sha not in self._blobs:
+            self._blobs[sha] = self.client.fetch_blob(sha)
+        return self._blobs[sha]
 
     def evidence_for(self, op: Operation, delta_id: str, sequence: int) -> Evidence | None:
         subject = op.subject_id
@@ -371,27 +402,37 @@ class GitHubIngest:
                 *, retraction: bool) -> Evidence:
         locator = op.before if retraction else op.after
         assert locator is not None
-        path = str(locator.extension.fields["path"])
+        concept = locator.extension.schema == CONCEPT_SCHEMA
+        subject = locator.subject_id
+        signals: tuple[Signal, ...] = ("exposure",)
         if retraction:
             assert previous is not None
             excerpt, content_hash, change_kind = previous.excerpt, previous.content_hash, "retraction"
+            label = previous.subject
+        elif concept:
+            fields = locator.extension.fields
+            excerpt, content_hash = concept_excerpt(fields), str(op.content_hash)
+            change_kind = "assert" if previous is None else "world_change"
+            found = concept_by_id(str(fields["concept_id"]))
+            label = found.label if found is not None else str(fields["concept_id"])
+            signals = capped(github_concept_signal(fields), self.module, self.config.authority.primary_for)
         else:
-            blob = str(locator.extension.fields["blob"])
-            body = self.client.fetch_blob(blob)
+            label = str(locator.extension.fields["path"])
+            body = self._blob(str(locator.extension.fields["blob"]))
             text = " ".join(body.decode("utf-8", errors="replace").split())
             excerpt, content_hash = text[:EXCERPT_CHARS], sha256_bytes(body)
             change_kind = "assert" if previous is None else (
                 "correction" if op.kind == "move" or "parser_upgrade" in op.reasons else "world_change")
         now = utc_now()
         return Evidence(
-            record_type="evidence", id=deterministic_id("evd", f"{delta_id}:{locator.subject_id}"),
+            record_type="evidence", id=deterministic_id("evd", f"{delta_id}:{subject}"),
             schema_version=1, recorded_at=now, valid_from=None, valid_until=None,
             module=self.module,
             provenance=Provenance(source_id=self.config.id, episode=f"sync-{sequence}",
                                   locator=_canonical_locator(locator)),
             trust="untrusted_source", retention=SOURCE_RETENTION, policy_epoch=self.policy_epoch, confidence=None,
             review_status="auto_derived", supersedes=(previous.id,) if previous else (),
-            change_kind=change_kind, subject=path, signals=() if retraction else ("exposure",), excerpt=excerpt,
+            change_kind=change_kind, subject=label, signals=() if retraction else signals, excerpt=excerpt,
             content_hash=content_hash, observed_at=now,
         )
 

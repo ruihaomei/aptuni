@@ -11,6 +11,8 @@ from dataclasses import dataclass
 
 from aptuni.sources.records import ContractError, Extension, Operation
 
+CONCEPT_USAGE = frozenset({"applied", "imported", "declared", "mentioned"})
+
 
 @dataclass(frozen=True)
 class ExtensionSpec:
@@ -40,6 +42,8 @@ class ExtensionRegistry:
             raise ContractError("extension_required_field_missing")
         if keys - spec.required - spec.optional:
             raise ContractError("extension_field_unexpected")
+        if extension.schema == "github.concept" and extension.fields["usage"] not in CONCEPT_USAGE:
+            raise ContractError("github_concept_usage_invalid")
         if extension.schema == "github.activity":
             repository_id = extension.fields["repository_id"]
             if type(repository_id) is not int or repository_id <= 0:
@@ -72,7 +76,8 @@ def default_registry() -> ExtensionRegistry:
         2,
         ExtensionSpec(
             frozenset({"database_id", "notebook_id", "note_id", "revision"}),
-            frozenset({"parent_id", "depth", "sibling_index", "child_count", "subtree_concepts", "excerpt_count"}),
+            frozenset({"parent_id", "depth", "sibling_index", "child_count", "subtree_concepts", "excerpt_count",
+                       "annotated"}),
         ),
     )
     registry.register(
@@ -91,6 +96,11 @@ def default_registry() -> ExtensionRegistry:
             frozenset({"repository_id", "commit", "path", "blob"}),
             frozenset({"owner_name", "mode", "selection_reason"}),
         ),
+    )
+    registry.register(  # ADR-0029: per-repository concept usage, never code text
+        "github.concept",
+        1,
+        ExtensionSpec(frozenset({"concept_id", "repository_id", "usage", "files", "paths"}), frozenset({"owner_name"})),
     )
     registry.register(
         "github.activity",

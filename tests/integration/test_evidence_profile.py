@@ -9,13 +9,13 @@ import pytest
 from aptuni.application.service import AptuniService
 from aptuni.application.workspace import Workspace
 from aptuni.domain.invariants import InvariantError, RecordSet
-from marginnote_fixture import base_cards, build_store
+from marginnote_fixture import build_store, studied_cards
 
 
 def _service(tmp_path: Path, *, authority: bool = True) -> tuple[AptuniService, str, Path]:
     service = AptuniService(Workspace(tmp_path / "state"))
     service.init(tmp_path / "Vault")
-    store = build_store(tmp_path / "mn" / "MarginNotes.sqlite", base_cards())
+    store = build_store(tmp_path / "mn" / "MarginNotes.sqlite", studied_cards())
     source = service.add_marginnote_source(
         store,
         ("NB-A",),
@@ -90,7 +90,7 @@ def test_evidence_change_replaces_the_fact_and_evidence_loss_withdraws_it(tmp_pa
     service.sync(source_id)
     before = {fact.subject: fact.id for fact in service.facts()}
 
-    cards = base_cards()
+    cards = studied_cards()
     cards[4].title = "Bootstrap aggregating"
     del cards[5]
     build_store(store, cards)
@@ -147,7 +147,7 @@ def test_owner_correction_is_not_replaced_by_a_later_source_change(tmp_path: Pat
         if fact.subject == "Ensemble methods › Random forest › Bagging"
     )
     corrected_id = service.edit_profile_fact(original.id, "Studied bootstrap aggregation in depth.")
-    cards = base_cards()
+    cards = studied_cards()
     cards[4].title = "Bootstrap aggregation"
     build_store(store, cards)
 
