@@ -26,7 +26,7 @@ def add_knowledge_command(sub: Any) -> None:
 
 
 def cmd_knowledge(args: argparse.Namespace, service: Any) -> int:
-    states = service.knowledge_states(args.query, modules=tuple(args.modules), limit=max(1, min(args.limit, 200)))
+    states = service.knowledge_states(args.query, modules=tuple(args.modules), limit=max(1, min(args.limit, 100)))
     if args.json:
         print(json.dumps({"states": [state.payload() for state in states]}, ensure_ascii=False, indent=2,
                          sort_keys=True))

@@ -180,3 +180,18 @@ def test_authorize_studied_now_re_derives_through_the_classifier(tmp_path: Path)
     assert RecordSet(service.records().records()).effective_source(
         next(r for r in service.records().records() if r.id == source_id)).authority.primary_for == (STUDIED,)
     assert service.doctor().ok
+
+
+def test_reclassify_never_recreates_a_fact_the_owner_rejected(tmp_path: Path) -> None:
+    service, source_id, _ = _vault(tmp_path)
+    forest = next(f for f in service.facts() if f.statement.endswith("Random forest."))
+    service.review_profile_fact(forest.id, "reject")
+    seq, records = service.snapshot()
+    item = next(e for e in records.current_evidence(source_id) if e.subject.endswith("Random forest"))
+    service._commit([_rederived(item, "legacy-exposure", ("exposure",))], seq)  # an older classifier's downgrade
+
+    preview = service.source_reclassify_preview(source_id)
+    assert preview.upgrades == 1
+    assert service.reclassify_source(source_id, preview.digest).profile_written == 0
+    assert not any("Random forest" in s for s in _exposed_facts(service))
+    assert service.doctor().ok

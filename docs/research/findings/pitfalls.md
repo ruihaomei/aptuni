@@ -37,3 +37,17 @@
 | A complete source pipeline can accumulate tens of thousands of valid Evidence records while leaving Profile empty if no explicit policy bridge consumes them | Keep providers Evidence-only, but run a deterministic canonical Evidence→Profile policy after admission; require an exact strong authority dimension, make the result active before retrospective review, and let Profile activation retrieve exposure Evidence without turning mentions into durable claims (ADR-0028) |
 | Deriving per-item canonical records by rebuilding a growing `RecordSet` (and rescanning `current_facts()`/`ids()`) for each Evidence item is O(N²): fine on fixtures, minutes at the real 27k-Evidence Vault; per-target scans inside validation repeat it at commit and `doctor` | Build supersession, owner-decision, grant and promotion indexes once per snapshot, derive the batch in one pass against the pre-delta view, commit once, and keep a 25k-scale regression with a stated envelope (Review 82 B5) |
 | Resolving a derived record's predecessor from a view that already contains the new source version finds nothing, so the replacement is written as a fresh assertion and owner decisions made one generation earlier stop applying | Resolve lineage against the pre-delta snapshot and walk the whole source-subject lineage; treat an owner reject/edit anywhere in it as permanent, and make the invariant recompute the exact expected predecessor (Review 82 B1/B2) |
+
+## Knowledge model on a real MarginNote library (ADR-0029 rehearsal, 2026-09-30)
+
+- A real library's most frequent card titles are not topics: `(image)` (MarginNote's placeholder for
+  untitled image cards) and role headings such as `Proof`, `Summary`, `EXAMPLE 2`, `总结`. Aggregating
+  by title merged thousands of unrelated cards. Such a card is about its parent; resolve headings to
+  the parent (curated list plus "an unregistered title under ≥5 different parents").
+- NFKC + casefold keeps Latin and CJK in one `\w` token (`xgboost视频笔记`), so an alias never
+  matches. Split at the script boundary before tokenising.
+- Legacy summaries begin with the owner's own title and notebook name, so any regex over Aptuni's
+  summary must anchor on Aptuni's own segment and take the last match (Review 85 N1).
+- Only ~14% of User #1's 26,415 blanket-`studied` cards were isolated one-line cards; most cards in a
+  real study library do organise, collect or annotate. Expect reclassification to narrow, not gut,
+  a Profile.

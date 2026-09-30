@@ -73,10 +73,13 @@ class KnowledgeCommands:
             index = self.knowledge_index(seq, records, modules)
             ranked = [u.canonical_id for u in response.items if u.canonical_id]
             states = index.relevant(query, ranked, MAX_PROFILE_STATES)
-            covered = {evidence_id for state in states for evidence_id in state.evidence_ids}
             sections = [u for u in response.items if u.canonical_id is None]
+            # Only rows a packed unit actually cites are left out (Review 85 N6).
+            units = pack_units((*sections, *(knowledge_unit(s) for s in states)), budget).items
+            kept = [u for u in units if u.kind == "knowledge_state"]
+            covered = {cited for unit in kept for cited in unit.canonical_ids}
             rows = [u for u in response.items if u.canonical_id is not None and not _summarised(u, records, covered)]
-            packed = pack_units((*sections, *(knowledge_unit(s) for s in states), *rows), budget)
+            packed = pack_units((*sections, *kept, *rows), budget)
             return response_from(packed, budget=budget, vault_seq=seq, policy_epoch=response.policy_epoch,
                                  more_results=response.truncated, audience=response.audience)
         raise AptuniError("concurrent_write", "The Vault kept changing during context creation; run it again.")

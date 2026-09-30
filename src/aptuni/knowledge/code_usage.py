@@ -14,7 +14,10 @@ from pathlib import PurePosixPath
 
 from aptuni.knowledge.concepts import CONCEPTS, Concept, normalize
 
-__all__ = ["USAGE_LEVELS", "file_usage", "is_scanned", "strongest_usage"]
+__all__ = ["RULES_VERSION", "USAGE_LEVELS", "file_usage", "is_scanned", "strongest_usage"]
+
+#: Bump when the registry or a rule changes, so cached per-blob usage is recomputed (Review 85 N3).
+RULES_VERSION = 1
 
 USAGE_LEVELS = ("applied", "imported", "declared", "mentioned")  # strongest first
 MANIFEST_NAMES = frozenset({"pyproject.toml", "package.json", "requirements.txt", "cargo.toml", "go.mod",

@@ -397,7 +397,7 @@
 "source.authorize.cancelled" = "已取消，未做任何更改。这个信息源仍只作参考，不会形成 Profile 事实。"
 "source.authorize.done" = "已授权 {source_id}：重新记录 {evidence} 条证据，新增 {profile} 条 Profile 事实。"
 "source.reclassify.title" = "重新检查信息源 {source}（{source_id}）的分类"
-"source.reclassify.effect" = "Aptuni 现在逐条判断，不再给整个信息源贴同一个标签。当前有 {count} 条内容会改变：{down} 条不再算作学过/用过，对应的 Profile 事实不再有效；{up} 条新算作学过/用过，并加入你的 Profile。旧记录作为历史保留，你自己的拒绝和修改继续有效。"
+"source.reclassify.effect" = "Aptuni 现在逐条判断，不再给整个信息源贴同一个标签。当前有 {count} 条内容会改变：{down} 条不再算作学过/用过，对应的 Profile 事实不再有效；{up} 条新算作学过/用过，并形成 Profile 事实（你之前拒绝、修改或清除过的除外）。旧记录作为历史保留，你自己的拒绝和修改继续有效。"
 "source.reclassify.none" = "无需更改：{source_id} 当前的每条内容都已符合现在的分类。"
 "source.reclassify.prompt" = "输入 APPLY 以重新分类："
 "source.reclassify.cancelled" = "已取消，未做任何更改。"

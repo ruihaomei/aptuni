@@ -42,6 +42,12 @@
     "83-beta-evidence-profile-rereview.md"
    ]
   },
+  "beta-knowledge-model": {
+   "kind": "review",
+   "current": "85-beta-knowledge-model-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "beta-stable-readiness-gate": {
    "kind": "review",
    "current": "73-beta-stable-readiness-gate-review.md",

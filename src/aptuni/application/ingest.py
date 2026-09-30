@@ -375,11 +375,18 @@ class GitHubIngest:
 
     def _concepts(self, scan: GitHubScan, state: SourceState | None) -> ConceptScan:
         """ADR-0029: per-repository concept usage from the selected files (cached per blob)."""
+        # A held file or one awaiting identity review is not settled: it feeds no concept, and while one
+        # exists no concept is withdrawn (Review 85 N2).
+        pending = {op.after.subject_id for op in scan.delta.operations
+                   if op.review_state == "needs_review" and op.after is not None}
+        settled = [item for item in scan.snapshot.items if not item.held and item.locator.subject_id not in pending]
         files = [(str(item.locator.extension.fields["path"]), str(item.locator.extension.fields["blob"]))
-                 for item in scan.snapshot.items if not item.held]
+                 for item in settled]
+        unsettled = len(settled) != len(scan.snapshot.items)
+        coverage = "partial" if unsettled else scan.snapshot.coverage
         owner = next((str(item.locator.extension.fields.get("owner_name", "")) for item in scan.snapshot.items), "")
         cache = state.provider_data.get(CONCEPT_CACHE_KEY, {}) if state is not None else {}
-        return scan_concepts(self.config.id, state.snapshot if state else None, files, scan.snapshot.coverage,
+        return scan_concepts(self.config.id, state.snapshot if state else None, files, coverage,
                              cache if isinstance(cache, dict) else {}, self._blob, scan.repository_id, owner)
 
     def _blob(self, sha: str) -> bytes:

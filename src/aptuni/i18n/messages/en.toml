@@ -397,7 +397,7 @@
 "source.authorize.cancelled" = "Cancelled; nothing changed. The source stays reference-only and forms no Profile facts."
 "source.authorize.done" = "Granted {source_id}: {evidence} evidence items re-recorded, {profile} Profile facts added."
 "source.reclassify.title" = "Re-check how source {source} ({source_id}) is classified"
-"source.reclassify.effect" = "Aptuni now judges each item on its own instead of labelling the whole source. {count} current items would change: {down} lose their studied/applied signal, so their Profile facts stop being current; {up} gain one and are added to your Profile. Earlier records stay as history, and your own rejections and edits stay in force."
+"source.reclassify.effect" = "Aptuni now judges each item on its own instead of labelling the whole source. {count} current items would change: {down} lose their studied/applied signal, so their Profile facts stop being current; {up} gain one and form Profile facts, except where you rejected, edited or purged one before. Earlier records stay as history, and your own rejections and edits stay in force."
 "source.reclassify.none" = "Nothing to change: every current item of {source_id} already matches the current classification."
 "source.reclassify.prompt" = "Type APPLY to re-classify: "
 "source.reclassify.cancelled" = "Cancelled; nothing changed."

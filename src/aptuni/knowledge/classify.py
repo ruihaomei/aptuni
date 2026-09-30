@@ -18,7 +18,8 @@ __all__ = ["CONCEPT_SCHEMA", "capped", "classified_signals", "github_concept_sig
            "marginnote_signal"]
 
 CONCEPT_SCHEMA = "github.concept"
-_ANNOTATED = re.compile(r"\b(\d+) annotated\b")
+#: Aptuni's own counts segment of a MarginNote summary; titles come first, so the last match is ours.
+_COUNTS = re.compile(r"\b\d+ excerpts, (\d+) annotated, \d+ sub-concepts\b")
 
 
 def _count(value: Any) -> int:
@@ -29,8 +30,8 @@ def marginnote_signal(fields: Mapping[str, Any], summary: str | None = None) -> 
     """``studied`` for a card that organises, collects or annotates; an isolated card is exposure."""
     annotated = fields.get("annotated")
     if annotated is None and summary:  # pre-ADR-0029 locator: read Aptuni's own summary, else 0
-        match = _ANNOTATED.search(summary)
-        annotated = int(match.group(1)) if match else 0
+        found = _COUNTS.findall(summary)
+        annotated = int(found[-1]) if found else 0
     if _count(fields.get("child_count")) >= 1 or _count(fields.get("excerpt_count")) >= 2 or _count(annotated) >= 1:
         return "studied"
     return "exposure"

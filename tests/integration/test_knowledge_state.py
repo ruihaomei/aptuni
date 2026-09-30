@@ -217,3 +217,54 @@ def test_heading_and_image_cards_count_for_their_parent_topic(tmp_path: Path) ->
     assert {"Worked example", "Proof", "(image)"}.isdisjoint(labels)
     topic = next(s for s in service.knowledge_states(limit=50) if s.label == "Topic 3")
     assert topic.counts["studied"] == 3, "the topic card plus its example and proof cards"
+
+
+def test_a_concept_whose_files_disappear_is_withdrawn_and_replay_is_idempotent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from aptuni.application import ingest
+
+    service = _service(tmp_path)
+    repo = FakeRepo()
+    source_id = _github(service, monkeypatch, repo)
+    repo.put("src/util.py", None)
+    repo.put("requirements.txt", b"xgboost==2.1\npandas\n")
+    original = ingest.SourceStateStore.save
+
+    def crash_once(self, state):  # type: ignore[no-untyped-def]
+        monkeypatch.setattr(ingest.SourceStateStore, "save", original)
+        raise OSError("simulated crash after the canonical commit")
+
+    monkeypatch.setattr(ingest.SourceStateStore, "save", crash_once)
+    with pytest.raises(OSError):
+        service.sync(source_id)
+    before = len(service.records())
+    service.sync(source_id)  # recovers the pending state; nothing is written twice
+
+    assert len(service.records()) == before
+    assert "NumPy" not in _concepts(service, source_id)
+    numpy = [e for e in service.records().current_evidence(source_id) if e.subject == "NumPy"]
+    assert numpy and numpy[0].change_kind == "retraction"
+    assert service.doctor().ok
+
+
+def test_changed_rules_recompute_cached_usage(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from aptuni.sources import github_concepts
+
+    service = _service(tmp_path)
+    repo = FakeRepo()
+    source_id = _github(service, monkeypatch, repo)
+    repo.fetched.clear()
+    monkeypatch.setattr(github_concepts, "RULES_VERSION", 2)
+    service.sync(source_id)
+    assert len(repo.fetched) == 4, "every scanned file is read again under new rules"
+
+
+def test_knowledge_state_units_respect_the_host_module_grant(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    service = _cross_source(tmp_path, monkeypatch)
+    service.remember("I used XGBoost at work", "experience")
+    response = service.profile_context("XGBoost", modules=("experience",), budget=4000, limit=20,
+                                       audience="owner_cli", access=None)
+    states = [u for u in response.items if u.kind == "knowledge_state"]
+    assert states and all("studied" not in u.signals and "applied" not in u.signals for u in states), \
+        "knowledge-module Evidence never leaks into an experience-only request"

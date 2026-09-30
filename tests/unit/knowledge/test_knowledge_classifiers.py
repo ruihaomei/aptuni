@@ -135,3 +135,21 @@ def test_topics_are_not_structural(label: str) -> None:
 
 def test_marginnote_image_placeholder_names_no_topic() -> None:
     assert is_placeholder("(image)") and is_placeholder("  ") and not is_placeholder("Image segmentation")
+
+
+# ---------------------------------------------------------------- Review 85 notes
+
+
+def test_a_title_that_says_annotated_is_not_read_as_an_annotation_count() -> None:
+    legacy = {"child_count": 0, "excerpt_count": 0}
+    summary = "3 annotated examples [Notebook 2 annotated]; 0 excerpts, 0 annotated, 0 sub-concepts, 0 levels below"
+    assert marginnote_signal(legacy, summary) == "exposure"
+
+
+@pytest.mark.parametrize(("path", "code"), [
+    ("src/models.py", "from pydantic import BaseModel\ndef f(x: BaseModel) -> None: ...\n"),
+    ("src/net.py", "import torch\nprint(torch.__version__)\n"),
+    ("src/tf.py", "import tensorflow as tf\nprint(tf.version)\n"),
+])
+def test_a_reference_without_a_call_is_not_applied(path: str, code: str) -> None:
+    assert "applied" not in file_usage(path, code).values()

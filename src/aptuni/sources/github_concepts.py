@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from aptuni.knowledge.classify import CONCEPT_SCHEMA
-from aptuni.knowledge.code_usage import USAGE_LEVELS, file_usage, is_scanned, strongest_usage
+from aptuni.knowledge.code_usage import RULES_VERSION, USAGE_LEVELS, file_usage, is_scanned, strongest_usage
 from aptuni.knowledge.concepts import concept_by_id
 from aptuni.sources.records import Extension, Operation, Snapshot, SnapshotItem, SourceLocator, canonical_json
 
@@ -40,17 +40,18 @@ def is_concept_item(item: SnapshotItem) -> bool:
 
 def _features(files: list[tuple[str, str]], cache: Mapping[str, Any],
               fetch: Callable[[str], bytes]) -> dict[str, Any]:
-    """path -> {"blob", "usage"}; a cached entry is reused only for the identical blob."""
+    """path -> {"blob", "rules", "usage"}; a cached entry is reused only for the same blob and rules."""
     features: dict[str, Any] = {}
     for path, blob in files:
         if not is_scanned(path):
             continue
         cached = cache.get(path)
-        if isinstance(cached, dict) and cached.get("blob") == blob and isinstance(cached.get("usage"), dict):
+        if (isinstance(cached, dict) and cached.get("blob") == blob and cached.get("rules") == RULES_VERSION
+                and isinstance(cached.get("usage"), dict)):
             features[path] = cached
             continue
         text = fetch(blob).decode("utf-8", errors="replace")
-        features[path] = {"blob": blob, "usage": file_usage(path, text)}
+        features[path] = {"blob": blob, "rules": RULES_VERSION, "usage": file_usage(path, text)}
     return features
 
 
