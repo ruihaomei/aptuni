@@ -67,6 +67,15 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 - **Stable publication:** needs UX Gate PASS, Automated Stable Gate PASS and a clean-room Stable
   audit PASS, and then the owner must be asked again.
 
+## Observations inbox (any session; triaged by the next development session)
+
+Append one content-free line per meaningful observation: date · host (Claude Code/Codex) · area ·
+proposed severity (P0–P3 or note) · what happened in product terms (no personal content, queries,
+file names or Vault text) · whether the owner was interrupted. Do not commit from non-development
+sessions; a development session triages lines into the tables below and clears them.
+
+- (empty)
+
 ## Daily log (content-free)
 
 | Day | Date | Journeys exercised | Trials scored | Defects opened / closed | Notes |
