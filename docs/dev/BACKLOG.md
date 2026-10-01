@@ -98,3 +98,6 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Vault invariants do not require the host opt-in to be on when a `host_proposal` candidate has a `policy_auto` promotion; the application gate is the only check | Review 88 N6 | Memory |
 | Notion pages sharing a generic title are treated as one concept by Context diversification (ordering only) | Review 88 N5 | Context API |
 | Add a `context()`-level ordering case to the frozen evaluation so diversification is covered | Review 88 N4 | Evaluation |
+| `_open_host_items` re-derives review state per host memory over the whole Vault on each proposal; index review events once if Agent-saved memories grow | Review 89 note 2 | Memory |
+| A re-sent, still-unreviewed auto-saved proposal reports "saved" even after its module is hidden (accurate, no new data) | Review 89 note 3 | MCP |
+| Add a `context()`-level test that every-keyword matches precede fallback rows after diversification | Review 89 note 4 | Context API |

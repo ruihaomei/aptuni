@@ -27,9 +27,11 @@
   },
   "beta-b9-autosave-diversify": {
    "kind": "review",
-   "current": "88-beta-b9-autosave-diversify-review.md",
-   "verdict": "BLOCK",
-   "supersedes": []
+   "current": "89-beta-b9-autosave-diversify-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "88-beta-b9-autosave-diversify-review.md"
+   ]
   },
   "beta-day0-fixes": {
    "kind": "review",

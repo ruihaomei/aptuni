@@ -6,12 +6,23 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0b9] — 2026-10-01
+
+Agent memory auto-save opt-in and more varied Context. Top-Down Learning stays 0.2.1.
+
 ### Added
 
 - `aptuni memory review policy --host-proposals on` lets memories proposed by your Agent save at
   once instead of waiting for your confirmation. They stay marked as added automatically, wait in
   `aptuni memory review list` for you to keep or revoke, and never become Profile facts; proposals
   about identity, relationships or behaviour still ask first. Off by default.
+
+### Changed
+
+- Profile, Memory and Full activation now list distinct topics before repeats: a note's Fact, its
+  Evidence and nested copies of the same topic no longer fill the budget with one concept, and a
+  single notebook contributes at most three items before others get a turn. Nothing is dropped, and
+  matches on every keyword still come before partial matches.
 
 ### Compatibility
 
