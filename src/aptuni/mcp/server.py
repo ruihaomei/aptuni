@@ -151,8 +151,9 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
         `query` is the task in one sentence. `concepts` (recommended) lists 1-8 short terms or phrases
         the task is about, as they would appear in the user's notes, with English and Chinese forms
         as separate entries (e.g. ["markov chain", "马尔可夫链", "stationary distribution"]). Each
-        concept must match whole, so concepts give precise results and return nothing when the
-        user's notes do not cover them; without concepts the query is matched loosely."""
+        concept must match whole (English words in singular or plural form), so concepts give precise
+        results; if nothing comes back, try a synonym or the other language before concluding the
+        notes do not cover the topic. Without concepts the query is matched loosely."""
         try:
             with authorization_guard():
                 response = activation.activate(

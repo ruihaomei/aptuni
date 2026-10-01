@@ -106,24 +106,41 @@ def fallback_expression(text: str) -> str | None:
 
 
 _ENGLISH_WORD = re.compile(r"^[a-z]{3,}$")
+_SIBILANT = ("s", "x", "z", "ch", "sh")
+_VOWELS = frozenset("aeiou")
+# Words ending in "s" that are not plurals; folding them would match an unrelated word ("news"→"new").
+_NOT_PLURAL = frozenset({"news", "yes", "always", "perhaps", "thus", "plus", "bus", "gas", "this", "its",
+                         "has", "was", "does", "less", "unless", "whereas", "series", "species", "lens"})
 
 
 def _english_forms(term: str) -> list[str]:
-    """Regular English plural/singular variants of an ASCII word (concept mode only, ADR-0030).
+    """Regular English singular/plural pair of an ASCII word, sorted (concept mode only, ADR-0030).
 
-    The index does not stem, so a host concept "markov chain" must still match "Markov chains".
-    Words of one or two letters and non-English terms stay exact.
+    The index does not stem, so a host concept "markov chain" must still match "Markov chains" and
+    "probability" must match "probabilities". Only regular inflection is produced: -s, -es after
+    s/x/z/ch/sh, and consonant-y ↔ -ies. A word ending in -ss, -us or -is, or listed as not plural,
+    is never stripped, and no form shorter than three letters is produced, so folding cannot turn
+    "notes" into "not" or "planes" into "plan".
     """
     if not _ENGLISH_WORD.fullmatch(term):
         return [term]
-    if not term.endswith("s"):
-        return [term, term + "s"]
-    forms = [term, term[:-1]]
-    if term.endswith("es"):
-        forms.append(term[:-2])
-    if term.endswith("ies"):
-        forms.append(term[:-3] + "y")
-    return list(dict.fromkeys(forms))
+    forms = {term}
+    if term.endswith(("ss", "us", "is")) or term in _NOT_PLURAL:
+        if term.endswith("ss"):
+            forms.add(term + "es")
+    elif term.endswith("ies") and len(term) > 4:
+        forms.add(term[:-3] + "y")
+    elif term.endswith("es") and term[:-2].endswith(_SIBILANT):
+        forms.add(term[:-2])
+    elif term.endswith("s"):
+        forms.add(term[:-1])
+    elif term.endswith(_SIBILANT):
+        forms.add(term + "es")
+    elif term.endswith("y") and term[-2] not in _VOWELS:
+        forms.add(term[:-1] + "ies")
+    else:
+        forms.add(term + "s")
+    return sorted(form for form in forms if len(form) >= 3)
 
 
 def _term_expression(term: str) -> str:
@@ -139,7 +156,7 @@ def _group_expression(group: list[str]) -> str:
 def concept_expressions(concept: str) -> tuple[str | None, str | None]:
     """Return the strict and relaxed expressions for one host-supplied concept (ADR-0030).
 
-    Strict requires every keyword of the concept (English words in any regular plural/singular form).
+    Strict requires every keyword of the concept (an English word in its regular singular or plural form).
     A concept of three or more keywords that matches
     nothing may relax to its adjacent keyword pairs; it never degrades to a single keyword, which is
     what lets generic words ("training", "plan") leak in the plain-query fallback (KI-018).

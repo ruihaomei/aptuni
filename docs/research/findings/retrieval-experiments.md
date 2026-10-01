@@ -47,14 +47,16 @@ in nine categories (English, Chinese, mixed, cross-lingual, task-shaped, long na
 only-some-terms-matter, generic-term, should-return-nothing ×12) plus dogfooding-derived ones; for
 each, a host-style concept list (bilingual alternates as separate entries) also written blind.
 Judging: top-5 pooled from every system, graded by hand 0/1/2 ("would an Agent understand the user
-better with this?"), 1,275 judgments; metrics at k=5 where every system is fully judged.
+better with this?") by the implementing agent, 1,282 judgments; metrics at k=5 where every system is fully judged.
 
-**Results** — see the table in ADR-0030. Shipped: host concepts matched whole (nDCG@5 0.629→0.847,
+**Results** — see the table in ADR-0030. Shipped: host concepts matched whole (nDCG@5 0.629→0.866,
 P@5 0.74→0.98, MRR 0.80→1.00, should-be-empty leakage 67%→0%, distinct useful concepts 3.7→4.9,
 ~2 ms search; total request latency unchanged at ~0.6 s, dominated by the Vault snapshot). Review 90
 found that strict matching missed other word forms: with every concept's last English word in the
-other plural form, strict scored 0.606 (14% empty), prefix matching 0.685, regular plural folding
-0.843 — folding shipped. Concept-count dominance in ranking changed no result.
+other plural form, strict scored 0.606 (14% empty) and prefix matching 0.685. A naive folding rule
+(strip any -s/-es) let "notes" match "not" (Review 91); the shipped morphology-aware rule (-es only
+after s/x/z/ch/sh, -y↔-ies, -ss/-us/-is and listed non-plurals untouched) scores 0.866 as written.
+Concept-count dominance in ranking changed no result.
 
 **What the failures taught.**
 

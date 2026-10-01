@@ -26,18 +26,38 @@ def test_concept_expressions_are_strict_and_relax_only_to_adjacent_pairs() -> No
     assert concept_expressions("machine translation") == (
         '("machine" OR "machines") AND ("translation" OR "translations")', None)
     strict, relaxed = concept_expressions("markov chain stationary distribution")
-    assert strict == ('("markov" OR "markovs") AND ("chain" OR "chains") AND ("stationary" OR "stationarys") '
+    assert strict == ('("markov" OR "markovs") AND ("chain" OR "chains") AND ("stationaries" OR "stationary") '
                       'AND ("distribution" OR "distributions")')
     assert relaxed is not None and relaxed.count(" OR (") == 2 and '"chain" OR "chains"' in relaxed
 
 
-def test_english_keywords_fold_plural_forms_in_concept_mode() -> None:
-    assert concept_expressions("chains")[0] == '("chains" OR "chain")'
-    assert concept_expressions("matrices")[0] == '("matrices" OR "matrice" OR "matric")'
-    assert concept_expressions("probabilities")[0] == (
-        '("probabilities" OR "probabilitie" OR "probabiliti" OR "probability")')
-    assert concept_expressions("sql")[0] == '("sql" OR "sqls")'
-    assert concept_expressions("r")[0] == '"r"'  # two letters or fewer stay exact
+def test_english_keywords_fold_regular_plural_forms_both_ways() -> None:
+    pairs = {
+        "chains": '("chain" OR "chains")', "chain": '("chain" OR "chains")',
+        "probabilities": '("probabilities" OR "probability")', "probability": '("probabilities" OR "probability")',
+        "processes": '("process" OR "processes")', "process": '("process" OR "processes")',
+        "boxes": '("box" OR "boxes")', "box": '("box" OR "boxes")',
+        "matches": '("match" OR "matches")', "notes": '("note" OR "notes")', "planes": '("plane" OR "planes")',
+        "news": '"news"', "analysis": '"analysis"', "r": '"r"',
+    }
+    for word, expression in pairs.items():
+        assert concept_expressions(word)[0] == expression, word
+
+
+def test_plural_folding_never_yields_an_unrelated_common_word(tmp_path: Path) -> None:
+    projection = _projection(tmp_path, {
+        "fct_not": "We did not release the build.",
+        "fct_lecture": "The lecture was not recorded this week.",
+        "fct_plan": "Weekly plan for the semester.",
+        "fct_new": "A new phone.",
+    })
+    for concept in ("release notes", "lecture notes", "planes", "news"):
+        assert projection.search_concepts((concept,), limit=5) == [], concept
+
+
+def test_singular_concepts_find_irregular_looking_plurals(tmp_path: Path) -> None:
+    projection = _projection(tmp_path, {"fct_p": "Conditional probabilities and boxes.", "fct_x": "Unrelated."})
+    assert [r.record_id for r in projection.search_concepts(("conditional probability", "box"), limit=5)] == ["fct_p"]
 
 
 def test_a_concept_matches_a_different_plural_form(tmp_path: Path) -> None:
@@ -153,17 +173,21 @@ def test_full_skill_asks_for_concepts() -> None:
 
 
 def test_more_matched_concepts_always_rank_first_even_with_many_concepts(tmp_path: Path) -> None:
-    texts = {f"fct_three_{i}": f"alpha beta gamma filler{i}" for i in range(12)}
-    texts["fct_four"] = "alpha beta gamma delta"
+    # Short single-concept records outrank the long four-concept record inside every concept list, and
+    # one short three-concept record tops three lists; the four-concept record must still come first.
+    texts = {f"fct_{word}_{i}": word for word in ("alpha", "beta", "gamma", "delta") for i in range(10)}
+    texts["fct_three"] = "alpha beta gamma"
+    texts["fct_four"] = "alpha beta gamma delta " + " ".join(f"filler{i}" for i in range(40))
     projection = _projection(tmp_path, texts)
-    rows = projection.search_concepts(("alpha", "beta", "gamma", "delta"), limit=20)
-    assert rows[0].record_id == "fct_four"
+    rows = projection.search_concepts(("alpha", "beta", "gamma", "delta"), limit=50)
+    assert [row.record_id for row in rows[:2]] == ["fct_four", "fct_three"]
 
 
 def test_concepts_differing_only_in_case_or_punctuation_count_once(tmp_path: Path) -> None:
     projection = _projection(tmp_path, {"fct_ml": "Machine learning workflow.", "fct_dl": "Deep learning notes."})
-    rows = projection.search_concepts(("Machine Learning", "machine-learning", "deep learning"), limit=5)
-    assert rows[0].score == rows[1].score  # the duplicate did not add a second point
+    rows = projection.search_concepts(
+        ("Machine Learning", "machine-learning", "machine learnings", "deep learning"), limit=5)
+    assert rows[0].score == rows[1].score  # the duplicates did not add a second point
 
 
 def test_profile_and_memory_intents_pass_concepts(service: AptuniService) -> None:
@@ -186,7 +210,12 @@ def test_profile_and_memory_intents_pass_concepts(service: AptuniService) -> Non
             "modules": ["preferences"],
         })
         assert not [i for i in remembered.structured_content["context"]["items"] if i["layer"] == "L3"]
-        assert memory.memory_id is not None
+        found = await server.call_tool("aptuni_activate_context", {
+            "intent": "aptuni.memory", "query": "teach me", "concepts": ["markov chains"],
+            "modules": ["preferences"],
+        })
+        assert [i["canonical_id"] for i in found.structured_content["context"]["items"]
+                if i["layer"] == "L3"] == [memory.memory_id]
 
     anyio.run(exercise)
 

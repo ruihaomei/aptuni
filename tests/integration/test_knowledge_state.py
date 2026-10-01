@@ -268,3 +268,13 @@ def test_knowledge_state_units_respect_the_host_module_grant(tmp_path: Path, mon
     states = [u for u in response.items if u.kind == "knowledge_state"]
     assert states and all("studied" not in u.signals and "applied" not in u.signals for u in states), \
         "knowledge-module Evidence never leaks into an experience-only request"
+
+
+def test_profile_concepts_select_the_knowledge_state_the_query_does_not_name(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = _cross_source(tmp_path, monkeypatch)
+    response = service.profile_context("help me plan my next project", modules=("knowledge",), budget=4000,
+                                       limit=20, audience="owner_cli", access=None, concepts=("xgboost",))
+    states = [unit for unit in response.items if unit.kind == "knowledge_state"]
+    assert states and states[0].text.startswith("Knowledge state · XGBoost")
