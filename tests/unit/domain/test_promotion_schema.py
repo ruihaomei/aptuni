@@ -63,9 +63,16 @@ class ReviewEventVersionTests(unittest.TestCase):
             parse_record(_event(schema_version=4))
         self.assertIn("migration", str(caught.exception))
 
-    def test_other_record_types_stay_at_version_one(self) -> None:
-        with self.assertRaises(SchemaVersionError):
+    def test_review_policy_version_two_exists_only_for_the_host_opt_in(self) -> None:
+        # ADR-0018 2026-10-01: schema 2 is recorded exactly when Agent proposals save automatically.
+        with self.assertRaises(ValueError):
             parse_record(_policy(schema_version=2))
+        with self.assertRaises(ValueError):
+            parse_record(_policy(auto_promote_host_proposals=True))
+        self.assertTrue(parse_record(_policy(schema_version=2, auto_promote_host_proposals=True))
+                        .auto_promote_host_proposals)
+        with self.assertRaises(SchemaVersionError):
+            parse_record(_policy(schema_version=3))
 
     def test_policy_auto_and_pin_are_rejected_at_version_one(self) -> None:
         for overrides in (

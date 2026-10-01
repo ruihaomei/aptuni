@@ -17,8 +17,10 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    SerializerFunctionWrapHandler,
     TypeAdapter,
     field_validator,
+    model_serializer,
     model_validator,
 )
 
@@ -250,7 +252,7 @@ class ReviewPolicy(Frozen):
 
     record_type: Literal["review_policy"]
     id: RecordId
-    schema_version: Literal[1]
+    schema_version: Literal[1, 2]
     recorded_at: AwareDatetime
     epoch: int = Field(ge=0)
     auto_promotion_enabled: bool = True
@@ -258,6 +260,21 @@ class ReviewPolicy(Frozen):
     pending_threshold: int = Field(default=10, ge=1, le=10_000)
     interval_days: int = Field(default=15, ge=1, le=3650)
     snooze_days: int = Field(default=15, ge=1, le=3650)
+    # Schema 2 (ADR-0018 2026-10-01 amendment): the owner lets Agent proposals save without asking.
+    auto_promote_host_proposals: bool = False
+
+    @model_validator(mode="after")
+    def _host_opt_in_needs_schema_2(self) -> ReviewPolicy:
+        if self.auto_promote_host_proposals != (self.schema_version == 2):
+            raise ValueError("auto_promote_host_proposals is recorded exactly when schema_version is 2")
+        return self
+
+    @model_serializer(mode="wrap")
+    def _schema_1_stays_byte_identical(self, handler: SerializerFunctionWrapHandler) -> Any:
+        data = handler(self)
+        if self.schema_version == 1 and isinstance(data, dict):
+            data.pop("auto_promote_host_proposals", None)  # older readers forbid unknown fields
+        return data
 
 
 class AuthorityPolicy(Frozen):
@@ -307,7 +324,7 @@ _RECORD_ADAPTER: TypeAdapter[CanonicalRecord] = TypeAdapter(
 
 #: Versions this build can read, per record type. Only ``review_event`` has ever needed a second
 #: version (ADR-0018 §7); bumping one type does not rewrite the version of any other.
-SUPPORTED_SCHEMA_VERSIONS: dict[str, tuple[int, ...]] = {"review_event": (1, 2, 3)}
+SUPPORTED_SCHEMA_VERSIONS: dict[str, tuple[int, ...]] = {"review_event": (1, 2, 3), "review_policy": (1, 2)}
 
 
 def supported_versions(record_type: Any) -> tuple[int, ...]:

@@ -299,7 +299,7 @@
 "consent.capability.memory.propose" = "提出新的记忆建议"
 "consent.optional_suffix" = "（可选）"
 "consent.propose" = "它可以提出记忆建议："
-"consent.detail.memory.propose" = "每条建议会作为待审核项保存在你的 Vault 中；只有你在 'aptuni memory review list' 里接受后，它才会成为记忆。被拒绝的建议会留在历史记录中，直到你主动清除。"
+"consent.detail.memory.propose" = "每条建议会作为待审核项保存在你的 Vault 中；只有你在 'aptuni memory review list' 里接受后，它才会成为记忆。被拒绝的建议会留在历史记录中，直到你主动清除。如果你开启 'aptuni memory review policy --host-proposals on'，身份、人际关系和行为以外的建议会直接保存，并在 'aptuni memory review list' 中等你撤销或保留。"
 "consent.withheld.memory.propose" = "提出新的记忆建议 — 未授予"
 "consent.write" = "它能否修改你已有的 Profile、记忆或信息源："
 "consent.write_none" = "不能 — 这次授权里没有任何权限可以编辑或删除它们"

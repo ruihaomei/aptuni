@@ -184,3 +184,35 @@ due/snooze/threshold arithmetic over a frozen clock; the derived marker appearin
 Context API and MCP; MCP proven unable to promote, accept, edit, reject or pin; `parse_record`
 accepting v1 and v2 `ReviewEvent`s and rejecting v3; and a 0.1.0-compatibility test asserting the
 clean `SchemaVersionError`.
+
+## Amendments
+
+### 2026-10-01 — Owner opt-in: Agent proposals save without confirmation
+
+The maintainer decided on 2026-10-01 (dogfooding Day 1) that Agent memory proposals should save
+without a per-proposal confirmation. This narrows §2 rule 2 and §8 only behind an explicit owner
+switch; the default is unchanged.
+
+- `ReviewPolicy` gains schema version 2 carrying `auto_promote_host_proposals` (default false). The
+  field is recorded exactly when it is true; a version-1 policy serializes byte-identically to before.
+  The owner sets it only from the CLI: `aptuni memory review policy --host-proposals on|off`.
+- With it on, a candidate whose every supporting Observation is an MCP `host_proposal` passes rule 2
+  with reason `host_proposal_allowed`. Every other rule still applies: `ingest`/`expose` denials,
+  `auto_promotion_enabled`, the sensitive-module set (default identity, relationships, behavior, which
+  still ask) and contradictions in force. Host input filtering (credential, private-key, transcript
+  and instruction-shaped patterns) and the per-origin pending limit run before evaluation as before.
+- The promotion is the core's own policy (`actor="policy_auto"`), never the host: MCP still cannot
+  accept, edit, reject, pin or itself decide a promotion. The resulting Memory keeps
+  `trust="host_proposal"`, is marked `auto_promoted_pending_review`, counts toward reminders and is
+  revoked like any other. ADR-0020 is unchanged: a host-originated Memory never becomes a Profile Fact.
+- With it off (the default), a host proposal still never reaches the evaluator (Review 56 N5 gate).
+- `aptuni_propose_memory` returns `status="saved_pending_owner_review"` and the `memory_id` when it
+  saved; consent texts name the switch.
+
+Risk accepted by the owner: a prompt-injected or mistaken Agent can make a wrong Memory exposable to
+later activations before the owner reviews it. It is bounded by the grant's modules and
+`memory.propose` scope, the sensitive set, input filtering, the visible pending marker and one-step
+revocation. Compatibility: 0.2.0b8 and older refuse a Vault holding a version-2 `ReviewPolicy` with
+the clean `SchemaVersionError`; switching the option off records a version-1 policy again but older
+readers still meet the earlier version-2 record, so downgrade needs a backup restore. Regressions:
+`tests/integration/test_host_auto_save.py`, `tests/unit/domain/test_promotion_schema.py`.

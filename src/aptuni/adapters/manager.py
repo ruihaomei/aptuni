@@ -324,7 +324,9 @@ class AdapterManager:
             f"Scopes: {', '.join(plan.scopes)}\nHost/model egress: allowed\nOperator: {plan.operator}\n"
             f"Destination: {plan.destination}\nRetention/deletion: externally controlled; details unknown\n"
             + ("Memory proposals: the agent may propose memories; they stay hidden until you accept them "
-               "with 'aptuni memory accept'\n" if PROPOSE_SCOPE in plan.scopes else "")
+               "with 'aptuni memory accept', unless you choose 'aptuni memory review policy "
+               "--host-proposals on' (then they are saved at once and stay reviewable)\n"
+               if PROPOSE_SCOPE in plan.scopes else "")
             +
             "Effect: create an Aptuni-owned grant and adapter bundle; host config is not modified."
         )

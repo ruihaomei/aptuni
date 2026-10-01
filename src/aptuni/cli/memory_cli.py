@@ -72,6 +72,8 @@ def _add_review_commands(memory_sub: Any) -> None:
     snooze.add_argument("--json", action="store_true")
     policy = review_sub.add_parser("policy", help="show or change how eagerly Aptuni promotes")
     policy.add_argument("--auto-promotion", choices=("on", "off"))
+    policy.add_argument("--host-proposals", choices=("on", "off"),
+                        help="on: save Agent proposals without asking (still reviewable; sensitive modules ask)")
     policy.add_argument("--pending-threshold", type=int)
     policy.add_argument("--interval-days", type=int)
     policy.add_argument("--snooze-days", type=int)
@@ -156,6 +158,8 @@ def _cmd_review_policy(args: argparse.Namespace, service: Any) -> int:
     changes: dict[str, Any] = {}
     if args.auto_promotion is not None:
         changes["auto_promotion_enabled"] = args.auto_promotion == "on"
+    if args.host_proposals is not None:
+        changes["auto_promote_host_proposals"] = args.host_proposals == "on"
     for flag, field in (("pending_threshold", "pending_threshold"), ("interval_days", "interval_days"),
                         ("snooze_days", "snooze_days")):
         value = getattr(args, flag)
@@ -164,6 +168,7 @@ def _cmd_review_policy(args: argparse.Namespace, service: Any) -> int:
     policy = service.set_review_policy(**changes) if changes else service.review_policy()
     if args.json:
         _dump({"auto_promotion_enabled": policy.auto_promotion_enabled,
+               "auto_promote_host_proposals": policy.auto_promote_host_proposals,
                "sensitive_modules": list(policy.sensitive_modules),
                "pending_threshold": policy.pending_threshold,
                "interval_days": policy.interval_days, "snooze_days": policy.snooze_days})
@@ -171,6 +176,8 @@ def _cmd_review_policy(args: argparse.Namespace, service: Any) -> int:
     state = "on" if policy.auto_promotion_enabled else "off"
     print(
         f"Automatic promotion: {state}" + "\n" +
+        "Agent proposals: " + ("saved automatically, reviewable later" if policy.auto_promote_host_proposals
+                               else "wait for your confirmation") + "\n" +
         f"Always asks first for: {', '.join(policy.sensitive_modules) or '(nothing)'}" + "\n" +
         f"Reminds at: {policy.pending_threshold} pending, or after {policy.interval_days} days" + "\n" +
         f"Snooze length: {policy.snooze_days} days"

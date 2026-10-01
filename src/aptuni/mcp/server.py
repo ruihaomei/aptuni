@@ -201,8 +201,9 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
         module: Module,
         idempotency_key: Annotated[str | None, Field(max_length=128)] = None,
     ) -> dict[str, object]:
-        """Propose one bounded user-context statement for terminal review. It stays hidden, and Aptuni
-        rejects recognizable credential, private-key, transcript, and instruction-shaped patterns."""
+        """Propose one bounded user-context statement. It stays hidden for terminal review unless the
+        owner chose to save Agent proposals automatically (still reviewable), and Aptuni rejects
+        recognizable credential, private-key, transcript, and instruction-shaped patterns."""
         try:
             with authorization_guard():
                 if activation_required:
@@ -210,6 +211,9 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
                 proposal = application.propose_from_host(statement, module, current_access(), idempotency_key)
         except AptuniError as error:
             raise _tool_error(error) from error
+        if proposal.memory_id is not None:  # the owner let Agent proposals save (ADR-0018 2026-10-01)
+            return {"schema_version": 1, "candidate_id": proposal.candidate_id, "created": proposal.created,
+                    "status": "saved_pending_owner_review", "memory_id": proposal.memory_id}
         return {"schema_version": 1, "candidate_id": proposal.candidate_id, "created": proposal.created,
                 "status": "pending_owner_review"}
 

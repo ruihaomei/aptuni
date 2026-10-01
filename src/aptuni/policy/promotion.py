@@ -46,16 +46,27 @@ def review_policy_of(records: RecordSet) -> ReviewPolicy:
     return max(policies, key=lambda r: (r.epoch, r.recorded_at))
 
 
-def _owner_stated(candidate: Any, records: RecordSet) -> bool:
-    """True when every supporting Observation is the owner speaking through the CLI.
-
-    A `host_proposal` never qualifies. A candidate whose support cannot be resolved does not
-    qualify either, so a dangling link asks rather than promotes.
-    """
+def _supports(candidate: Any, records: RecordSet) -> list[Any] | None:
+    """The candidate's supporting records, or None when any link is dangling (asks, never promotes)."""
     supports = [records.get(rid) for rid in candidate.derived_from if rid in records.ids()]
     if len(supports) != len(candidate.derived_from) or not supports:
-        return False
-    return all(r.trust == "user_declared" and r.provenance.episode == "cli" for r in supports)
+        return None
+    return supports
+
+
+def _owner_stated(candidate: Any, records: RecordSet) -> bool:
+    """True when every supporting Observation is the owner speaking through the CLI."""
+    supports = _supports(candidate, records)
+    return supports is not None and all(
+        r.trust == "user_declared" and r.provenance.episode == "cli" for r in supports)
+
+
+def _host_proposed(candidate: Any, records: RecordSet) -> bool:
+    """True when every supporting Observation is an MCP host proposal (ADR-0018 2026-10-01)."""
+    supports = _supports(candidate, records)
+    return supports is not None and all(
+        r.record_type == "observation" and r.trust == "host_proposal"
+        and r.provenance.episode.startswith("mcp:") for r in supports)
 
 
 def _contradicts_record_in_force(candidate: Any, records: RecordSet) -> bool:
@@ -87,9 +98,12 @@ def evaluate_candidate(candidate: Any, records: RecordSet, policy: ReviewPolicy)
         (switch is None or not switch.ingest_enabled, "module_ingest_disabled"),
         (switch is not None and not switch.expose_enabled, "module_expose_disabled"),
     )
+    owner_stated = _owner_stated(candidate, records)
+    host_allowed = (not owner_stated and policy.auto_promote_host_proposals
+                    and _host_proposed(candidate, records))
     questions = (
         (not policy.auto_promotion_enabled, "auto_promotion_disabled"),
-        (not _owner_stated(candidate, records), "not_owner_stated"),
+        (not owner_stated and not host_allowed, "not_owner_stated"),
         (candidate.module in policy.sensitive_modules, "sensitive_module"),
         (_contradicts_record_in_force(candidate, records), "contradicts_record_in_force"),
     )
@@ -97,7 +111,7 @@ def evaluate_candidate(candidate: Any, records: RecordSet, policy: ReviewPolicy)
         for applies, reason in rules:
             if applies:
                 return PromotionOutcome(action, reason)  # type: ignore[arg-type]
-    return PromotionOutcome("promote", "owner_stated")
+    return PromotionOutcome("promote", "owner_stated" if owner_stated else "host_proposal_allowed")
 
 
 def review_state_of(memory: Any, records: RecordSet) -> ReviewState:

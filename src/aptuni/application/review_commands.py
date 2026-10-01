@@ -112,11 +112,13 @@ class ReviewCommands:
         seq, records = self.snapshot()
         current = review_policy_of(records)
         try:
+            fields = {**current.model_dump(exclude={"record_type", "id", "schema_version",
+                                                     "recorded_at", "epoch"}), **changes}
+            fields.setdefault("auto_promote_host_proposals", False)
             updated = ReviewPolicy(
-                record_type="review_policy", id=new_id("rvp"), schema_version=1,
-                recorded_at=utc_now(), epoch=current.epoch + 1,
-                **{**current.model_dump(exclude={"record_type", "id", "schema_version",
-                                                 "recorded_at", "epoch"}), **changes},
+                record_type="review_policy", id=new_id("rvp"),
+                schema_version=2 if fields["auto_promote_host_proposals"] is True else 1,
+                recorded_at=utc_now(), epoch=current.epoch + 1, **fields,
             )
         except (ValidationError, ValueError, TypeError) as error:
             raise AptuniError("invalid_review_policy", "That review policy is not valid.") from error

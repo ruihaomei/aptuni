@@ -299,7 +299,7 @@
 "consent.capability.memory.propose" = "Suggest new memories"
 "consent.optional_suffix" = " (optional)"
 "consent.propose" = "It may suggest memories:"
-"consent.detail.memory.propose" = "Each suggestion is saved in your Vault as a pending item. It becomes Memory only if you accept it in 'aptuni memory review list'; a rejected suggestion stays in history until you purge it."
+"consent.detail.memory.propose" = "Each suggestion is saved in your Vault as a pending item. It becomes Memory only if you accept it in 'aptuni memory review list'; a rejected suggestion stays in history until you purge it. If you turn on 'aptuni memory review policy --host-proposals on', suggestions outside identity, relationships and behavior are saved at once and wait in 'aptuni memory review list' for you to revoke or keep."
 "consent.withheld.memory.propose" = "Suggest new memories — not granted"
 "consent.write" = "It can change your existing Profile, Memory or sources:"
 "consent.write_none" = "No — no permission in this grant can edit or delete them"

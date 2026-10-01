@@ -39,7 +39,7 @@ from aptuni.domain.temporal import utc_now
 from aptuni.memory.mem0_local import create_local_mem0_client
 from aptuni.memory.provider import ClientFactory, Mem0Projection, ProjectionStatus, RebuildReport
 from aptuni.policy.modules import can_ingest
-from aptuni.policy.promotion import review_state_of
+from aptuni.policy.promotion import review_policy_of, review_state_of
 from aptuni.vault.locks import source_operations_lock
 
 MEMORY_RETENTION = RetentionLabel(retention_class="canonical", purpose="interaction_memory", expires_at=None,
@@ -178,10 +178,11 @@ class MemoryCommands:
             raise AptuniError("invalid_observation", "The observation is not valid.") from error
         # ADR-0018: promotion is part of this commit, so a memory can never exist without the
         # event that admitted it, and a crash cannot leave the candidate half-promoted. A host
-        # proposal never even reaches the evaluator: §8 says MCP never triggers one, and a
-        # structural gate keeps that true without depending on two field values (Review 56 N5).
+        # proposal reaches the evaluator only when the owner opted in (2026-10-01 amendment); the
+        # structural gate otherwise keeps §8 true without depending on field values (Review 56 N5).
+        host_opt_in = origin == "host" and review_policy_of(records).auto_promote_host_proposals
         promoted = (promotion_records(candidate, records, policy.epoch, (observation, candidate))
-                    if origin == "cli" else [])
+                    if origin == "cli" or host_opt_in else [])
         try:
             self._commit([observation, candidate, *promoted], seq)
         except AptuniError as error:
