@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `aptuni memory review policy --host-proposals on` lets memories proposed by your Agent save at
+  once instead of waiting for your confirmation. They stay marked as added automatically, wait in
+  `aptuni memory review list` for you to keep or revoke, and never become Profile facts; proposals
+  about identity, relationships or behaviour still ask first. Off by default.
+
+### Compatibility
+
+- Turning the option on records a version-2 review policy; 0.2.0b8 and older then refuse to open the
+  Vault (restore a backup to downgrade).
+
 ## [0.2.0b8] — 2026-10-01
 
 Day 1 dogfooding fixes for Agent activation. Top-Down Learning stays 0.2.1.
