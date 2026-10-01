@@ -21,8 +21,9 @@ opt-in to save Agent memory proposals without confirmation (ADR-0018 2026-10-01 
 diversification (ADR-0005 2026-10-01 amendment) from local MVP retrieval experiments
 (`docs/research/findings/retrieval-experiments.md`: dedupe-and-demote adopted; jieba and a small dense
 model rejected). The Claude grant now includes `memory.propose` (grant-2176e4d82effbba1, plugin
-reinstalled). Reviews 88 BLOCK → 89 APPROVE WITH NON-BLOCKING NOTES. **0.2.0b9 is being published
-(2026-10-01, maintainer-requested).** Next: upgrade the owner's install, then run `aptuni memory review policy --host-proposals on` for the owner.
+reinstalled). Reviews 88 BLOCK → 89 APPROVE WITH NON-BLOCKING NOTES. **0.2.0b8 and 0.2.0b9 are public (2026-10-01;
+records `docs/dev/releases/0.2.0b8.md`, `0.2.0b9.md`).** User #1 runs 0.2.0b9 with Agent auto-save on
+(backup taken first). Next: keep dogfooding; triage the inbox; BACKLOG holds Review 88/89 notes.
 
 **Day 1 dogfooding P1 fixes (2026-10-01, local, not released).** A real `/aptuni:full` task got no
 usable context. Root causes (the Vault and server were correct): Agent keyword-list queries had no
@@ -32,7 +33,7 @@ test-first under ADR-0004 and ADR-0025 2026-10-01 amendments: whole-keyword fall
 whitespace/punctuation-separated keywords (frozen S03 metrics unchanged), guided refusal messages
 built only from module/scope names, `aptuni_activation_status` adds `granted_modules` and
 `memory_proposals`, proposal checks scope before session, Full skill guidance. Review 86 BLOCK →
-remediated → Review 87 APPROVE WITH NON-BLOCKING NOTES; checkpoint `8795336`. **0.2.0b8 is being published (maintainer said "发布 b8：Yes" on 2026-10-01).** after upgrading, regenerate the Claude/Codex bundles to get the
+remediated → Review 87 APPROVE WITH NON-BLOCKING NOTES; checkpoint `8795336`. **0.2.0b8 is public (2026-10-01).** after upgrading, regenerate the Claude/Codex bundles to get the
 new skill text, and re-plan the adapter with `--allow-memory-proposals` if Agents should save memories.
 
 **General Knowledge Evidence Model (ADR-0029) is implemented, reviewed and public as Aptuni 0.2.0b7.** Authority is a ceiling (Vault invariant), MarginNote cards and GitHub concept items are
