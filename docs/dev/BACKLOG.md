@@ -98,4 +98,3 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Vault invariants do not require the host opt-in to be on when a `host_proposal` candidate has a `policy_auto` promotion; the application gate is the only check | Review 88 N6 | Memory |
 | Notion pages sharing a generic title are treated as one concept by Context diversification (ordering only) | Review 88 N5 | Context API |
 | Add a `context()`-level ordering case to the frozen evaluation so diversification is covered | Review 88 N4 | Evaluation |
-
