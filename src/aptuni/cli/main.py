@@ -144,6 +144,8 @@ def _add_context_commands(sub: Any) -> None:
     context.add_argument("--budget", type=int, default=1500, metavar="UNITS")
     context.add_argument("--limit", type=int, default=20)
     context.add_argument("--evidence", action="store_true", help="allow minimized L4 Evidence")
+    context.add_argument("--concept", action="append", dest="concepts", metavar="TEXT",
+                         help="match this concept whole (repeatable, up to 8; ADR-0030)")
     context.add_argument("--json", action="store_true")
 
 
@@ -598,6 +600,7 @@ def _cmd_context(args: argparse.Namespace, service: AptuniService) -> int:
         budget=args.budget,
         include_evidence=args.evidence,
         limit=args.limit,
+        concepts=tuple(args.concepts or ()),
     )
     if args.json:
         _print_json(_context_json(response))

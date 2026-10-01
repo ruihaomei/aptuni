@@ -1,6 +1,6 @@
 # Project State
 
-**Updated:** 2026-10-01
+**Updated:** 2026-10-02
 **Current gate:** Beta productization — canonical activation, plugin-declared context and the
 Top-Down Learning flagship are independently approved and the machine-readable Stable readiness
 gate is runnable (Review 73), and Top-Down Learning is Flagship Plugin #1 with a portable verified
@@ -15,6 +15,16 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 `https://github.com/ruihaomei/aptuni`; `main` tracks `origin/main`.
 
 ## Current fix — Day 1 dogfooding P1s
+
+**Retrieval investigation → ADR-0030 (2026-10-02, local, not released).** Maintainer brief: own
+retrieval quality. Local read-only experiments on User #1's Vault (62 queries, 1,158 graded
+judgments; findings in `docs/research/findings/retrieval-experiments.md`) found that letting the host
+name `concepts`, each matched whole, beats b9 decisively (nDCG@5 0.629→0.866, should-be-empty
+leakage 67%→0%) with no dependency; IDF gates, jieba, dense (MiniLM) and a cross-encoder were
+rejected or deferred. Implemented test-first: Context API/MCP/CLI `concepts`, concept-mode projection
+search, skills and tool descriptions. A folder-source note with credentials is exposable to Agents —
+owner decision pending (BETA_DOGFOODING). **Next:** independent review, then the owner decides on a
+0.2.0b10 release.
 
 **0.2.0b9 candidate (2026-10-01, local).** Two changes since b8, both maintainer-requested: (1) owner
 opt-in to save Agent memory proposals without confirmation (ADR-0018 2026-10-01 amendment,

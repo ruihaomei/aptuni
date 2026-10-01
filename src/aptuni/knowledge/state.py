@@ -197,12 +197,15 @@ class KnowledgeIndex:
     def concepts_of(self, record_id: str) -> tuple[str, ...]:
         return self._by_record.get(record_id, ())
 
-    def relevant(self, query: str, record_ids: Iterable[str], limit: int) -> list[KnowledgeState]:
-        """Concepts named in the query first, then those of the given ranked records."""
-        wanted = list(resolve_text(query))
-        fallback = label_concept(query)
-        if fallback is not None:
-            wanted.append(fallback[0])
+    def relevant(self, query: str, record_ids: Iterable[str], limit: int,
+                 named: Iterable[str] = ()) -> list[KnowledgeState]:
+        """Concepts named in the query (and host concepts, ADR-0030) first, then those of the records."""
+        wanted: list[str] = []
+        for text in (query, *named):
+            wanted.extend(resolve_text(text))
+            fallback = label_concept(text)
+            if fallback is not None:
+                wanted.append(fallback[0])
         for record_id in record_ids:
             wanted.extend(self.concepts_of(record_id))
         seen: list[KnowledgeState] = []

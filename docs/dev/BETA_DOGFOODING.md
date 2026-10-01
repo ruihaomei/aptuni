@@ -63,6 +63,8 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 | 2026-10-01 | Full activation / result diversity | P1 (maintainer: better method → P1) | Full spent its budget on one or two concepts: a topic appeared as Evidence, its derived Fact and nested path repeats. | ADR-0005 2026-10-01 amendment; `test_diversify.py`, `test_retrieval.py::test_context_lists_distinct_concepts_before_repeats` | Fixed locally; awaiting 0.2.0b9 |
 | 2026-10-01 | Evidence duplication | P3 | Two Evidence items with identical text and location but different ids were both returned. | Same concept key → the repeat is demoted after distinct concepts (ADR-0005 2026-10-01) | Fixed locally; awaiting 0.2.0b9 |
 | 2026-10-01 | CJK fallback precision | P3 | Under the task-language fallback a cross-word 2–3-character fragment matched an unrelated item. | jieba query segmentation tried and rejected (`docs/research/findings/retrieval-experiments.md`) | Open — KI-018 |
+| 2026-10-02 | Retrieval / KI-018 | P1 (maintainer brief) | Plain multi-keyword queries leaked records sharing one generic or homonymous word into Full/Profile context. | ADR-0030; `tests/integration/test_concept_queries.py` | Fixed locally for hosts that pass `concepts`; plain queries unchanged; awaiting release decision |
+| 2026-10-02 | Source ingest privacy | P1 (proposed) | A folder-source note containing account credentials (email, password, account login) was ingested as Evidence and is exposable to Agents through Full; host proposals already reject such patterns, source ingest does not. | — | Open — owner decision: exclude the file / purge the record, rotate the credentials; product fix (credential-pattern skip or redaction at ingest) needs an ADR |
 
 ## Gates kept open in parallel
 

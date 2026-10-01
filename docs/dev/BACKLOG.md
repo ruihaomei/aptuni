@@ -101,3 +101,5 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | `_open_host_items` re-derives review state per host memory over the whole Vault on each proposal; index review events once if Agent-saved memories grow | Review 89 note 2 | Memory |
 | A re-sent, still-unreviewed auto-saved proposal reports "saved" even after its module is hidden (accurate, no new data) | Review 89 note 3 | MCP |
 | Add a `context()`-level test that every-keyword matches precede fallback rows after diversification | Review 89 note 4 | Context API |
+| Scoped Knowledge State for planning: per source/notebook, cards only, with depth and first/last-studied dates (an Agent needed a per-topic coverage map of one notebook and read the store directly) | BETA_DOGFOODING 2026-10-01 inbox | Knowledge model |
+| Concept-mode ranking: bilingual alternates of a common concept outrank a rarer specific concept (mixed-language queries 0.73 vs 0.83 nDCG@5); a bounded IDF weight did not help | ADR-0030 | Retrieval |

@@ -15,3 +15,5 @@ in the chosen alternative.
 | Treating a partial scan's unseen items as moved or deleted | Explicit `coverage`; partial never infers moves/removals | S05A review round 1 |
 | jieba query segmentation for CJK retrieval (2026-10-01) | Keep 2–4-char lexemes; whole-keyword fallback | `findings/retrieval-experiments.md`: no precision gain, negatives worse |
 | Dense lane with `BAAI/bge-small-zh-v1.5` (2026-10-01) | Lexical + concept diversification; retest with a multilingual model | `findings/retrieval-experiments.md`: lower P@10 in every style; no score floor separates negatives |
+| IDF / information-coverage gates and generic-word lists on the plain-query fallback (2026-10-02) | Host concepts matched whole (ADR-0030) | `findings/retrieval-experiments.md`: empties long/task queries or keeps leaks |
+| Optional dense or cross-encoder semantic backend (2026-10-02) | Lexical concept mode; revisit only if hosts omit concepts | Same note: leaks 67%→25% on plain queries, no relevance gain, 0.22–1.04 GB models |

@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Agents can pass `concepts` with Profile, Memory and Full activation (and `aptuni context
+  --concept`): short terms the task is about, in English and Chinese. Each concept must match
+  whole, so results are precise and nothing comes back when your notes do not cover the topic.
+  On a real Vault this raised the share of useful top-5 items from 74% to 98% and stopped
+  unrelated items for topics the notes do not contain. Queries without concepts work as before.
+
 ## [0.2.0b9] — 2026-10-01
 
 Agent memory auto-save opt-in and more varied Context. Top-Down Learning stays 0.2.1.

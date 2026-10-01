@@ -60,19 +60,20 @@ class KnowledgeCommands:
         return index.relevant(query, [u.canonical_id for u in matched.items if u.canonical_id], limit)
 
     def profile_context(self, query: str, *, modules: tuple[str, ...], budget: int, limit: int,
-                        audience: str, access: Any) -> ContextResponse:
+                        audience: str, access: Any, concepts: tuple[str, ...] = ()) -> ContextResponse:
         """``aptuni.profile``: Knowledge State units first, without the rows they summarise."""
         for _ in range(3):
             # Rank the ``limit`` rows unbudgeted, then pack once at ``budget`` after summarising, so the
             # space the summaries free goes to rows that would otherwise have been cut.
             response = self.context(query, modules=modules, budget=MAX_BUDGET, limit=limit, audience=audience,
-                                    access=access, include_evidence=True, _record_types=("fact", "evidence"))
+                                    access=access, include_evidence=True, _record_types=("fact", "evidence"),
+                                    concepts=concepts)
             seq, records = self.snapshot()
             if seq != response.vault_seq:
                 continue
             index = self.knowledge_index(seq, records, modules)
             ranked = [u.canonical_id for u in response.items if u.canonical_id]
-            states = index.relevant(query, ranked, MAX_PROFILE_STATES)
+            states = index.relevant(query, ranked, MAX_PROFILE_STATES, named=concepts)
             sections = [u for u in response.items if u.canonical_id is None]
             # Only rows a packed unit actually cites are left out (Review 85 N6).
             units = pack_units((*sections, *(knowledge_unit(s) for s in states)), budget).items

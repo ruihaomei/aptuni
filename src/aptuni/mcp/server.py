@@ -37,6 +37,9 @@ PROPOSE = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentH
 SESSION_CONTROL = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=True, openWorldHint=False)
 # Refusals whose messages are built only from module/scope names and fixed guidance; any other
 # code stays bare so an error message can never carry personal content to the host.
+CONCEPTS_PARAMETER = Annotated[
+    list[Annotated[str, Field(min_length=1, max_length=80)]] | None, Field(max_length=8),
+]
 GUIDED_ERROR_CODES = frozenset({"mcp_module_denied", "mcp_scope_denied", "aptuni_activation_required"})
 
 
@@ -112,19 +115,22 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
         max_units: Annotated[int, Field(ge=32, le=100_000)] = 1500,
         limit: Annotated[int, Field(ge=1, le=100)] = 20,
         include_evidence: bool = False,
+        concepts: CONCEPTS_PARAMETER = None,
     ) -> dict[str, object]:
-        """Return relevance-ordered context. Official adapters require explicit activation first."""
+        """Return relevance-ordered context. Official adapters require explicit activation first.
+        Pass `concepts` (see aptuni_activate_context) for precise, low-noise retrieval."""
         try:
             with authorization_guard():
                 if activation_required:
                     response = activation.session_context(
                         query, modules=tuple(modules), budget=max_units, limit=limit,
+                        concepts=tuple(concepts or ()),
                     )
                 else:
                     response = application.context(
                         query, modules=tuple(modules), budget=max_units,
                         include_evidence=include_evidence, limit=limit,
-                        audience="host_mcp", access=current_access(),
+                        audience="host_mcp", access=current_access(), concepts=tuple(concepts or ()),
                     )
         except AptuniError as error:
             raise _tool_error(error) from error
@@ -138,12 +144,20 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
         scope: ActivationScope = "task",
         max_units: Annotated[int, Field(ge=32, le=100_000)] = 1500,
         limit: Annotated[int, Field(ge=1, le=100)] = 20,
+        concepts: CONCEPTS_PARAMETER = None,
     ) -> dict[str, object]:
-        """Explicitly use Profile, Memory, or Full for one task; only Full may persist for this session."""
+        """Explicitly use Profile, Memory, or Full for one task; only Full may persist for this session.
+
+        `query` is the task in one sentence. `concepts` (recommended) lists 1-8 short terms or phrases
+        the task is about, as they would appear in the user's notes, with English and Chinese forms
+        as separate entries (e.g. ["markov chain", "马尔可夫链", "stationary distribution"]). Each
+        concept must match whole, so concepts give precise results and return nothing when the
+        user's notes do not cover them; without concepts the query is matched loosely."""
         try:
             with authorization_guard():
                 response = activation.activate(
                     intent, scope, query, modules=tuple(modules), budget=max_units, limit=limit,
+                    concepts=tuple(concepts or ()),
                 )
         except AptuniError as error:
             raise _tool_error(error) from error

@@ -68,6 +68,7 @@ class AgentActivation:
         modules: tuple[Module, ...],
         budget: int,
         limit: int,
+        concepts: tuple[str, ...] = (),
     ) -> ContextResponse:
         with self._lock:
             if scope == "session" and intent != "aptuni.full":
@@ -75,7 +76,8 @@ class AgentActivation:
                     "aptuni_session_scope_invalid",
                     "Only Full can be activated for a session; Profile and Memory are task-scoped.",
                 )
-            response = self._retrieve(intent, query, modules=modules, budget=budget, limit=limit)
+            response = self._retrieve(intent, query, modules=modules, budget=budget, limit=limit,
+                                      concepts=concepts)
             if scope == "session":
                 self._session_full = True
             return response
@@ -87,6 +89,7 @@ class AgentActivation:
         modules: tuple[Module, ...],
         budget: int,
         limit: int,
+        concepts: tuple[str, ...] = (),
     ) -> ContextResponse:
         with self._lock:
             if not self._session_full:
@@ -94,7 +97,8 @@ class AgentActivation:
                     "aptuni_activation_required",
                     "Aptuni is OFF. Activate Profile, Memory, or Full for this task.",
                 )
-            return self._retrieve("aptuni.full", query, modules=modules, budget=budget, limit=limit)
+            return self._retrieve("aptuni.full", query, modules=modules, budget=budget, limit=limit,
+                                  concepts=concepts)
 
     def require_proposal_session(self) -> None:
         """Explain, in order, why a memory proposal cannot be made yet (ADR-0025: OFF captures nothing)."""
@@ -130,17 +134,19 @@ class AgentActivation:
         modules: tuple[Module, ...],
         budget: int,
         limit: int,
+        concepts: tuple[str, ...] = (),
     ) -> ContextResponse:
         if intent == "aptuni.profile":  # ADR-0029 item 9: compact Knowledge State first
             return self.service.profile_context(
                 query, modules=modules, budget=budget, limit=limit, audience="host_mcp", access=self.access(),
+                concepts=concepts,
             )
         if intent == "aptuni.memory":
             return self.service.context(
                 query, modules=modules, budget=budget, limit=limit, audience="host_mcp",
-                access=self.access(), _record_types=("memory",),
+                access=self.access(), _record_types=("memory",), concepts=concepts,
             )
         return self.service.context(
             query, modules=modules, budget=budget, limit=limit, include_evidence=True,
-            audience="host_mcp", access=self.access(),
+            audience="host_mcp", access=self.access(), concepts=concepts,
         )

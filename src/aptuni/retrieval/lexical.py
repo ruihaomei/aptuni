@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from collections.abc import Iterable
+from itertools import pairwise
 from typing import Literal
 
 LEXEME_VERSION = 1
@@ -102,3 +103,27 @@ def fallback_expression(text: str) -> str | None:
         _quote(group[0]) if len(group) == 1 else "(" + " AND ".join(_quote(term) for term in group) + ")"
         for group in groups
     )
+
+
+def _group_expression(group: list[str]) -> str:
+    return _quote(group[0]) if len(group) == 1 else "(" + " AND ".join(_quote(term) for term in group) + ")"
+
+
+def concept_expressions(concept: str) -> tuple[str | None, str | None]:
+    """Return the strict and relaxed expressions for one host-supplied concept (ADR-0030).
+
+    Strict requires every keyword of the concept. A concept of three or more keywords that matches
+    nothing may relax to its adjacent keyword pairs; it never degrades to a single keyword, which is
+    what lets generic words ("training", "plan") leak in the plain-query fallback (KI-018).
+    """
+    groups = _keyword_groups(concept)
+    if not groups:
+        return None, None
+    strict = " AND ".join(_group_expression(group) for group in groups)
+    relaxed = None
+    if len(groups) >= 3:
+        relaxed = " OR ".join(
+            f"({_group_expression(first)} AND {_group_expression(second)})"
+            for first, second in pairwise(groups)
+        )
+    return strict, relaxed

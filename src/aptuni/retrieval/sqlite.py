@@ -12,12 +12,19 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from aptuni.retrieval.lexical import LEXEME_VERSION, cjk_lexemes, fallback_expression, query_expression
+from aptuni.retrieval.lexical import (
+    LEXEME_VERSION,
+    cjk_lexemes,
+    concept_expressions,
+    fallback_expression,
+    query_expression,
+)
 
 PROJECTION_SCHEMA = 1
 
 
 FALLBACK_RELATIVE_SCORE = 0.25
+CONCEPT_CANDIDATES = 200  # strict matches read per concept before cross-concept ranking
 
 
 class ProjectionError(RuntimeError):
@@ -170,16 +177,7 @@ class SqliteProjection:
             raise ValueError("limit must be between 1 and 101")
         if module is not None and modules is not None:
             raise ValueError("pass module or modules, not both")
-        filters, filter_parameters = "", list[Any]()
-        if module is not None:
-            filters += " AND module = ?"
-            filter_parameters.append(module)
-        elif modules:
-            filters += " AND module IN (" + ",".join("?" for _ in modules) + ")"
-            filter_parameters.extend(modules)
-        if record_types:
-            filters += " AND record_type IN (" + ",".join("?" for _ in record_types) + ")"
-            filter_parameters.extend(record_types)
+        filters, filter_parameters = self._filters(module, modules, record_types)
         rows = self._match(query_expression(query, "all"), filters, filter_parameters, limit)
         if len(rows) < limit:
             # Task-shaped requests rarely contain every term of a record: fill the remaining slots with
@@ -192,6 +190,49 @@ class SqliteProjection:
                 rows += [SearchRow(row.record_id, row.score, exact=False)
                          for row in extra if row.score >= floor][: limit - len(rows)]
         return rows
+
+    def search_concepts(
+        self,
+        concepts: tuple[str, ...],
+        *,
+        modules: tuple[str, ...] | None = None,
+        record_types: tuple[str, ...] | None = None,
+        limit: int = 5,
+    ) -> list[SearchRow]:
+        """Match each host concept whole and rank records by how many concepts they match (ADR-0030).
+
+        There is no any-term fallback: an empty result means no record matched any concept.
+        """
+        if type(limit) is not int or not 1 <= limit <= 101:
+            raise ValueError("limit must be between 1 and 101")
+        filters, filter_parameters = self._filters(None, modules, record_types)
+        scores: dict[str, float] = {}
+        for concept in concepts:
+            strict, relaxed = concept_expressions(concept)
+            hits = self._match(strict, filters, filter_parameters, CONCEPT_CANDIDATES)
+            if not hits and relaxed is not None:
+                hits = self._match(relaxed, filters, filter_parameters, CONCEPT_CANDIDATES)
+            for rank, row in enumerate(hits):
+                # One point per matched concept; within a concept, a better match adds less than one.
+                scores[row.record_id] = scores.get(row.record_id, 0.0) + 1.0 + 1.0 / (rank + 2)
+        ordered = sorted(scores, key=lambda record_id: (-scores[record_id], record_id))
+        return [SearchRow(record_id, scores[record_id]) for record_id in ordered[:limit]]
+
+    @staticmethod
+    def _filters(
+        module: str | None, modules: tuple[str, ...] | None, record_types: tuple[str, ...] | None,
+    ) -> tuple[str, list[Any]]:
+        filters, filter_parameters = "", list[Any]()
+        if module is not None:
+            filters += " AND module = ?"
+            filter_parameters.append(module)
+        elif modules:
+            filters += " AND module IN (" + ",".join("?" for _ in modules) + ")"
+            filter_parameters.extend(modules)
+        if record_types:
+            filters += " AND record_type IN (" + ",".join("?" for _ in record_types) + ")"
+            filter_parameters.extend(record_types)
+        return filters, filter_parameters
 
     def _match(self, expression: str | None, filters: str, filter_parameters: list[Any], limit: int) -> list[SearchRow]:
         if expression is None:

@@ -39,3 +39,50 @@ and 9.8 / 10.0 / 7.3 / 8.4 distinct relevant concepts.
   keyword must not empty the result); tracked in KI-018.
 - Embedding ~46k unique texts with a 0.09 GB model took ~13 minutes on the owner's Mac; a dense lane
   would need incremental indexing, not rebuilds.
+
+## 2026-10-02 — Retrieval investigation (ADR-0030)
+
+**Method.** Local, read-only, scratch-only (deleted afterwards). 62 queries written before any run
+in nine categories (English, Chinese, mixed, cross-lingual, task-shaped, long natural language,
+only-some-terms-matter, generic-term, should-return-nothing ×12) plus dogfooding-derived ones; for
+each, a host-style concept list (bilingual alternates as separate entries) also written blind.
+Judging: top-5 pooled from every system, graded by hand 0/1/2 ("would an Agent understand the user
+better with this?"), 1,158 judgments; metrics at k=5 where every system is fully judged.
+
+**Results** — see the table in ADR-0030. Shipped: host concepts matched whole (nDCG@5 0.629→0.866,
+P@5 0.74→0.98, MRR 0.80→1.00, should-be-empty leakage 67%→0%, distinct useful concepts 3.7→4.9,
+~2 ms search; total request latency unchanged at ~0.6 s, dominated by the Vault snapshot).
+
+**What the failures taught.**
+
+- Lexical rarity (IDF coverage, specificity floors, generic-word lists) cannot separate a topical
+  common word ("learning") from a generic one ("training") or a compound ("machine translation")
+  from its parts; every gate either empties long/task queries or keeps the leaks.
+- Most of the relevance gain comes from the host's decomposition (b9 loose path with host concepts:
+  0.834); the strict per-concept match is what removes leakage (83%→0%).
+- Plain queries treated strictly lose recall (24% empty), so the b9 plain path stays.
+- Semantic options gate leaks on plain queries (dense τ0.4 or a 1 GB cross-encoder: 67%→25%) but
+  do not raise relevance; dense fill inside concept mode re-introduces leaks (50%).
+- Remaining concept-mode weakness: bilingual alternates of a common concept outrank a rarer
+  specific concept (mixed-language queries).
+
+**Operational notes.** Hugging Face model files arrive via a Xet CDN; `huggingface_hub` hung on
+the owner's network until `HF_HUB_DISABLE_XET=1`. Embedding ~46k unique short texts with
+paraphrase-multilingual-MiniLM-L12 (ONNX, CPU) took 15.5 min and 76 MB; bge-reranker-base
+re-scored 30 candidates in ~1.1 s per query.
+
+**Open-source mechanisms inspected (source, not marketing).**
+
+- Mem0 2.2.1 (`mem0/memory/main.py`, `mem0/utils/scoring.py`): candidates come only from vector
+  search (over-fetch `max(4k, 60)`); BM25 over lemmatised text is squashed by a query-length-dependent
+  sigmoid and *added*; an entity-link boost adds up to 0.5; the only gate is a low semantic threshold
+  (0.1); rerankers are opt-in. Its precision rests on embeddings and LLM-extracted short memories.
+- Graphiti 0.30.2 (`search/search_utils.py`, `search_config*.py`): BM25 (Lucene) + cosine
+  (min 0.6) fused by RRF by default; MMR, node-distance and cross-encoder rerankers optional; again
+  over LLM-extracted entities/edges.
+- basic-memory 0.23.2 (`repository/sqlite_search_repository.py`, `search_repository_base.py`):
+  SQLite FTS5 strict query with an OR-relaxed retry — the same shape as Aptuni's b8/b9 fallback —
+  optional sqlite-vec semantic search (fastembed bge-small-en by default) fused as
+  `max(vec, fts) + bonus·min(vec, fts)`, optional reranker.
+- None solves generic-word leakage lexically; the transferable idea is to move query understanding
+  to the component that has it. For Aptuni that is the calling Agent.

@@ -88,6 +88,8 @@ from aptuni.vault.store import ConflictError, Vault, VaultDirNotEmptyError, Vaul
 
 CLI_EPISODE = "cli"
 CONTEXT_CANDIDATE_FACTOR = 3  # candidates per requested Context result, for concept diversification
+MAX_CONCEPTS = 8  # host-supplied concepts per Context request (ADR-0030)
+MAX_CONCEPT_BYTES = 256
 DECLARED_RETENTION = RetentionLabel(retention_class="canonical", purpose="user_declared_profile",
                                     expires_at=None, full_content=False)
 UNREADABLE = (VaultIntegrityError, SchemaVersionError, UnsupportedFilesystemError, json.JSONDecodeError, KeyError)
@@ -348,19 +350,25 @@ class AptuniService(
         modules: tuple[str, ...] | None = None,
         record_types: tuple[str, ...] | None = None,
         limit: int = 5,
+        concepts: tuple[str, ...] = (),
     ) -> tuple[int, RecordSet, list[SearchRow]]:
         projection = SqliteProjection(self.workspace.state_dir)
         for _ in range(3):
             seq, records = self.snapshot()
             try:
                 projection.ensure(documents_for(records.exposable()), seq)
-                rows = projection.search(
-                    query,
-                    module=module,
-                    modules=modules,
-                    record_types=record_types,
-                    limit=limit,
-                )
+                if concepts and module is None:
+                    rows = projection.search_concepts(
+                        concepts, modules=modules, record_types=record_types, limit=limit,
+                    )
+                else:
+                    rows = projection.search(
+                        query,
+                        module=module,
+                        modules=modules,
+                        record_types=record_types,
+                        limit=limit,
+                    )
             except (OSError, ProjectionError, ValueError) as error:
                 message = "The search index is unavailable; canonical data is safe."
                 raise AptuniError("projection_failed", message) from error
@@ -421,6 +429,22 @@ class AptuniService(
             raise AptuniError("invalid_context", f"Budget must be between {MIN_BUDGET} and {MAX_BUDGET} units.")
         if limit is not None and (type(limit) is not int or not 1 <= limit <= 100):
             raise AptuniError("invalid_context", "Context result limit must be between 1 and 100.")
+
+    @staticmethod
+    def _check_concepts(concepts: tuple[str, ...]) -> tuple[str, ...]:
+        """Validate host concepts (ADR-0030): 0–8 non-empty strings of at most 256 UTF-8 bytes."""
+        if not isinstance(concepts, tuple | list) or len(concepts) > MAX_CONCEPTS:
+            raise AptuniError("invalid_context", f"Pass at most {MAX_CONCEPTS} concepts.")
+        cleaned: list[str] = []
+        for concept in concepts:
+            if not isinstance(concept, str) or not concept.strip() \
+                    or len(concept.encode("utf-8")) > MAX_CONCEPT_BYTES:
+                raise AptuniError(
+                    "invalid_context",
+                    f"Each concept must be non-empty and at most {MAX_CONCEPT_BYTES} UTF-8 bytes.",
+                )
+            cleaned.append(" ".join(concept.split()))
+        return tuple(dict.fromkeys(cleaned))
 
     @staticmethod
     def _authorize_host(
@@ -501,6 +525,7 @@ class AptuniService(
         audience: str = "owner_cli",
         access: HostContextAccess | None = None,
         _record_types: tuple[str, ...] | None = None,
+        concepts: tuple[str, ...] = (),
     ) -> ContextResponse:
         self._check_context_request(budget, audience, limit)
         if not query.strip() or len(query.encode("utf-8")) > MAX_QUERY_BYTES:
@@ -508,6 +533,7 @@ class AptuniService(
                 "invalid_context",
                 f"Context query must be non-empty and at most {MAX_QUERY_BYTES} UTF-8 bytes.",
             )
+        concepts = self._check_concepts(concepts)
         if type(include_evidence) is not bool:
             raise AptuniError("invalid_context", "include_evidence must be true or false.")
         for module_name in modules:
@@ -533,6 +559,7 @@ class AptuniService(
                 modules=selected or None,
                 record_types=record_types,
                 limit=min(101, max(limit + 1, limit * CONTEXT_CANDIDATE_FACTOR)),
+                concepts=concepts,
             )
             more = len(rows) > limit
             allowed = {record.id: record for record in records.exposable()}
