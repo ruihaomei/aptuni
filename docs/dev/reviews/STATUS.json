@@ -35,10 +35,11 @@
   },
   "beta-concept-queries": {
    "kind": "review",
-   "current": "91-beta-concept-queries-rereview.md",
-   "verdict": "BLOCK",
+   "current": "92-beta-concept-queries-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": [
-    "90-beta-concept-queries-review.md"
+    "90-beta-concept-queries-review.md",
+    "91-beta-concept-queries-rereview.md"
    ]
   },
   "beta-day0-fixes": {

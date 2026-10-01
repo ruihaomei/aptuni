@@ -103,3 +103,5 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Add a `context()`-level test that every-keyword matches precede fallback rows after diversification | Review 89 note 4 | Context API |
 | Scoped Knowledge State for planning: per source/notebook, cards only, with depth and first/last-studied dates (an Agent needed a per-topic coverage map of one notebook and read the store directly) | BETA_DOGFOODING 2026-10-01 inbox | Knowledge model |
 | Concept-mode ranking: bilingual alternates of a common concept outrank a rarer specific concept (mixed-language queries 0.73 vs 0.83 nDCG@5); a bounded IDF weight did not help | ADR-0030 | Retrieval |
+| Concept-mode folding leftovers: irregular plurals (matrix/matrices), -ves, -ie plurals (movies), menus/gurus stay exact; extend `_NOT_PLURAL`/`_ICS_PLURAL` only with real misses | Review 92 N1–N3 | Retrieval |
+| Watch in dogfooding whether hosts pass `concepts` and in both languages; a semantic gate for plain queries (dense τ≈0.4: leakage 67%→25%) stays deferred until hosts are shown to omit them | ADR-0030 | Retrieval |

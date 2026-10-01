@@ -107,40 +107,51 @@ def fallback_expression(text: str) -> str | None:
 
 _ENGLISH_WORD = re.compile(r"^[a-z]{3,}$")
 _SIBILANT = ("s", "x", "z", "ch", "sh")
+_ES_PLURAL = ("sses", "shes", "ches", "xes", "zes")
 _VOWELS = frozenset("aeiou")
-# Words ending in "s" that are not plurals; folding them would match an unrelated word ("news"→"new").
+# Words ending in "s" that are not plurals (or whose singular is a different common word); folding
+# them, or generating them, would match an unrelated record ("news"→"new", "means"→"mean").
 _NOT_PLURAL = frozenset({"news", "yes", "always", "perhaps", "thus", "plus", "bus", "gas", "this", "its",
-                         "has", "was", "does", "less", "unless", "whereas", "series", "species", "lens"})
+                         "has", "was", "does", "less", "unless", "whereas", "series", "species", "lens",
+                         "means", "windows", "pandas", "kubernetes"})
+# -ics words are field names (physics, logistics, genetics) unless listed here as true plurals.
+_ICS_PLURAL = frozenset({"topics", "metrics", "heuristics", "characteristics", "statistics"})
 
 
 def _english_forms(term: str) -> list[str]:
-    """Regular English singular/plural pair of an ASCII word, sorted (concept mode only, ADR-0030).
+    """Regular English singular/plural forms of an ASCII word, sorted (concept mode only, ADR-0030).
 
     The index does not stem, so a host concept "markov chain" must still match "Markov chains" and
-    "probability" must match "probabilities". Only regular inflection is produced: -s, -es after
-    s/x/z/ch/sh, and consonant-y ↔ -ies. A word ending in -ss, -us or -is, or listed as not plural,
-    is never stripped, and no form shorter than three letters is produced, so folding cannot turn
-    "notes" into "not" or "planes" into "plan".
+    "probability" must match "probabilities". Only regular inflection is produced: -s; -es after
+    s/x/z/ch/sh (plus -s after -ch, as in "epochs"); consonant-y ↔ -ies.
+    A word ending in -ss/-us/-is, a field name in -ics, or a listed non-plural is never stripped, no
+    listed non-plural is generated, and no form shorter than three letters is produced, so folding
+    cannot turn "notes" into "not", "planes" into "plan" or "new" into "news". Irregular plurals
+    (matrix/matrices), -ves and -ie plurals (movies/movie) are not covered.
     """
     if not _ENGLISH_WORD.fullmatch(term):
         return [term]
     forms = {term}
-    if term.endswith(("ss", "us", "is")) or term in _NOT_PLURAL:
+    protected = (term.endswith(("ss", "us", "is")) or term in _NOT_PLURAL
+                 or (term.endswith("ics") and term not in _ICS_PLURAL))
+    if protected:
         if term.endswith("ss"):
             forms.add(term + "es")
     elif term.endswith("ies") and len(term) > 4:
         forms.add(term[:-3] + "y")
-    elif term.endswith("es") and term[:-2].endswith(_SIBILANT):
+    elif term.endswith(_ES_PLURAL):
         forms.add(term[:-2])
     elif term.endswith("s"):
         forms.add(term[:-1])
     elif term.endswith(_SIBILANT):
         forms.add(term + "es")
+        if term.endswith("ch"):
+            forms.add(term + "s")
     elif term.endswith("y") and term[-2] not in _VOWELS:
         forms.add(term[:-1] + "ies")
     else:
         forms.add(term + "s")
-    return sorted(form for form in forms if len(form) >= 3)
+    return sorted(form for form in forms if len(form) >= 3 and (form == term or form not in _NOT_PLURAL))
 
 
 def _term_expression(term: str) -> str:

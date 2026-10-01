@@ -39,6 +39,10 @@ def test_english_keywords_fold_regular_plural_forms_both_ways() -> None:
         "boxes": '("box" OR "boxes")', "box": '("box" OR "boxes")',
         "matches": '("match" OR "matches")', "notes": '("note" OR "notes")', "planes": '("plane" OR "planes")',
         "news": '"news"', "analysis": '"analysis"', "r": '"r"',
+        "cases": '("case" OR "cases")', "databases": '("database" OR "databases")',
+        "logistics": '"logistics"', "genetics": '"genetics"', "means": '"means"', "pandas": '"pandas"',
+        "topics": '("topic" OR "topics")', "epoch": '("epoch" OR "epoches" OR "epochs")',
+        "movies": '("movies" OR "movy")', "new": '"new"',
     }
     for word, expression in pairs.items():
         assert concept_expressions(word)[0] == expression, word
@@ -50,8 +54,13 @@ def test_plural_folding_never_yields_an_unrelated_common_word(tmp_path: Path) ->
         "fct_lecture": "The lecture was not recorded this week.",
         "fct_plan": "Weekly plan for the semester.",
         "fct_new": "A new phone.",
+        "fct_mean": "The mean of k samples.",
+        "fct_logit": "Logistic regression notes.",
+        "fct_york": "News from York.",
+        "fct_pos": "POS tagging and Los Angeles.",
     })
-    for concept in ("release notes", "lecture notes", "planes", "news"):
+    for concept in ("release notes", "lecture notes", "planes", "k-means", "logistics", "new york",
+                    "poses", "loses"):
         assert projection.search_concepts((concept,), limit=5) == [], concept
 
 
@@ -173,14 +182,14 @@ def test_full_skill_asks_for_concepts() -> None:
 
 
 def test_more_matched_concepts_always_rank_first_even_with_many_concepts(tmp_path: Path) -> None:
-    # Short single-concept records outrank the long four-concept record inside every concept list, and
-    # one short three-concept record tops three lists; the four-concept record must still come first.
-    texts = {f"fct_{word}_{i}": word for word in ("alpha", "beta", "gamma", "delta") for i in range(10)}
+    # The short three-concept record tops three concept lists; twelve long four-concept records rank
+    # below it in each. Under a per-concept 1/(rank+2) bonus it would place 7th; it must be last.
+    texts = {f"fct_four_{i:02d}": "alpha beta gamma delta " + " ".join(f"filler{j}" for j in range(30 + i))
+             for i in range(12)}
     texts["fct_three"] = "alpha beta gamma"
-    texts["fct_four"] = "alpha beta gamma delta " + " ".join(f"filler{i}" for i in range(40))
     projection = _projection(tmp_path, texts)
     rows = projection.search_concepts(("alpha", "beta", "gamma", "delta"), limit=50)
-    assert [row.record_id for row in rows[:2]] == ["fct_four", "fct_three"]
+    assert [row.record_id for row in rows][-1] == "fct_three" and len(rows) == 13
 
 
 def test_concepts_differing_only_in_case_or_punctuation_count_once(tmp_path: Path) -> None:

@@ -55,7 +55,9 @@ by the implementing agent) compared b9 with eleven alternatives:
    or plural form (`chain`/`chains`, `box`/`boxes` after s/x/z/ch/sh, `probability`/`probabilities`),
    because the index does not stem and the host cannot know the notes' word forms. Words ending in
    -ss/-us/-is or listed as not plural (`news`, `series`, …) are not stripped, and no form shorter
-   than three letters is produced, so folding cannot turn `notes` into `not` (Review 91 B1). A concept of three or more keywords that matches nothing may relax
+   than three letters is produced, so folding cannot turn `notes` into `not` (Review 91 B1); -ics
+   field names and words such as `means` are protected and listed non-plurals are never generated
+   (Review 92). A concept of three or more keywords that matches nothing may relax
    to its adjacent keyword pairs; relaxation never reaches a single keyword (a concept the stopword
    list reduces to one keyword, e.g. "help desk", is that one keyword). Concepts that normalise to
    the same expression count once; a concept with no searchable keyword matches nothing. Each
@@ -109,5 +111,5 @@ incremental re-embedding. Reconsider only if dogfooding shows hosts often omit c
 relaxation, ranking with many concepts, de-duplication, exposure, validation, Profile/Memory/Full
 and search tools, activation refusal, schema bounds, CLI, skill text) and
 `tests/integration/test_knowledge_state.py::test_profile_concepts_select_the_knowledge_state_the_query_does_not_name`;
-Reviews 90–91; frozen S03 evaluation unchanged; the real-Vault
+Reviews 90–92; frozen S03 evaluation unchanged; the real-Vault
 evaluation above through the product `context()` path.

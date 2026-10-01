@@ -46,8 +46,8 @@ and 9.8 / 10.0 / 7.3 / 8.4 distinct relevant concepts.
 in nine categories (English, Chinese, mixed, cross-lingual, task-shaped, long natural language,
 only-some-terms-matter, generic-term, should-return-nothing ×12) plus dogfooding-derived ones; for
 each, a host-style concept list (bilingual alternates as separate entries) also written blind.
-Judging: top-5 pooled from every system, graded by hand 0/1/2 ("would an Agent understand the user
-better with this?") by the implementing agent, 1,282 judgments; metrics at k=5 where every system is fully judged.
+Judging: top-5 pooled from every system, graded 0/1/2 by the implementing agent ("would an Agent
+understand the user better with this?"), 1,282 judgments; metrics at k=5 where every system is fully judged.
 
 **Results** — see the table in ADR-0030. Shipped: host concepts matched whole (nDCG@5 0.629→0.866,
 P@5 0.74→0.98, MRR 0.80→1.00, should-be-empty leakage 67%→0%, distinct useful concepts 3.7→4.9,
@@ -56,7 +56,14 @@ found that strict matching missed other word forms: with every concept's last En
 other plural form, strict scored 0.606 (14% empty) and prefix matching 0.685. A naive folding rule
 (strip any -s/-es) let "notes" match "not" (Review 91); the shipped morphology-aware rule (-es only
 after s/x/z/ch/sh, -y↔-ies, -ss/-us/-is and listed non-plurals untouched) scores 0.866 as written.
-Concept-count dominance in ranking changed no result.
+Concept-count dominance in ranking changed no result. Review 92 notes applied: -ics field names,
+means/windows/pandas and generated non-plurals are protected ("k-means" no longer matches
+"mean", "new york" no longer matches "News"), -ses plurals fold to -se (cases→case), -ch words
+also take -s (epochs); the real-Vault figure is unchanged at 0.866.
+
+**Footprint of the rejected semantic option** (measured in the scratch environment): onnxruntime
+76 MB + numpy 22 MB + PIL 13 MB + tokenizers 10 MB + fastembed/huggingface_hub ≈ 4 MB, a 240 MB
+quantised MiniLM model and a 76 MB embedding matrix for this Vault; the cross-encoder is 1.1 GB.
 
 **What the failures taught.**
 
