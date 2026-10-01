@@ -77,7 +77,11 @@ proposed severity (P0–P3 or note) · what happened in product terms (no person
 file names or Vault text) · whether the owner was interrupted. Do not commit from non-development
 sessions; a development session triages lines into the tables below and clears them.
 
-- (empty)
+- 2026-10-01 · Claude Code · Full activation / retrieval workaround · note · Using only granted modules and a conversational query (which triggers the any-term fallback) avoided the empty result, confirming the earlier diagnosis; keyword-list queries were not retried. · not interrupted
+- 2026-10-01 · Claude Code · Full activation / result diversity · P2 · With Full returning matches, the budget was spent on one concept: the same concept appeared as a Fact plus its Evidence, and again under several nested-path variants, so 3 queries yielded about 11–16 items each covering only 1–2 concepts, all truncated. A per-concept collapse (as in Profile's Knowledge State) would fix this. · not interrupted
+- 2026-10-01 · Claude Code · Context budget accounting · P2 · Each returned item costs about 300–600 units even when its text is one short line, so a 5,000-unit request returns only about 11 items; the per-item metadata overhead dominates the budget. · not interrupted
+- 2026-10-01 · Claude Code · Evidence duplication · P3 · One Full result contained two Evidence items with identical text and source location but different ids. · not interrupted
+- 2026-10-01 · Claude Code · CJK fallback precision · P3 · Under the any-term fallback, a 2–3-character fragment that spans two words of a conversational Chinese query matched an unrelated item, i.e. cross-word n-grams act as query terms. · not interrupted
 
 ## Daily log (content-free)
 

@@ -42,7 +42,7 @@ Slice 1). Each entry records the package, version, license and source.
 | pycparser | 3.0 | BSD-3-Clause | CFFI dependency |
 | pydantic | 2.13.5 | MIT | Runtime schema validation |
 | pydantic-core | 2.46.5 | MIT | Pydantic dependency |
-| PyJWT | 2.14.0 | MIT | MCP dependency |
+| PyJWT | 2.15.1 | MIT | MCP dependency |
 | python-multipart | 0.0.32 | Apache-2.0 | MCP dependency |
 | pywin32 | 312 | PSF-2.0 | Windows-only MCP dependency |
 | referencing | 0.37.0 | MIT | JSON Schema dependency |

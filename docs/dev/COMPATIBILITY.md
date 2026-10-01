@@ -1,6 +1,6 @@
 # MVP Compatibility and Locale Matrix
 
-**Status:** Aptuni 0.2.0b7 Beta matrix. The platform rows are unchanged from 0.1.0: S03 fixed the
+**Status:** Aptuni 0.2.0b8 Beta matrix. The platform rows are unchanged from 0.1.0: S03 fixed the
 SQLite baseline, hosted runs close the Ubuntu 24.04/ext4 gate for each release commit, and S12
 completed the frozen real-host rows. The Beta's real Claude Code and Codex first-run journeys are
 recorded in `docs/dev/releases/0.2.0b1.md` after publication.

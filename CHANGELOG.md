@@ -6,6 +6,37 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0b8] — 2026-10-01
+
+Day 1 dogfooding fixes for Agent activation. Top-Down Learning stays 0.2.1.
+
+### Fixed
+
+- Full, Profile and Memory activation no longer return nothing when an Agent queries with a list of
+  keywords and one of them does not appear in your notes: Aptuni now falls back to records that
+  match any whole keyword. A single compact keyword (for example “金融危机” or “Python数据分析”) still
+  matches only as a whole.
+- A refused activation now says which requested modules are not granted and which are.
+- Saving a memory from an Agent now explains why it was refused: the grant does not allow memory
+  proposals (re-plan the adapter with `--allow-memory-proposals`), or Full is not active for the
+  session.
+
+### Changed
+
+- `aptuni_activation_status` also lists the granted modules and whether memory proposals are
+  available. Neither contains personal content.
+- Regenerated Claude Code and Codex bundles tell the Agent to check the granted modules first, to
+  query with a few distinctive keywords, and that saving a memory needs Full for the session.
+
+### Security
+
+- The MCP dependency PyJWT is locked at 2.15.1 (2.14.0 has CVE-2026-101918).
+
+### Compatibility
+
+- No Vault, schema or grant change; 0.2.0b7 and 0.2.0b8 open the same Vaults. Regenerate the adapter
+  bundles to get the new skill text.
+
 ## [0.2.0b7] — 2026-09-30
 
 General Knowledge Evidence Model (ADR-0029). Top-Down Learning stays 0.2.1.
