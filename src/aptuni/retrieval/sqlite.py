@@ -195,6 +195,7 @@ class SqliteProjection:
         self,
         concepts: tuple[str, ...],
         *,
+        module: str | None = None,
         modules: tuple[str, ...] | None = None,
         record_types: tuple[str, ...] | None = None,
         limit: int = 5,
@@ -205,16 +206,22 @@ class SqliteProjection:
         """
         if type(limit) is not int or not 1 <= limit <= 101:
             raise ValueError("limit must be between 1 and 101")
-        filters, filter_parameters = self._filters(None, modules, record_types)
+        if module is not None and modules is not None:
+            raise ValueError("pass module or modules, not both")
+        filters, filter_parameters = self._filters(module, modules, record_types)
+        # Concepts that normalise to the same expression ("Machine Learning", "machine-learning") count once.
+        expressions = list(dict.fromkeys(concept_expressions(concept) for concept in concepts))
+        expressions = [pair for pair in expressions if pair[0] is not None]
         scores: dict[str, float] = {}
-        for concept in concepts:
-            strict, relaxed = concept_expressions(concept)
+        for strict, relaxed in expressions:
             hits = self._match(strict, filters, filter_parameters, CONCEPT_CANDIDATES)
             if not hits and relaxed is not None:
                 hits = self._match(relaxed, filters, filter_parameters, CONCEPT_CANDIDATES)
             for rank, row in enumerate(hits):
-                # One point per matched concept; within a concept, a better match adds less than one.
-                scores[row.record_id] = scores.get(row.record_id, 0.0) + 1.0 + 1.0 / (rank + 2)
+                # One point per matched concept; the rank bonuses of all concepts together stay below
+                # one point, so a record matching more concepts always ranks first.
+                bonus = 0.5 / (rank + 1) / len(expressions)
+                scores[row.record_id] = scores.get(row.record_id, 0.0) + 1.0 + bonus
         ordered = sorted(scores, key=lambda record_id: (-scores[record_id], record_id))
         return [SearchRow(record_id, scores[record_id]) for record_id in ordered[:limit]]
 

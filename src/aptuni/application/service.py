@@ -89,7 +89,7 @@ from aptuni.vault.store import ConflictError, Vault, VaultDirNotEmptyError, Vaul
 CLI_EPISODE = "cli"
 CONTEXT_CANDIDATE_FACTOR = 3  # candidates per requested Context result, for concept diversification
 MAX_CONCEPTS = 8  # host-supplied concepts per Context request (ADR-0030)
-MAX_CONCEPT_BYTES = 256
+MAX_CONCEPT_BYTES = 320  # 80 characters (the MCP bound) of up to 4 bytes each
 DECLARED_RETENTION = RetentionLabel(retention_class="canonical", purpose="user_declared_profile",
                                     expires_at=None, full_content=False)
 UNREADABLE = (VaultIntegrityError, SchemaVersionError, UnsupportedFilesystemError, json.JSONDecodeError, KeyError)
@@ -357,9 +357,9 @@ class AptuniService(
             seq, records = self.snapshot()
             try:
                 projection.ensure(documents_for(records.exposable()), seq)
-                if concepts and module is None:
+                if concepts:
                     rows = projection.search_concepts(
-                        concepts, modules=modules, record_types=record_types, limit=limit,
+                        concepts, module=module, modules=modules, record_types=record_types, limit=limit,
                     )
                 else:
                     rows = projection.search(
@@ -432,8 +432,10 @@ class AptuniService(
 
     @staticmethod
     def _check_concepts(concepts: tuple[str, ...]) -> tuple[str, ...]:
-        """Validate host concepts (ADR-0030): 0–8 non-empty strings of at most 256 UTF-8 bytes."""
-        if not isinstance(concepts, tuple | list) or len(concepts) > MAX_CONCEPTS:
+        """Validate host concepts (ADR-0030): 0–8 non-empty strings of at most 320 UTF-8 bytes."""
+        if not isinstance(concepts, tuple | list):
+            raise AptuniError("invalid_context", "Concepts must be a list of strings.")
+        if len(concepts) > MAX_CONCEPTS:
             raise AptuniError("invalid_context", f"Pass at most {MAX_CONCEPTS} concepts.")
         cleaned: list[str] = []
         for concept in concepts:

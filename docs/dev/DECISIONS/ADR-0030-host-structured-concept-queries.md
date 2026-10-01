@@ -24,13 +24,15 @@ LLM-extracted atomic memories; none solves generic-word leakage lexically. Aptun
 instead state what the task is about, at no cost to Aptuni.
 
 A local, read-only experiment on User #1's real Vault (≈50k exposable records; 62 bilingual
-queries in nine categories including 12 that should return nothing; 1,158 pooled, graded manual
+queries in nine categories including 12 that should return nothing; 1,275 pooled, graded manual
 judgments) compared b9 with eleven alternatives:
 
 | Method (top 5) | nDCG@5 | P@5 | MRR | Should-be-empty queries that returned items | Cost |
 |---|---|---|---|---|---|
 | b9 plain query (control) | 0.629 | 0.74 | 0.80 | 67% | — |
-| **Host concepts, each matched whole (this ADR, product path)** | **0.866** | **0.98** | **1.00** | **0%** | none, ~2 ms of search |
+| **Host concepts, each matched whole, plural-folded (this ADR, product path)** | **0.847** | **0.98** | **1.00** | **0%** | none, ~2 ms of search |
+| Same, with every concept's last English word in the other plural form | 0.843 | 0.98 | 1.00 | 0% | none |
+| Host concepts matched whole without plural folding, other plural form | 0.606 | 0.74 | 0.84 | 0% | none (14% empty) |
 | Host concepts through the b9 loose path | 0.834 | 0.94 | 0.98 | 83% | none |
 | Host concepts, monolingual host | 0.706 | 0.73 | 0.95 | 0% | none |
 | Plain query treated as one strict concept | 0.522 | 0.58 | 0.71 | 0% | none (24% empty) |
@@ -43,16 +45,21 @@ judgments) compared b9 with eleven alternatives:
 
 ## Decision
 
-1. The Context API gains optional `concepts`: 0–8 strings of 1–256 UTF-8 bytes (MCP: 1–80
+1. The Context API gains optional `concepts`: 0–8 strings of 1–320 UTF-8 bytes (MCP: 1–80
    characters), whitespace-normalised and de-duplicated. `query` stays required: it is the task in
    one sentence, it drives Knowledge State relevance, and it is the retrieval input only when
    `concepts` is empty — then behaviour is exactly 0.2.0b9.
 2. With concepts, Fact/Memory/Evidence retrieval is **concept mode**
    (`SqliteProjection.search_concepts`): each concept's distinct non-stopword keywords (split on
    whitespace and punctuation; a CJK keyword is the AND of its 2–4-character lexemes) must all
-   occur in a record. A concept of three or more keywords that matches nothing may relax to its
-   adjacent keyword pairs, never to a single keyword. Each concept reads up to 200 matches; a record
-   scores one point per matched concept plus less than one point for its rank within that concept;
+   occur in a record. An English word of three or more letters matches its regular plural/singular
+   forms (`chain`↔`chains`, `-es`, `-ies`→`-y`), because the index does not stem and the host cannot
+   know the notes' word forms. A concept of three or more keywords that matches nothing may relax
+   to its adjacent keyword pairs; relaxation never reaches a single keyword (a concept the stopword
+   list reduces to one keyword, e.g. "help desk", is that one keyword). Concepts that normalise to
+   the same expression count once; a concept with no searchable keyword matches nothing. Each
+   concept reads up to 200 matches; a record scores one point per matched concept plus a rank bonus
+   whose total over all concepts stays below one point, so more matched concepts always rank first;
    ties break by record id. There is no any-term fallback: an empty result means no permitted record
    matched any concept. Concept diversification (ADR-0005 2026-10-01) then orders the result.
 3. Exposure, module, host scope and grant checks are unchanged and still precede ordering; concepts
@@ -63,6 +70,13 @@ judgments) compared b9 with eleven alternatives:
    a repeatable `--concept`. Profile passes concepts to Knowledge State relevance. The versioned
    developer SDK (`aptuni.api.v1`) is unchanged.
 
+**Evidence limits.** The experiment ran once, locally and read-only, on one owner's Vault; its
+queries, concept lists, judgments and embeddings were deleted afterwards and cannot be re-run in CI.
+The implementing agent wrote the 62 queries and the host-style concept lists before any run and
+made all 1,275 graded judgments, pooled from every compared system's top 5; twelve methods were
+compared on the same queries without a held-out set, so the winning figure is optimistic. The
+figures describe what a host that follows the guidance obtains.
+
 ## Consequences
 
 - KI-018 is solved for callers that pass concepts (0% should-be-empty leakage on the evaluation)
@@ -72,7 +86,8 @@ judgments) compared b9 with eleven alternatives:
   descriptions and skills carry the guidance; dogfooding should watch whether hosts comply.
 - Ranking among relevant results is by concept count, so bilingual alternates of a common concept
   can outrank a rarer specific one (mixed-language category 0.73 vs 0.83 for b9). A bounded
-  specificity weight did not help measurably and was not adopted.
+  specificity weight did not help measurably and was not adopted. Prefix matching was tried for
+  word forms and rejected (it only extends a word: 0.685 on the other-plural variant).
 - No dependency, model, schema, Vault or grant change. Older bundles keep working without
   concepts; regenerated bundles carry the new skill text.
 
@@ -85,6 +100,7 @@ incremental re-embedding. Reconsider only if dogfooding shows hosts often omit c
 
 ## Verification
 
-`tests/integration/test_concept_queries.py` (strict match, no single-word leak, pair relaxation,
-ranking, exposure, validation, MCP, CLI, skill text); frozen S03 evaluation unchanged; the real-Vault
+`tests/integration/test_concept_queries.py` (strict match, plural folding, no single-word leak, pair
+relaxation, ranking with many concepts, de-duplication, exposure, validation, Profile/Memory/Full
+and search tools, activation refusal, schema bounds, CLI, skill text); Review 90; frozen S03 evaluation unchanged; the real-Vault
 evaluation above through the product `context()` path.

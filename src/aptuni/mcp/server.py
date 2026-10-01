@@ -35,11 +35,11 @@ from aptuni.domain.records import Module  # noqa: E402
 READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
 PROPOSE = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=True, openWorldHint=False)
 SESSION_CONTROL = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=True, openWorldHint=False)
-# Refusals whose messages are built only from module/scope names and fixed guidance; any other
-# code stays bare so an error message can never carry personal content to the host.
 CONCEPTS_PARAMETER = Annotated[
     list[Annotated[str, Field(min_length=1, max_length=80)]] | None, Field(max_length=8),
 ]
+# Refusals whose messages are built only from module/scope names and fixed guidance; any other
+# code stays bare so an error message can never carry personal content to the host.
 GUIDED_ERROR_CODES = frozenset({"mcp_module_denied", "mcp_scope_denied", "aptuni_activation_required"})
 
 

@@ -105,14 +105,42 @@ def fallback_expression(text: str) -> str | None:
     )
 
 
+_ENGLISH_WORD = re.compile(r"^[a-z]{3,}$")
+
+
+def _english_forms(term: str) -> list[str]:
+    """Regular English plural/singular variants of an ASCII word (concept mode only, ADR-0030).
+
+    The index does not stem, so a host concept "markov chain" must still match "Markov chains".
+    Words of one or two letters and non-English terms stay exact.
+    """
+    if not _ENGLISH_WORD.fullmatch(term):
+        return [term]
+    if not term.endswith("s"):
+        return [term, term + "s"]
+    forms = [term, term[:-1]]
+    if term.endswith("es"):
+        forms.append(term[:-2])
+    if term.endswith("ies"):
+        forms.append(term[:-3] + "y")
+    return list(dict.fromkeys(forms))
+
+
+def _term_expression(term: str) -> str:
+    forms = _english_forms(term)
+    return _quote(forms[0]) if len(forms) == 1 else "(" + " OR ".join(_quote(form) for form in forms) + ")"
+
+
 def _group_expression(group: list[str]) -> str:
-    return _quote(group[0]) if len(group) == 1 else "(" + " AND ".join(_quote(term) for term in group) + ")"
+    terms = [_term_expression(term) for term in group]
+    return terms[0] if len(terms) == 1 else "(" + " AND ".join(terms) + ")"
 
 
 def concept_expressions(concept: str) -> tuple[str | None, str | None]:
     """Return the strict and relaxed expressions for one host-supplied concept (ADR-0030).
 
-    Strict requires every keyword of the concept. A concept of three or more keywords that matches
+    Strict requires every keyword of the concept (English words in any regular plural/singular form).
+    A concept of three or more keywords that matches
     nothing may relax to its adjacent keyword pairs; it never degrades to a single keyword, which is
     what lets generic words ("training", "plan") leak in the plain-query fallback (KI-018).
     """

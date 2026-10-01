@@ -33,6 +33,12 @@
     "88-beta-b9-autosave-diversify-review.md"
    ]
   },
+  "beta-concept-queries": {
+   "kind": "review",
+   "current": "90-beta-concept-queries-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
   "beta-day0-fixes": {
    "kind": "review",
    "current": "81-beta-day0-fixes-rereview.md",

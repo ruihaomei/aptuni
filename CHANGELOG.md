@@ -10,9 +10,10 @@ All notable changes to this project are documented here. The format follows
 
 - Agents can pass `concepts` with Profile, Memory and Full activation (and `aptuni context
   --concept`): short terms the task is about, in English and Chinese. Each concept must match
-  whole, so results are precise and nothing comes back when your notes do not cover the topic.
-  On a real Vault this raised the share of useful top-5 items from 74% to 98% and stopped
-  unrelated items for topics the notes do not contain. Queries without concepts work as before.
+  whole (English words in any plural form), so results are precise and unrelated notes that
+  share only one generic word are no longer returned. In a local evaluation on one real Vault the
+  share of useful top-5 items rose from 74% to 98%, and none of 12 off-topic test queries returned
+  anything. Queries without concepts work as before.
 
 ## [0.2.0b9] — 2026-10-01
 
