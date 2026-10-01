@@ -211,7 +211,9 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
                 proposal = application.propose_from_host(statement, module, current_access(), idempotency_key)
         except AptuniError as error:
             raise _tool_error(error) from error
-        if proposal.memory_id is not None:  # the owner let Agent proposals save (ADR-0018 2026-10-01)
+        # Report "saved" only for a memory the policy saved and the owner has not reviewed yet; an
+        # accepted, rejected or revoked one keeps the 0.2.0b8 response (Review 88 B2).
+        if proposal.memory_id is not None and proposal.review_state == "auto_promoted_pending_review":
             return {"schema_version": 1, "candidate_id": proposal.candidate_id, "created": proposal.created,
                     "status": "saved_pending_owner_review", "memory_id": proposal.memory_id}
         return {"schema_version": 1, "candidate_id": proposal.candidate_id, "created": proposal.created,

@@ -536,7 +536,12 @@ class AptuniService(
             )
             more = len(rows) > limit
             allowed = {record.id: record for record in records.exposable()}
-            matched = diversify([allowed[row.record_id] for row in rows if row.record_id in allowed])[:limit]
+            # Diversify within exact and within fallback rows, so a fallback row never outranks a
+            # match on every keyword (ADR-0004; Review 88 N3).
+            matched = [
+                *diversify([allowed[row.record_id] for row in rows if row.exact and row.record_id in allowed]),
+                *diversify([allowed[row.record_id] for row in rows if not row.exact and row.record_id in allowed]),
+            ][:limit]
             policy = self.policy_of(records)
             visible_requested = tuple(name for name in selected if policy.modules[name].expose_enabled)
             selected_modules = visible_requested or tuple(dict.fromkeys(record.module for record in matched))

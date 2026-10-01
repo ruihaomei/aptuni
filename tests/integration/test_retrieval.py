@@ -255,3 +255,12 @@ def test_context_lists_distinct_concepts_before_repeats(service: AptuniService) 
     ids = [item.canonical_id for item in response.items if item.layer == "L3"]
     assert set(ids) == {first.id, repeat.id, other.id}
     assert ids.index(repeat.id) == 2  # the repeated concept is kept, after the distinct ones
+
+
+def test_search_marks_fallback_rows_and_context_keeps_all_keyword_matches_first(tmp_path: Path) -> None:
+    projection = _projection(tmp_path, {
+        "fct_both": "Markov chain stationary distribution.",
+        "fct_one": "Distribution of exam marks.",
+    })
+    rows = projection.search("markov distribution", limit=10)
+    assert [(row.record_id, row.exact) for row in rows] == [("fct_both", True), ("fct_one", False)]

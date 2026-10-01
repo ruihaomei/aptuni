@@ -176,7 +176,8 @@ def _cmd_review_policy(args: argparse.Namespace, service: Any) -> int:
     state = "on" if policy.auto_promotion_enabled else "off"
     print(
         f"Automatic promotion: {state}" + "\n" +
-        "Agent proposals: " + ("saved automatically, reviewable later" if policy.auto_promote_host_proposals
+        "Agent proposals: " + ("saved automatically, reviewable later (identity, relationships and behaviour "
+                               "still ask)" if policy.auto_promote_host_proposals and policy.auto_promotion_enabled
                                else "wait for your confirmation") + "\n" +
         f"Always asks first for: {', '.join(policy.sensitive_modules) or '(nothing)'}" + "\n" +
         f"Reminds at: {policy.pending_threshold} pending, or after {policy.interval_days} days" + "\n" +

@@ -43,3 +43,7 @@ def test_fact_its_evidence_and_nested_repeats_move_after_distinct_concepts() -> 
 def test_a_crowded_notebook_is_demoted_not_dropped() -> None:
     rows = [_fact(f"a{i}", f"Analysis › topic {i}") for i in range(5)] + [_fact("b0", "Algebra › groups")]
     assert [r.id for r in diversify(rows, per_root=3)] == ["a0", "a1", "a2", "b0", "a3", "a4"]
+
+
+def test_full_width_sentence_end_is_normalized() -> None:
+    assert concept_key(_declared("d1", "喜欢简洁的回答。")) == concept_key(_declared("d2", "喜欢简洁的回答"))

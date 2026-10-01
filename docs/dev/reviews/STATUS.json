@@ -25,6 +25,12 @@
     "76-beta-attach-consent-review.md"
    ]
   },
+  "beta-b9-autosave-diversify": {
+   "kind": "review",
+   "current": "88-beta-b9-autosave-diversify-review.md",
+   "verdict": "BLOCK",
+   "supersedes": []
+  },
   "beta-day0-fixes": {
    "kind": "review",
    "current": "81-beta-day0-fixes-rereview.md",

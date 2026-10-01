@@ -95,3 +95,7 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Name the guided MCP refusal format `code: message` in ADR-0005; `aptuni_activation_status` can still fail generically if the authorization lock finds the state directory unsafe (as every guarded tool does) | Reviews 86 N5 / 87 | MCP |
 | Context units are UTF-8 bytes of each item's JSON, so ids, signals and trust fields dominate short items (a CJK character costs 3); consider a compact payload or token-based units, and tell Agents to ask for a larger budget (Day 1 observation, P2) | BETA_DOGFOODING 2026-10-01 | Context API |
 | Retest a dense lane with a true multilingual model once it can be fetched (Hugging Face unreachable on the owner's network); needs incremental indexing (~13 min full embed for 46k texts with a 0.09 GB model) | `docs/research/findings/retrieval-experiments.md` | Retrieval |
+| Vault invariants do not require the host opt-in to be on when a `host_proposal` candidate has a `policy_auto` promotion; the application gate is the only check | Review 88 N6 | Memory |
+| Notion pages sharing a generic title are treated as one concept by Context diversification (ordering only) | Review 88 N5 | Context API |
+| Add a `context()`-level ordering case to the frozen evaluation so diversification is covered | Review 88 N4 | Evaluation |
+

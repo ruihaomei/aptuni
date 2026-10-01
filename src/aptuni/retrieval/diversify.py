@@ -19,7 +19,7 @@ DEFAULT_PER_ROOT = 3
 
 
 def _normalize(text: str) -> str:
-    return " ".join(unicodedata.normalize("NFKC", text).casefold().split()).rstrip(". ")
+    return " ".join(unicodedata.normalize("NFKC", text).casefold().split()).rstrip(". 。")
 
 
 def concept_key(record: Any) -> str:

@@ -37,6 +37,7 @@ class ProjectionDocument:
 class SearchRow:
     record_id: str
     score: float
+    exact: bool = True  # False for an any-term fallback row (ADR-0004); exact rows always rank first
 
 
 @dataclass(frozen=True)
@@ -188,7 +189,8 @@ class SqliteProjection:
                      if row.record_id not in seen]
             if extra:
                 floor = extra[0].score * FALLBACK_RELATIVE_SCORE
-                rows += [row for row in extra if row.score >= floor][: limit - len(rows)]
+                rows += [SearchRow(row.record_id, row.score, exact=False)
+                         for row in extra if row.score >= floor][: limit - len(rows)]
         return rows
 
     def _match(self, expression: str | None, filters: str, filter_parameters: list[Any], limit: int) -> list[SearchRow]:

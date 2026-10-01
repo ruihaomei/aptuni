@@ -200,14 +200,16 @@ switch; the default is unchanged.
   with reason `host_proposal_allowed`. Every other rule still applies: `ingest`/`expose` denials,
   `auto_promotion_enabled`, the sensitive-module set (default identity, relationships, behavior, which
   still ask) and contradictions in force. Host input filtering (credential, private-key, transcript
-  and instruction-shaped patterns) and the per-origin pending limit run before evaluation as before.
+  and instruction-shaped patterns) and the per-origin pending limit run before evaluation; with the option on, that limit counts the
+  host's auto-saved Memories still awaiting review as well as quarantined candidates, so it keeps
+  bounding an Agent (Review 88 B1).
 - The promotion is the core's own policy (`actor="policy_auto"`), never the host: MCP still cannot
   accept, edit, reject, pin or itself decide a promotion. The resulting Memory keeps
   `trust="host_proposal"`, is marked `auto_promoted_pending_review`, counts toward reminders and is
   revoked like any other. ADR-0020 is unchanged: a host-originated Memory never becomes a Profile Fact.
 - With it off (the default), a host proposal still never reaches the evaluator (Review 56 N5 gate).
-- `aptuni_propose_memory` returns `status="saved_pending_owner_review"` and the `memory_id` when it
-  saved; consent texts name the switch.
+- `aptuni_propose_memory` returns `status="saved_pending_owner_review"` and the `memory_id` only for
+  a Memory the policy saved that the owner has not reviewed; otherwise the 0.2.0b8 response (Review 88 B2); consent texts name the switch.
 
 Risk accepted by the owner: a prompt-injected or mistaken Agent can make a wrong Memory exposable to
 later activations before the owner reviews it. It is bounded by the grant's modules and

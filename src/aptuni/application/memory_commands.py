@@ -157,7 +157,7 @@ class MemoryCommands:
         existing = self._candidate_for_key(records, key, module, normalized_about, statement)
         if existing is not None:
             return self._proposal_for(records, existing, created=False)
-        if origin == "host" and len(self._pending(records, episode)) >= MAX_PENDING_PER_ORIGIN:
+        if origin == "host" and self._open_host_items(records, episode) >= MAX_PENDING_PER_ORIGIN:
             raise AptuniError("memory_queue_full", "Too many proposals await review; review them first.")
         trust = "user_declared" if origin == "cli" else "host_proposal"
         now = utc_now()
@@ -348,6 +348,14 @@ class MemoryCommands:
         decided = self._decided(records)
         return [r for r in records.records() if r.record_type == "candidate_memory" and r.id not in decided
                 and (episode is None or r.provenance.episode == episode)]
+
+    def _open_host_items(self, records: RecordSet, episode: str) -> int:
+        """Proposals from one host awaiting the owner: quarantined ones plus auto-saved ones not yet
+        reviewed, so the ADR-0005 per-principal cap still bounds an opted-in Agent (Review 88 B1)."""
+        unreviewed = sum(1 for r in records.records()
+                         if r.record_type == "memory" and r.provenance.episode == episode
+                         and review_state_of(r, records) == "auto_promoted_pending_review")
+        return len(self._pending(records, episode)) + unreviewed
 
     def _undecided(self, records: RecordSet, candidate_id: str) -> Any:
         for candidate in self._pending(records, None):

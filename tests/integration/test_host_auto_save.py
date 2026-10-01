@@ -8,6 +8,7 @@ from pathlib import Path
 import anyio
 import pytest
 
+from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService, HostContextAccess
 from aptuni.application.workspace import Workspace
 from aptuni.cli.main import main
@@ -84,4 +85,37 @@ def test_cli_turns_host_auto_save_on_and_reports_it(
     monkeypatch.setenv("APTUNI_STATE_DIR", str(service.workspace.state_dir))
     assert main(["memory", "review", "policy", "--host-proposals", "on"]) == 0
     assert "Agent proposals: saved automatically" in capsys.readouterr().out
+    assert main(["memory", "review", "policy", "--auto-promotion", "off"]) == 0
+    assert "Agent proposals: wait for your confirmation" in capsys.readouterr().out
     assert service.review_policy().auto_promote_host_proposals is True
+
+
+def test_auto_saved_memories_awaiting_review_count_toward_the_per_agent_cap(
+    service: AptuniService, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from aptuni.application import memory_commands
+
+    monkeypatch.setattr(memory_commands, "MAX_PENDING_PER_ORIGIN", 3)
+    service.set_review_policy(auto_promote_host_proposals=True)
+    for index in range(3):
+        assert _host(service, f"Goal number {index}.").memory_id is not None
+    with pytest.raises(AptuniError) as refused:
+        _host(service, "Goal number 4.")
+    assert refused.value.code == "memory_queue_full"
+
+
+def test_mcp_reports_saved_only_for_a_proposal_it_auto_saved(service: AptuniService) -> None:
+    access = HostContextAccess("claude-adapter", frozenset({"context.read", "memory.propose"}),
+                               frozenset({"goals"}), "remote_unknown", True)
+    server = create_server(service, access)
+
+    async def exercise() -> None:
+        first = await server.call_tool("aptuni_propose_memory", {"statement": "Goal: apply", "module": "goals"})
+        assert first.structured_content["status"] == "pending_owner_review"
+        candidate_id = first.structured_content["candidate_id"]
+        service.decide_memory(candidate_id, "accept", service.memory_preview(candidate_id).digest("accept"))
+        again = await server.call_tool("aptuni_propose_memory", {"statement": "Goal: apply", "module": "goals"})
+        assert again.structured_content["status"] == "pending_owner_review"
+        assert "memory_id" not in again.structured_content
+
+    anyio.run(exercise)
