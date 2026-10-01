@@ -35,6 +35,15 @@ from aptuni.domain.records import Module  # noqa: E402
 READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
 PROPOSE = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=True, openWorldHint=False)
 SESSION_CONTROL = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=True, openWorldHint=False)
+# Refusals whose messages are built only from module/scope names and fixed guidance; any other
+# code stays bare so an error message can never carry personal content to the host.
+GUIDED_ERROR_CODES = frozenset({"mcp_module_denied", "mcp_scope_denied", "aptuni_activation_required"})
+
+
+def _tool_error(error: AptuniError) -> ToolError:
+    if error.code in GUIDED_ERROR_CODES:
+        return ToolError(f"{error.code}: {error.message}")
+    return ToolError(error.code)
 
 
 def _context_json(value: ContextResponse) -> dict[str, object]:
@@ -93,7 +102,7 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
                     budget=max_units, audience="host_mcp", access=current_access(),
                 )
         except AptuniError as error:
-            raise ToolError(error.code) from error
+            raise _tool_error(error) from error
         return _context_json(response)
 
     @server.tool(name="aptuni_search_context", annotations=READ_ONLY)
@@ -118,7 +127,7 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
                         audience="host_mcp", access=current_access(),
                     )
         except AptuniError as error:
-            raise ToolError(error.code) from error
+            raise _tool_error(error) from error
         return _context_json(response)
 
     @server.tool(name="aptuni_activate_context", annotations=SESSION_CONTROL)
@@ -137,7 +146,7 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
                     intent, scope, query, modules=tuple(modules), budget=max_units, limit=limit,
                 )
         except AptuniError as error:
-            raise ToolError(error.code) from error
+            raise _tool_error(error) from error
         return {
             "schema_version": 1,
             "activation": {
@@ -150,8 +159,9 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
 
     @server.tool(name="aptuni_activation_status", annotations=READ_ONLY)
     def activation_status() -> dict[str, object]:
-        """Inspect session activation without returning personal context."""
-        return activation.status()
+        """Inspect session activation and the grant's modules without returning personal context."""
+        with authorization_guard():
+            return activation.status()
 
     @server.tool(name="aptuni_activation_disable", annotations=SESSION_CONTROL)
     def activation_disable() -> dict[str, object]:
@@ -172,7 +182,7 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
                     budget=max_units, limit=limit, access=current_access(),
                 )
         except AptuniError as error:
-            raise ToolError(error.code) from error
+            raise _tool_error(error) from error
         reminder = feed.reminder
         return _context_json(feed.context) | {
             "pending": feed.pending,
@@ -196,10 +206,10 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
         try:
             with authorization_guard():
                 if activation_required:
-                    activation.require_session()
+                    activation.require_proposal_session()
                 proposal = application.propose_from_host(statement, module, current_access(), idempotency_key)
         except AptuniError as error:
-            raise ToolError(error.code) from error
+            raise _tool_error(error) from error
         return {"schema_version": 1, "candidate_id": proposal.candidate_id, "created": proposal.created,
                 "status": "pending_owner_review"}
 

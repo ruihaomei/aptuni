@@ -93,7 +93,10 @@ def test_task_memory_is_memory_only_and_creates_no_session_state(tmp_path) -> No
         items = result.structured_content["context"]["items"]
         assert [item["canonical_id"] for item in items if item["layer"] == "L3"] == [memory_id]
         status = await server.call_tool("aptuni_activation_status", {})
-        assert status.structured_content == {"schema_version": 1, "mode": "off"}
+        assert status.structured_content == {
+            "schema_version": 1, "mode": "off",
+            "granted_modules": ["preferences", "projects", "skills"], "memory_proposals": "not_granted",
+        }
 
     anyio.run(exercise)
 
@@ -122,6 +125,7 @@ def test_only_full_can_persist_for_session_and_disable_restores_off(tmp_path) ->
         status = await server.call_tool("aptuni_activation_status", {})
         assert status.structured_content == {
             "schema_version": 1, "mode": "full", "intent": "aptuni.full",
+            "granted_modules": ["preferences", "projects", "skills"], "memory_proposals": "not_granted",
         }
         ordinary = await server.call_tool(
             "aptuni_search_context", {"query": "parking system", "modules": ["projects"]},
@@ -138,7 +142,10 @@ def test_only_full_can_persist_for_session_and_disable_restores_off(tmp_path) ->
 
     async def fresh() -> None:
         status = await fresh_server.call_tool("aptuni_activation_status", {})
-        assert status.structured_content == {"schema_version": 1, "mode": "off"}
+        assert status.structured_content == {
+            "schema_version": 1, "mode": "off",
+            "granted_modules": ["preferences", "projects", "skills"], "memory_proposals": "not_granted",
+        }
 
     anyio.run(fresh)
 

@@ -10,6 +10,8 @@ from typing import Literal
 LEXEME_VERSION = 1
 _SEGMENTS = re.compile(r"[a-zA-Z0-9]+|[\u3400-\u4dbf\u4e00-\u9fff]+")
 _CJK = re.compile(r"^[\u3400-\u4dbf\u4e00-\u9fff]+$")
+# A keyword is a run of letters, digits and CJK; only spaces and punctuation separate keywords.
+_KEYWORDS = re.compile(r"[a-zA-Z0-9\u3400-\u4dbf\u4e00-\u9fff]+")
 
 
 def _normalize(text: str) -> str:
@@ -67,9 +69,36 @@ def query_expression(text: str, mode: QueryMode = "all") -> str | None:
     return joiner.join('"' + term.replace('"', '""') + '"' for term in terms)
 
 
+def _quote(term: str) -> str:
+    return '"' + term.replace('"', '""') + '"'
+
+
+def _keyword_groups(text: str) -> list[list[str]]:
+    """Return each distinct non-stopword keyword of the query as its own all-lexeme group."""
+    groups: list[list[str]] = []
+    for keyword in dict.fromkeys(_KEYWORDS.findall(_normalize(text))):
+        if keyword in STOPWORDS:
+            continue
+        lexemes = cjk_lexemes(keyword)
+        if lexemes:
+            groups.append(lexemes)
+    return groups
+
+
 def fallback_expression(text: str) -> str | None:
-    """Return an any-term expression only when task-language removal changed the query."""
+    """Return the any-term expression used when the precise all-term query fills too few slots.
+
+    Task-language requests ("help me prepare for ...", "教我...") OR their remaining lexemes. A list of
+    two or more keywords ORs whole keywords: each keyword still needs every one of its lexemes, so
+    a compact keyword such as "金融危机" never degrades to a fragment such as "金融" (ADR-0004).
+    """
     terms, filtered = _any_terms(text)
-    if not filtered or filtered == terms:
+    if filtered and filtered != terms:
+        return " OR ".join(_quote(term) for term in filtered)
+    groups = _keyword_groups(text)
+    if len(groups) < 2:
         return None
-    return " OR ".join('"' + term.replace('"', '""') + '"' for term in filtered)
+    return " OR ".join(
+        _quote(group[0]) if len(group) == 1 else "(" + " AND ".join(_quote(term) for term in group) + ")"
+        for group in groups
+    )

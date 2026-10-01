@@ -81,6 +81,23 @@ all-term path. Production evaluation records dev false-positive rate 0.0, recall
 1.0; holdout records 1.0 recall/MRR and 0.0 false positives. Review 44 approved the harness and this
 regression boundary; generalization beyond the synthetic corpus remains KI-018.
 
+### 2026-10-01 — Whole-keyword fallback for multi-keyword queries
+
+Dogfooding Day 1 (P1): a real `aptuni.full` task returned no context because Agents query with
+keyword lists, which contain no task language, so the 2026-09-20 gate kept them on the all-term
+path and one absent keyword (for example a term the Vault never mentions) emptied the result. The
+fallback now also runs when the query has two or more distinct non-stopword keywords: it ORs whole
+keywords, and each keyword still requires every one of its own lexemes. A compact single keyword
+such as “金融危机” therefore still never degrades to a fragment such as “金融”; the task-language
+fallback, the 25% relative floor, all-terms-first ranking and the lexeme scheme are unchanged.
+The frozen S03 evaluation is unchanged (dev false-positive rate 0.0, recall@5 0.992, MRR 1.0;
+holdout 1.0/1.0/0.0). Regressions: `tests/unit/retrieval/test_lexical.py`,
+`tests/integration/test_retrieval.py::test_keyword_lists_return_records_matching_any_whole_keyword`.
+Keywords are separated only by whitespace and punctuation, so a compact mixed-script token such as
+“Python数据分析” stays one precise keyword (Review 86 B2). Known trade-off: a two-word phrase such
+as “machine translation” can now return a record that matches only one of its words; the frozen
+negatives share no words with the corpus, so this case is untested by S03 and tracked in KI-018.
+
 ### 2026-09-22 — Explicit hybrid accepted-memory preview
 
 `aptuni search --hybrid` may fuse the builtin SQLite result ranks with semantic ranks from the

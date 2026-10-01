@@ -27,3 +27,16 @@ def test_fallback_requires_task_language_to_have_been_removed() -> None:
     assert fallback_expression("教我生存分析") is not None
     assert fallback_expression("金融危机") is None
     assert fallback_expression("生存游戏攻略") is None
+
+
+def test_multi_keyword_queries_fall_back_to_whole_keywords_only() -> None:
+    # Agent-written keyword lists carry no task language; one absent keyword must not empty them.
+    assert fallback_expression("learning transformer") == '"learning" OR "transformer"'
+    expression = fallback_expression("职业规划 自学")
+    assert expression == '("职业" AND "业规" AND "规划" AND "职业规" AND "业规划" AND "职业规划") OR "自学"'
+    # A keyword is never weakened to one of its own fragments.
+    assert fallback_expression("金融危机") is None
+    assert fallback_expression("learning learning") is None
+    # Script changes inside one token do not split a keyword; only spaces and punctuation do.
+    assert fallback_expression("Python数据分析") is None
+    assert fallback_expression("职业规划、自学") is not None

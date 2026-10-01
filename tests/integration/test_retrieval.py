@@ -148,6 +148,19 @@ def test_compact_unmatched_queries_do_not_degrade_to_any_term_noise(tmp_path: Pa
     assert projection.search("生存游戏攻略") == []
 
 
+def test_keyword_lists_return_records_matching_any_whole_keyword(tmp_path: Path) -> None:
+    projection = _projection(tmp_path, {
+        "fct_dl": "Studied deep learning and backpropagation.",
+        "fct_selfstudy": "自学 Python 数据分析。",
+        "fct_finance": "学习量化金融与投资组合优化。",
+    })
+    assert [row.record_id for row in projection.search("learning transformer")] == ["fct_dl"]
+    assert [row.record_id for row in projection.search("职业规划 自学 研究生")] == ["fct_selfstudy"]
+    # 金融危机 must match as a whole; its fragment 金融 does not stand in for it.
+    assert projection.search("金融危机 攻略") == []
+    assert projection.search("Python机器学习") == []
+
+
 def _accepted_memory(service: AptuniService, statement: str, module: str = "knowledge") -> str:
     proposal = service.observe(statement, module)
     memory_id = proposal.memory_id  # ADR-0018: an owner observation is promoted on the spot

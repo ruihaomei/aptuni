@@ -63,3 +63,21 @@ reset, status and disable tests; exact mode record-type tests; grant/module/poli
 generated Claude/Codex skill parity and absence of automatic personal injection; documentation
 checks that reject retroactive-erasure or authenticated-human-invocation claims; real-host
 clean-environment probes and independent privacy review.
+
+## Amendments
+
+### 2026-10-01 — Actionable refusals and content-free grant status
+
+Dogfooding Day 1 showed Agents could not recover from refusals: a multi-module activation failed
+with a bare `mcp_module_denied`, and a memory proposal after a task-scoped Full failed with a bare
+`aptuni_activation_required` while the grant also lacked `memory.propose`. Without changing any
+boundary: (1) `mcp_module_denied`, `mcp_scope_denied` and `aptuni_activation_required` now carry a
+fixed message built only from module and scope names (other codes stay bare, so an error can never
+carry personal content); module denial names the denied and the granted modules and is still
+all-or-nothing. (2) `aptuni_activation_status` adds `granted_modules` and `memory_proposals`
+(`not_granted` | `needs_session_full` | `available`). (3) `aptuni_propose_memory` checks the grant's
+`memory.propose` scope before the session state, so the Agent is not sent to ask for session Full
+when the grant cannot save at all. Task scope still leaves no state and OFF still captures nothing.
+(4) The generated Full skill tells the Agent to read the status first, to use distinctive keywords
+as the query, and that saving needs session Full. Regenerated bundles pick up (4); the MCP changes
+apply on upgrade. Regressions: `tests/integration/test_activation_guidance.py`.

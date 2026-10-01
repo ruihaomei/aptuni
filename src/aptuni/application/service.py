@@ -31,7 +31,7 @@ from aptuni.application.context import (
     section,
     unit_cost,
 )
-from aptuni.application.errors import AptuniError
+from aptuni.application.errors import AptuniError, module_denied
 from aptuni.application.evaluation import EvaluationCommands
 from aptuni.application.export import ExportReport, export_profile
 from aptuni.application.knowledge_commands import KnowledgeCommands
@@ -430,7 +430,7 @@ class AptuniService(
         if access is None or not access.principal or scope not in access.scopes:
             raise AptuniError("mcp_scope_denied", "The configured MCP principal lacks the required scope.")
         if not modules or not set(modules) <= access.modules:
-            raise AptuniError("mcp_module_denied", "The configured MCP principal lacks module access.")
+            raise module_denied(modules, access.modules)
         if access.host_class != "proven_local" and not access.host_model_egress:
             raise AptuniError("host_model_egress_denied", "Host/model egress is not granted.")
 

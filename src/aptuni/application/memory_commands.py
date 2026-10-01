@@ -21,7 +21,7 @@ from typing import Any, Literal
 
 from pydantic import ValidationError
 
-from aptuni.application.errors import AptuniError
+from aptuni.application.errors import AptuniError, module_denied
 from aptuni.application.review_commands import promotion_records
 from aptuni.application.workspace import Workspace
 from aptuni.domain.ids import new_id
@@ -213,7 +213,7 @@ class MemoryCommands:
         if access is None or not access.principal or "memory.propose" not in access.scopes:
             raise AptuniError("mcp_scope_denied", "The configured MCP principal lacks the required scope.")
         if module not in access.modules:
-            raise AptuniError("mcp_module_denied", "The configured MCP principal lacks module access.")
+            raise module_denied((module,), access.modules)
         return self.observe(statement, module, origin="host", principal=access.principal,
                             idempotency_key=idempotency_key)
 

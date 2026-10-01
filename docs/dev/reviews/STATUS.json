@@ -33,6 +33,14 @@
     "80-beta-day0-fixes-review.md"
    ]
   },
+  "beta-day1-activation-fixes": {
+   "kind": "review",
+   "current": "87-beta-day1-activation-fixes-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "86-beta-day1-activation-fixes-review.md"
+   ]
+  },
   "beta-evidence-profile": {
    "kind": "review",
    "current": "84-beta-evidence-profile-rereview.md",

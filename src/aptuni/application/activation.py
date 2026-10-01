@@ -12,6 +12,8 @@ from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService, HostContextAccess
 from aptuni.domain.records import Module
 
+PROPOSE_SCOPE = "memory.propose"
+
 ActivationIntent = Literal["aptuni.profile", "aptuni.memory", "aptuni.full"]
 ActivationScope = Literal["task", "session"]
 
@@ -31,10 +33,25 @@ class AgentActivation:
             return self._session_full
 
     def status(self) -> dict[str, object]:
+        """Describe the mode and what this grant permits; module and scope names only, no content."""
+        try:
+            access = self.access()
+        except AptuniError:  # a revoked or unreadable grant permits nothing; status itself never fails
+            access = None
         with self._lock:
-            if self._session_full:
-                return {"schema_version": 1, "mode": "full", "intent": "aptuni.full"}
-            return {"schema_version": 1, "mode": "off"}
+            mode: dict[str, object] = (
+                {"mode": "full", "intent": "aptuni.full"} if self._session_full else {"mode": "off"}
+            )
+            if access is None or PROPOSE_SCOPE not in access.scopes:
+                proposals = "not_granted"
+            else:
+                proposals = "available" if self._session_full else "needs_session_full"
+            return {
+                "schema_version": 1,
+                **mode,
+                "granted_modules": sorted(access.modules) if access is not None else [],
+                "memory_proposals": proposals,
+            }
 
     def disable(self) -> dict[str, object]:
         with self._lock:
@@ -78,6 +95,24 @@ class AgentActivation:
                     "Aptuni is OFF. Activate Profile, Memory, or Full for this task.",
                 )
             return self._retrieve("aptuni.full", query, modules=modules, budget=budget, limit=limit)
+
+    def require_proposal_session(self) -> None:
+        """Explain, in order, why a memory proposal cannot be made yet (ADR-0025: OFF captures nothing)."""
+        access = self.access()
+        if access is None or PROPOSE_SCOPE not in access.scopes:
+            raise AptuniError(
+                "mcp_scope_denied",
+                f"This grant does not include {PROPOSE_SCOPE}, so the Agent cannot save memories. Tell the "
+                "user; they can re-plan the adapter with --allow-memory-proposals, or save it themselves "
+                "with 'aptuni observe'.",
+            )
+        with self._lock:
+            if not self._session_full:
+                raise AptuniError(
+                    "aptuni_activation_required",
+                    "Saving a memory needs Full for this session; a task-scoped activation leaves no state. "
+                    "Ask the user whether to activate aptuni.full with scope=session, otherwise skip saving.",
+                )
 
     def require_session(self) -> None:
         with self._lock:
