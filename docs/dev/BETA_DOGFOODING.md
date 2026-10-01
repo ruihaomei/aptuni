@@ -60,6 +60,9 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 | 2026-10-01 | Full activation / retrieval | P1 | A real Full task returned no context: Agent keyword-list queries had no task language, so one keyword absent from the Vault emptied the whole result (the Vault and server were correct). | ADR-0004 2026-10-01 amendment; `test_lexical.py`, `test_retrieval.py::test_keyword_lists_return_records_matching_any_whole_keyword` | Fixed locally; awaiting Beta |
 | 2026-10-01 | Full activation / module grants | P1 | A multi-module activation failed with a bare `mcp_module_denied`, naming neither the denied nor the granted modules; the Agent probed subsets by trial. | ADR-0025 2026-10-01 amendment; `test_activation_guidance.py` | Fixed locally; awaiting Beta |
 | 2026-10-01 | Memory proposal | P1 | Saving after a task-scoped Full failed with a bare `aptuni_activation_required`; the grant also lacked `memory.propose`, so session Full would have failed next. | ADR-0025 2026-10-01 amendment; `test_activation_guidance.py` | Fixed locally; awaiting Beta |
+| 2026-10-01 | Full activation / result diversity | P1 (maintainer: better method → P1) | Full spent its budget on one or two concepts: a topic appeared as Evidence, its derived Fact and nested path repeats. | ADR-0005 2026-10-01 amendment; `test_diversify.py`, `test_retrieval.py::test_context_lists_distinct_concepts_before_repeats` | Fixed locally; awaiting 0.2.0b9 |
+| 2026-10-01 | Evidence duplication | P3 | Two Evidence items with identical text and location but different ids were both returned. | Same concept key → the repeat is demoted after distinct concepts (ADR-0005 2026-10-01) | Fixed locally; awaiting 0.2.0b9 |
+| 2026-10-01 | CJK fallback precision | P3 | Under the task-language fallback a cross-word 2–3-character fragment matched an unrelated item. | jieba query segmentation tried and rejected (`docs/research/findings/retrieval-experiments.md`) | Open — KI-018 |
 
 ## Gates kept open in parallel
 
@@ -77,11 +80,7 @@ proposed severity (P0–P3 or note) · what happened in product terms (no person
 file names or Vault text) · whether the owner was interrupted. Do not commit from non-development
 sessions; a development session triages lines into the tables below and clears them.
 
-- 2026-10-01 · Claude Code · Full activation / retrieval workaround · note · Using only granted modules and a conversational query (which triggers the any-term fallback) avoided the empty result, confirming the earlier diagnosis; keyword-list queries were not retried. · not interrupted
-- 2026-10-01 · Claude Code · Full activation / result diversity · P2 · With Full returning matches, the budget was spent on one concept: the same concept appeared as a Fact plus its Evidence, and again under several nested-path variants, so 3 queries yielded about 11–16 items each covering only 1–2 concepts, all truncated. A per-concept collapse (as in Profile's Knowledge State) would fix this. · not interrupted
-- 2026-10-01 · Claude Code · Context budget accounting · P2 · Each returned item costs about 300–600 units even when its text is one short line, so a 5,000-unit request returns only about 11 items; the per-item metadata overhead dominates the budget. · not interrupted
-- 2026-10-01 · Claude Code · Evidence duplication · P3 · One Full result contained two Evidence items with identical text and source location but different ids. · not interrupted
-- 2026-10-01 · Claude Code · CJK fallback precision · P3 · Under the any-term fallback, a 2–3-character fragment that spans two words of a conversational Chinese query matched an unrelated item, i.e. cross-word n-grams act as query terms. · not interrupted
+- (empty)
 
 ## Daily log (content-free)
 

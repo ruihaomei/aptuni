@@ -244,3 +244,14 @@ def test_hybrid_semantic_only_results_stay_within_the_requested_limit(
     hits = service.search("query with no lexical match at all", limit=3, hybrid=True)
 
     assert [hit.id for hit in hits] == memory_ids[:3]
+
+
+
+def test_context_lists_distinct_concepts_before_repeats(service: AptuniService) -> None:
+    first = service.remember("Studied Markov chains.", "knowledge")
+    repeat = service.remember("studied markov chains", "knowledge")
+    other = service.remember("Studied Markov hitting times.", "knowledge")
+    response = service.context("markov", modules=("knowledge",), budget=4000)
+    ids = [item.canonical_id for item in response.items if item.layer == "L3"]
+    assert set(ids) == {first.id, repeat.id, other.id}
+    assert ids.index(repeat.id) == 2  # the repeated concept is kept, after the distinct ones

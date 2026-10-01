@@ -16,6 +16,15 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
+**0.2.0b9 candidate (2026-10-01, local).** Two changes since b8, both maintainer-requested: (1) owner
+opt-in to save Agent memory proposals without confirmation (ADR-0018 2026-10-01 amendment,
+`aptuni memory review policy --host-proposals on`, ReviewPolicy schema 2); (2) Context concept
+diversification (ADR-0005 2026-10-01 amendment) from local MVP retrieval experiments
+(`docs/research/findings/retrieval-experiments.md`: dedupe-and-demote adopted; jieba and a small dense
+model rejected). The Claude grant now includes `memory.propose` (grant-2176e4d82effbba1, plugin
+reinstalled). **Next:** independent review of both, then release 0.2.0b9 (maintainer already said yes
+to releasing these), then run `aptuni memory review policy --host-proposals on` for the owner.
+
 **Day 1 dogfooding P1 fixes (2026-10-01, local, not released).** A real `/aptuni:full` task got no
 usable context. Root causes (the Vault and server were correct): Agent keyword-list queries had no
 task language, so one absent keyword emptied the lexical result; multi-module refusals and the

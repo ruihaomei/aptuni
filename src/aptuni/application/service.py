@@ -79,6 +79,7 @@ from aptuni.memory.provider import Mem0Projection
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
 from aptuni.policy.profile_promotion import AUTO_PROFILE_TYPES, profile_review_state_of
 from aptuni.policy.promotion import pending_review_memories, review_policy_of, review_state_of
+from aptuni.retrieval.diversify import diversify
 from aptuni.retrieval.hybrid import reciprocal_rank_fusion
 from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SearchRow, SqliteProjection, documents_for
 from aptuni.vault.fsgate import UnsupportedFilesystemError
@@ -86,6 +87,7 @@ from aptuni.vault.locks import source_operations_lock
 from aptuni.vault.store import ConflictError, Vault, VaultDirNotEmptyError, VaultIntegrityError, VerifyReport
 
 CLI_EPISODE = "cli"
+CONTEXT_CANDIDATE_FACTOR = 3  # candidates per requested Context result, for concept diversification
 DECLARED_RETENTION = RetentionLabel(retention_class="canonical", purpose="user_declared_profile",
                                     expires_at=None, full_content=False)
 UNREADABLE = (VaultIntegrityError, SchemaVersionError, UnsupportedFilesystemError, json.JSONDecodeError, KeyError)
@@ -525,15 +527,16 @@ class AptuniService(
             raise AptuniError("invalid_context", "The internal context record-type restriction is invalid.")
         record_types = _record_types or (("fact", "memory", "evidence") if include_evidence else ("fact", "memory"))
         for _ in range(3):
+            # Over-fetch so concept diversification can promote distinct concepts from deeper ranks.
             seq, records, rows = self._stable_search(
                 query,
                 modules=selected or None,
                 record_types=record_types,
-                limit=limit + 1,
+                limit=min(101, max(limit + 1, limit * CONTEXT_CANDIDATE_FACTOR)),
             )
             more = len(rows) > limit
             allowed = {record.id: record for record in records.exposable()}
-            matched = [allowed[row.record_id] for row in rows[:limit] if row.record_id in allowed]
+            matched = diversify([allowed[row.record_id] for row in rows if row.record_id in allowed])[:limit]
             policy = self.policy_of(records)
             visible_requested = tuple(name for name in selected if policy.modules[name].expose_enabled)
             selected_modules = visible_requested or tuple(dict.fromkeys(record.module for record in matched))
@@ -544,7 +547,8 @@ class AptuniService(
             modules_text = "selected modules: " + (", ".join(selected_modules) if selected_modules else "none")
             # Keep the retrieval rank across L3 and L4: an explicitly requested Evidence unit that
             # matches better must not be displaced or budget-truncated by a weaker L3 match
-            # (ADR-0005 2026-09-25 amendment). Exposure filtering already happened above.
+            # (ADR-0005 2026-09-25 amendment). Exposure filtering already happened above; the only
+            # reordering is concept diversification (ADR-0005 2026-10-01 amendment).
             record_candidates = tuple(
                 # ADR-0018 §3: a memory carries how it got here, so an agent can tell an
                 # auto-promoted one the owner has not reviewed from one they confirmed.

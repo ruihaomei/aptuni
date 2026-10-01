@@ -137,3 +137,20 @@ separately scoped expansion. `layers` reports the disclosed layers in canonical 
 independent of item order. Exposure, module and host-scope checks happen before ordering and are
 unchanged. Found by the first real Notion dogfood trial; regression in
 `tests/integration/test_context.py`.
+
+## Amendment — 2026-10-01 concept diversification
+
+Day 1 dogfooding (P2, promoted to P1 by the maintainer's "better method → P1" rule): Full spent its
+budget on one concept, because a MarginNote topic reaches retrieval as an Evidence record, its
+derived Profile Fact and nested repeats of the same path. Context now fetches up to three candidates
+per requested result (capped at 101) and orders the permission-filtered matches with
+`aptuni.retrieval.diversify`: distinct concepts first (key: the normalized `subject` of Evidence and
+Evidence-derived Facts, otherwise the normalized statement; repeated path segments collapse), at most
+three per top-level notebook, then the crowded ones, then repeats. Nothing is dropped, relative rank
+is kept within each group, and exposure, module and host-scope checks still happen before ordering.
+A local, read-only experiment on User #1's Vault (36 bilingual queries, pattern-judged, content-free
+summary in `docs/research/findings/retrieval-experiments.md`) raised distinct relevant concepts in
+the top 10 from 8.5→9.8 (English keywords), 7.1→10.0 (Chinese keywords), 6.0→7.3 (cross-lingual) and
+6.6→8.4 (task requests), with P@10 0.99→0.98, 1.00→1.00, 0.82→0.78, 0.86→0.84. Regressions:
+`tests/unit/retrieval/test_diversify.py`,
+`tests/integration/test_retrieval.py::test_context_lists_distinct_concepts_before_repeats`.

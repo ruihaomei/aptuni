@@ -13,3 +13,5 @@ in the chosen alternative.
 | Trusting MarginNote OPML vendor node IDs | Generated IDs + conservative structural matching; vendor ID only when proven | S05A, KI-020 |
 | Content-addressed delta id as the delivery identity | Per-source `sequence` inside `delta_id` | S05A review round 2 |
 | Treating a partial scan's unseen items as moved or deleted | Explicit `coverage`; partial never infers moves/removals | S05A review round 1 |
+| jieba query segmentation for CJK retrieval (2026-10-01) | Keep 2–4-char lexemes; whole-keyword fallback | `findings/retrieval-experiments.md`: no precision gain, negatives worse |
+| Dense lane with `BAAI/bge-small-zh-v1.5` (2026-10-01) | Lexical + concept diversification; retest with a multilingual model | `findings/retrieval-experiments.md`: lower P@10 in every style; no score floor separates negatives |
