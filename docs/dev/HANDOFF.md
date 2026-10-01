@@ -23,7 +23,7 @@ test-first under ADR-0004 and ADR-0025 2026-10-01 amendments: whole-keyword fall
 whitespace/punctuation-separated keywords (frozen S03 metrics unchanged), guided refusal messages
 built only from module/scope names, `aptuni_activation_status` adds `granted_modules` and
 `memory_proposals`, proposal checks scope before session, Full skill guidance. Review 86 BLOCK →
-remediated (mixed-script keyword split, relay, revoked-grant status). **Next:** re-review, then the
+remediated → Review 87 APPROVE WITH NON-BLOCKING NOTES; checkpoint `8795336`. **Next:** the
 owner decides on publishing 0.2.0b8; after upgrading, regenerate the Claude/Codex bundles to get the
 new skill text, and re-plan the adapter with `--allow-memory-proposals` if Agents should save memories.
 
