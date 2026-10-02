@@ -16,6 +16,29 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
+**Post-purge b10 checkpoint (`b8ba178`, 2026-10-02, local/not released).** Targeted
+owner-confirmed purge complete for managed storage: live commit 62, 110,194 records,
+doctor healthy, zero credential records, both incident ids gone, 125 unrelated exposed
+source Evidence retained. Active Claude/Codex grants restored with original scopes;
+updated bundles/skills installed and real STDIO OFF/guidance checks pass. Superseded
+Claude and developer-plugin grants remain revoked. Adapters run the guarded checkout;
+public local CLI remains b9 pending release.
+
+Original ten E2E runs: one pass with note, nine failures; 19 attempts, four refused.
+Minimal consolidated-retrieval/evidence-grounding guidance implemented, Review 97
+approved with non-blocking notes (host parity follow-up applied). Full pytest: 1263
+passed, three skips, 62 subtests; Ruff, strict mypy, relay, developer checks, secret
+scan and frozen evaluations green. No server-side ranking/schema/dependency change.
+Seven unseen tasks locked, not run: Claude quota exhausted; configured Codex CLI model
+rejected. ADR-0025 interpretation awaits maintainer decision (explicit Full session
+versus automatic task activation). **b10 product gate remains closed.**
+
+New post-purge backup verifies with zero flagged credential records; every unrelated
+record from old backup retained. Old backup contains one incident record and remains
+untouched; retiring it also removes the pre-b9 downgrade checkpoint. External copies
+and credential rotation remain owner responsibilities. See current HANDOFF and
+`docs/dev/b10-continuation/report.md` for exact continuation.
+
 **b10 continuation owner boundary (2026-10-02).** Review 96 already committed
 (`7fa5c6d`), approved with non-blocking notes. Focused credential tests: 104 passed.
 Live doctor healthy at commit 61 / 110,196 records; only two known incident history

@@ -129,8 +129,10 @@ these changes.
    (supersession chain and dependants) holds only Evidence, review events and Facts, none of them
    **current** — current is judged independently of exposure, so a record in a hidden module,
    awaiting review, or a clean corrected successor keeps its chain out of scope (Review 94 B2).
-   Memories, observations and owner-typed Facts are left to the exact-id purge, whose closure already
-   handles their lifecycle (Review 95 B1). The expansion omits the source-wide scope of ADR-0010.
+   Memories, observations and owner-typed Facts are left out of this targeted path.
+   Use the full set of ids `doctor` lists for a separately reviewed exact-id purge;
+   do not purge an auto-promoted CLI memory by its memory id alone (pre-existing
+   Review 96 N1 / KI-024 lifecycle bug). The expansion omits the source-wide scope of ADR-0010.
    This is safe because sync derives `supersedes` from current canonical Evidence, not from the
    source snapshot: once a chain is gone, a later change to the same path starts a new lineage, and a
    still-credential version is withheld again. Before anything is written, the preview validates the
@@ -145,6 +147,17 @@ these changes.
    records were erased, 0 credential records remained, `doctor` passed.
 
 ### Defence in depth after this amendment
+
+**Incident status update, 2026-10-02:** the owner confirmed the reviewed targeted
+credential-history action. Its receipt reports `complete_managed_external_action_needed`.
+Both incident Evidence ids are absent; doctor passes and the canonical credential
+inventory is zero. No source was purged; all 125 unrelated exposable Evidence records
+in the affected source remain. Active Claude/Codex grants were restored under explicit
+owner chat authorization with unchanged scopes. A new verified post-purge backup has
+zero detector hits and includes the deletion ledger; the old backup remains an
+external copy (one incident record detected). This does not verify account rotation
+or erase source files, earlier exports or host/provider transcripts. Review 96's
+non-blocking detector residuals and pre-existing memory-id purge issue remain tracked.
 
 | Layer | Protection |
 |---|---|
@@ -163,7 +176,13 @@ these changes.
   labels `pw:`/`pass:`; bare `token:`/`secret:` values under 12 characters; CLI flags
   (`--password …`); `Authorization: Basic`; PIN/CVV/验证码/seed phrases; a value cut below six
   characters by the 280-character excerpt boundary (N5); underscore emphasis (`_Password:_`); a
-  table without outer pipes once flattened; a table with empty cells may misalign its columns.
+  table without outer pipes once flattened; a table with empty cells may misalign its columns;
+  a credential table cell with trailing words; a separator-less credential table following
+  another table after flattening (Review 96 N2/N4).
+- False positives remain possible for long tokenizer vocabulary values under bare credential-like
+  labels/table headers (Review 96 N4). Removed-source pending sync state is not erased by the
+  targeted history path and can retain text; an invalid candidate closure refuses the whole
+  preview rather than selecting only the safe candidates (Review 96 N3/N5).
 - A withheld file whose *name* holds a credential is listed only by its opaque `folder-<hash>` id.
 - Owner surfaces `aptuni export`, `aptuni search` and `aptuni evidence` are not filtered; an export is
   portable and may hold a credential typed by the owner (N12).

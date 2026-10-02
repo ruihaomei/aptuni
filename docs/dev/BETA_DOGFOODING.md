@@ -82,7 +82,7 @@ proposed severity (P0–P3 or note) · what happened in product terms (no person
 file names or Vault text) · whether the owner was interrupted. Do not commit from non-development
 sessions; a development session triages lines into the tables below and clears them.
 
-- (empty)
+- 2026-10-02 · Claude Code/Codex · context orchestration · P1 · retrieval guidance omitted a relevance decision and confused task permission with session search; corrected locally, fresh product validation pending · interrupted: yes (activation policy decision)
 
 ## Daily log (content-free)
 

@@ -15,6 +15,43 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
+**Post-purge b10 checkpoint (2026-10-02; `b8ba178`, local, NOT released).** Owner
+confirmed `act-dbba0c2dfd65f28e`; receipt is `complete_managed_external_action_needed`.
+Live commit 62: 110,194 records, doctor healthy, credential inventory zero, both incident
+ids absent, all 125 unrelated exposable Evidence records in the affected source retained.
+Claude/Codex active grants restored with original scopes under explicit owner chat
+authorization; Claude plugin reinstalled, Codex MCP points to the guarded checkout and
+four generated user skills installed. Real STDIO initialization confirms new descriptions
+and OFF mode for both. The older superseded Claude grant and unrelated developer-plugin
+grant remain revoked. Installed public CLI is still b9; these adapters use this checkout.
+
+Original ten runs graded without rerun: **one pass with note, nine failures**, 19 retrieval
+attempts (15 successful, four refused), five single-call tasks, four multi-call tasks and
+one missed invocation. First-call concept median four / max five. General guidance fix:
+relevance decision, one consolidated concept/module plan, one justified replacement-term
+retry, precise programme/role/project anchors, correct task/session semantics and no
+mastery/progress inference from mentions/titles. Review 97 approved with non-blocking
+notes; host parity note applied. Full gate: 1263 passed, three optional skips, 62 subtests;
+Ruff, strict mypy, relay, 56 developer checks, secret scan and frozen evaluations pass.
+
+**Actual blockers:** fresh seven-task mini-holdout locked privately, not run. Claude
+capacity canary is exhausted until its stated 20:40 Asia/Shanghai reset; local Codex CLI
+rejects its configured model before producing a response. No model/auth/network defaults
+changed to compensate. Maintainer was asked whether normal prompts apply inside explicit
+session Full (preserve ADR-0025) or require automatic task activation (new privacy policy).
+No answer yet; keep OFF-by-default and do not change that contract. Do not reuse original
+tasks as proof or claim text tests establish Agent compliance. Next: resolve policy, use
+an available real host for locked unseen validation, grade honestly; fresh set after any
+further generalizable fix. Release b10 only on complete product pass.
+
+Credential-clean post-purge backup created and independently verified; zero detector hits,
+zero incident ids, two ledger digests. Comparison to the 2026-10-01 backup retains every
+unrelated old canonical record; only the old incident id is absent. Old backup has one
+credential hit and remains on disk. It can be retired for current-state recovery after
+explicit deletion authorization, but that also abandons its pre-b9 downgrade checkpoint.
+Rotation and copies outside managed storage are owner-only and unverified. Details and
+all requested outcomes: `docs/dev/b10-continuation/report.md`.
+
 **b10 continuation: exact owner boundary (2026-10-02).** Review 96 is committed at
 `7fa5c6d`, APPROVE WITH NON-BLOCKING NOTES. Focused credential baseline: 104 passed.
 Live `doctor`: commit 61, 110,196 records, healthy; exactly the two known incident

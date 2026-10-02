@@ -10,8 +10,16 @@
 | KI-019 | High | Portable `realpath`/`stat` cannot identify APFS clone ancestry. The pinned native bridge is implemented, but this APFS Data volume does not advertise `VOL_CAP_FMT_CLONE_MAPPING`; therefore real positive clone-family cases are unavailable on the Gate 0 host. | Predicate and fail-closed adversarial tests pass. Foundation `fileContentIdentifier` is diagnostic only. Missing capability, incomplete scans and absent matches remain `unverified`; no negative result proves confinement. Focused review decides closure. |
 | KI-022 | Low | Aptuni's Notion OAuth item uses the legacy file-keychain `SecKeychain*` APIs (deprecated but functional). New items trust the creating Python interpreter, so any script run by that same interpreter can read the token without a prompt; the old `security` CLI path trusted `/usr/bin/security` instead. | Accepted for the local-first single-owner model (Review 65 N4). Revisit with a data-protection keychain or a signed helper before multi-user or distributed binaries. |
 | KI-023 | Medium | ADR-0029 v1 classifiers are deterministic heuristics: MarginNote `studied` = sub-concepts, ≥2 further excerpts or an annotation; GitHub `applied` = import plus a registered construct/call; only ~35 registered concepts are detected in code. The first GitHub sync after upgrading reads every selected manifest/code/doc file once more (an unauthenticated user can hit the 60-request/hour limit and retry later). | Tune only with an ADR-0029 amendment and owner-labelled evidence; extend the registry as real repositories need it. |
+| KI-024 | High | Pre-existing exact-id purge of an auto-promoted CLI memory by its memory id may commit an unappliable intent and block canonical writes until cancel. | Review 96 N1; separate reviewed privacy slice required. Do not use memory-id purge for credential cleanup. Targeted withdrawn Evidence cleanup is approved and verified. |
 
 Resolved issues move to an appended history section; do not silently delete them.
+
+**KI-018 product update (2026-10-02):** original ten Agent runs graded: one pass with
+note, nine failures. Precise concept retrieval stays strong and the two negative
+queries return no substantive records, but unnecessary calls, broad planning terms,
+fragmented retries and unsupported answer claims prevent product closure. Guidance
+fix `b8ba178` approved in Review 97; fresh ordinary-prompt validation is still pending,
+so do not mark KI-018 resolved or release b10 from retrieval-only figures.
 
 ## Resolved history
 
