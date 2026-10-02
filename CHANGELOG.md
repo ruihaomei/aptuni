@@ -32,6 +32,13 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Agent guidance now plans personal-context retrieval once, skips generic tasks,
+  consolidates relevant concepts into one call and permits only one justified
+  alternate-term/language retry. It distinguishes task activation from session-only
+  search and reminds Agents that study records do not prove proficiency. Complex
+  plans request a larger initial context budget rather than repeatedly searching.
+  Activation remains OFF by default; regenerate bundles for this guidance.
+
 - Agents now name only the few specific things a task is about when they look up your context —
   usually one to four, such as "MySQL join" rather than "database" — instead of filling all eight
   slots with broad fields and translations. If a term finds nothing they try once with a broader

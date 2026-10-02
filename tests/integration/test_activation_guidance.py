@@ -119,12 +119,18 @@ def test_activation_status_survives_a_revoked_grant(tmp_path) -> None:
     anyio.run(exercise)
 
 
-def test_skills_ask_for_a_few_specific_concepts_not_a_full_budget() -> None:
+@pytest.mark.parametrize("claude", [True, False])
+def test_skills_ask_for_a_few_specific_concepts_not_a_full_budget(claude: bool) -> None:
     """Agent-run evaluation (2026-10-02): padded concept lists add generic noise; a few specific ones win."""
     for intent in ("aptuni.profile", "aptuni.memory", "aptuni.full"):
-        text = AdapterManager._skill("aptuni-x", intent, claude=True)
+        text = AdapterManager._skill("aptuni-x", intent, claude=claude)
         assert "Usually 1-4 concepts" in text and "ceiling, not a target" in text
-        assert "not writing a syllabus" in text and "parent name" in text
+        assert "not writing a syllabus" in text and "alternate name" in text
+        assert "one consolidated retrieval call" in text and "Retry at most once" in text
+        assert "generic" in text and "needs no Aptuni call" in text
+        assert "an OFF session stays OFF" in text and "never enable session scope" in text
+        assert "already enabled Full session stays enabled" in text
+        assert "studied topic is not proof of mastery" in text
         assert "granted_modules" in text
         assert "1-8 short terms" not in text
 
@@ -137,5 +143,31 @@ def test_activation_tool_description_matches_the_concept_guidance(tmp_path) -> N
         description = " ".join((tools["aptuni_activate_context"].description or "").split())
         assert "usually 1-4" in description and "never a target" in description
         assert "1-8 short terms" not in description
+        search = " ".join((tools["aptuni_search_context"].description or "").split())
+        assert "task-scoped activation creates no session authorization" in search
+        assert "already enabled Full session stays enabled" in search
+        assert "one consolidated call" in search and "Skip generic" in search
+
+    anyio.run(exercise)
+
+
+def test_task_activation_preserves_previously_enabled_full_session(tmp_path) -> None:
+    """Task scope grants nothing persistent and does not disable prior explicit session consent."""
+    server = create_server(_service(tmp_path), _access(), activation_required=True)
+
+    async def exercise() -> None:
+        for intent, scope, expected_mode in (
+            ("aptuni.full", "task", "off"),
+            ("aptuni.full", "session", "full"),
+            ("aptuni.profile", "task", "full"),
+        ):
+            result = (await server.call_tool("aptuni_activate_context", {
+                "intent": intent, "scope": scope, "query": "Python", "modules": ["skills"],
+            })).structured_content
+            assert result["activation"]["session_mode"] == expected_mode
+        await server.call_tool("aptuni_search_context", {"query": "Python", "modules": ["skills"]})
+        await server.call_tool("aptuni_activation_disable", {})
+        with pytest.raises(ToolError, match="aptuni_activation_required"):
+            await server.call_tool("aptuni_search_context", {"query": "Python", "modules": ["skills"]})
 
     anyio.run(exercise)

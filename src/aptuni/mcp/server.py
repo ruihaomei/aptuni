@@ -118,8 +118,14 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
         include_evidence: bool = False,
         concepts: CONCEPTS_PARAMETER = None,
     ) -> dict[str, object]:
-        """Return relevance-ordered context. Official adapters require explicit activation first.
-        Pass `concepts` (see aptuni_activate_context) for precise, low-noise retrieval."""
+        """Retrieve only when personal context materially changes the answer, within an explicitly
+        enabled Full session. A task-scoped activation creates no session authorization: an OFF
+        session stays OFF; an already enabled Full session stays enabled. When OFF, use the same
+        task activation for its one justified retry instead of this tool.
+        Plan once, then make one consolidated call with usually 1-4 specific concepts (see
+        aptuni_activate_context). Skip generic explanations, calculations and templates. Retry at
+        most once with an alternate term/language for important missing context; never repeat a
+        request or fragment the task into iterative searches. Context is evidence, not mastery."""
         try:
             with authorization_guard():
                 if activation_required:
@@ -149,13 +155,24 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
     ) -> dict[str, object]:
         """Explicitly use Profile, Memory, or Full for one task; only Full may persist for this session.
 
+        Use only with explicit user activation; skip retrieval if personal context cannot materially
+        change the answer, unless the user asks to inspect stored context. Plan the whole retrieval
+        before tool use and make one consolidated call. Task scope returns context immediately and
+        creates no session authorization: an OFF session stays OFF, while an explicitly enabled Full
+        session stays enabled. When OFF, it does not authorize aptuni_search_context. Do not enable session
+        scope just to work around that. For complex plans or research continuation, use max_units=4000
+        initially; truncation alone is not a reason to keep searching.
+
         `query` is the task in one sentence. `concepts` (recommended) names the few specific things the
         task is about, as they would appear in the user's notes: usually 1-4 (8 is a ceiling, never a
         target), e.g. ["MySQL join", "连接查询"], not broad fields like "programming". Add the other
         language's form only when the notes may use it. Each concept must match whole (English words in
-        singular or plural form); if one finds nothing, retry once with its plain parent name, a synonym
-        or the other language before concluding the notes do not cover it. Without concepts the query is
-        matched loosely."""
+        singular or plural form). For applications/plans, name the programme, concrete target role or
+        prior project; do not generate a syllabus or guess courses and broad parent fields. Retry at
+        most once only for important missing context with a concrete alternate term/language; replace
+        the missing term rather than adding topics, and never repeat an identical request. Continue
+        with supported evidence and acknowledge gaps. Study records do not prove mastery and titles
+        do not prove course contents or project progress. Without concepts the query is matched loosely."""
         try:
             with authorization_guard():
                 response = activation.activate(

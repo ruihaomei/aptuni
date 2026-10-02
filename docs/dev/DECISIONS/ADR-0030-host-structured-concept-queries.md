@@ -154,3 +154,28 @@ broad-field guidance (made concepts worse in the earlier V1 run: 0.539).
 **Verification.** `tests/integration/test_activation_guidance.py` (skill and tool text); a fresh
 held-out end-to-end run (10 tasks written before any result of the adopted guidance) is recorded in
 `docs/research/findings/retrieval-experiments.md`.
+
+## Amendment 2026-10-02 — Consolidated retrieval and evidence-grounded answers
+
+The original ten E2E runs are now graded in
+`docs/dev/b10-continuation/original-e2e-grading.md`: one pass with note, nine failures,
+19 retrieval attempts, four refused. Broad planning concepts, task/session confusion,
+unnecessary negative-task retrieval and unsupported personalization are product defects.
+Two final answers were unavailable due to provider limits; these remain failures.
+
+Guidance now makes relevance a decision before tools, plans all concepts/modules once,
+asks for one consolidated call with at most one justified replacement-term/language
+retry, and prohibits repeated requests, syllabus expansion and scope escalation to
+evade a refusal. Applications/plans anchor on named programmes, roles or prior projects;
+they do not guess course inventories. A shorter named entity may recover a missed
+compound, but a broad parent field is not the default retry. Complex plans/research
+continuations ask for 4000 units initially; truncation alone does not justify more calls.
+
+The search description explicitly requires session Full: task activation returns its
+context immediately and creates no session authorization: OFF stays OFF, and an
+already explicitly enabled Full session stays enabled until disabled. Skill/MCP guidance distinguishes
+studied/mentioned material from proficiency and undocumented progress. These are
+guidance changes only: matching/ranking, limits, grants, schemas and activation checks
+stay unchanged. ADR-0025 remains in effect pending the maintainer's policy decision.
+Text-level regressions prove shipped guidance is present, not Agent compliance;
+fresh ordinary-prompt validation is a separate, still-open release gate.

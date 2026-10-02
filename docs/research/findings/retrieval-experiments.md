@@ -98,3 +98,21 @@ re-scored 30 candidates in ~1.1 s per query.
   `max(vec, fts) + bonus·min(vec, fts)`, optional reranker.
 - None solves generic-word leakage lexically; the transferable idea is to move query understanding
   to the component that has it. For Aptuni that is the calling Agent.
+
+## 2026-10-02 — Original E2E grading and orchestration checkpoint
+
+The preserved ten Agent runs were graded without rerunning them; sanitized per-task
+results and root causes: `docs/dev/b10-continuation/original-e2e-grading.md`.
+Strict full-product grade is one pass with note and nine failures. Retrieval was
+attempted on 9/10 tasks (19 calls, four refused); first-call concept median four,
+max five. The two negative tasks returned no substantive record text, but both
+unnecessarily retrieved and narrated the failed search. Bilingual retrieval works
+on several Chinese/mixed tasks; h10 stops at provider exhaustion, so no retrieval
+language conclusion is possible there.
+
+The old harness prefixed every task with Full; it cannot establish ordinary-prompt
+invocation. A new mini-holdout of seven unseen tasks was locked privately before
+results (SHA-256 `8da90d4a3b7bd3d7baa152c63fdbc5a55006038607eddd9c21ee940037784c3a`).
+Claude capacity canary still returns a usage-limit failure. This does not erase the
+original failures or substitute for fresh validation. ADR-0025 policy interpretation
+is separately pending. No completed embedding/reranker/provider research reopened.
