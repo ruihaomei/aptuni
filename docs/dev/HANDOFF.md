@@ -15,6 +15,20 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
+**b10 continuation: exact owner boundary (2026-10-02).** Review 96 is committed at
+`7fa5c6d`, APPROVE WITH NON-BLOCKING NOTES. Focused credential baseline: 104 passed.
+Live `doctor`: commit 61, 110,196 records, healthy; exactly the two known incident
+history records, neither current/exposable. Live targeted credential-history preview
+selects exactly those two records and zero sources; 125 unrelated exposable Evidence
+records remain in that source. No deletion/revocation performed. ADR-0013 item 2
+requires owner CLI confirmation (agents never approve), even though scripted digest
+confirmation exists. Run the preview/confirm using `.tools/bin/uv run aptuni` in
+this checkout; previews expire in ten minutes. After confirmation: verify doctor,
+zero credential records, unrelated source data and restore adapter grants; then grade
+the preserved original ten `cg/runs/holdout` runs before any guidance change. See
+`docs/dev/b10-continuation/` for plan, findings and checkpoint report. No b10 release,
+new clean backup or old backup deletion.
+
 **Credential P1 + concept guidance (2026-10-02, local, NOT released; b10 gate open).**
 Checkpoints: `ff3e396`, `606e722`, `6660ae2` (credential guard: Review 93 B1–B3, Review 94 and 95
 blockers closed; `aptuni privacy purge preview --credential-history` erases withdrawn credential

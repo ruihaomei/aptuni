@@ -16,6 +16,15 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
+**b10 continuation owner boundary (2026-10-02).** Review 96 already committed
+(`7fa5c6d`), approved with non-blocking notes. Focused credential tests: 104 passed.
+Live doctor healthy at commit 61 / 110,196 records; only two known incident history
+records flagged. Exact targeted preview prepared (two records, zero sources), no
+purge performed: ADR-0013 item 2 reserves approval to the owner CLI. Adapter grants
+remain present; confirmation will revoke them. Original ten held-out runs preserved
+and grading pending. Release, fresh holdout and credential-clean backup gates remain
+open; old backup retained. Continuation details: `docs/dev/b10-continuation/`.
+
 **Retrieval investigation → ADR-0030 (2026-10-02, local, not released).** Maintainer brief: own
 retrieval quality. Local read-only experiments on User #1's Vault (62 queries, 1,282 graded
 judgments; findings in `docs/research/findings/retrieval-experiments.md`) found that letting the host
