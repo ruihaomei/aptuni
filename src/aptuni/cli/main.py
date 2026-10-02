@@ -743,7 +743,7 @@ def _cmd_privacy_purge(args: argparse.Namespace, service: AptuniService) -> int:
         return 0
     if args.purge_command == "preview":
         if bool(args.record_ids) == args.credential_history:
-            raise AptuniError("invalid_purge_scope", "Give exact record IDs or --credential-history, not both.")
+            raise AptuniError("invalid_purge_scope", "Give exact record IDs or --credential-history (one of them).")
         preview = service.privacy_purge_preview(tuple(args.record_ids), credential_history=args.credential_history)
         if args.json:
             _print_json(preview.to_dict())

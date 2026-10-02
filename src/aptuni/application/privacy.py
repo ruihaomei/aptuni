@@ -271,15 +271,28 @@ def _snapshot_copy_scope(
 def credential_history_scope(records: RecordSet, candidates: tuple[str, ...]) -> tuple[str, ...]:
     """The credential-bearing ``candidates`` whose whole purge closure is already withdrawn.
 
-    A chain that still has a current version (for example a note edited to drop its password) is
-    left alone: erasing it would remove something Agents or the owner can still use."""
+    "Current" here is independent of exposure: a record in a hidden module, awaiting review, or a
+    clean corrected successor is still current, and its chain is left alone (Review 94 B2)."""
     superseded = {target for record in records.records() for target in getattr(record, "supersedes", ())}
-    visible = {record.id for record in records.exposable()} | {
+    revoked = records.revoked_ids()
+    current = {record.id for record in records.current_facts()} | {
         record.id for record in records.records()
-        if record.record_type == "evidence" and record.change_kind != "retraction" and record.id not in superseded
+        if record.record_type in {"evidence", "memory", "candidate_memory", "observation"}
+        and record.id not in superseded and record.id not in revoked
+        and getattr(record, "change_kind", None) != "retraction"
     }
     return tuple(sorted(candidate for candidate in candidates
-                        if not visible.intersection(_expand_purge(records, (candidate,), source_scope=False)[0])))
+                        if not current.intersection(_expand_purge(records, (candidate,), source_scope=False)[0])))
+
+
+def refuse_pending_sources(vault_root: Path, records: RecordSet, record_ids: tuple[str, ...]) -> None:
+    """A targeted purge must not race an interrupted sync whose replay may reference the purged ids."""
+    wanted = set(record_ids)
+    sources = {record.provenance.source_id for record in records.records()
+               if record.id in wanted and record.record_type == "evidence" and record.provenance.source_id}
+    if any(_owned_child(vault_root, "sources", f"{source_id}.pending.json").exists() for source_id in sources):
+        raise AptuniError("source_sync_pending", "A source sync was interrupted; run `aptuni sync` for that "
+                          "source first, then preview the purge again.")
 
 
 def create_purge_preview(
@@ -287,6 +300,8 @@ def create_purge_preview(
     requested: tuple[str, ...], *, source_scope: bool = True,
 ) -> PurgePreview:
     record_ids, source_ids = _expand_purge(records, requested, source_scope=source_scope)
+    if not source_scope:
+        refuse_pending_sources(vault_root, records, record_ids)
     try:
         managed_copy_ids, external_copies = _snapshot_copy_scope(vault_root, state_dir, source_ids)
     except OSError as error:
@@ -413,6 +428,7 @@ def _reap_terminal_intents(state_dir: Path) -> None:
 
 def _load_or_commit_intent(
     state_dir: Path, action_id: str, confirmed_digest: str, vault_seq: int, policy_epoch: int,
+    vault_root: Path | None = None, records: RecordSet | None = None,
 ) -> tuple[Path, dict[str, Any], PurgePreview]:
     intent_path = state_dir / "privacy" / "intents" / f"{action_id}.json"
     if intent_path.exists():
@@ -431,6 +447,9 @@ def _load_or_commit_intent(
             raise AptuniError("confirmation_expired", "The purge confirmation expired; preview it again.")
         if preview.vault_seq != vault_seq or preview.policy_epoch != policy_epoch:
             raise AptuniError("confirmation_stale", "The Vault or policy changed; preview the purge again.")
+        if not preview.source_ids and vault_root is not None and records is not None:
+            # a targeted purge; a source-wide one deletes the source's replay state itself
+            refuse_pending_sources(vault_root, records, preview.record_ids)
         intent = {"schema_version": 1, "preview": preview.to_dict(), "results": {}}
         _write_private_json(intent_path, intent)
         (state_dir / "privacy" / "pending" / f"{action_id}.json").unlink(missing_ok=True)
@@ -545,7 +564,7 @@ def confirm_purge(
             if policy is None:
                 raise AptuniError("vault_unreadable", "The Vault has no module policy.")
             intent_path, intent, preview = _load_or_commit_intent(
-                state_dir, action_id, confirmed_digest, vault_seq, policy.epoch
+                state_dir, action_id, confirmed_digest, vault_seq, policy.epoch, vault.root, records
             )
             results: dict[str, str] = dict(intent.get("results", {}))
             if "canonical" not in results:

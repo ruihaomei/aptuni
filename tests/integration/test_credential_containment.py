@@ -284,3 +284,46 @@ def test_credential_history_purge_cli_preview_needs_no_record_ids(
     assert main(["privacy", "purge", "preview", "--credential-history"]) == 0
     out = capsys.readouterr().out
     assert "Records after non-resurrection expansion: 2" in out and "Zq1999" not in out
+
+
+def test_a_multiline_markdown_table_of_logins_is_withheld(service: AptuniService, tmp_path: Path) -> None:
+    table = "| Site | User | Password |\n|---|---|---|\n| mail | someone | Zq1999abc! |\n"
+    source_id, _ = _folder(service, tmp_path, {"accounts.md": table, "notes.md": CLEAN_NOTE})
+    report = service.sync(source_id)
+    assert report.withheld_items == ("accounts.md",)
+
+
+def test_credential_history_purge_ignores_current_records_in_unexposed_modules(service: AptuniService) -> None:
+    service.remember("My lab VM password: Tr0ub4dor&3x", "knowledge")
+    service.set_module("knowledge", expose=False)
+    with pytest.raises(AptuniError) as refused:
+        service.privacy_purge_preview((), credential_history=True)
+    assert refused.value.code == "nothing_to_purge"
+
+
+def test_credential_history_purge_keeps_a_corrected_clean_fact(service: AptuniService) -> None:
+    fact = service.remember("My lab VM password: Tr0ub4dor&3x", "knowledge")
+    service.correct(fact.id, "My lab VM login is in the password manager.")
+    with pytest.raises(AptuniError) as refused:
+        service.privacy_purge_preview((), credential_history=True)
+    assert refused.value.code == "nothing_to_purge"
+
+
+def test_credential_history_purge_waits_for_an_interrupted_sync(
+    service: AptuniService, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_id, root = _folder(service, tmp_path, {"info.txt": CREDENTIAL_NOTE, "notes.md": CLEAN_NOTE})
+    _ingest_unguarded(service, source_id, monkeypatch)
+    (root / "info.txt").unlink()
+    service.sync(source_id)
+    pending = service.vault().root / "sources" / f"{source_id}.pending.json"
+    preview = service.privacy_purge_preview((), credential_history=True)
+    pending.write_text("{}", encoding="utf-8")  # a sync that stopped before committing
+    with pytest.raises(AptuniError) as refused:
+        service.confirm_privacy_purge(preview.action_id, preview.digest)
+    assert refused.value.code == "source_sync_pending"
+    with pytest.raises(AptuniError) as refused:
+        service.privacy_purge_preview((), credential_history=True)
+    assert refused.value.code == "source_sync_pending"
+    pending.unlink()
+    assert sum("Zq19990717abc" in text for text in _texts(service)) == 1

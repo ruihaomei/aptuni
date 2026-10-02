@@ -94,15 +94,18 @@ identity card, `doctor` inventory, Agent proposals); real-Vault scan; independen
 Review 93 blocked on three findings; all are fixed test-first. Decisions 1–5 above stand, with
 these changes.
 
-1. **Detector coverage (B1, N2, N6).** Labels may be decorated by Markdown emphasis, inline code or
-   quotes (`**密码**：`, `` `api_key`: ``, `"password": "…"`), be env-style (`DB_PASSWORD=`,
-   `GITHUB_TOKEN=`, `AWS_SECRET_ACCESS_KEY=`, a bounded `PREFIX_` chain anchored at a word start), or
-   name a Markdown table column (`| 密码 |` header, value in the same column, or `| password | v |`).
-   Bare `token`/`secret` labels count only with a secret-shaped value. Values that are code (calls,
-   indexing, `os.getenv`, `${{ … }}`), paths, dates, counted words (`6-digit`) or title-case words
-   (`Required`, `Expired`) are not secrets. Every rule is linear: the URL scheme is bounded to 32
-   characters and the label prefix to four segments (60k-character adversarial inputs < 0.5 s).
-   Tests: 24 positive and 43 negative cases plus a worst-case runtime test.
+1. **Detector coverage (B1, N2, N6; Review 94 B1, N1, N2).** Labels may be decorated by Markdown
+   emphasis, inline code or quotes on either side of the separator (`**密码**：`, `**Password:**`,
+   `` `api_key`: ``, `"password": "…"`), be env-style (`DB_PASSWORD=`, `GITHUB_TOKEN=`,
+   `AWS_SECRET_ACCESS_KEY=`, a bounded `PREFIX_` chain anchored at a word start), or name a Markdown
+   table column (`| 密码 |` header with the value in the same column, also after sources flatten the
+   table onto one line; or `| password | v |`). Bare `token`/`secret` labels, common in ML and code
+   notes, need a value of at least 12 characters. Values that are code (calls, indexing,
+   `os.getenv`, `${{ … }}`, `name.attribute`), paths, dates, versions (`v2.1.0`), counted words
+   (`6-digit`) or title-case words (`Required`) are not secrets. Matching is linear: the URL scheme is
+   bounded to 32 characters, the label prefix to four segments, and the table rule reads at most 16
+   label columns per row (60k-character adversarial inputs < 0.05 s). Tests: 27 positive and 48
+   negative cases plus a worst-case runtime test.
 2. **No copy paths (B2).** `credential_guard.scrubbed`/`retraction_of` neutralise the subject, drop
    the excerpt and replace credential-bearing locator strings (Notion and GitHub Deep `title`) with
    `[credential withheld]`. Source removal (ADR-0027) scrubs its retractions the same way. Authority
@@ -115,21 +118,25 @@ these changes.
    (MarginNote) — never a title or text — in owner CLI sync output and `--json` only. MCP never sees
    it. An unchanged withheld item is listed on the sync that withheld it, not on every sync (N7).
 4. **Hosts get no count (N1).** MCP Context JSON no longer carries `withheld_credentials`; the count
-   stays in owner CLI output (`aptuni context`, now also `--json`) and the SDK response object.
+   stays in owner CLI output (`aptuni context`, now also `--json`). The public SDK `ContextResult`
+   does not carry it.
 5. **Identity card per statement (N3).** Credential-like identity statements are dropped one by one;
    the rest of the L0 card is still returned.
 6. **Historical records: targeted erasure.** `aptuni privacy purge preview --credential-history`
    selects every record holding credential-like text whose whole purge closure (supersession chain
-   and dependants) is already withdrawn, and expands **without** the source-wide scope of ADR-0010.
-   This is safe because sync derives `supersedes` from current canonical Evidence, not from the
-   source snapshot: once a chain is gone, a later change to the same path starts a new lineage, and
-   a still-credential version is withheld again. A chain with a current version (a note edited to
-   drop its password) is not selected, because erasing it would remove the clean current note; such
-   history stays non-exposable and is listed by `doctor`. Everything else is the reviewed ADR-0010
-   purge: exact preview and digest, typed `PURGE`, deletion ledger, receipt, projection
-   invalidation, and revocation of adapter grants and bundles (the owner re-runs adapter setup
-   afterwards). Rehearsed on a scratch copy of User #1's Vault: exactly the two incident records were
-   erased, 0 credential records remained, `doctor` passed.
+   and dependants) contains nothing **current** — current is judged independently of exposure, so a
+   record in a hidden module, awaiting review, an active memory, or a clean corrected successor keeps
+   its chain out of scope (Review 94 B2). The expansion omits the source-wide scope of ADR-0010. This
+   is safe because sync derives `supersedes` from current canonical Evidence, not from the source
+   snapshot: once a chain is gone, a later change to the same path starts a new lineage, and a
+   still-credential version is withheld again. Preview and confirm both refuse with
+   `source_sync_pending` while an affected source has an interrupted sync whose replay could
+   reference the purged ids (Review 94 B3); the owner syncs that source first. A chain with a current
+   version is not selected; that history stays non-exposable and is listed by `doctor`. Everything
+   else is the reviewed ADR-0010 purge: exact preview and digest, typed `PURGE`, deletion ledger,
+   receipt, projection invalidation, and revocation of adapter grants and bundles (the owner re-runs
+   adapter setup afterwards). Rehearsed on a scratch copy of User #1's Vault: exactly the two incident
+   records were erased, 0 credential records remained, `doctor` passed.
 
 ### Defence in depth after this amendment
 
@@ -145,9 +152,13 @@ these changes.
 ### Residuals (documented, not detected or not covered)
 
 - Not detected: unlabelled random strings; prose (`password is …`, `密码是…`); separators other than
-  `:`, `：`, `=`, `|`; lowercase words or passphrases and repeated-digit PINs as values; short
-  labels `pw:`/`pass:`; CLI flags (`--password …`); `Authorization: Basic`; PIN/CVV/验证码/seed
-  phrases; a value cut below six characters by the 280-character excerpt boundary (N5).
+  `:`, `：`, `=`, `|`; HTML-decorated labels (`<b>Password</b>:`); a label alone on a heading line
+  with the value below it; lowercase words or passphrases and repeated-digit PINs as values; short
+  labels `pw:`/`pass:`; bare `token:`/`secret:` values under 12 characters; CLI flags
+  (`--password …`); `Authorization: Basic`; PIN/CVV/验证码/seed phrases; a value cut below six
+  characters by the 280-character excerpt boundary (N5); a table with empty cells may misalign its
+  columns after flattening.
+- A withheld file whose *name* holds a credential is listed only by its opaque `folder-<hash>` id.
 - Owner surfaces `aptuni export`, `aptuni search` and `aptuni evidence` are not filtered; an export is
   portable and may hold a credential typed by the owner (N12).
 - Non-canonical source snapshots and review entries keep Notion and GitHub Deep titles of withheld
@@ -157,6 +168,6 @@ these changes.
 - Copies outside the Vault are not reachable: earlier backups, earlier exports or Obsidian-interface
   copies, and any host transcript or model-provider log that received the record before containment.
   Rotation is the effective remedy (N10).
-- Real-Vault measurement (scratch copy, 83,698 texts, 3.7 s): 2 hits, both the incident; a loose
+- Real-Vault measurement (scratch copy, 83,698 texts, 3.4–3.7 s, before and after Review 94): 2 hits, both the incident; a loose
   label scan of the remaining texts found no missed credential (precision 2/2; recall measured only
   on this Vault).

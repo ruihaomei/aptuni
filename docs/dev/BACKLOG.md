@@ -105,3 +105,11 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Concept-mode ranking: bilingual alternates of a common concept outrank a rarer specific concept (mixed-language queries 0.73 vs 0.83 nDCG@5); a bounded IDF weight did not help | ADR-0030 | Retrieval |
 | Concept-mode folding leftovers: irregular plurals (matrix/matrices), -ves, -ie plurals (movies), menus/gurus stay exact; extend `_NOT_PLURAL`/`_ICS_PLURAL` only with real misses | Review 92 N1–N3 | Retrieval |
 | Watch in dogfooding whether hosts pass `concepts` and in both languages; a semantic gate for plain queries (dense τ≈0.4: leakage 67%→25%) stays deferred until hosts are shown to omit them | ADR-0030 | Retrieval |
+| Credential detector: value cut below six characters at the 280-character excerpt boundary; scan the full item text before truncation | Review 93 N5 | Credential guard hardening |
+| Credential guard: skip source-removal retractions whose previous head is already a guard retraction; re-evaluate unchanged withheld items when the detector changes | Review 93 N7 | Credential guard hardening |
+| `doctor` credential inventory: report current records in unexposed modules as current; remediation text for owner-typed records (`source=-`) | Review 93 N8 | Credential guard hardening |
+| Credential sweep for sources whose module has ingest disabled (they cannot sync) | Review 93 N9 | Credential guard hardening |
+| Optional credential filter or warning for owner `aptuni export` / `search` / `evidence` output, since an export is portable | Review 93 N12 | Credential guard hardening |
+| Credential-history purge revokes all adapter grants (inherited ADR-0010 effect); consider keeping grants when no purged record was ever exposable | ADR-0031 amendment | Privacy hardening |
+| `credential_history_scope` runs one full purge expansion per flagged record; batch it if a Vault ever has many flagged records | Review 94 N7 | Privacy hardening |
+| Block sync early while a committed targeted (no-source) purge intent exists (the write is already refused later) | Review 94 N8 | Privacy hardening |

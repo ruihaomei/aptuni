@@ -31,6 +31,9 @@ PEM_HEADER = "-----BEGIN " + "OPENSSH PRIVATE KEY-----"  # split so scanners do 
     ("| 邮箱 | 密码 |\n| a@b.c | Zq19990717 |", "credential_field"),
     ("| password | Zq1999abc! |", "credential_field"),
     ("password = \"Zq19990717abc\"", "credential_field"),
+    ("- **Password:** Zq1999abc!", "credential_field"),
+    ("**密码：** Zq19990717", "credential_field"),
+    ("| Site | User | Password | |---|---|---| | mail | a@b.c | Zq1999abc! |", "credential_field"),
     ("AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYzAbCdKEY0", "credential_field"),
 ])
 def test_obvious_credentials_are_detected(text: str, kind: str) -> None:
@@ -81,6 +84,11 @@ def test_obvious_credentials_are_detected(text: str, kind: str) -> None:
     "client_secret: ${CLIENT_SECRET}",
     "password_hash: argon2id",
     "PasswordField(required=True)",
+    "token: GPT-4o",
+    "token: v2.1.0",
+    "eos_token = tokenizer.eos_token",
+    "secret: x86_64",
+    "| Model | Token | Notes | |---|---|---| | bert | 512 | base |",
 ])
 def test_ordinary_notes_about_credentials_are_not_flagged(text: str) -> None:
     assert credential_kinds(text) == ()
@@ -89,7 +97,8 @@ def test_ordinary_notes_about_credentials_are_not_flagged(text: str) -> None:
 def test_worst_case_inputs_stay_linear() -> None:
     import time
 
-    for text in ("a." * 30_000, "password:" * 7_000, "a_" * 30_000 + "password", "| " * 30_000):
+    wide = "| " + "password | " * 200 + "\n" + ("| " + "Zq1 | " * 200 + "\n") * 50
+    for text in ("a." * 30_000, "password:" * 7_000, "a_" * 30_000 + "password", "| " * 30_000, wide):
         start = time.perf_counter()
         credential_kinds(text)
         assert time.perf_counter() - start < 0.5, text[:20]
