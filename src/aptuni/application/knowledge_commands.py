@@ -82,7 +82,8 @@ class KnowledgeCommands:
             rows = [u for u in response.items if u.canonical_id is not None and not _summarised(u, records, covered)]
             packed = pack_units((*sections, *kept, *rows), budget)
             return response_from(packed, budget=budget, vault_seq=seq, policy_epoch=response.policy_epoch,
-                                 more_results=response.truncated, audience=response.audience)
+                                 more_results=response.truncated, audience=response.audience,
+                                 withheld=response.withheld_credentials)
         raise AptuniError("concurrent_write", "The Vault kept changing during context creation; run it again.")
 
 

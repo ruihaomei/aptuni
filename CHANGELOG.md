@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Security
+
+- Notes that contain obvious credentials — passwords, API keys, access tokens, private keys, or
+  logins in a URL — are no longer taken into Aptuni from any source; a sync reports how many were
+  kept out, and the next sync also retracts such notes taken in earlier. Context never returns an
+  item that looks like a credential, and `aptuni doctor` lists any that remain in history. Notes
+  that merely discuss passwords are unaffected, and your files are never changed.
+
 ### Added
 
 - Agents can pass `concepts` with Profile, Memory and Full activation (and `aptuni context

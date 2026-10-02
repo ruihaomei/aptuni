@@ -12,6 +12,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from aptuni.application.credential_guard import contain_credentials
 from aptuni.application.errors import AptuniError
 from aptuni.application.ingest import (
     FOLDER_PARSER,
@@ -305,20 +306,15 @@ class SourceCommands:
         guard = state.delivery if state else DeliveryGuard()
         try:
             if guard.admit(scan.delta) == "duplicate":
-                profile_records = self._commit_evidence_profile(
-                    [], current, records, config, seq,
-                )
-                return SyncReport(
-                    config.id,
-                    {},
-                    0,
-                    scan.notes,
-                    0,
-                    sum(record.record_type == "fact" for record in profile_records),
-                )
+                return self._sync_unchanged(config, current, records, seq, scan.delta.sequence, policy.epoch,
+                                            scan.notes)
             operations = guard.gate(scan.delta)
-            evidence = [record for op in operations if op.review_state != "needs_review"
-                        for record in [ingest.evidence_for(op, scan.delta.delta_id, scan.delta.sequence)] if record]
+            delta_evidence = [record for op in operations if op.review_state != "needs_review"
+                              for record in [ingest.evidence_for(op, scan.delta.delta_id, scan.delta.sequence)]
+                              if record]
+            contained = contain_credentials(delta_evidence, current, sequence=scan.delta.sequence,
+                                            policy_epoch=policy.epoch)
+            evidence = contained.evidence
         except GitHubApiError as error:
             raise AptuniError("github_sync_failed", f"GitHub sync stopped safely ({error}).") from error
         except (DeliveryError, SourceChangedDuringSync) as error:
@@ -335,8 +331,17 @@ class SourceCommands:
         )
         store.save(final_state)
         store.clear_pending()
-        return SyncReport(config.id, summarize(operations), len(review_entries(operations)), scan.notes,
-                          len(evidence), sum(record.record_type == "fact" for record in profile_records))
+        return SyncReport(config.id, summarize(operations), len(review_entries(operations)),
+                          _with_withheld_note(scan.notes, contained.withheld), len(evidence),
+                          sum(record.record_type == "fact" for record in profile_records), contained.withheld)
+
+    def _sync_unchanged(self, config: SourceConfig, current: dict[str, Any], records: RecordSet, seq: int,
+                        sequence: int, policy_epoch: int, notes: tuple[str, ...]) -> SyncReport:
+        """No new delta: still sweep legacy credential Evidence (ADR-0031) and backfill the Profile."""
+        swept = contain_credentials([], current, sequence=sequence, policy_epoch=policy_epoch)
+        profile_records = self._commit_evidence_profile(swept.evidence, current, records, config, seq)
+        return SyncReport(config.id, {}, 0, _with_withheld_note(notes, swept.withheld), len(swept.evidence),
+                          sum(record.record_type == "fact" for record in profile_records), swept.withheld)
 
     def _commit_evidence_profile(
         self,
@@ -432,3 +437,7 @@ class SourceCommands:
 
     def _notion_client(self, spec: NotionSourceSpec) -> NotionReadClient:
         return NotionMcpClient(spec)
+
+
+def _with_withheld_note(notes: tuple[str, ...], withheld: int) -> tuple[str, ...]:
+    return (*notes, "credential_withheld") if withheld and "credential_withheld" not in notes else notes

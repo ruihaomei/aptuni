@@ -79,6 +79,7 @@ from aptuni.memory.provider import Mem0Projection
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
 from aptuni.policy.profile_promotion import AUTO_PROFILE_TYPES, profile_review_state_of
 from aptuni.policy.promotion import pending_review_memories, review_policy_of, review_state_of
+from aptuni.policy.secrets import credential_kinds
 from aptuni.retrieval.diversify import diversify
 from aptuni.retrieval.hybrid import reciprocal_rank_fusion
 from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SearchRow, SqliteProjection, documents_for
@@ -87,6 +88,16 @@ from aptuni.vault.locks import source_operations_lock
 from aptuni.vault.store import ConflictError, Vault, VaultDirNotEmptyError, VaultIntegrityError, VerifyReport
 
 CLI_EPISODE = "cli"
+
+
+@dataclass(frozen=True)
+class CredentialRecord:
+    record_id: str
+    source_id: str | None
+    kinds: tuple[str, ...]
+    current: bool
+
+
 CONTEXT_CANDIDATE_FACTOR = 3  # candidates per requested Context result, for concept diversification
 MAX_CONCEPTS = 8  # host-supplied concepts per Context request (ADR-0030)
 MAX_CONCEPT_BYTES = 320  # 80 characters (the MCP bound) of up to 4 bytes each
@@ -701,6 +712,19 @@ class AptuniService(
         policy = with_switch(self.policy_of(records), module, ingest=ingest, expose=expose)
         self._commit([policy], seq)
         return policy
+
+    def credential_records(self) -> list[CredentialRecord]:
+        """Content-free inventory of canonical records holding credential-like text (ADR-0031)."""
+        _, records = self.snapshot()
+        current = {record.id for record in records.exposable()}
+        found: list[CredentialRecord] = []
+        for record in records.records():
+            text = " ".join(str(getattr(record, field, None) or "") for field in ("subject", "statement", "excerpt"))
+            kinds = credential_kinds(text)
+            if kinds:
+                source_id = getattr(getattr(record, "provenance", None), "source_id", None)
+                found.append(CredentialRecord(record.id, source_id, kinds, record.id in current))
+        return found
 
     def doctor(self) -> VerifyReport:
         vault = self.vault()

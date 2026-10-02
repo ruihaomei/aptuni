@@ -224,6 +224,7 @@ class SyncReport:
     notes: tuple[str, ...]
     evidence_written: int
     profile_written: int
+    withheld: int = 0  # items kept out of Evidence because they hold credentials (ADR-0031)
 
 
 def _read_approved_file(root: Path, relative: str, max_bytes: int = DEFAULT_MAX_BYTES) -> bytes:

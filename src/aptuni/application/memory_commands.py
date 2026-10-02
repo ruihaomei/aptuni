@@ -40,6 +40,7 @@ from aptuni.memory.mem0_local import create_local_mem0_client
 from aptuni.memory.provider import ClientFactory, Mem0Projection, ProjectionStatus, RebuildReport
 from aptuni.policy.modules import can_ingest
 from aptuni.policy.promotion import review_policy_of, review_state_of
+from aptuni.policy.secrets import contains_credential
 from aptuni.vault.locks import source_operations_lock
 
 MEMORY_RETENTION = RetentionLabel(retention_class="canonical", purpose="interaction_memory", expires_at=None,
@@ -144,7 +145,8 @@ class MemoryCommands:
             raise AptuniError("invalid_observation", "An observation is 1-280 characters.")
         episode = "cli" if origin == "cli" else f"mcp:{principal or 'unknown'}"
         normalized_about = about[:80] or "self"
-        if origin == "host" and any(pattern.search(statement) for pattern in _HOST_PROTECTED_PATTERNS):
+        if origin == "host" and (contains_credential(statement)
+                                 or any(pattern.search(statement) for pattern in _HOST_PROTECTED_PATTERNS)):
             raise AptuniError("memory_proposal_rejected", "The proposal matched protected content and was not stored.")
         caller_key = idempotency_key or hashlib.sha256(
             f"{module}|{normalized_about}|{statement}".encode()

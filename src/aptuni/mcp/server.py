@@ -61,6 +61,7 @@ def _context_json(value: ContextResponse) -> dict[str, object]:
         "vault_seq": value.vault_seq,
         "policy_epoch": value.policy_epoch,
         "items": [item.payload() | {"units": item.units} for item in value.items],
+        "withheld_credentials": value.withheld_credentials,
     }
 
 

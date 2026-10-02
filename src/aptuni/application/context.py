@@ -6,6 +6,8 @@ import json
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from aptuni.policy.secrets import contains_credential
+
 Layer = Literal["L0", "L1", "L2", "L3", "L4"]
 Audience = Literal["owner_cli", "host_mcp"]
 PER_UNIT_OVERHEAD = 32
@@ -58,6 +60,7 @@ class PackedUnits:
     remaining_units: int
     truncated: bool
     layers: tuple[Layer, ...]
+    withheld: int = 0  # credential-bearing units dropped by the last-line guard (ADR-0031)
 
 
 @dataclass(frozen=True)
@@ -71,6 +74,7 @@ class ContextResponse:
     items: tuple[ContextUnit, ...]
     vault_seq: int
     policy_epoch: int
+    withheld_credentials: int = 0
 
     @property
     def units(self) -> tuple[ContextUnit, ...]:
@@ -89,7 +93,13 @@ def pack_units(candidates: tuple[ContextUnit, ...], budget: int) -> PackedUnits:
     items: list[ContextUnit] = []
     used = METADATA_UNITS
     truncated = False
+    withheld = 0
     for candidate in candidates:
+        # Last line of defence: never disclose a unit holding an obvious credential, whatever path or
+        # Vault age produced it. This covers credentials only, not personal information in general.
+        if contains_credential(candidate.text):
+            withheld += 1
+            continue
         cost = unit_cost(candidate)
         if used + cost <= budget:
             items.append(candidate)
@@ -98,7 +108,7 @@ def pack_units(candidates: tuple[ContextUnit, ...], budget: int) -> PackedUnits:
             truncated = True
     # Report disclosed layers in canonical L0–L4 order, independent of relevance-ranked item order.
     layers = tuple(sorted({item.layer for item in items}))
-    return PackedUnits(tuple(items), used, budget - used, truncated, layers)
+    return PackedUnits(tuple(items), used, budget - used, truncated, layers, withheld)
 
 
 def response_from(
@@ -109,6 +119,7 @@ def response_from(
     policy_epoch: int,
     more_results: bool = False,
     audience: Audience = "owner_cli",
+    withheld: int = 0,
 ) -> ContextResponse:
     return ContextResponse(
         audience=audience,
@@ -120,6 +131,7 @@ def response_from(
         items=packed.items,
         vault_seq=vault_seq,
         policy_epoch=policy_epoch,
+        withheld_credentials=packed.withheld + withheld,
     )
 
 

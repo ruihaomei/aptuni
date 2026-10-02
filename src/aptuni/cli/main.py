@@ -432,6 +432,7 @@ def _cmd_sync(args: argparse.Namespace, service: AptuniService) -> int:
         "notes": list(report.notes),
         "evidence_written": report.evidence_written,
         "profile_written": report.profile_written,
+        "withheld": report.withheld,
     }
     if args.json:
         _print_json(value)
@@ -441,6 +442,10 @@ def _cmd_sync(args: argparse.Namespace, service: AptuniService) -> int:
             f"Synced {report.source_id}: {changes}; evidence={report.evidence_written}; "
             f"profile={report.profile_written}; review={report.review_items}"
         )
+        if report.withheld:
+            print(f"Kept {report.withheld} item(s) out of Aptuni because they look like credentials "
+                  "(passwords, keys or tokens). Your files were not changed; remove the secret from the "
+                  "file and sync again if it should be included.")
     return 0
 
 
@@ -582,6 +587,8 @@ def _print_context(response: Any) -> None:
     marker = " truncated" if response.truncated else ""
     print(f"Budget: {response.used_units}/{response.requested_units} units; "
           f"remaining={response.remaining_units}{marker}")
+    if response.withheld_credentials:
+        print(f"Withheld {response.withheld_credentials} item(s) that look like credentials.")
 
 
 def _cmd_identity(args: argparse.Namespace, service: AptuniService) -> int:
@@ -663,6 +670,15 @@ def _cmd_doctor(args: argparse.Namespace, service: AptuniService) -> int:
         line = _review_line(service)
         if line:
             print(line)
+        found = service.credential_records()
+        if found:
+            current = sum(1 for item in found if item.current)
+            print(f"{len(found)} record(s) contain credential-like text ({current} current); Aptuni never shows "
+                  "them to Agents. Change the affected passwords or keys, remove them from the source and "
+                  "sync; erasing history needs 'aptuni privacy purge' (removes the whole source).")
+            for item in found:
+                state = "current" if item.current else "history"
+                print(f"  {item.record_id}  source={item.source_id or '-'}  {state}  {','.join(item.kinds)}")
         return 0
     print("Vault problems found:")
     for problem in report.problems:
