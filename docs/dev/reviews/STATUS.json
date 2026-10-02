@@ -44,11 +44,12 @@
   },
   "beta-credential-guard": {
    "kind": "review",
-   "current": "95-beta-credential-guard-rereview.md",
-   "verdict": "BLOCK",
+   "current": "96-beta-credential-guard-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": [
     "93-beta-credential-guard-review.md",
-    "94-beta-credential-guard-rereview.md"
+    "94-beta-credential-guard-rereview.md",
+    "95-beta-credential-guard-rereview.md"
    ]
   },
   "beta-day0-fixes": {
