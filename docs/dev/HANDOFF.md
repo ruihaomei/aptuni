@@ -15,6 +15,19 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
+**Credential P1 + concept guidance (2026-10-02, local, NOT released; b10 gate open).**
+Checkpoints: `ff3e396`, `606e722`, `6660ae2` (credential guard: Review 93 B1–B3, Review 94 and 95
+blockers closed; `aptuni privacy purge preview --credential-history` erases withdrawn credential
+Evidence chains without a source-wide purge — rehearsed on a scratch Vault copy, NOT run on the real
+Vault; it also revokes adapter grants), `a2978fd` (ADR-0030 amendment: "usually 1-4 specific
+concepts"; dev eval median 8→3 concepts, nDCG@5 0.755→0.769, leakage 1/5→0/5). Review 96 (narrow
+re-review of `6660ae2`) was dispatched; check `docs/dev/reviews/96-*` and STATUS.json, then commit it.
+Held-out end-to-end run (10 tasks, scratch `cg/runs/holdout`, not yet graded) shows product failures:
+h01 (long zh career plan) made ≥5 calls with broad concepts; h04 broad concepts; h10 (zh research)
+never called Aptuni. Next: grade the held-out run honestly, decide whether a generalizable guidance
+fix is needed (then a fresh mini-holdout), owner decides on running the credential-history purge
+(typed PURGE) before a credential-clean backup; b10 only after all gates pass.
+
 **Retrieval investigation → ADR-0030 (2026-10-02, local, not released).** Maintainer brief: own
 retrieval quality. Local read-only experiments on User #1's Vault (62 queries, 1,282 graded
 judgments; findings in `docs/research/findings/retrieval-experiments.md`) found that letting the host
