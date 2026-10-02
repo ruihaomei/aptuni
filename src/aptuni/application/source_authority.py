@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from aptuni.application.confirmations import new_nonce
+from aptuni.application.credential_guard import record_text, rederive_or_withhold
 from aptuni.application.errors import AptuniError
 from aptuni.application.ingest import SourceSyncLock, source_has_committed_purge
 from aptuni.application.workspace import Workspace
@@ -27,6 +28,7 @@ from aptuni.domain.temporal import utc_now
 from aptuni.knowledge.classify import classified_signals
 from aptuni.policy.evidence_profile import derive_evidence_profile
 from aptuni.policy.modules import can_ingest
+from aptuni.policy.secrets import contains_credential
 from aptuni.vault.locks import source_operations_lock
 
 __all__ = ["ReclassifyPreview", "SourceAuthority", "SourceAuthorityPreview", "SourceAuthorityResult"]
@@ -167,10 +169,15 @@ def _with_authority(source: SourceConfig, authority: tuple[str, ...]) -> SourceC
 
 def _changes(records: RecordSet, source: SourceConfig,
              authority: tuple[str, ...]) -> tuple[tuple[str, tuple[str, ...]], ...]:
-    """Current Evidence whose classified signals under ``authority`` differ from what it carries."""
-    changes = []
+    """Current Evidence whose classified signals under ``authority`` differ from what it carries.
+
+    Credential-bearing Evidence is always a change: it is retracted, never re-derived (ADR-0031)."""
+    changes: list[tuple[str, tuple[str, ...]]] = []
     for item in sorted(records.current_evidence(source.id), key=lambda e: e.id):
         if item.change_kind == "retraction":
+            continue
+        if contains_credential(record_text(item)):
+            changes.append((item.id, ()))
             continue
         signals = classified_signals(item, source.source_type, authority)
         if signals != item.signals:
@@ -224,10 +231,7 @@ def _corrections(records: RecordSet, changes: tuple[tuple[str, tuple[str, ...]],
 
 
 def _rederived(previous: Evidence, seed: str, signals: tuple[str, ...]) -> Evidence:
-    """The same observation, re-read under the current classifier and ceiling; the earlier item stays."""
-    return Evidence.model_validate({
-        **previous.model_dump(),
-        "id": deterministic_id("evd", f"authority:{seed}:{previous.id}"),
-        "recorded_at": utc_now(), "supersedes": (previous.id,), "change_kind": "correction",
-        "signals": signals,
-    })
+    """The same observation, re-read under the current classifier and ceiling; the earlier item stays.
+
+    An item holding a credential is retracted instead, never re-copied (ADR-0031)."""
+    return rederive_or_withhold(previous, deterministic_id("evd", f"authority:{seed}:{previous.id}"), signals)

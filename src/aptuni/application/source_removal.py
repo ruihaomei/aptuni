@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from aptuni.application.confirmations import new_nonce
+from aptuni.application.credential_guard import scrubbed
 from aptuni.application.errors import AptuniError
 from aptuni.application.ingest import SourceSyncLock, source_has_committed_purge
 from aptuni.application.workspace import Workspace
@@ -100,10 +101,12 @@ def _preview(records: RecordSet, source_id: str) -> SourceRemovalPreview:
 
 
 def _retraction(previous: Evidence, seed: str) -> Evidence:
-    """Withdraw one evidence item exactly as a sync retraction does, keeping its history."""
-    return Evidence.model_validate({
+    """Withdraw one evidence item exactly as a sync retraction does, keeping its history.
+
+    Like a credential-guard retraction it never copies credential-bearing text (ADR-0031)."""
+    return scrubbed(Evidence.model_validate({
         **previous.model_dump(),
         "id": deterministic_id("evd", f"remove:{seed}:{previous.id}"),
         "recorded_at": utc_now(), "supersedes": (previous.id,), "change_kind": "retraction",
         "signals": (), "observed_at": utc_now(),
-    })
+    }))

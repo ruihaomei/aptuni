@@ -42,6 +42,12 @@
     "91-beta-concept-queries-rereview.md"
    ]
   },
+  "beta-credential-guard": {
+   "kind": "review",
+   "current": "93-beta-credential-guard-review.md",
+   "verdict": "BLOCK",
+   "supersedes": []
+  },
   "beta-day0-fixes": {
    "kind": "review",
    "current": "81-beta-day0-fixes-rereview.md",

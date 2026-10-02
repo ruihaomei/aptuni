@@ -8,11 +8,18 @@ All notable changes to this project are documented here. The format follows
 
 ### Security
 
-- Notes that contain obvious credentials — passwords, API keys, access tokens, private keys, or
-  logins in a URL — are no longer taken into Aptuni from any source; a sync reports how many were
-  kept out, and the next sync also retracts such notes taken in earlier. Context never returns an
-  item that looks like a credential, and `aptuni doctor` lists any that remain in history. Notes
-  that merely discuss passwords are unaffected, and your files are never changed.
+- Notes that contain obvious credentials are no longer taken into Aptuni from any source:
+  passwords, keys and tokens written as a labelled `name: value` (also in Markdown bold, inline
+  code, JSON/YAML/Python quotes, `.env`-style `DB_PASSWORD=` lines and Markdown tables), known
+  provider tokens, private keys, JWTs and logins in a URL. A sync lists each withheld item by path or
+  id (never its text), and the next sync also retracts such notes taken in earlier. Removing a
+  source, re-granting its authority or retracting a Fact no longer copies the secret into new
+  records. Context never returns an item that looks like a credential, the identity card drops only
+  the affected line, and Agents are not told how many items were withheld. `aptuni doctor` lists any
+  that remain in history, and `aptuni privacy purge preview --credential-history` erases that
+  withdrawn history without removing the whole source. Not detected: an unlabelled random string, a
+  password written in a sentence (`my password is …`), or a lowercase word or passphrase used as a
+  password. Your files are never changed.
 
 ### Added
 

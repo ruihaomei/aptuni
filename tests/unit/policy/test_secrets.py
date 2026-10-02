@@ -21,6 +21,17 @@ PEM_HEADER = "-----BEGIN " + "OPENSSH PRIVATE KEY-----"  # split so scanners do 
     (PEM_HEADER + "\nb3BlbnNzaC1rZXktdjEAAAAA", "private_key"),
     ("jwt " + "eyJ" + "hbGciOiJIUzI1NiJ9" + ".eyJ" + "zdWIiOiIxMjM0NTY3ODkwIn0" + ".dozjgNryP4J3jVmNHl0w5N", "jwt"),
     ("db: postgres://admin:S3cr3tPw@db.internal:5432/app", "url_credentials"),
+    ("- **Password**: Zq1999abc!", "credential_field"),
+    ("- **密码**：Zq19990717", "credential_field"),
+    ("`api_key`: q8W2x9zP77Lm", "credential_field"),
+    ('{"user": "a", "password": "Zq19990717abc"}', "credential_field"),
+    ("creds = {'password': 'Zq1999abc!'}", "credential_field"),
+    ("DB_PASSWORD=Zq19990717", "credential_field"),
+    ("export GITHUB_TOKEN=Zq19990717abcXYZ", "credential_field"),
+    ("| 邮箱 | 密码 |\n| a@b.c | Zq19990717 |", "credential_field"),
+    ("| password | Zq1999abc! |", "credential_field"),
+    ("password = \"Zq19990717abc\"", "credential_field"),
+    ("AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYzAbCdKEY0", "credential_field"),
 ])
 def test_obvious_credentials_are_detected(text: str, kind: str) -> None:
     assert kind in credential_kinds(text)
@@ -41,6 +52,44 @@ def test_obvious_credentials_are_detected(text: str, kind: str) -> None:
     "The secret: practice every day",
     "sk-learn is not a token; scikit-learn pipelines",
     "PIN: 1234 example in the docs",
+    "Password: Required",
+    "API Key: Required",
+    "Access token: Expired",
+    "pwd = os.getcwd()",
+    "PWD=/Users/someone/code",
+    "pwd: ~/code",
+    "password = os.getenv('DB_PW')",
+    "api_key = os.environ.get('SERVICE_KEY')",
+    "access_token = response.json()['access_token']",
+    "password = bcrypt.hashpw(pw, salt)",
+    "密码 = hashlib.sha256(raw)",
+    "pwd: 2024-10-01 notes",
+    "passcode: 6-digit",
+    "api key: per-user, rotated monthly",
+    "password: not-set",
+    "**Password**: <your password>",
+    '{"password": "********"}',
+    "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}",
+    "| password | string | required |",
+    "| token | 512 |",
+    "max_tokens: 4096",
+    "tokenizer: BertTokenizerFast",
+    "token: the smallest unit a tokenizer emits",
+    "secret: SecretStr",
+    "Secret sauce: patience",
+    "the token = word piece mapping in BERT",
+    "client_secret: ${CLIENT_SECRET}",
+    "password_hash: argon2id",
+    "PasswordField(required=True)",
 ])
 def test_ordinary_notes_about_credentials_are_not_flagged(text: str) -> None:
     assert credential_kinds(text) == ()
+
+
+def test_worst_case_inputs_stay_linear() -> None:
+    import time
+
+    for text in ("a." * 30_000, "password:" * 7_000, "a_" * 30_000 + "password", "| " * 30_000):
+        start = time.perf_counter()
+        credential_kinds(text)
+        assert time.perf_counter() - start < 0.5, text[:20]

@@ -31,6 +31,7 @@ from aptuni.application.context import (
     section,
     unit_cost,
 )
+from aptuni.application.credential_guard import record_text
 from aptuni.application.errors import AptuniError, module_denied
 from aptuni.application.evaluation import EvaluationCommands
 from aptuni.application.export import ExportReport, export_profile
@@ -45,6 +46,7 @@ from aptuni.application.privacy import (
     committed_purge_intent,
     confirm_purge,
     create_purge_preview,
+    credential_history_scope,
     load_purge_preview,
 )
 from aptuni.application.restore import (
@@ -66,6 +68,7 @@ from aptuni.domain.invariants import InvariantError, RecordSet
 from aptuni.domain.records import (
     MODULES,
     DeletionReceipt,
+    Evidence,
     Fact,
     Module,
     ModulePolicy,
@@ -79,7 +82,7 @@ from aptuni.memory.provider import Mem0Projection
 from aptuni.policy.modules import can_ingest, default_policy, with_switch
 from aptuni.policy.profile_promotion import AUTO_PROFILE_TYPES, profile_review_state_of
 from aptuni.policy.promotion import pending_review_memories, review_policy_of, review_state_of
-from aptuni.policy.secrets import credential_kinds
+from aptuni.policy.secrets import contains_credential, credential_kinds
 from aptuni.retrieval.diversify import diversify
 from aptuni.retrieval.hybrid import reciprocal_rank_fusion
 from aptuni.retrieval.sqlite import ProjectionError, ProjectionStatus, SearchRow, SqliteProjection, documents_for
@@ -260,11 +263,21 @@ class AptuniService(
         seq, records = self.snapshot()
         return build_privacy_inventory(self.vault().root, self.workspace.state_dir, seq, records)
 
-    def privacy_purge_preview(self, record_ids: tuple[str, ...]) -> PurgePreview:
-        """Create a single-use exact preview; no canonical or derived copy is changed."""
+    def privacy_purge_preview(self, record_ids: tuple[str, ...], *, credential_history: bool = False) -> PurgePreview:
+        """Create a single-use exact preview; no canonical or derived copy is changed.
+
+        ``credential_history`` selects every withdrawn record chain holding credential-like text instead
+        of ``record_ids``, without widening to whole sources (ADR-0031)."""
         seq, records = self.snapshot()
+        if credential_history:
+            flagged = tuple(item.record_id for item in self._credential_records(records))
+            record_ids = credential_history_scope(records, flagged)
+            if not record_ids:
+                raise AptuniError("nothing_to_purge", "No withdrawn credential history to erase. Records that "
+                                  "are still current must leave through a source sync first.")
         return create_purge_preview(
-            self.vault().root, self.workspace.state_dir, records, seq, self.policy_of(records).epoch, record_ids
+            self.vault().root, self.workspace.state_dir, records, seq, self.policy_of(records).epoch, record_ids,
+            source_scope=not credential_history,
         )
 
     def pending_privacy_purge(self, action_id: str) -> PurgePreview:
@@ -498,6 +511,9 @@ class AptuniService(
                 continue
             allowed = {record.id for record in final_records.exposable()}
             identity = [record for record in identity if record.id in allowed]
+            # Filter per statement, so one credential-like line never removes the whole card (ADR-0031).
+            withheld = sum(contains_credential(record.statement) for record in identity)
+            identity = [record for record in identity if not contains_credential(record.statement)]
             omitted = False
             while identity:
                 card = section(
@@ -511,7 +527,7 @@ class AptuniService(
                     policy = self.policy_of(final_records)
                     response = response_from(packed, budget=budget, vault_seq=final_seq,
                                              policy_epoch=policy.epoch, more_results=omitted,
-                                             audience=cast(Audience, audience))
+                                             audience=cast(Audience, audience), withheld=withheld)
                     if self.snapshot()[0] == final_seq:
                         return response
                     break
@@ -522,7 +538,7 @@ class AptuniService(
                 policy = self.policy_of(final_records)
                 response = response_from(packed, budget=budget, vault_seq=final_seq,
                                          policy_epoch=policy.epoch, more_results=omitted,
-                                         audience=cast(Audience, audience))
+                                         audience=cast(Audience, audience), withheld=withheld)
                 if self.snapshot()[0] == final_seq:
                     return response
         raise AptuniError("concurrent_write", "The Vault kept changing during identity-card creation; run it again.")
@@ -699,7 +715,8 @@ class AptuniService(
         """Withdraw a fact without asserting a replacement (not a deletion; always allowed)."""
         seq, records = self.snapshot()
         old = self._current_fact(records, fact_id)
-        fact = self._fact(f"Retracted: {old.statement}"[:500], old.module, self.policy_of(records).epoch,
+        shown = "[credential withheld]" if contains_credential(old.statement) else old.statement
+        fact = self._fact(f"Retracted: {shown}"[:500], old.module, self.policy_of(records).epoch,
                           supersedes=(old.id,), change_kind="retraction")
         self._commit([fact], seq)
         return fact
@@ -715,11 +732,15 @@ class AptuniService(
 
     def credential_records(self) -> list[CredentialRecord]:
         """Content-free inventory of canonical records holding credential-like text (ADR-0031)."""
-        _, records = self.snapshot()
+        return self._credential_records(self.snapshot()[1])
+
+    @staticmethod
+    def _credential_records(records: RecordSet) -> list[CredentialRecord]:
         current = {record.id for record in records.exposable()}
         found: list[CredentialRecord] = []
         for record in records.records():
-            text = " ".join(str(getattr(record, field, None) or "") for field in ("subject", "statement", "excerpt"))
+            text = record_text(record) if isinstance(record, Evidence) else " ".join(
+                str(getattr(record, field, None) or "") for field in ("subject", "statement", "excerpt"))
             kinds = credential_kinds(text)
             if kinds:
                 source_id = getattr(getattr(record, "provenance", None), "source_id", None)

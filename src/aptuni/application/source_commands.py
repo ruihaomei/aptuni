@@ -333,7 +333,8 @@ class SourceCommands:
         store.clear_pending()
         return SyncReport(config.id, summarize(operations), len(review_entries(operations)),
                           _with_withheld_note(scan.notes, contained.withheld), len(evidence),
-                          sum(record.record_type == "fact" for record in profile_records), contained.withheld)
+                          sum(record.record_type == "fact" for record in profile_records), contained.withheld,
+                          contained.locations)
 
     def _sync_unchanged(self, config: SourceConfig, current: dict[str, Any], records: RecordSet, seq: int,
                         sequence: int, policy_epoch: int, notes: tuple[str, ...]) -> SyncReport:
@@ -341,7 +342,8 @@ class SourceCommands:
         swept = contain_credentials([], current, sequence=sequence, policy_epoch=policy_epoch)
         profile_records = self._commit_evidence_profile(swept.evidence, current, records, config, seq)
         return SyncReport(config.id, {}, 0, _with_withheld_note(notes, swept.withheld), len(swept.evidence),
-                          sum(record.record_type == "fact" for record in profile_records), swept.withheld)
+                          sum(record.record_type == "fact" for record in profile_records), swept.withheld,
+                          swept.locations)
 
     def _commit_evidence_profile(
         self,

@@ -175,7 +175,9 @@ def _add_privacy_commands(sub: Any) -> None:
     privacy_purge = privacy_sub.add_parser("purge", help="preview or confirm irreversible privacy deletion")
     purge_sub = privacy_purge.add_subparsers(dest="purge_command", required=True, metavar="ACTION")
     purge_preview = purge_sub.add_parser("preview", help="create an exact purge preview")
-    purge_preview.add_argument("record_ids", nargs="+")
+    purge_preview.add_argument("record_ids", nargs="*")
+    purge_preview.add_argument("--credential-history", action="store_true",
+                               help="erase withdrawn records holding credential-like text, not whole sources")
     purge_preview.add_argument("--json", action="store_true")
     purge_confirm = purge_sub.add_parser("confirm", help="confirm one exact core-generated purge action")
     purge_confirm.add_argument("action_id")
@@ -433,6 +435,7 @@ def _cmd_sync(args: argparse.Namespace, service: AptuniService) -> int:
         "evidence_written": report.evidence_written,
         "profile_written": report.profile_written,
         "withheld": report.withheld,
+        "withheld_items": list(report.withheld_items),
     }
     if args.json:
         _print_json(value)
@@ -446,6 +449,8 @@ def _cmd_sync(args: argparse.Namespace, service: AptuniService) -> int:
             print(f"Kept {report.withheld} item(s) out of Aptuni because they look like credentials "
                   "(passwords, keys or tokens). Your files were not changed; remove the secret from the "
                   "file and sync again if it should be included.")
+            for location in report.withheld_items:
+                print(f"  - {location}")
     return 0
 
 
@@ -574,6 +579,7 @@ def _context_json(response: Any) -> dict[str, Any]:
         "vault_seq": response.vault_seq,
         "policy_epoch": response.policy_epoch,
         "items": [item.payload() | {"units": item.units} for item in response.items],
+        "withheld_credentials": response.withheld_credentials,  # owner CLI only; never sent to hosts
     }
 
 
@@ -675,7 +681,8 @@ def _cmd_doctor(args: argparse.Namespace, service: AptuniService) -> int:
             current = sum(1 for item in found if item.current)
             print(f"{len(found)} record(s) contain credential-like text ({current} current); Aptuni never shows "
                   "them to Agents. Change the affected passwords or keys, remove them from the source and "
-                  "sync; erasing history needs 'aptuni privacy purge' (removes the whole source).")
+                  "sync. To erase the withdrawn history but keep the source, preview "
+                  "'aptuni privacy purge preview --credential-history'.")
             for item in found:
                 state = "current" if item.current else "history"
                 print(f"  {item.record_id}  source={item.source_id or '-'}  {state}  {','.join(item.kinds)}")
@@ -735,7 +742,9 @@ def _cmd_privacy_purge(args: argparse.Namespace, service: AptuniService) -> int:
               "it had already removed stay removed. Preview again to delete anything.")
         return 0
     if args.purge_command == "preview":
-        preview = service.privacy_purge_preview(tuple(args.record_ids))
+        if bool(args.record_ids) == args.credential_history:
+            raise AptuniError("invalid_purge_scope", "Give exact record IDs or --credential-history, not both.")
+        preview = service.privacy_purge_preview(tuple(args.record_ids), credential_history=args.credential_history)
         if args.json:
             _print_json(preview.to_dict())
         else:

@@ -175,14 +175,21 @@ def _required_by_selected(record: Any, selected: set[str]) -> bool:
     return False
 
 
-def _expand_purge(records: RecordSet, requested: tuple[str, ...]) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _expand_purge(
+    records: RecordSet, requested: tuple[str, ...], *, source_scope: bool = True,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Close ``requested`` under supersession and dependants, and by default over whole sources.
+
+    ``source_scope=False`` is only for credential history (ADR-0031): every selected chain is already
+    withdrawn, and sync derives a successor's ``supersedes`` from current canonical Evidence, so a
+    later change to the same item starts a new lineage instead of resurrecting the purged one."""
     by_id = {record.id: record for record in records.records()}
     _validate_requested(by_id, requested)
     selected = set(requested)
     source_ids: set[str] = set()
     changed = True
     while changed:
-        changed = _add_source_scope(by_id, selected, source_ids)
+        changed = _add_source_scope(by_id, selected, source_ids) if source_scope else False
         changed = _add_supersession_scope(by_id, selected) or changed
         required = {record.id for record in by_id.values() if _required_by_selected(record, selected)} - selected
         selected.update(required)
@@ -261,11 +268,25 @@ def _snapshot_copy_scope(
     return tuple(tokens), _grant_external_scope(state_dir, grants)
 
 
+def credential_history_scope(records: RecordSet, candidates: tuple[str, ...]) -> tuple[str, ...]:
+    """The credential-bearing ``candidates`` whose whole purge closure is already withdrawn.
+
+    A chain that still has a current version (for example a note edited to drop its password) is
+    left alone: erasing it would remove something Agents or the owner can still use."""
+    superseded = {target for record in records.records() for target in getattr(record, "supersedes", ())}
+    visible = {record.id for record in records.exposable()} | {
+        record.id for record in records.records()
+        if record.record_type == "evidence" and record.change_kind != "retraction" and record.id not in superseded
+    }
+    return tuple(sorted(candidate for candidate in candidates
+                        if not visible.intersection(_expand_purge(records, (candidate,), source_scope=False)[0])))
+
+
 def create_purge_preview(
     vault_root: Path, state_dir: Path, records: RecordSet, vault_seq: int, policy_epoch: int,
-    requested: tuple[str, ...],
+    requested: tuple[str, ...], *, source_scope: bool = True,
 ) -> PurgePreview:
-    record_ids, source_ids = _expand_purge(records, requested)
+    record_ids, source_ids = _expand_purge(records, requested, source_scope=source_scope)
     try:
         managed_copy_ids, external_copies = _snapshot_copy_scope(vault_root, state_dir, source_ids)
     except OSError as error:
