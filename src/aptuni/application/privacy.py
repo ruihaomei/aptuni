@@ -269,27 +269,48 @@ def _snapshot_copy_scope(
 
 
 def credential_history_scope(records: RecordSet, candidates: tuple[str, ...]) -> tuple[str, ...]:
-    """The credential-bearing ``candidates`` whose whole purge closure is already withdrawn.
+    """The credential-bearing Evidence ``candidates`` whose whole purge closure is already withdrawn.
 
-    "Current" here is independent of exposure: a record in a hidden module, awaiting review, or a
-    clean corrected successor is still current, and its chain is left alone (Review 94 B2)."""
+    Only source Evidence chains are in scope (ADR-0031): their closure may hold Evidence, review events
+    and Facts derived from them, and none of those may be current. "Current" is independent of
+    exposure, so a hidden module, a pending review or a clean corrected successor keeps the chain out
+    (Review 94 B2). Memories, observations and owner-typed Facts are left to the exact-id purge, whose
+    closure already handles their lifecycle (Review 95 B1)."""
     superseded = {target for record in records.records() for target in getattr(record, "supersedes", ())}
-    revoked = records.revoked_ids()
     current = {record.id for record in records.current_facts()} | {
         record.id for record in records.records()
-        if record.record_type in {"evidence", "memory", "candidate_memory", "observation"}
-        and record.id not in superseded and record.id not in revoked
-        and getattr(record, "change_kind", None) != "retraction"
+        if record.record_type == "evidence" and record.id not in superseded and record.change_kind != "retraction"
     }
-    return tuple(sorted(candidate for candidate in candidates
-                        if not current.intersection(_expand_purge(records, (candidate,), source_scope=False)[0])))
+    by_id = {record.id: record for record in records.records()}
+    eligible = []
+    for candidate in candidates:
+        if by_id[candidate].record_type != "evidence":
+            continue
+        closure = _expand_purge(records, (candidate,), source_scope=False)[0]
+        if current.intersection(closure):
+            continue
+        if all(by_id[item].record_type in {"evidence", "review_event", "fact"} for item in closure):
+            eligible.append(candidate)
+    return tuple(sorted(eligible))
+
+
+def validate_remaining(records: RecordSet, record_ids: tuple[str, ...]) -> None:
+    """Refuse a targeted purge whose remaining records would break an invariant, before any intent."""
+    removed = set(record_ids)
+    try:
+        RecordSet([record for record in records.records() if record.id not in removed]).validate()
+    except InvariantError as error:
+        raise AptuniError("purge_scope_invalid", "This purge would leave the Vault inconsistent; nothing "
+                          "was changed. Purge the affected records by exact id instead.") from error
 
 
 def refuse_pending_sources(vault_root: Path, records: RecordSet, record_ids: tuple[str, ...]) -> None:
     """A targeted purge must not race an interrupted sync whose replay may reference the purged ids."""
     wanted = set(record_ids)
+    removed = records.removed_source_ids()  # a removed source never syncs, so its replay never runs
     sources = {record.provenance.source_id for record in records.records()
-               if record.id in wanted and record.record_type == "evidence" and record.provenance.source_id}
+               if record.id in wanted and record.record_type == "evidence" and record.provenance.source_id
+               and record.provenance.source_id not in removed}
     if any(_owned_child(vault_root, "sources", f"{source_id}.pending.json").exists() for source_id in sources):
         raise AptuniError("source_sync_pending", "A source sync was interrupted; run `aptuni sync` for that "
                           "source first, then preview the purge again.")
@@ -302,6 +323,7 @@ def create_purge_preview(
     record_ids, source_ids = _expand_purge(records, requested, source_scope=source_scope)
     if not source_scope:
         refuse_pending_sources(vault_root, records, record_ids)
+        validate_remaining(records, record_ids)
     try:
         managed_copy_ids, external_copies = _snapshot_copy_scope(vault_root, state_dir, source_ids)
     except OSError as error:

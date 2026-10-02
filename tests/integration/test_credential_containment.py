@@ -327,3 +327,26 @@ def test_credential_history_purge_waits_for_an_interrupted_sync(
     assert refused.value.code == "source_sync_pending"
     pending.unlink()
     assert sum("Zq19990717abc" in text for text in _texts(service)) == 1
+
+
+def test_credential_history_purge_leaves_memories_to_the_exact_purge(service: AptuniService) -> None:
+    memory_id = service.observe("My lab VM password: Tr0ub4dor&3x", "preferences").memory_id  # auto-promoted
+    assert memory_id is not None
+    forget = service.memory_forget_preview(str(memory_id))
+    service.forget_memory_confirmed(str(memory_id), forget.digest())
+    with pytest.raises(AptuniError) as refused:
+        service.privacy_purge_preview((), credential_history=True)
+    assert refused.value.code == "nothing_to_purge"
+    service.remember("Vault writes still work.", "knowledge")
+
+
+def test_a_removed_source_with_stale_replay_state_does_not_block_the_purge(
+    service: AptuniService, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_id, _ = _folder(service, tmp_path, {"info.txt": CREDENTIAL_NOTE, "notes.md": CLEAN_NOTE})
+    _ingest_unguarded(service, source_id, monkeypatch)
+    service.remove_source(source_id, service.source_removal_preview(source_id).digest)
+    (service.vault().root / "sources" / f"{source_id}.pending.json").write_text("{}", encoding="utf-8")
+    preview = service.privacy_purge_preview((), credential_history=True)
+    service.confirm_privacy_purge(preview.action_id, preview.digest)
+    assert not any("Zq19990717abc" in text for text in _texts(service))

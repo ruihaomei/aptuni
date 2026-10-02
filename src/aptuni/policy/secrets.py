@@ -35,9 +35,10 @@ _URL_CREDENTIALS = re.compile(r"\b[a-z][a-z0-9+.-]{0,31}://([^\s:/@]+):([^\s@/]{
 # A label, optionally env-style (DB_PASSWORD) or decorated by Markdown/code/quotes (**密码**, `api_key`,
 # "password", **Password:**), then ":" "：" "=" or a table "|", then an optionally quoted value. A bare
 # `token`/`secret` label is common in ML and code notes, so it needs a longer value (_BARE_MIN).
-_LABEL = (r"(?:登录密码|支付密码|密码|口令|(?<![A-Za-z0-9_])(?:[A-Za-z0-9]{1,32}_){0,4}"
+_LABEL = (r"(?:登录密码|支付密码|密码|口令|(?<![A-Za-z0-9_])(?P<bare>token|secret)(?![A-Za-z0-9_])"
+          r"|(?<![A-Za-z0-9_])(?:[A-Za-z0-9]{1,32}_){0,4}"
           r"(?:password|passwd|passcode|pwd|api[ _-]?key|secret[ _-]?(?:access[ _-]?)?key|client[ _-]?secret"
-          r"|access[ _-]?token|refresh[ _-]?token|auth[ _-]?token|(?P<bare>token|secret)))")
+          r"|access[ _-]?token|refresh[ _-]?token|auth[ _-]?token|token|secret))")
 # The env-style prefix is bounded and anchored at a word start, so matching stays linear (Review 93 N6).
 _FIELD = re.compile(_LABEL + r"[*_`\"'\]]{0,3}\s*[:：=|][*_`]{0,3}\s*[\"'`]?(?P<value>\S+)", re.IGNORECASE)
 _LABEL_CELL = re.compile(r"[*_`\"'\s]*" + _LABEL + r"[*_`\"'\s:：]*", re.IGNORECASE)
@@ -92,30 +93,42 @@ def _field_has_secret(match: re.Match[str]) -> bool:
     return _looks_like_secret_value(value) and (match.group("bare") is None or len(value.strip("\"'`")) >= _BARE_MIN)
 
 
+def _label_columns(header: list[str]) -> list[tuple[int, bool]]:
+    columns = []
+    for index, cell in enumerate(header[:64]):
+        label = _LABEL_CELL.fullmatch(cell)
+        if label:
+            columns.append((index, label.group("bare") is not None))
+    return columns[:_TABLE_COLUMNS]
+
+
 def _table_has_secret(text: str) -> bool:
     """A Markdown table whose header names a credential column holding a secret-shaped value.
 
-    Sources flatten whitespace before the guard runs, so rows are split on newlines and on the
-    "| |" boundary between two rows. At most ``_TABLE_COLUMNS`` columns are checked per row (linear)."""
+    The header is the row right before each ``|---|`` separator, so a later table starts afresh. Sources
+    flatten whitespace before the guard runs, so rows are split on newlines and on the "| |" boundary
+    between two rows. A value must be one token (prose such as "rotated 2025" is not a secret), and at
+    most ``_TABLE_COLUMNS`` columns are checked per row, so the rule stays linear."""
     columns: list[tuple[int, bool]] = []
+    previous: list[str] = []
     for line in re.split(r"\n|(?<=\|)[ \t]+(?=\|)", text):
         start = line.find("|")  # flattened text may carry a heading or file name before the table
         if start < 0:
-            columns = []
+            columns, previous = [], []
             continue
         cells = _cells(line[start:])
         if all(set(cell) <= set("-: ") for cell in cells):
-            continue  # the |---|---| separator row
+            columns = _label_columns(previous)
+            continue
+        if not previous:
+            columns = _label_columns(cells)  # a table written without a separator row
+            previous = cells
+            continue
         for index, bare in columns:
             value = cells[index] if index < len(cells) else ""
-            if _looks_like_secret_value(value) and (not bare or len(value) >= _BARE_MIN):
+            if len(value.split()) == 1 and _looks_like_secret_value(value) and (not bare or len(value) >= _BARE_MIN):
                 return True
-        if not columns:
-            for index, cell in enumerate(cells[:64]):
-                label = _LABEL_CELL.fullmatch(cell)
-                if label:
-                    columns.append((index, label.group("bare") is not None))
-            columns = columns[:_TABLE_COLUMNS]
+        previous = cells
     return False
 
 

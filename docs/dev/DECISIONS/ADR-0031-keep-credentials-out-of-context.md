@@ -99,12 +99,14 @@ these changes.
    `` `api_key`: ``, `"password": "…"`), be env-style (`DB_PASSWORD=`, `GITHUB_TOKEN=`,
    `AWS_SECRET_ACCESS_KEY=`, a bounded `PREFIX_` chain anchored at a word start), or name a Markdown
    table column (`| 密码 |` header with the value in the same column, also after sources flatten the
-   table onto one line; or `| password | v |`). Bare `token`/`secret` labels, common in ML and code
-   notes, need a value of at least 12 characters. Values that are code (calls, indexing,
+   table onto one line; the header is the row right before each `|---|` separator, so a later table
+   starts afresh, and a table value must be one token; or `| password | v |`). Unqualified `token`/
+   `secret` labels, common in ML and code notes, need a value of at least 12 characters; qualified
+   ones (`client_secret`, `access_token`, `GITHUB_TOKEN`) do not (Review 95 N1, N2). Values that are code (calls, indexing,
    `os.getenv`, `${{ … }}`, `name.attribute`), paths, dates, versions (`v2.1.0`), counted words
    (`6-digit`) or title-case words (`Required`) are not secrets. Matching is linear: the URL scheme is
    bounded to 32 characters, the label prefix to four segments, and the table rule reads at most 16
-   label columns per row (60k-character adversarial inputs < 0.05 s). Tests: 27 positive and 48
+   label columns per row (60k-character adversarial inputs < 0.05 s). Tests: 30 positive and 50
    negative cases plus a worst-case runtime test.
 2. **No copy paths (B2).** `credential_guard.scrubbed`/`retraction_of` neutralise the subject, drop
    the excerpt and replace credential-bearing locator strings (Notion and GitHub Deep `title`) with
@@ -123,16 +125,20 @@ these changes.
 5. **Identity card per statement (N3).** Credential-like identity statements are dropped one by one;
    the rest of the L0 card is still returned.
 6. **Historical records: targeted erasure.** `aptuni privacy purge preview --credential-history`
-   selects every record holding credential-like text whose whole purge closure (supersession chain
-   and dependants) contains nothing **current** — current is judged independently of exposure, so a
-   record in a hidden module, awaiting review, an active memory, or a clean corrected successor keeps
-   its chain out of scope (Review 94 B2). The expansion omits the source-wide scope of ADR-0010. This
-   is safe because sync derives `supersedes` from current canonical Evidence, not from the source
-   snapshot: once a chain is gone, a later change to the same path starts a new lineage, and a
-   still-credential version is withheld again. Preview and confirm both refuse with
-   `source_sync_pending` while an affected source has an interrupted sync whose replay could
-   reference the purged ids (Review 94 B3); the owner syncs that source first. A chain with a current
-   version is not selected; that history stays non-exposable and is listed by `doctor`. Everything
+   selects every **source Evidence** record holding credential-like text whose whole purge closure
+   (supersession chain and dependants) holds only Evidence, review events and Facts, none of them
+   **current** — current is judged independently of exposure, so a record in a hidden module,
+   awaiting review, or a clean corrected successor keeps its chain out of scope (Review 94 B2).
+   Memories, observations and owner-typed Facts are left to the exact-id purge, whose closure already
+   handles their lifecycle (Review 95 B1). The expansion omits the source-wide scope of ADR-0010.
+   This is safe because sync derives `supersedes` from current canonical Evidence, not from the
+   source snapshot: once a chain is gone, a later change to the same path starts a new lineage, and a
+   still-credential version is withheld again. Before anything is written, the preview validates the
+   Vault without the selected records (`purge_scope_invalid` otherwise), and preview and confirm both
+   refuse with `source_sync_pending` while an affected, not removed source has an interrupted sync
+   whose replay could reference the purged ids (Review 94 B3, Review 95 N3); the owner syncs that
+   source first. A chain with a current version is not selected; that history stays non-exposable
+   and is listed by `doctor`. Everything
    else is the reviewed ADR-0010 purge: exact preview and digest, typed `PURGE`, deletion ledger,
    receipt, projection invalidation, and revocation of adapter grants and bundles (the owner re-runs
    adapter setup afterwards). Rehearsed on a scratch copy of User #1's Vault: exactly the two incident
@@ -156,8 +162,8 @@ these changes.
   with the value below it; lowercase words or passphrases and repeated-digit PINs as values; short
   labels `pw:`/`pass:`; bare `token:`/`secret:` values under 12 characters; CLI flags
   (`--password …`); `Authorization: Basic`; PIN/CVV/验证码/seed phrases; a value cut below six
-  characters by the 280-character excerpt boundary (N5); a table with empty cells may misalign its
-  columns after flattening.
+  characters by the 280-character excerpt boundary (N5); underscore emphasis (`_Password:_`); a
+  table without outer pipes once flattened; a table with empty cells may misalign its columns.
 - A withheld file whose *name* holds a credential is listed only by its opaque `folder-<hash>` id.
 - Owner surfaces `aptuni export`, `aptuni search` and `aptuni evidence` are not filtered; an export is
   portable and may hold a credential typed by the owner (N12).

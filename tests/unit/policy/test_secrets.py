@@ -34,6 +34,10 @@ PEM_HEADER = "-----BEGIN " + "OPENSSH PRIVATE KEY-----"  # split so scanners do 
     ("- **Password:** Zq1999abc!", "credential_field"),
     ("**密码：** Zq19990717", "credential_field"),
     ("| Site | User | Password | |---|---|---| | mail | a@b.c | Zq1999abc! |", "credential_field"),
+    ("client_secret: Zq1999ab", "credential_field"),
+    ("access_token=Zq19ab77", "credential_field"),
+    ("| Site | Password | |---|---| | mail | Zq1999abc! | ## Budget | Item | Cost | |---|---| | a | b |",
+     "credential_field"),
     ("AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYzAbCdKEY0", "credential_field"),
 ])
 def test_obvious_credentials_are_detected(text: str, kind: str) -> None:
@@ -89,6 +93,8 @@ def test_obvious_credentials_are_detected(text: str, kind: str) -> None:
     "eos_token = tokenizer.eos_token",
     "secret: x86_64",
     "| Model | Token | Notes | |---|---|---| | bert | 512 | base |",
+    "| Account | Password | |---|---| | mail | rotated 2025 |",
+    "| Site | Password | |---|---| | mail | in manager | Results | Score | |---|---| | run | F1-0.93x |",
 ])
 def test_ordinary_notes_about_credentials_are_not_flagged(text: str) -> None:
     assert credential_kinds(text) == ()
