@@ -149,12 +149,13 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
     ) -> dict[str, object]:
         """Explicitly use Profile, Memory, or Full for one task; only Full may persist for this session.
 
-        `query` is the task in one sentence. `concepts` (recommended) lists 1-8 short terms or phrases
-        the task is about, as they would appear in the user's notes, with English and Chinese forms
-        as separate entries (e.g. ["markov chain", "马尔可夫链", "stationary distribution"]). Each
-        concept must match whole (English words in singular or plural form), so concepts give precise
-        results; if nothing comes back, try a synonym or the other language before concluding the
-        notes do not cover the topic. Without concepts the query is matched loosely."""
+        `query` is the task in one sentence. `concepts` (recommended) names the few specific things the
+        task is about, as they would appear in the user's notes: usually 1-4 (8 is a ceiling, never a
+        target), e.g. ["MySQL join", "连接查询"], not broad fields like "programming". Add the other
+        language's form only when the notes may use it. Each concept must match whole (English words in
+        singular or plural form); if one finds nothing, retry once with its plain parent name, a synonym
+        or the other language before concluding the notes do not cover it. Without concepts the query is
+        matched loosely."""
         try:
             with authorization_guard():
                 response = activation.activate(

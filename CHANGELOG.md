@@ -30,6 +30,15 @@ All notable changes to this project are documented here. The format follows
   share of useful top-5 items rose from 74% to 98%, and none of 12 off-topic test queries returned
   anything. Queries without concepts work as before.
 
+### Changed
+
+- Agents now name only the few specific things a task is about when they look up your context —
+  usually one to four, such as "MySQL join" rather than "database" — instead of filling all eight
+  slots with broad fields and translations. If a term finds nothing they try once with a broader
+  name or the other language, then stop. In a local evaluation on one real Vault this kept
+  relevance level with the previous lists of eight and returned nothing for off-topic tasks.
+  Regenerate your Claude or Codex bundle to get the new guidance.
+
 ## [0.2.0b9] — 2026-10-01
 
 Agent memory auto-save opt-in and more varied Context. Top-Down Learning stays 0.2.1.

@@ -113,3 +113,44 @@ and search tools, activation refusal, schema bounds, CLI, skill text) and
 `tests/integration/test_knowledge_state.py::test_profile_concepts_select_the_knowledge_state_the_query_does_not_name`;
 Reviews 90–92; frozen S03 evaluation unchanged; the real-Vault
 evaluation above through the product `context()` path.
+
+## Amendment 2026-10-02 — Agent concept guidance ("a few specific concepts")
+
+**Evidence.** Real headless Claude Code sessions generated concepts for 30 development tasks
+(English, Chinese, mixed, research, career, multi-subject, five should-find-nothing) through the
+product skill and MCP tool text; the concepts were replayed read-only through the product
+`context()` path on a scratch copy of User #1's Vault and graded 0/1/2 (575 judgments). The
+earlier guidance ("1-8 short terms … English and Chinese forms as separate entries") made Agents
+fill the budget: median 8 concepts, every task ≥5, 1.37 calls per task because lists over 8 were
+refused, and broad fields (mathematics, statistics, algorithm, courses) on most tasks.
+
+| Guidance | Concepts (median / max / ≥5) | nDCG@5 | P@5 | Off-topic leakage |
+|---|---|---|---|---|
+| b9 raw task text, no concepts | — | 0.454 | 0.58 | 5/5 |
+| Previous guidance ("1-8", bilingual pairs) | 8 / 8 / 30 of 30 | 0.755 | 0.94 | 1/5 |
+| "1-4, specific, no syllabus" (skill only) | 4 / 7 / 12 of 30 | 0.721 | 0.87 | 1/5 |
+| Same, tool description aligned | 3 / 5 / 2 of 30 | 0.733 | 0.86 | 1/5 |
+| **Adopted:** plus parent-name retry and planning-task rule, on live results | 3 / 6 / 4 of 30 | **0.769** | 0.91 | **0/5** |
+
+The first three variants ran against an empty Vault (first call only); the adopted one ran against
+the scratch copy so the Agent saw real results and could retry once (score over the context it
+actually received). The remaining losses were specific compound phrases that do not occur in notes
+("IELTS writing"), which the one parent-name retry recovers, and broad planning tasks, for which the
+subjects themselves are the topic.
+
+**Decision.** Skills (`AdapterManager._skill`, shared by Profile, Memory and Full) and the
+`aptuni_activate_context` description now ask for the smallest set of specific concepts: usually
+1-4, the limit of 8 being a ceiling and not a target; the specific technology, method, course,
+project or exam rather than its parent field; no subtopics the request does not need ("not a
+syllabus"); the other language only when the notes may use it; for planning, application or
+self-assessment tasks, the subjects and projects the plan builds on; only modules listed in
+`granted_modules`; at most one retry, with a parent name, synonym or the other language. The
+server-side limit of 8, matching and ranking are unchanged. The examples in the guidance shape the
+Agent only; no product logic depends on them.
+
+**Not adopted.** Server-side specificity or rarity weighting (did not fix poor concepts, see above);
+broad-field guidance (made concepts worse in the earlier V1 run: 0.539).
+
+**Verification.** `tests/integration/test_activation_guidance.py` (skill and tool text); a fresh
+held-out end-to-end run (10 tasks written before any result of the adopted guidance) is recorded in
+`docs/research/findings/retrieval-experiments.md`.

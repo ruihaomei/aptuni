@@ -117,3 +117,25 @@ def test_activation_status_survives_a_revoked_grant(tmp_path) -> None:
         }
 
     anyio.run(exercise)
+
+
+def test_skills_ask_for_a_few_specific_concepts_not_a_full_budget() -> None:
+    """Agent-run evaluation (2026-10-02): padded concept lists add generic noise; a few specific ones win."""
+    for intent in ("aptuni.profile", "aptuni.memory", "aptuni.full"):
+        text = AdapterManager._skill("aptuni-x", intent, claude=True)
+        assert "Usually 1-4 concepts" in text and "ceiling, not a target" in text
+        assert "not writing a syllabus" in text and "parent name" in text
+        assert "granted_modules" in text
+        assert "1-8 short terms" not in text
+
+
+def test_activation_tool_description_matches_the_concept_guidance(tmp_path) -> None:
+    server = create_server(_service(tmp_path), _access(), activation_required=True)
+
+    async def exercise() -> None:
+        tools = {tool.name: tool for tool in await server.list_tools()}
+        description = " ".join((tools["aptuni_activate_context"].description or "").split())
+        assert "usually 1-4" in description and "never a target" in description
+        assert "1-8 short terms" not in description
+
+    anyio.run(exercise)
