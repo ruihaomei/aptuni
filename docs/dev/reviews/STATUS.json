@@ -392,7 +392,15 @@
   },
   "beta-e2e-research-harness": {
    "kind": "review",
-   "current": "98-b10-e2e-research-harness-review.md",
+   "current": "99-b10-code-mode-bridge-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "98-b10-e2e-research-harness-review.md"
+   ]
+  },
+  "beta-synthetic-discovery-research": {
+   "kind": "review",
+   "current": "100-b10-synthetic-discovery-harness-review.md",
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   }

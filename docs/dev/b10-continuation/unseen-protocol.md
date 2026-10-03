@@ -26,8 +26,9 @@ was an instruction plus read-only sandbox. Actual frozen traces were independent
 audited: Codex used only Aptuni, and Claude used discovery/Skill plus Aptuni,
 with no filesystem/web/app execution or memory writes. The later research runner
 and a separate generic OFF canary explicitly disabled inherited apps/plugins,
-browser/computer/image/shell/code tools and web search, verified effective settings
-and the four-tool MCP catalog. This later canary is not retrospective proof of
+browser/computer/image/shell capabilities and web search, verified effective settings
+and the four-tool MCP catalog. Review 99 later restores only the isolated tool
+bridge required for MCP and verifies actual empty Full setup plus generic task. This later canary is not retrospective proof of
 the frozen runner’s full confinement. No grant,
 activation semantics, ranking, schema, provider or guidance is changed before the
 frozen runs. Record host/model versions and actual tool traces, not just instructions.

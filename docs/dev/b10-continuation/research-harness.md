@@ -40,12 +40,31 @@ Only a separate explicit owner-authorized Full setup precedes the unchanged ordi
 prompt. Setup failures/disclosure/OFF state prevent task submission. Absolute
 timeouts, partial events and operational failures stay in the denominator.
 
-The Codex runner disables inherited apps/plugins/browser/computer/image/shell/code
+The Codex runner disables inherited apps/plugins/browser/computer/image/shell
 capabilities and web search at process/thread creation, verifies effective settings,
 and requires exactly four Aptuni MCP tools with no other tool/resource catalog.
 Claude uses the exact strict bundle and a limited tool allowlist. Nothing changes
 user credentials, global network configuration or VPN state. Input prompts and
 native traces stay local, owner-only and outside Git.
+
+Codex 0.155.1 requires `code_mode_host=true` to invoke MCP. The first hardened
+runner canary with that bridge disabled failed during setup; no ordinary task was
+submitted, and the failed record is retained. The bridge-enabled canary completed
+explicit Full setup followed by a generic answer with no task retrieval. Only the
+bridge was enabled; capability providers and the four-tool restriction remain.
+The installed runtime describes isolated JavaScript without Node, direct filesystem,
+network or subprocess access. A nonpersonal inventory canary reported four Aptuni
+tools and undefined `process`, `require` and `fetch`, but native app-server events
+do not expose its standalone cell output: that final model report is corroboration,
+not independently inspected proof of the complete runtime inventory.
+
+Synthetic arms use `tools/agent_e2e_mock.py`, never an owner Workspace. The mock
+provides the same four tool names, a knowledge-only fixture, OFF by default, and
+two counted task retrieval attempts sharing 4,000 response units. Its catalog arm
+adds a research-only exact-anchor seam. Hash the mock and public fixture in optional
+`research_assets` spec entries (`path`, `sha256`); the runner verifies them before
+freezing and before every task, recording only asset names/hashes in its manifest.
+The alternative world's evidence and evaluator rubric are never host instructions.
 
 Accounting separates setup from task, cache creation/read from uncached/output,
 and started/unreturned/refused calls. Codex uses cumulative usage minus setup;

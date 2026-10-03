@@ -35,6 +35,16 @@ class RunBoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "outside"):
             self.tool.private_directory(Path(__file__).parents[2] / "ignored-scratch")
 
+    def test_research_fixture_or_server_change_rejects_frozen_assets(self):
+        with tempfile.TemporaryDirectory() as directory:
+            asset = Path(directory) / "mock.py"
+            asset.write_text("frozen synthetic server")
+            spec = {"research_assets": [{"path": str(asset), "sha256": self.tool.digest(asset)}]}
+            self.assertEqual(self.tool.verify_assets(spec), spec["research_assets"])
+            asset.write_text("changed server")
+            with self.assertRaisesRegex(ValueError, "research asset"):
+                self.tool.verify_assets(spec)
+
     def test_requested_activation_is_not_proof_of_enabled_full(self):
         setup = {"events": [{"method": "item/completed", "params": {"item": {
             "type": "mcpToolCall", "tool": "aptuni_activate_context", "status": "completed",

@@ -34,7 +34,7 @@ CONFINEMENT = ("Evaluation confinement: use only the Aptuni MCP tools with the e
 DISABLED_FEATURES = (
     "apps", "browser_use", "browser_use_external", "browser_use_full_cdp_access", "computer_use",
     "plugins", "remote_plugin", "plugin_sharing", "view_image", "image_generation", "shell_tool",
-    "unified_exec", "multi_agent", "multi_agent_v2", "hooks", "code_mode_host", "in_app_browser",
+    "unified_exec", "multi_agent", "multi_agent_v2", "hooks", "in_app_browser",
     "in_app_local_automation", "workspace_dependencies", "skill_mcp_dependency_install", "goals", "sleep_tool",
 )
 
@@ -42,7 +42,9 @@ DISABLED_FEATURES = (
 def codex_config(bundle: Path) -> dict[str, Any]:
     user = tomllib.loads((Path.home() / ".codex/config.toml").read_text())
     bundled = tomllib.loads((bundle / "config.toml").read_text())
-    config = {"analytics.enabled": False, "web_search": "disabled"}
+    # Codex 0.155.1 invokes MCP through this bridge; disabling it makes even the
+    # allowlisted MCP tools unusable. Capability providers remain disabled below.
+    config = {"analytics.enabled": False, "web_search": "disabled", "features.code_mode_host": True}
     config.update({f"features.{name}": False for name in DISABLED_FEATURES})
     for name in user.get("mcp_servers", {}):
         if name != "aptuni":
@@ -72,6 +74,14 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def verify_assets(spec: dict[str, Any]) -> list[dict[str, str]]:
+    assets = spec.get("research_assets", [])
+    for asset in assets:
+        if digest(Path(asset["path"])) != asset["sha256"]:
+            raise ValueError("frozen research asset digest mismatch")
+    return assets
+
+
 def private_directory(path: Path) -> Path:
     path = path.resolve()
     if path == REPO or REPO in path.parents:
@@ -98,6 +108,8 @@ def prepare(spec: dict[str, Any]) -> tuple[list, dict[str, Any]]:
                 "effort": spec.get("effort"), "task_count": len(tasks),
                 "dataset_sha256": digest(dataset), "policy_sha256": digest(policy) if policy else None,
                 "bundle_sha256": hashes, "runner_sha256": digest(Path(__file__)),
+                "research_assets": [{"name": Path(asset["path"]).name, "sha256": asset["sha256"]}
+                                    for asset in verify_assets(spec)],
                 "activation": "owner-authorized explicit Full setup before each ordinary task"}
     manifest["implementation_revision"] = subprocess.check_output(
         ["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True,
@@ -150,7 +162,8 @@ class Session:
                                         "capabilities": {"experimentalApi": True}})
                 self.send({"method": "initialized"})
                 effective = self.rpc("config/read", {"cwd": str(cwd), "includeLayers": False})["config"]
-                if effective.get("web_search") != "disabled" or any(
+                if effective.get("features", {}).get("code_mode_host") is not True or \
+                    effective.get("web_search") != "disabled" or any(
                     effective.get("features", {}).get(name) is not False for name in DISABLED_FEATURES
                 ):
                     raise RuntimeError("unrelated host capabilities are not explicitly disabled")
@@ -162,7 +175,8 @@ class Session:
                 catalog = self.rpc("mcpServerStatus/list", {"threadId": self.thread, "limit": 100})
                 if not catalog_is_confined(catalog):
                     raise RuntimeError("unexpected MCP tool or resource catalog")
-                self.confinement = {"features_disabled": list(DISABLED_FEATURES), "web_search": "disabled",
+                self.confinement = {"features_disabled": list(DISABLED_FEATURES), "code_mode_bridge": True,
+                                    "web_search": "disabled",
                                     "mcp_catalog": {server["name"]: sorted(server.get("tools", {}))
                                                     for server in catalog["data"]}}
             except (RuntimeError, queue.Empty, OSError):
@@ -364,6 +378,7 @@ def main():
     if spec.get("policy") and hashlib.sha256(spec["policy_text"].encode()).hexdigest() != manifest["policy_sha256"]:
         raise ValueError("policy changed after freezing")
     for identifier, _category, _expected, prompt in tasks:
+        verify_assets(spec)
         run_task(spec, out, cwd, identifier, prompt, manifest["experiment_sha256"])
 
 
