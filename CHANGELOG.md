@@ -23,6 +23,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Local research tools freeze Agent evaluation policies and task hashes, keep raw
+  trials outside Git, and report content-free calls, token components and latency.
+  Seven post-fix ordinary-prompt trials have now been measured per host; b10 remains
+  unreleased because material answer grounding/project discovery failures remain.
+
+
 - Agents can pass `concepts` with Profile, Memory and Full activation (and `aptuni context
   --concept`): short terms the task is about, in English and Chinese. Each concept must match
   whole (English words in singular or plural form), so results are precise and unrelated notes that

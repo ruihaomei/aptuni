@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "dataset_sha256": "8da90d4a3b7bd3d7baa152c63fdbc5a55006038607eddd9c21ee940037784c3a",
+  "host": "codex",
+  "experiment_sha256": null,
+  "manifest_origin": "reconstructed-after-execution; independently checked frozen runner and records",
+  "tasks": [
+    {
+      "id": "m01",
+      "category": "career_long_zh",
+      "expected_use": true,
+      "host_completed": true,
+      "retrieval_calls": 2,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 1,
+      "concept_counts": [
+        3,
+        4
+      ],
+      "plain_query_calls": 0,
+      "contains_cjk": [
+        true,
+        true
+      ],
+      "contains_latin": [
+        false,
+        true
+      ],
+      "latency_s": 128.1883095409721,
+      "setup_latency_s": 25.788534833001904,
+      "tokens": {
+        "input_total": 153326,
+        "input_cached": 140928,
+        "cache_creation": 0,
+        "output": 2799,
+        "reasoning_output": 1375
+      },
+      "answer_success": null,
+      "record_sha256": "6bddb27338b5533da1d0962268585eb03e05553220f08915beb8df0d03682c7f"
+    },
+    {
+      "id": "m02",
+      "category": "research_en",
+      "expected_use": true,
+      "host_completed": true,
+      "retrieval_calls": 2,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 1,
+      "concept_counts": [
+        2,
+        1
+      ],
+      "plain_query_calls": 0,
+      "contains_cjk": [
+        true,
+        false
+      ],
+      "contains_latin": [
+        true,
+        true
+      ],
+      "latency_s": 70.12245783302933,
+      "setup_latency_s": 24.024666957964655,
+      "tokens": {
+        "input_total": 153309,
+        "input_cached": 141312,
+        "cache_creation": 0,
+        "output": 1433,
+        "reasoning_output": 594
+      },
+      "answer_success": null,
+      "record_sha256": "5916330a38591eba110fab346c33daac59b6c7b54faead11540f16ce2630ecf5"
+    },
+    {
+      "id": "m03",
+      "category": "technical_zh",
+      "expected_use": true,
+      "host_completed": true,
+      "retrieval_calls": 2,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 1,
+      "concept_counts": [
+        4,
+        4
+      ],
+      "plain_query_calls": 0,
+      "contains_cjk": [
+        true,
+        false
+      ],
+      "contains_latin": [
+        false,
+        true
+      ],
+      "latency_s": 136.37233283399837,
+      "setup_latency_s": 28.7828693750198,
+      "tokens": {
+        "input_total": 155882,
+        "input_cached": 142592,
+        "cache_creation": 0,
+        "output": 2915,
+        "reasoning_output": 1059
+      },
+      "answer_success": null,
+      "record_sha256": "b10408fa6dc04ab7c1765a9431b55e8b7451c3e3f61df9a75ccfb95beb1b0a83"
+    },
+    {
+      "id": "m04",
+      "category": "technical_mixed",
+      "expected_use": true,
+      "host_completed": true,
+      "retrieval_calls": 2,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 1,
+      "concept_counts": [
+        4,
+        1
+      ],
+      "plain_query_calls": 0,
+      "contains_cjk": [
+        true,
+        false
+      ],
+      "contains_latin": [
+        true,
+        true
+      ],
+      "latency_s": 82.13258879102068,
+      "setup_latency_s": 34.05059945798712,
+      "tokens": {
+        "input_total": 152834,
+        "input_cached": 141312,
+        "cache_creation": 0,
+        "output": 1678,
+        "reasoning_output": 676
+      },
+      "answer_success": null,
+      "record_sha256": "cb89cf0214a59ad03e9e78af8b7c6b96b98abb231c002bcd263f6dc864d83405"
+    },
+    {
+      "id": "m05",
+      "category": "application_en",
+      "expected_use": true,
+      "host_completed": true,
+      "retrieval_calls": 2,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 1,
+      "concept_counts": [
+        2,
+        1
+      ],
+      "plain_query_calls": 0,
+      "contains_cjk": [
+        true,
+        false
+      ],
+      "contains_latin": [
+        true,
+        true
+      ],
+      "latency_s": 64.21336424996844,
+      "setup_latency_s": 29.445448166981805,
+      "tokens": {
+        "input_total": 149875,
+        "input_cached": 140416,
+        "cache_creation": 0,
+        "output": 1212,
+        "reasoning_output": 765
+      },
+      "answer_success": null,
+      "record_sha256": "1670d5818e7badca7fde76d5d259d460914fa2e49879304712dc9504e18a9afa"
+    },
+    {
+      "id": "m06",
+      "category": "irrelevant_zh",
+      "expected_use": false,
+      "host_completed": true,
+      "retrieval_calls": 0,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 0,
+      "concept_counts": [],
+      "plain_query_calls": 0,
+      "contains_cjk": [],
+      "contains_latin": [],
+      "latency_s": 10.94903408299433,
+      "setup_latency_s": 23.178460540948436,
+      "tokens": {
+        "input_total": 28794,
+        "input_cached": 22656,
+        "cache_creation": 0,
+        "output": 217,
+        "reasoning_output": 157
+      },
+      "answer_success": null,
+      "record_sha256": "a656d2866e9a33003375f300ee99f270cde956bf5d7a217f24b1dc664a18b0f8"
+    },
+    {
+      "id": "m07",
+      "category": "irrelevant_en",
+      "expected_use": false,
+      "host_completed": true,
+      "retrieval_calls": 0,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 0,
+      "concept_counts": [],
+      "plain_query_calls": 0,
+      "contains_cjk": [],
+      "contains_latin": [],
+      "latency_s": 16.306956041953526,
+      "setup_latency_s": 28.938437709002756,
+      "tokens": {
+        "input_total": 28786,
+        "input_cached": 22656,
+        "cache_creation": 0,
+        "output": 335,
+        "reasoning_output": 276
+      },
+      "answer_success": null,
+      "record_sha256": "e56c8107863a4369c348b3640575ac5c7681a3f552e7596224d5e6e2b87c9f29"
+    }
+  ]
+}

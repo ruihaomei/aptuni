@@ -389,6 +389,12 @@
     "12-security-privacy-fourth-rereview.md",
     "13-security-privacy-fifth-rereview.md"
    ]
+  },
+  "beta-e2e-research-harness": {
+   "kind": "review",
+   "current": "98-b10-e2e-research-harness-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
   }
  }
 }

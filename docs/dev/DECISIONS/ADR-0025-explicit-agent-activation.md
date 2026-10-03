@@ -81,3 +81,15 @@ when the grant cannot save at all. Task scope still leaves no state and OFF stil
 (4) The generated Full skill tells the Agent to read the status first, to use distinctive keywords
 as the query, and that saving needs session Full. Regenerated bundles pick up (4); the MCP changes
 apply on upgrade. Regressions: `tests/integration/test_activation_guidance.py`.
+
+
+## 2026-10-03 owner clarification — ordinary prompts inside Full
+
+The owner explicitly keeps OFF / Profile / Memory / Full under user control.
+An ordinary prompt never authorizes an automatic OFF-to-Full transition. Inside an
+already explicitly enabled Full session, the host may autonomously decide whether
+personal context materially helps, derive concepts, retrieve within the existing
+grant and answer the original task. No manual keyword/search request is needed.
+Generic tasks continue without retrieval. This clarifies the existing session
+contract; it adds no grant or activation state. Real frozen ordinary-prompt runs
+verify the path, with answer-quality failures recorded separately.

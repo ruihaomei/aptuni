@@ -77,6 +77,8 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 
 ## Observations inbox (any session; triaged by the next development session)
 
+- 2026-10-03 · Claude/Codex · Full-session task quality · P1 proposed · Relevance decisions work, but evidence grounding and discovery can still miss the user goal · interrupted? no
+
 Append one content-free line per meaningful observation: date · host (Claude Code/Codex) · area ·
 proposed severity (P0–P3 or note) · what happened in product terms (no personal content, queries,
 file names or Vault text) · whether the owner was interrupted. Do not commit from non-development

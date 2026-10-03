@@ -21,6 +21,13 @@ fragmented retries and unsupported answer claims prevent product closure. Guidan
 fix `b8ba178` approved in Review 97; fresh ordinary-prompt validation is still pending,
 so do not mark KI-018 resolved or release b10 from retrieval-only figures.
 
+**KI-018 product update (2026-10-03):** unchanged post-fix ordinary-prompt seven
+completed: Sonnet 2/7, Codex Astra 6/7; inside-Full relevance 7/7 each. Sonnet answer
+grounding and Astra goal-to-project discovery remain material failures. The original
+1/10 is not the current rate. Two blind project-goal probes miss candidates while an
+oracle retrieves a tentative source-backed candidate. No production retune or b10
+release; bounded discovery is a research hypothesis. Fresh six remain sealed.
+
 ## Resolved history
 
 - **KI-008 (2026-09-22):** S10 isolated Mem0 2.0.20 and conditionally admitted only a disposable

@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent-led-setup=APPROVE_WITH_NON_BLOCKING_NOTES; beta-attach-consent=APPROVE_WITH_NON_BLOCKING_NOTES; beta-b9-autosave-diversify=APPROVE_WITH_NON_BLOCKING_NOTES; beta-concept-queries=APPROVE_WITH_NON_BLOCKING_NOTES; beta-credential-guard=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day0-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day1-activation-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-evidence-profile=APPROVE_WITH_NON_BLOCKING_NOTES; beta-knowledge-model=APPROVE_WITH_NON_BLOCKING_NOTES; beta-orchestration-guidance=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stable-readiness-gate=APPROVE_WITH_NON_BLOCKING_NOTES; beta-top-down-flagship=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-beta-top-down-agent-plugin=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE_WITH_NON_BLOCKING_NOTES; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent-led-setup=APPROVE_WITH_NON_BLOCKING_NOTES; beta-attach-consent=APPROVE_WITH_NON_BLOCKING_NOTES; beta-b9-autosave-diversify=APPROVE_WITH_NON_BLOCKING_NOTES; beta-concept-queries=APPROVE_WITH_NON_BLOCKING_NOTES; beta-credential-guard=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day0-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day1-activation-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-e2e-research-harness=APPROVE_WITH_NON_BLOCKING_NOTES; beta-evidence-profile=APPROVE_WITH_NON_BLOCKING_NOTES; beta-knowledge-model=APPROVE_WITH_NON_BLOCKING_NOTES; beta-orchestration-guidance=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stable-readiness-gate=APPROVE_WITH_NON_BLOCKING_NOTES; beta-top-down-flagship=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-beta-top-down-agent-plugin=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE_WITH_NON_BLOCKING_NOTES; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Mode: 14-day real-user dogfooding (from 2026-10-01)
 
@@ -14,6 +14,39 @@ release policy; everything smaller is batched (next setup/onboarding slice: the 
 Development sessions triage the inbox into the defect table / daily log / BACKLOG and commit.
 
 ## Current position
+
+**2026-10-03 current b10 research checkpoint (preceding local commit `1908b97`).**
+Explicit owner activation is settled; no automatic OFF→Full. Full-session ordinary
+prompts autonomously decide relevance. Both actual runners recovered without grant,
+credential or network changes; global Codex model line now uses a verified available
+GPT-6 Astra route. Both installed skills are generator-identical.
+
+Frozen seven unchanged, all completed, independent strict E2E: Sonnet 4.6 **2/7**,
+Codex Astra xhigh **6/7**; relevance inside Full **7/7 each**. The old 1/10 is only
+pre-consolidation. No b10 release. Current results and per-task content-free token,
+call and latency tables: `b10-continuation/frozen-unseen-results.md`.
+
+Concrete next slice: **synthetic bounded discovery falsifier**. Two blind task-based
+project-goal lists yield no project evidence; an independently planned oracle anchor
+recovers an eligible tentative candidate, never counted as product success. Current
+Context omits repository provenance from search/discovery. Manager froze two invented
+worlds with identical labels/task but owner work versus study-only Evidence. Run that
+small contrast before production discovery or B/C/D orchestration. Research runner
+`tools/agent_e2e_run.py` and accounting `tools/agent_e2e.py` are runnable, Review 98
+approved for validated environment (14 focused tests; full suite: 1,263 passed, 3 skips, 62 subtests; 70 developer checks; Ruff, mypy and relay green). Original confinement limitation
+and reconstructed legacy manifests are disclosed; corrected runner checks effective
+capabilities, exact MCP catalog, clean Full setup, snapshots and failed-run accounting.
+
+Private restart directory: `/private/tmp/aptuni-b10-continuation/`. Original seven
+hash ends `…784c3a`; independently curated six-task hash ends `…df16e26` remains
+sealed, unread by candidate planners. Never tune against it before freezing a finalist.
+Local raw research traces must be deleted after this phase's grading/review; preserve
+preexisting inputs/evidence and both owner backups. No production behavior changed.
+Do not repeat completed credential research; external copies/rotation stay unverified,
+old pre-b9 backup retained. Follow current report, not historical pending-policy or
+quota blockers below. No owner decision currently blocks these reversible experiments.
+
+Historical checkpoints follow.
 
 **Post-purge b10 checkpoint (2026-10-02; `b8ba178`, local, NOT released).** Owner
 confirmed `act-dbba0c2dfd65f28e`; receipt is `complete_managed_external_action_needed`.

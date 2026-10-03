@@ -116,3 +116,24 @@ results (SHA-256 `8da90d4a3b7bd3d7baa152c63fdbc5a55006038607eddd9c21ee940037784c
 Claude capacity canary still returns a usage-limit failure. This does not erase the
 original failures or substitute for fresh validation. ADR-0025 policy interpretation
 is separately pending. No completed embedding/reranker/provider research reopened.
+
+
+## 2026-10-03 — Post-fix ordinary-prompt evidence
+
+Seven unchanged frozen E2E tasks completed before retuning: independent acceptable
+answers 2/7 on Claude Sonnet 4.6 and 6/7 on Codex GPT-6 Astra xhigh. Both relevance
+behaviors inside explicitly enabled Full are correct on7/7, with zero calls on
+negative tasks. Cross-host/model counts are not causal architecture estimates.
+[Results](../../dev/b10-continuation/frozen-unseen-results.md) keep raw/cache/output
+usage separate and retain the original 1/10 solely as pre-fix evidence.
+
+Grounded integration is a major cheaper-host failure; retrieved study/mention or
+file-name evidence does not prove personal proficiency, contribution or progress.
+The surviving strong-host gap is goal-to-unknown-project discovery. Two blind
+bounded field/label probes return no concrete candidate, while an independently
+selected known anchor retrieves a tentative candidate. Oracle results are diagnostics,
+never autonomous E2E success. Current lexical documents choose statement/excerpt/subject
+and omit repository locator metadata; the host has no bounded source-anchor discovery
+endpoint. More planners cannot invent unknown anchors. Test a fixed synthetic
+permissioned discovery contrast before changing production, indexing or model roles.
+Fresh six tasks were sealed independently before candidate changes and remain unused.

@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "dataset_sha256": "8da90d4a3b7bd3d7baa152c63fdbc5a55006038607eddd9c21ee940037784c3a",
+  "host": "claude",
+  "experiment_sha256": null,
+  "manifest_origin": "reconstructed-after-execution; independently checked frozen runner and records",
+  "tasks": [
+    {
+      "id": "m01",
+      "category": "career_long_zh",
+      "expected_use": true,
+      "host_completed": true,
+      "retrieval_calls": 2,
+      "refused_calls": 1,
+      "unreturned_calls": 0,
+      "extra_calls": 1,
+      "concept_counts": [
+        5,
+        5
+      ],
+      "plain_query_calls": 0,
+      "contains_cjk": [
+        true,
+        true
+      ],
+      "contains_latin": [
+        true,
+        true
+      ],
+      "latency_s": 65.48440879199188,
+      "setup_latency_s": 12.644652875023894,
+      "tokens": {
+        "input_uncached": 8,
+        "cache_creation": 2682,
+        "input_cached": 43698,
+        "output": 3534,
+        "reasoning_output": null
+      },
+      "answer_success": null,
+      "record_sha256": "d2e5bac02777bd457e5d038a78bd237474b31fced9f91d045d7d53e87aa851e8"
+    },
+    {
+      "id": "m02",
+      "category": "research_en",
+      "expected_use": true,
+      "host_completed": true,
+      "retrieval_calls": 1,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 0,
+      "concept_counts": [
+        2
+      ],
+      "plain_query_calls": 0,
+      "contains_cjk": [
+        true
+      ],
+      "contains_latin": [
+        true
+      ],
+      "latency_s": 79.2713177499827,
+      "setup_latency_s": 13.775242500007153,
+      "tokens": {
+        "input_uncached": 18,
+        "cache_creation": 6717,
+        "input_cached": 127968,
+        "output": 3713,
+        "reasoning_output": null
+      },
+      "answer_success": null,
+      "record_sha256": "319081929127754f062b2040d6f4981c3743f9f76920c429165c0749a73d6083"
+    },
+    {
+      "id": "m03",
+      "category": "technical_zh",
+      "expected_use": true,
+      "host_completed": true,
+      "retrieval_calls": 1,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 0,
+      "concept_counts": [
+        4
+      ],
+      "plain_query_calls": 0,
+      "contains_cjk": [
+        true
+      ],
+      "contains_latin": [
+        true
+      ],
+      "latency_s": 36.52773545804666,
+      "setup_latency_s": 15.005964292038698,
+      "tokens": {
+        "input_uncached": 7,
+        "cache_creation": 1717,
+        "input_cached": 31915,
+        "output": 2381,
+        "reasoning_output": null
+      },
+      "answer_success": null,
+      "record_sha256": "e2af79a799ffebdf14801026d7b010641510321e8a4eb6a0e4ee59b102047fde"
+    },
+    {
+      "id": "m04",
+      "category": "technical_mixed",
+      "expected_use": true,
+      "host_completed": true,
+      "retrieval_calls": 1,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 0,
+      "concept_counts": [
+        4
+      ],
+      "plain_query_calls": 0,
+      "contains_cjk": [
+        false
+      ],
+      "contains_latin": [
+        true
+      ],
+      "latency_s": 35.14423883397831,
+      "setup_latency_s": 16.320134249981493,
+      "tokens": {
+        "input_uncached": 7,
+        "cache_creation": 2346,
+        "input_cached": 31939,
+        "output": 1799,
+        "reasoning_output": null
+      },
+      "answer_success": null,
+      "record_sha256": "63e4259f5063b8ccb5744e906eef6e33ff1136195441a438e31e8dcc440b9bac"
+    },
+    {
+      "id": "m05",
+      "category": "application_en",
+      "expected_use": true,
+      "host_completed": true,
+      "retrieval_calls": 4,
+      "refused_calls": 1,
+      "unreturned_calls": 0,
+      "extra_calls": 3,
+      "concept_counts": [
+        5,
+        5,
+        0,
+        0
+      ],
+      "plain_query_calls": 2,
+      "contains_cjk": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "contains_latin": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "latency_s": 30.69157833297504,
+      "setup_latency_s": 13.800845791993197,
+      "tokens": {
+        "input_uncached": 10,
+        "cache_creation": 3474,
+        "input_cached": 68488,
+        "output": 1277,
+        "reasoning_output": null
+      },
+      "answer_success": null,
+      "record_sha256": "303fc5f4edbed18b93b84098802895e6752a7d4f8cce1f5238b30e60e4b59885"
+    },
+    {
+      "id": "m06",
+      "category": "irrelevant_zh",
+      "expected_use": false,
+      "host_completed": true,
+      "retrieval_calls": 0,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 0,
+      "concept_counts": [],
+      "plain_query_calls": 0,
+      "contains_cjk": [],
+      "contains_latin": [],
+      "latency_s": 2.737588833027985,
+      "setup_latency_s": 15.2535693749669,
+      "tokens": {
+        "input_uncached": 3,
+        "cache_creation": 72,
+        "input_cached": 10389,
+        "output": 61,
+        "reasoning_output": null
+      },
+      "answer_success": null,
+      "record_sha256": "9f02a58783e3d23f994c4f34292b850a0797fcf456e8c12a30ab398abce3a9a6"
+    },
+    {
+      "id": "m07",
+      "category": "irrelevant_en",
+      "expected_use": false,
+      "host_completed": true,
+      "retrieval_calls": 0,
+      "refused_calls": 0,
+      "unreturned_calls": 0,
+      "extra_calls": 0,
+      "concept_counts": [],
+      "plain_query_calls": 0,
+      "contains_cjk": [],
+      "contains_latin": [],
+      "latency_s": 2.8146551670506597,
+      "setup_latency_s": 14.667907375027426,
+      "tokens": {
+        "input_uncached": 3,
+        "cache_creation": 54,
+        "input_cached": 10376,
+        "output": 94,
+        "reasoning_output": null
+      },
+      "answer_success": null,
+      "record_sha256": "bd1e003ee2b80b86a004e3b2b6624f65dc77116cece8c70af7acf4eb592c04ce"
+    }
+  ]
+}
