@@ -6,6 +6,89 @@ holdout. It contains no private prompts, source excerpts, answers or held-out
 items and changes no runtime guidance. The latest decision below supersedes the
 earlier conditional plans, which remain as research history.
 
+## Pending real-task grade and conditional finalist decision
+
+**Lead-reported execution, grade pending:** the first real m05 launch failed at
+host configuration parsing, with zero model events or content calls. Its record
+is retained as an operational failure. Review 105 approved one launch-only retry
+after a configuration-only check of the repaired private bundle. The retry has
+now completed without an operational error. No task-quality grade is available
+to this manager, and completion alone does not pass the prototype's third stage.
+Reviews 104/105 authorize only those development attempts, not a held-out run.
+
+**Proposed next decision:** if the independent grader accepts the complete m05
+rubric, the frozen strong single-Agent policy is credible enough to be **one
+research-only finalist tested against A** on the already sealed six. Fixed
+first-five/first-20 selection is not, by itself, grounds to discard a bounded
+research candidate. Its unresolved coverage is precisely an independently
+testable limitation. A passing development case would justify that measurement,
+not establish corpus-wide discovery, near-best quality or production readiness.
+If m05 fails the full rubric, stop the prototype as planned; do not tune it or
+consume the sealed six for this candidate.
+
+### Admission criteria before opening the sealed six
+
+All of the following must hold. None depends on reading a sealed prompt.
+
+1. The independent m05 grade passes the **entire** task: useful candidate
+   selection from actually retrieved Evidence, a supported qualified paragraph,
+   and missing contribution/results left explicitly unconfirmed. A plausible
+   label, partial rubric pass, unsupported claim or safe but unhelpful abstention
+   is insufficient. The trace must also satisfy the frozen permission, call and
+   unit limits; operational completion is not a substitute.
+2. Freeze the already tested policy and backend, without adding task-specific
+   names, aliases, ranking, reordered entries, pagination, larger budgets or
+   selected evidence IDs. Retain stable first five of the eligible groups and
+   first 20 Evidence IDs, with actual packing allowed to return fewer. Preserve
+   failures and the known development fact that the oracle group happened to
+   occur in the first five. That fact cannot guide selection on fresh tasks.
+3. Preserve the conditional policy: skip generic tasks; use ordinary retrieval
+   for named projects and other personal tasks; invoke discovery only for an
+   unknown-prior-project selection request. Partial discovery must remain
+   explicit. An empty result is not proof that no relevant project exists, and
+   a source title is not proof of personal work.
+4. Obtain a **separate scoped privacy/interface review** before any additional
+   live-owner or host call. Reuse the existing grant and explicit owner Full
+   setup; no permission expansion or automatic activation. Freeze one current
+   canonical state for the matched comparison; refuse drift rather than quietly
+   rebinding a sequence. Keep private raw traces out of Git.
+5. Lock the comparison protocol and independent grading before unsealing. Use
+   the same strong model/settings, fresh sessions, task wording, permitted
+   corpus, grant and setup convention in both arms. Make the two-attempt,
+   shared-4000-unit allowance and accounting comparable; record the baseline
+   implementation rather than silently adding discovery to A. A resource or
+   interface mismatch must be declared as part of the treatment, not concealed
+   as a model-only comparison. Neither arm receives oracle hints or returned
+   context from the other arm.
+
+### Falsifiable result interpretation
+
+The six-task comparison is a small independent test of this frozen treatment,
+not a new tuning set. Report every task's full-rubric outcome, retrieval use,
+unsupported claims, permission behavior, actual packed units, model tokens and
+elapsed time. Report setup separately and include all failed/refused attempts.
+Unknown monetary costs remain unknown. More calls, hidden ranking, free resets
+or omitted stages cannot be used to manufacture an efficiency advantage.
+
+The strict target for calling this finalist high quality **on the sealed six**
+is six complete passes with no permission/activation or unsupported-personal-claim
+failure. To prefer it over A, it must additionally demonstrate a useful paired
+gain, such as a task A fails that the finalist completes, without regressing a
+task A passes. If both pass all six, prefer unchanged A: the new discovery
+interface has not shown a necessary quality benefit. If the finalist falls
+short, report its actual score and failure class; do not promote a partial score
+as near-best or revise the policy against these prompts. A larger fresh set is
+justified only if the frozen comparison leaves a consequential quality/resource
+decision unresolved, not as a way to erase an inconvenient failure.
+
+A demonstrated quality gain may warrant an explicit observed resource tradeoff;
+it does not imply token, latency or monetary savings. This candidate still uses
+one strong host and deterministic Aptuni execution, with no paid worker or new
+runtime manager. The existing A/B component evidence supplies no reason to add
+B, C or D calls to this comparison. The catalog's selection/packing limits remain
+documented even if all six pass, and any production proposal requires its own
+contract and privacy decision.
+
 ## Latest measured outcomes and decision
 
 The following measurements and grades were supplied by the lead; no private

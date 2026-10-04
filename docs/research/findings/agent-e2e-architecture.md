@@ -25,6 +25,12 @@ Updated 2026-10-04. Local development research; no new production policy.
   entries fail the original 800-unit named format; a separately frozen single-key,
   bounded-label format fits at 532 units. Packing is not task success or coverage.
   [Compact experiment](../../dev/b10-continuation/compact-contract-experiment.md).
+- A separately reviewed real-data seam completes one reused project-selection
+  task with grounded provisional material, two calls and3555/4000 units. The
+  zero-model launch failure remains counted: one acceptable completion in two
+  retained attempts. This supports one separately reviewed finalist comparison,
+  not production adoption or a revised seven-task rate.
+  [Real development result](../../dev/b10-continuation/real-discovery-development-results.md).
 - Current independent six remains sealed. Do not turn repeated development
   controls into unseen success rates. C/D are deferred, not empirically rejected.
   Preserve explicit OFF→Full consent, grants and exposure on every research path.

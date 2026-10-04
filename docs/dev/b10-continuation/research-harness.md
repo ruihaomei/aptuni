@@ -1,8 +1,8 @@
 # Local E2E architecture research harness
 
 This is disposable research infrastructure, not an Aptuni runtime. It adds no
-production dependency, grant, activation rule or model requirement. Review 98
-covers the corrected runner in the validated local environment.
+production dependency, grant, activation rule or model requirement. Reviews 98–99
+cover the runner and its corrected MCP bridge in the validated local environment.
 
 Write an owner-only spec in private scratch outside the repository:
 
@@ -79,3 +79,19 @@ consume development data; evaluate a frozen finalist once on the sealed set.
 Do not retune on failed held-out tasks and report them as independent afterwards.
 Remove this phase's private traces after grading/review and preserve earlier frozen
 inputs, prior evidence and owner backups. Commit only inspected content-free output.
+
+`tools/agent_e2e_discovery.py` is a separate, research-only real-data seam, approved
+for one original application-task development probe in Review 104. It retains
+explicit Full, the existing host grant and informed egress, current exposable
+Knowledge Evidence, fixed canonical sequence, two attempts and 4000 aggregate
+units. It exposes at most five bounded repository labels, then Evidence for one
+copied opaque anchor. It never exports SourceConfig or changes production MCP.
+Its scoped Python audit guard is not an OS sandbox. Further experiments require
+their own scope and frozen policy; this approval does not cover the sealed six.
+
+The first attempt stopped before model events: the added private bundle `env`
+table could not survive the runner's JSON-to-CLI configuration serialization.
+Scalar and array overrides parse; dictionary overrides are unsupported. Review
+105 approves one launch-only retry using Python `-B` rather than that `env` table.
+The failed attempt stays recorded separately, with the candidate and rubric
+unchanged. No global owner configuration was altered for this repair.

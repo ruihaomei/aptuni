@@ -412,6 +412,14 @@
    "current": "102-b10-local-feasibility-review.md",
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
+  },
+  "beta-real-discovery-research": {
+   "kind": "review",
+   "current": "105-b10-discovery-transport-retry-review.md",
+   "verdict": "APPROVE",
+   "supersedes": [
+    "104-b10-real-discovery-research-review.md"
+   ]
   }
  }
 }

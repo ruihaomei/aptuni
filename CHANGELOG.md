@@ -30,6 +30,9 @@ All notable changes to this project are documented here. The format follows
 - Disposable research controls compare discovery contracts and fixed-evidence
   planner/worker handoffs, preserving failed variants and independent grading.
   These tools do not change installed guidance or production MCP behavior.
+- A separately reviewed research tool can test bounded project discovery from
+  currently permitted Evidence inside explicit Full. It preserves existing grants,
+  read-only canonical state and fixed resource limits; it is not installed in production.
 
 - Agents can pass `concepts` with Profile, Memory and Full activation (and `aptuni context
   --concept`): short terms the task is about, in English and Chinese. Each concept must match
