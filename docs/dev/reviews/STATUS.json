@@ -420,6 +420,14 @@
    "supersedes": [
     "104-b10-real-discovery-research-review.md"
    ]
+  },
+  "beta-fresh-e2e-comparison": {
+   "kind": "review",
+   "current": "107-b10-fresh-comparison-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "106-b10-fresh-comparison-review.md"
+   ]
   }
  }
 }

@@ -31,6 +31,11 @@ Updated 2026-10-04. Local development research; no new production policy.
   retained attempts. This supports one separately reviewed finalist comparison,
   not production adoption or a revised seven-task rate.
   [Real development result](../../dev/b10-continuation/real-discovery-development-results.md).
+- Error-only snapshot drift can leave a previously observed valid sequence in a
+  completed model turn. Evaluation scheduling must recognize native tool refusals,
+  while ignoring identical text in successful untrusted source data. Asset-digest
+  failure must preserve attempted/unattempted accounting. Review106 found both;
+  seven invented driver scenarios pass after test-first corrections.
 - Current independent six remains sealed. Do not turn repeated development
   controls into unseen success rates. C/D are deferred, not empirically rejected.
   Preserve explicit OFF→Full consent, grants and exposure on every research path.

@@ -35,8 +35,11 @@ integrator comparison passes both finals; the three-role path uses more tokens
 and latency. These are development/component results, not new product success
 rates. Real named-catalog packing fails at 800 units; a separately frozen compact
 format fits in 532 units after normal stale-index repair (owner Vault62→66).
-Both strong compact controls pass with actual Evidence lookup; real-task
-coverage remains unproven. No production
+Both strong compact controls pass with actual Evidence lookup. One original
+application-task development retry passes the complete rubric and scope/budget
+checks (3555/4000 units); a preceding zero-model configuration failure remains
+counted, one acceptable completion in two attempts. Coverage remains partial
+and generalization unproven. No production
 contract adopted, no release and no sealed-six use. C/D remain unmeasured.
 
 ## Resolved history
