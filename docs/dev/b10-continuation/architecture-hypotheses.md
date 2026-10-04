@@ -1,8 +1,173 @@
 # B10 architecture hypotheses and minimum experiments
 
-Date: 2026-10-03. Status: proposal only; no candidate policy or architecture has
-been evaluated by this research manager. This note contains no private prompts,
-source excerpts, answers or held-out items. It changes no runtime guidance.
+Updated: 2026-10-04. This note separates lead-reported measurements from research
+proposals. This manager has not inspected private evaluation traces or the sealed
+holdout. It contains no private prompts, source excerpts, answers or held-out
+items and changes no runtime guidance. The latest decision below supersedes the
+earlier conditional plans, which remain as research history.
+
+## Latest measured outcomes and decision
+
+The following measurements and grades were supplied by the lead; no private
+source data was read to update this note.
+
+- **Original synthetic contract rejected:** all four original baseline/catalog
+  runs failed the complete task rubric. Both catalog runs passed a provenance
+  reference where the lookup expected a repository anchor. Empty-result
+  abstention did not demonstrate inspection of study-only evidence. Preserve
+  these failures, the frozen fixture and original contract unchanged.
+- **Separately frozen named-contract development test:** named fields plus an
+  explicit identity instruction let Astra complete both synthetic worlds with
+  actual evidence lookup in two calls. This is a combined treatment, not a
+  causal result for field names alone. The two Sonnet transfers failed before
+  lookup after requesting ungranted modules and consuming the call allowance.
+  Stop this cheap transfer variant; no automatic permission repair is justified.
+- **Cheap grounding distillation rejected on the tested packets:** four
+  fixed-evidence drafting replays used two tasks under baseline/E guidance.
+  Both versions overclaimed personal history on the first task. Both supported
+  modest personal claims on the second but failed the complete technical task;
+  E omitted a needed fitting step. These are component drafting failures, not
+  retrieval or E2E evidence and not a successful cheaper finalist.
+- **A/B both pass on the matched packet:** the lead reports the independent
+  grade accepts both A and B's final integration on the same first task. B's
+  intermediate cheap draft was also grounded under its diagnostic assessment;
+  B did not repair an A failure. Final audited accounting is **A: 84.269 seconds,
+  18,250 tokens; B: 186.636 seconds, 46,563 tokens across all stages**. No B quality,
+  latency or token-use advantage was demonstrated. A/full-B monetary cost is
+  unavailable; the worker-only reported cost of 0.047094 cannot substitute for
+  full B's cost or establish a billing comparison. This is one fixed-evidence
+  drafting comparison, not general architecture reliability or E2E evidence.
+  Prefer A on the measured task. B is not a D experiment.
+- **Current 800-unit whole-catalog policy rejected at real corpus scale:** an
+  independently reviewed, guarded local metadata audit found 26,999 eligible
+  knowledge Evidence records, 456 locator/concept-linked records and 11 eligible
+  repository groups. The five entries selected by the frozen stable order
+  include the previously identified oracle group, but the actual named JSON
+  catalog does not fit 800 units. Packing returns no items, 32 metadata units
+  and `truncated=true`. The oracle evidence packet fits 3200 units at 1036 units.
+  Canonical read sequence remained 62. No labels, identifiers or source content
+  were exported. Capacity for one oracle-selected evidence packet does not prove
+  automatic evidence selection or authorship/results beyond its actual support.
+
+**Compact audit operational status, lead-reported:** the separately frozen guard
+self-check passed, but the first live packing attempt failed safely before
+producing a fit result. A separately receipted logging-only diagnostic exposed
+the stable error code `projection_failed`; it disclosed no error message,
+traceback, label or source content. Preserve both attempt receipts. A subsequent
+guarded health read found the owner Vault had advanced from sequence 62 to 66
+while the projection remained at 62; both existing grants remained active.
+
+The lead then performed the ordinary reversible CLI index rebuild as a separate
+maintenance action. It reported a ready projection at sequence 66 with 49,734
+FTS rows and no canonical change from that rebuild. The compact audit guard was
+not weakened. Its unchanged guarded retry succeeded at stable sequence66:532 units, no shortened labels or collisions. Attribute
+the earlier attempt to the recorded projection failure/concurrent state drift,
+not to a failed compact fit test. Do not combine measurements across snapshots
+without their sequence labels. The original seven-task sequence-62 results
+remain unchanged and have not been rerun.
+
+Both existing catalog policies remain rejected for implementation. Production
+changes, larger budgets, pagination, list-all behavior and new ranking remain
+stopped. The sealed six has not been used. The narrow residual blocker is now
+explicit: a usable identifier contract with bounded labels must fit the original
+catalog budget without erasing the information needed to choose a candidate.
+
+### One research prototype: compact labels with one actionable identifier
+
+**Hypothesis, development controls now pass:** a single clearly named opaque `anchor` and a bounded
+display label per candidate can fit the same five selected entries within 800
+units, while preserving enough information for a strong host to select and read
+the relevant evidence. A second identifier in the discovery response is not
+needed for that action; ordinary provenance remains on the evidence response.
+
+The synthetic research implementation is scoped and approved in Review 103,
+with 16 focused tests and direct server probes. Those server probes supply a
+correct anchor and establish no model success. Production schemas and runtime
+contracts remain untouched. The guarded aggregate fit succeeds, and both separately frozen Astra synthetic
+controls pass the unchanged task rubric with actual Evidence lookup (two calls,
+1324/1282 units). This remains reused development evidence; no real Agent probe
+or sealed-six result is available. See compact-contract-results.md.
+
+Freeze a new research-only contract before testing. Keep the same permitted
+five-entry selection and order. Give entries short session-local opaque anchors
+such as `a01`; hold their repository mapping only in the disposable process.
+They never confer permission. Display only `anchor` and `label`, explicitly named
+in the serialized text. Derive labels from already permitted Evidence locator
+labels, cap each at 48 UTF-8 bytes including a visible truncation marker, and
+truncate only at valid character boundaries. Explicitly state that the marker
+means part of the full label was omitted. Fail closed on a duplicated anchor or
+colliding bounded labels; do not repair collisions with guessed aliases or
+silently select a source. Do not invent topic summaries,
+remove a namespace using an unverified parsing assumption, or infer ownership
+or contribution from a label. The entire response still uses the existing
+ContextUnit/pack_units estimator and the unchanged 800-unit cap.
+
+Catalog labels remain quoted, untrusted discovery data; they are not citations
+or authorship assertions. Only the subsequent Evidence response supplies cited
+support. The provenance and external-host trust boundary must be inspected in
+the scoped review before any production proposal.
+
+The evidence step resolves at most one such anchor, rechecks the same grant,
+activation, module and current exposure, and packs permitted evidence within
+3200 units. Retain the two-attempt/4000-used-unit total cap, including refusals.
+Do not accept provenance references as alternate anchors: that would silently
+change the failed contract. This proposal exposes no SourceConfig or owner
+inventory and creates no canonical schema or persistent index.
+
+The smallest staged falsifier is:
+
+1. **Deterministic packing/identity check, no model call:** render synthetic
+   long ASCII/CJK labels and colliding truncated prefixes; verify five lines fit,
+   each full serialized response is charged, anchors remain distinct, and
+   unknown/withdrawn anchors disclose nothing. The authorized evaluator may
+   repeat only the existing guarded local packing audit with this frozen
+   serializer and report aggregate fit/truncation/ambiguity counts. No names or
+   identifiers are committed. Stop if the catalog still cannot fit.
+2. **Two separately identified development controls on the strong model:** use
+   the existing two synthetic worlds with this new serialized contract, leaving
+   original fixtures/results intact. Both must use the right anchor, actually
+   inspect evidence and satisfy the full task rubric. Explicitly test the new
+   response representation; do not count these reused worlds as independent.
+3. **Only after both pass**, a reviewed local research wrapper may test the
+   already diagnosed real project-selection case, with the planner still blind
+   to oracle names and the same fixed selection/budgets. This is development,
+   not fresh validation. The evaluator checks useful candidate selection and a
+   qualified paragraph; unsupported authorship/results are still failures.
+
+This is one candidate prototype, not a license for a sequence of truncation,
+selection or ranking tweaks. Do not run more cheap transfers before a reliable
+strong path exists. A label collision or uninformative truncation can make a
+numerically successful packing unusable; do not treat fitting bytes as success.
+The fixed five-entry rule still omits six eligible groups. Oracle inclusion for
+one task is not general coverage. State that limitation explicitly and never
+interpret an empty shortlist as proof the owner has no relevant project.
+
+If any stage fails, stop this prototype and record the specific information or
+contract limitation. If it passes, judge whether its bounded discovery coverage
+is credible for the intended use before proposing one frozen finalist for the
+sealed six. A working task-specific demonstration alone does not justify moving
+a limited inventory mechanism into production.
+
+### Whether C or D now warrants calls
+
+Do not add D calls: no missing specialist information has been identified, and
+B's strong integrator must not be reported as a manager/specialist experiment.
+Grounding separation was exercised as part of B, with no gain over A on the
+matched packet.
+
+C remains untested and deferred. The proposed detector condition was not met:
+B's cheap draft was grounded, and B supplied no latency or token-use saving over
+A. There is no verified faulty B draft requiring rescue in this comparison.
+The earlier cheap E failures remain real, but they do not by themselves show
+that a cheap detector can recognize them or that escalation would save resources.
+Do not spend new C/D calls merely to fill an A/B/C/D/E comparison table, and do
+not claim either architecture has been empirically rejected in general.
+
+If A passes and B fails or gives no measured resource advantage, prefer A. If
+no bounded discovery variant survives and the cheaper paths remain unreliable,
+the evidence-based stop is: retain the current conservative product, report the
+remaining project-discovery failure, and keep the sealed six unused. This is an
+engineering conclusion, not a request for the owner to decide serializer details.
 
 ## Decision to make
 
@@ -377,4 +542,4 @@ no-context control, personalization benefit is a trace-supported judgment, not
 a causal effect estimate. If that distinction determines the decision, add a
 paired no-context control only for the relevant synthetic tasks.
 
-**Verdict:** **PROPOSAL ONLY — falsify the goal-alias explanation before building a catalog; compare one frozen finalist with A on the sealed six; add roles only for a demonstrated recoverable gap.**
+**Verdict:** **PREFER A ON THE MEASURED DRAFTING TASK — B adds resources without a quality gain; compact development controls pass; review one real-task wrapper before any finalist or production decision.**

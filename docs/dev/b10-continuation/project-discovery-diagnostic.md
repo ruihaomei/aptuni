@@ -52,4 +52,30 @@ Its five-entry exhaustive toy catalog cannot establish candidate selection at
 110k-record scale. Success would justify one minimal proposal, not production
 shipping or a release. Failure stops implementation.
 
+## Independent evidence and fixture audit
+
+The three result artifacts contain the identical original first response: one
+application/course-background drafting record, using 1419 response units. Their
+alternative responses use 490, 3747 and 1036 units respectively; none is refused
+or marked truncated. These are per-response observations, not an aggregate
+4000-unit two-call allowance. The synthetic experiment has a separate, stricter
+4000-used-unit total cap across its two counted calls.
+
+The oracle's substantive excerpt identifies a concrete problem, method and
+modelling scope rather than only a title. Its `exposure` signal supports a
+tentative candidate and source-framed provisional paragraph; it does not establish
+executable implementation, owner authorship or results. Confirmation remains
+necessary for individual role, implemented versus planned components, completion,
+validation, quantitative outcomes and any real deployment or team contribution.
+
+The synthetic fixture fairly specifies a contribution-grounding contrast. The
+same fixed five-entry catalog and impressive candidate label appear in both
+invented worlds. Ordinary evidence retains task-relevant methods and constraints;
+the baseline contract explicitly forbids hiding that text, crippling its concepts
+or forcing a failed query. A baseline pass is allowed and would remove any claimed
+benefit for this contrast. The catalog arm changes both anchor discovery and exact
+evidence access, so labels alone cannot receive credit. This is a specification
+audit; actual access, calls and used-unit accounting still require trace review.
+No outcomes for the four development sessions are included here.
+
 **Verdict:** **DISCOVERY GAP SUPPORTED — test the tiny permissioned mock before adding runtime agents or a production catalog.**

@@ -400,7 +400,16 @@
   },
   "beta-synthetic-discovery-research": {
    "kind": "review",
-   "current": "100-b10-synthetic-discovery-harness-review.md",
+   "current": "103-b10-compact-catalog-research-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "100-b10-synthetic-discovery-harness-review.md",
+    "101-b10-named-catalog-development-review.md"
+   ]
+  },
+  "beta-discovery-feasibility": {
+   "kind": "review",
+   "current": "102-b10-local-feasibility-review.md",
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
   }

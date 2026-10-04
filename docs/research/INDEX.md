@@ -35,6 +35,8 @@ agents building Aptuni.
   running host probes, shell loops or history operations.
 - [findings/retrieval-experiments.md](findings/retrieval-experiments.md) — 2026-10-01 MVP
   retrieval experiments on a real Vault (collapse adopted; jieba and a small dense model rejected).
+- [findings/agent-e2e-architecture.md](findings/agent-e2e-architecture.md) — b10 frozen
+  ordinary-prompt results, failed cheap transfers and bounded discovery research; no production winner yet.
 - [findings/plugin-platform-friction.md](findings/plugin-platform-friction.md) — public-API and
   tooling friction found while building Flagship Plugin #1; read it before a plugin-platform slice.
 - Spike evidence: `docs/dev/spikes/` (S01–S05A results and their reviews) and

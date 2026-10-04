@@ -1,6 +1,6 @@
 # Handoff
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent-led-setup=APPROVE_WITH_NON_BLOCKING_NOTES; beta-attach-consent=APPROVE_WITH_NON_BLOCKING_NOTES; beta-b9-autosave-diversify=APPROVE_WITH_NON_BLOCKING_NOTES; beta-concept-queries=APPROVE_WITH_NON_BLOCKING_NOTES; beta-credential-guard=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day0-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day1-activation-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-e2e-research-harness=APPROVE_WITH_NON_BLOCKING_NOTES; beta-evidence-profile=APPROVE_WITH_NON_BLOCKING_NOTES; beta-knowledge-model=APPROVE_WITH_NON_BLOCKING_NOTES; beta-orchestration-guidance=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stable-readiness-gate=APPROVE_WITH_NON_BLOCKING_NOTES; beta-synthetic-discovery-research=APPROVE_WITH_NON_BLOCKING_NOTES; beta-top-down-flagship=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-beta-top-down-agent-plugin=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE_WITH_NON_BLOCKING_NOTES; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent-led-setup=APPROVE_WITH_NON_BLOCKING_NOTES; beta-attach-consent=APPROVE_WITH_NON_BLOCKING_NOTES; beta-b9-autosave-diversify=APPROVE_WITH_NON_BLOCKING_NOTES; beta-concept-queries=APPROVE_WITH_NON_BLOCKING_NOTES; beta-credential-guard=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day0-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day1-activation-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-discovery-feasibility=APPROVE_WITH_NON_BLOCKING_NOTES; beta-e2e-research-harness=APPROVE_WITH_NON_BLOCKING_NOTES; beta-evidence-profile=APPROVE_WITH_NON_BLOCKING_NOTES; beta-knowledge-model=APPROVE_WITH_NON_BLOCKING_NOTES; beta-orchestration-guidance=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stable-readiness-gate=APPROVE_WITH_NON_BLOCKING_NOTES; beta-synthetic-discovery-research=APPROVE_WITH_NON_BLOCKING_NOTES; beta-top-down-flagship=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-beta-top-down-agent-plugin=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE_WITH_NON_BLOCKING_NOTES; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Mode: 14-day real-user dogfooding (from 2026-10-01)
 
@@ -15,43 +15,47 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
-**2026-10-03 current b10 research checkpoint (preceding local commit `7b7919c`).**
-Explicit owner activation is settled; no automatic OFF→Full. Full-session ordinary
-prompts autonomously decide relevance. Both actual runners recovered without grant,
-credential or network changes; global Codex model line now uses a verified available
-GPT-6 Astra route. Both installed skills are generator-identical.
+**2026-10-04 current b10 research checkpoint (preceding local commit `2ed671e`).**
+Explicit activation remains locked. Original frozen seven unchanged, independent
+E2E: Sonnet **2/7**, Astra xhigh **6/7**, inside-Full relevance **7/7 each**.
+The old 1/10 is pre-fix. No b10 release and no production guidance/code change.
 
-Frozen seven unchanged, all completed, independent strict E2E: Sonnet 4.6 **2/7**,
-Codex Astra xhigh **6/7**; relevance inside Full **7/7 each**. The old 1/10 is only
-pre-consolidation. No b10 release. Current results and per-task content-free token,
-call and latency tables: `b10-continuation/frozen-unseen-results.md`.
+Research outcomes: four original synthetic runs fail; separately named-identity
+Astra controls both pass with Evidence lookup, Sonnet transfers both fail on
+permission/sequence errors. Cheap E fixed-evidence replay has no demonstrated
+benefit. On one matched planning packet A/B finals both pass; A **18,250 tokens,
+84.269 s**, full sequential B **46,563 tokens,186.636 s**. Prefer A for that
+component; no B E2E or savings claim. C/D are deliberately deferred, not measured.
+Reports and exact limits are under `b10-continuation/`.
 
-Concrete next slice: **synthetic bounded discovery falsifier**. Two blind task-based
-project-goal lists yield no project evidence; an independently planned oracle anchor
-recovers an eligible tentative candidate, never counted as product success. Current
-Context omits repository provenance from search/discovery. Manager froze two invented
-worlds with identical labels/task but owner work versus study-only Evidence. Run that
-small contrast before production discovery or B/C/D orchestration. Research runner
-`tools/agent_e2e_run.py` and accounting `tools/agent_e2e.py` are runnable. Review 99
-corrects the later discovered bridge blocker: enable only isolated code-mode host,
-retain capability disables and exact four MCP tools. Real empty Full setup plus
-generic answer succeeds; failed setup is retained, not counted as a task success.
-The inventory summary is model-reported, not independently observed cell output.
-Review 100 approves the synthetic-only mock and server/fixture asset hashes. 25
-focused checks, developer suite, scoped Ruff and mock strict mypy green; prior
-production suite remains 1,263 passed, 3 skips, 62 subtests. Original confinement
-limits remain disclosed. Four matched Astra xhigh synthetic sessions are prepared
-under private `research/synthetic/` and running. Candidate configuration
-changes have not touched production.
+**Exact next slice:** freeze the original m05 development rubric independently,
+then build/review one private real-task discovery wrapper. The compact Astra
+controls both pass the unchanged invented worlds with actual Evidence lookup;
+complete accounting is `b10-continuation/compact-contract-results.md`. Server
+snapshot `a929f8e97c50…`, policy `4fff0074de36…`, unchanged fixture/rubric.
+Retain the same five-entry selection, budgets/calls and current grant/exposure
+checks. No cheap transfer, live-host disclosure or production adoption without
+the next scoped gate. Six-task holdout stays sealed until a credible finalist is
+frozen.
 
-Private restart directory: `/private/tmp/aptuni-b10-continuation/`. Original seven
-hash ends `…784c3a`; independently curated six-task hash ends `…df16e26` remains
-sealed, unread by candidate planners. Never tune against it before freezing a finalist.
-Local raw research traces must be deleted after this phase's grading/review; preserve
-preexisting inputs/evidence and both owner backups. No production behavior changed.
-Do not repeat completed credential research; external copies/rotation stay unverified,
-old pre-b9 backup retained. Follow current report, not historical pending-policy or
-quota blockers below. No owner decision currently blocks these reversible experiments.
+Compact format is separately proposed after the original 800-unit named catalog
+failed real packing. Current guarded compact audit fits five unchanged entries
+in **532 units**, no shortened/colliding labels. Preserve initial operational
+failure plus stable-code diagnostic (`projection_failed`): read-only health showed
+owner Vault62→66 and stale index62. A separate normal CLI index rebuild made the
+projection ready66/49,734 rows; the audit guard stayed intact. Original acceptance
+results remain tied to their earlier state. No canonical records were changed by
+this environment repair. Reviews101–103 are registered; sixteen mock and 94 developer checks, scoped/global Ruff, source/mock mypy,
+secrets and relay pass. Prior production full suite:1263 passed,3 skips,
+62 subtests. Original host confinement limits remain disclosed.
+
+Private restart root: `/private/tmp/aptuni-b10-continuation/`. Seven input hash
+ends `…784c3a`; six-task sealed hash ends `…df16e26`. Do not read/tune sealed
+prompts. Delete raw research scratch after grading/audit, preserving frozen inputs,
+preexisting evidence, configuration recovery copy and both owner backups. Do not
+repeat credential research or clear tracked external remediation. Preserve
+unrelated working-tree changes, including the owner's new dogfooding line.
+No owner decision currently blocks the bounded reversible research.
 
 Historical checkpoints follow.
 

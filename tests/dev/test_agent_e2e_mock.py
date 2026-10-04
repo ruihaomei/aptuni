@@ -133,6 +133,90 @@ def test_catalog_is_one_compact_unit_and_study_only_case_stays_study_only(tmp_pa
     anyio.run(run)
 
 
+def test_named_catalog_separates_lookup_anchor_from_evidence_citation(tmp_path):
+    async def run():
+        app = server(tmp_path, "catalog_named")
+        await setup(app)
+        catalog = await call(app, query="prior work", modules=["knowledge"], mode="anchors", max_units=800)
+        rows = json.loads(catalog["items"][0]["text"])
+        selected = next(row for row in rows if row["label"].startswith("WarehouseOpt"))
+        assert selected["anchor"] == "repo-303"
+        assert selected["evidence_ref"] == "ev-303"
+        assert len(rows) == 5 and catalog["used_units"] <= 800 and not catalog["truncated"]
+        evidence = await call(app, query="prior work", modules=["knowledge"], mode="evidence",
+                              anchor=selected["anchor"], max_units=3200)
+        assert evidence["items"][0]["canonical_id"] == selected["evidence_ref"]
+        assert "authorship-linked" in evidence["items"][0]["text"]
+        assert app.task_calls == 2 and app.task_used_units <= 4000
+    anyio.run(run)
+
+
+def test_compact_labels_fit_without_merging_colliding_prefixes():
+    entries = [(f"repo-{i}", label, f"ev-{i}") for i, label in enumerate([
+        "x" * 100 + "a", "x" * 100 + "b", "仓储优化" * 30, "namespace/repository", "short"])]
+    serialized, mapping = mock.compact_catalog(entries)
+    rows = json.loads(serialized)
+    assert len(rows) == 5 and len(mapping) == 5
+    assert all(set(row) == {"anchor", "label"} for row in rows)
+    assert all(len(row["label"].encode("utf-8")) <= 48 for row in rows)
+    assert rows[0]["label"] == rows[1]["label"] and rows[0]["label"].endswith("…")
+    assert mapping[rows[0]["anchor"]] != mapping[rows[1]["anchor"]]
+    assert rows[2]["label"].endswith("…")
+    assert rows[3]["label"] == "namespace/repository"
+    unit = mock.ContextUnit("L4", "anchors", None, "knowledge", serialized, None, None, True, ())
+    packed = mock.pack_units((unit,), 800)
+    assert packed.items and not packed.truncated and packed.used_units <= 800
+
+
+@pytest.mark.parametrize("case", ["synthetic-contribution-supported", "synthetic-title-without-contribution"])
+def test_compact_catalog_opaque_lookup_and_withdrawal(tmp_path, case):
+    async def run():
+        for index, withdraw in enumerate((False, True)):
+            app = server(tmp_path / str(index), "catalog_compact", case)
+            await setup(app)
+            catalog = await call(app, query="work", modules=["knowledge"], mode="anchors", max_units=800)
+            rows = json.loads(catalog["items"][0]["text"])
+            selected = next(row for row in rows if row["label"].startswith("WarehouseOpt"))
+            assert selected["anchor"] == "a03" and "evidence_ref" not in selected
+            assert "repo-303" not in str(catalog) and "ev-303" not in str(catalog)
+            if withdraw:
+                app.records["ev-303"].exposed = False
+            response = await call(app, query="work", modules=["knowledge"], mode="evidence",
+                                  anchor=selected["anchor"], max_units=3200)
+            assert app.task_calls == 2 and app.task_used_units <= 4000
+            assert response["items"] == [] if withdraw else response["items"][0]["canonical_id"] == "ev-303"
+    anyio.run(run)
+
+
+def test_compact_prefix_collision_refuses_without_disclosing_anchors(tmp_path):
+    fixture = json.loads(FIXTURE.read_text())
+    fixture["fixed_catalog"]["entries"][0]["label"] = "x" * 100 + "a"
+    fixture["fixed_catalog"]["entries"][1]["label"] = "x" * 100 + "b"
+    path = tmp_path / "collision.json"
+    path.write_text(json.dumps(fixture))
+
+    async def run():
+        app = server(tmp_path / "app", "catalog_compact", fixture=path)
+        await setup(app)
+        with pytest.raises(ToolError, match="research_label_ambiguity"):
+            await call(app, query="work", modules=["knowledge"], mode="anchors")
+        assert app.task_calls == 1 and not app.disclosed_anchors and not app.anchor_map
+    anyio.run(run)
+
+
+def test_compact_unknown_original_and_citation_identifiers_are_empty(tmp_path):
+    async def run():
+        responses = []
+        for index, anchor in enumerate(("unknown", "repo-303", "ev-303")):
+            app = server(tmp_path / str(index), "catalog_compact")
+            await setup(app)
+            await call(app, query="work", modules=["knowledge"], mode="anchors")
+            responses.append(await call(app, query="work", modules=["knowledge"], mode="evidence", anchor=anchor))
+        assert responses[0] == responses[1] == responses[2]
+        assert not responses[0]["items"]
+    anyio.run(run)
+
+
 def test_catalog_rechecks_exposure_and_unknown_anchor_is_indistinguishable(tmp_path):
     fixture = json.loads(FIXTURE.read_text())
     fixture["cases"][0]["variable_evidence"][0]["expose_enabled"] = False

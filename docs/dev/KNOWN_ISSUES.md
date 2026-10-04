@@ -28,6 +28,17 @@ grounding and Astra goal-to-project discovery remain material failures. The orig
 oracle retrieves a tentative source-backed candidate. No production retune or b10
 release; bounded discovery is a research hypothesis. Fresh six remain sealed.
 
+**KI-018 research update (2026-10-04):** named-identity synthetic controls pass
+on Astra but fail on Sonnet scope/sequence handling. Cheap fixed-evidence E
+guidance establishes no drafting benefit. One strong versus planner/worker/
+integrator comparison passes both finals; the three-role path uses more tokens
+and latency. These are development/component results, not new product success
+rates. Real named-catalog packing fails at 800 units; a separately frozen compact
+format fits in 532 units after normal stale-index repair (owner Vault62→66).
+Both strong compact controls pass with actual Evidence lookup; real-task
+coverage remains unproven. No production
+contract adopted, no release and no sealed-six use. C/D remain unmeasured.
+
 ## Resolved history
 
 - **KI-008 (2026-09-22):** S10 isolated Mem0 2.0.20 and conditionally admitted only a disposable

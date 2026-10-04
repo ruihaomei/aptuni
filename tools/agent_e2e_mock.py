@@ -2,7 +2,8 @@
 """Research-only synthetic MCP fixture server; never constructs an owner Workspace.
 
 Run with the checkout's Python: tools/agent_e2e_mock.py --fixture FIXTURE
---case CASE --arm baseline|catalog. SQLite lives only in a disposable directory.
+--case CASE --arm baseline|catalog|catalog_named|catalog_compact.
+SQLite lives only in a disposable directory.
 The catalog arm adds a mock exact-anchor seam, not a production Aptuni endpoint.
 """
 from __future__ import annotations
@@ -35,6 +36,25 @@ Anchor = Annotated[str | None, Field(max_length=80)]
 READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=False, openWorldHint=False)
 CONTROL = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=False, openWorldHint=False)
 RETRIEVAL_TOOLS = frozenset({"aptuni_search_context", "aptuni_activate_context"})
+CATALOG_ARMS = frozenset({"catalog", "catalog_named", "catalog_compact"})
+
+
+def compact_catalog(entries: list[tuple[str, str, str]]) -> tuple[str, dict[str, str]]:
+    """Frozen research serializer: one lookup identity, 48-byte labels, no summaries.
+
+    A visible ellipsis is part of the byte cap. Colliding labels retain distinct
+    anchors; this serializer never infers which candidate a user meant.
+    Evidence provenance is returned only by the subsequent evidence response.
+    """
+    rows = []
+    mapping = {}
+    for index, (identifier, label, _) in enumerate(entries[:5], 1):
+        raw = label.encode("utf-8")
+        bounded = (raw[:45].decode("utf-8", errors="ignore") + "…") if len(raw) > 48 else label
+        anchor = f"a{index:02d}"
+        mapping[anchor] = identifier
+        rows.append({"anchor": anchor, "label": bounded})
+    return json.dumps(rows, ensure_ascii=False, separators=(",", ":")), mapping
 
 
 @dataclass
@@ -57,7 +77,7 @@ class ResearchServer(MCPServer[None]):
     """Count at dispatch, including schema validation failures, and serialize calls."""
 
     def __init__(self, fixture: Path, case: str, arm: str, state_dir: Path) -> None:
-        if arm not in {"baseline", "catalog"}:
+        if arm != "baseline" and arm not in CATALOG_ARMS:
             raise ValueError("invalid research arm")
         raw = json.loads(fixture.read_text(encoding="utf-8"))
         if raw.get("format") != "aptuni-research-synthetic-discovery-probe-v1":
@@ -82,6 +102,7 @@ class ResearchServer(MCPServer[None]):
         self.setup_consumed = False
         self.in_setup = False
         self.disclosed_anchors: frozenset[str] = frozenset()
+        self.anchor_map: dict[str, str] = {}
         self.dispatch_lock = anyio.Lock()
         self.projection = SqliteProjection(state_dir)
         self.projection.rebuild([
@@ -148,23 +169,35 @@ class ResearchServer(MCPServer[None]):
             raise ToolError("aptuni_activation_required")
         self.check_modules(modules)
         if mode == "anchors":
-            if self.arm != "catalog" or self.task_calls != 1 or anchor is not None:
+            if self.arm not in CATALOG_ARMS or self.task_calls != 1 or anchor is not None:
                 raise ToolError("research_anchor_sequence")
             permitted = [(identifier, label, ref) for identifier, label, ref in self.catalog
                          if ref in self.records and self.records[ref].permitted()
                          and self.records[ref].repository_id == identifier][:5]
-            text = "\n".join(f"{identifier}|{label}|{ref}" for identifier, label, ref in permitted)
+            text = (json.dumps([{"anchor": identifier, "label": label, "evidence_ref": ref}
+                                for identifier, label, ref in permitted], ensure_ascii=False, separators=(",", ":"))
+                    if self.arm == "catalog_named" else
+                    "\n".join(f"{identifier}|{label}|{ref}" for identifier, label, ref in permitted))
+            mapping = {identifier: identifier for identifier, _, _ in permitted}
+            if self.arm == "catalog_compact":
+                text, mapping = compact_catalog(permitted)
+                labels = [row["label"].casefold() for row in json.loads(text)]
+                if len(set(labels)) != len(labels):
+                    raise ToolError("research_label_ambiguity")
             unit = ContextUnit("L4", "anchors", None, "knowledge", text, None, None, True, ())
             response = self.response((unit,) if permitted else (), min(max_units, 800))
             if response["items"]:
-                self.disclosed_anchors = frozenset(item[0] for item in permitted)
+                self.anchor_map = mapping
+                self.disclosed_anchors = frozenset(mapping)
             return response
         if mode == "evidence":
-            if self.arm != "catalog" or self.task_calls != 2 or not self.disclosed_anchors or not anchor:
+            if (self.arm not in CATALOG_ARMS or self.task_calls != 2
+                    or not self.disclosed_anchors or not anchor):
                 raise ToolError("research_anchor_sequence")
             # Unknown, hidden and no-longer-permitted anchors have identical empty responses.
+            resolved = self.anchor_map.get(anchor) if anchor in self.disclosed_anchors else None
             records = [record for record in self.records.values()
-                       if anchor in self.disclosed_anchors and record.repository_id == anchor and record.permitted()]
+                       if resolved is not None and record.repository_id == resolved and record.permitted()]
             return self.response(tuple(record.unit() for record in records), min(max_units, 3200))
         if mode != "search" or anchor is not None:
             raise ToolError("research_invalid_mode")
@@ -248,7 +281,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fixture", type=Path, required=True)
     parser.add_argument("--case", required=True)
-    parser.add_argument("--arm", choices=("baseline", "catalog"), required=True)
+    parser.add_argument("--arm", choices=("baseline", "catalog", "catalog_named", "catalog_compact"), required=True)
     args = parser.parse_args()
     sys.addaudithook(_deny_network)
     with TemporaryDirectory(prefix="aptuni-synthetic-") as directory:

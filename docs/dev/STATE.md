@@ -1,6 +1,6 @@
 # Project State
 
-**Updated:** 2026-10-03
+**Updated:** 2026-10-04
 **Current gate:** Beta productization — canonical activation, plugin-declared context and the
 Top-Down Learning flagship are independently approved and the machine-readable Stable readiness
 gate is runnable (Review 73), and Top-Down Learning is Flagship Plugin #1 with a portable verified
@@ -16,46 +16,50 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
-**Current b10 evidence checkpoint (2026-10-03, local/not released; preceding checkpoint
-`7b7919c`).** Owner decisions locked: ADR-0025 explicit OFF/Profile/Memory/Full stays;
-ordinary prompts autonomously retrieve only inside explicitly enabled Full. Runner
-recovery complete: Claude works; the Codex configured model line was repaired to the
-actually available GPT-6 Astra, with a private prechange config copy. No credentials,
-VPN, routing or grants changed. Installed skills match the current generator.
+**Current b10 research checkpoint (2026-10-04, local/not released; preceding
+checkpoint `2ed671e`).** ADR-0025 explicit OFF/Profile/Memory/Full is locked;
+ordinary prompts retrieve autonomously only inside explicitly enabled Full. Both
+runners and generated skills recovered. Global Codex model line uses the verified
+GPT-6 Astra route, with a private prechange copy. No grant or credential expansion.
 
-The seven frozen tasks ran unchanged before retuning: independent E2E grade **Claude
-Sonnet 4.6 2/7 (28.6%); Codex GPT-6 Astra xhigh 6/7 (85.7%)**. Both hosts make correct
-inside-Full relevance decisions on 7/7 and skip both generic tasks. Original 1/10 is
-pre-fix only. Sonnet materially overclaims evidence; Astra's surviving failure is
-unknown project discovery from an application goal. **b10 remains closed.** Detailed
-sanitized outcomes/accounting: `docs/dev/b10-continuation/frozen-unseen-results.md`.
+Seven frozen tasks ran unchanged before retuning: independent strict E2E **Sonnet
+4.6 2/7 (28.6%); Codex Astra xhigh 6/7 (85.7%)**. Both relevance decisions inside
+Full are 7/7. The original 1/10 is pre-fix. Astra misses unknown-project selection;
+Sonnet additionally overclaims and violates retrieval guidance. **b10 stays closed.**
+See `b10-continuation/frozen-unseen-results.md`, not retrieval-only scores.
 
-Research justified by this concrete blocker: two blind bounded topic/label probes
-miss concrete project evidence; a separately labelled oracle-anchor probe recovers
-a tentative candidate, without proving authorship/results. Canonical repository
-metadata is not searchable/discoverable through current host Context. Do not infer
-that additional models can invent anchors. Research-only hypotheses, candidate
-policy and fixed synthetic discovery contrast are in `docs/dev/b10-continuation/`.
-Fresh independently curated six-task set remains sealed and unused. No production
-policy/schema/ranking change has been made.
+Original four synthetic baseline/catalog sessions all fail. A separately frozen
+named-identity contract lets Astra pass both invented worlds with actual Evidence
+lookup; Sonnet transfer fails both on module/sequence errors. Cheap E drafting
+replays establish no benefit. One matched fixed-evidence planning comparison gives
+both A and B a rubric pass, but **single strong A uses 18,250 tokens / 84.269 s;
+strong-plan/cheap-draft/strong-integration B uses 46,563 / 186.636 s**. This is
+component development evidence, never B E2E acceptance. C/D remain deferred for
+lack of a demonstrated reason to spend more model calls.
 
-Runnable stdlib research runner/accounting tools added test-first. Review 98's
-OFF-only canary did not establish tool usability: the disabled code-mode bridge
-prevented Full setup in a later canary, correctly withholding the ordinary task.
-Review 99 approves enabling only the isolated bridge; actual empty Full setup
-plus a silent generic task now succeeds. Effective capability disables and exact
-four-tool MCP catalog remain checked. The inventory cell's model summary is not
-independently observable in native events and is not claimed as proof.
+A guarded aggregate audit found eligible repository metadata, but the original
+five-entry named catalog does not fit 800 units. The separately frozen compact
+contract uses one opaque anchor and a 48-byte label, preserving the same selection,
+800/3200 split and two-attempt/4000 aggregate allowance. Sixteen mock tests, scoped
+Ruff/mypy and Reviews 101–103 approve research-only implementation/claims. After a
+preserved environmental failure, health inspection found the owner Vault advanced
+62→66 with a stale index. Normal CLI rebuilt the disposable index to 66; the
+unchanged guarded compact audit then returned five entries in 532 units, no label
+shortening/collision. Both compact strong synthetic controls pass with actual Evidence lookup and no
+unsupported work claims (two calls, 1324/1282 units). A real development wrapper
+requires a separate privacy review; production adoption and sealed-six use remain
+gated separately.
 
-Review 100 approves the runnable synthetic-only mock, matched positive/study-only
-worlds, two-attempt/4,000-unit budgets and server/fixture byte freezing. 25 focused
-checks, developer suite, scoped Ruff and mock strict mypy pass. Prior production
-baseline remains 1,263 passed, 3 skips, 62 subtests. Synthetic strong-Agent contrast
-is underway, before any production discovery or role proliferation. Original-run
-confinement limitations remain disclosed; later hardening is not retrospective
-proof. Fresh six remains sealed. Preserve both owner backups and separately
-tracked unverified external credential remediation. No owner decision blocks the
-reversible experiments.
+Research runner/accounting and synthetic mock are runnable. Reviews 98–99 retain
+the bridge/confinement findings and limits. All 94 developer checks, scoped/global Ruff, source/mock mypy, secrets and relay
+pass; prior
+production baseline remains 1,263 passed, three skips, 62 subtests. Production code,
+policy, canonical schema/ranking and public MCP remain unchanged in this phase.
+Private raw scratch is retained only while grading/review continue, then must be
+removed; frozen/preexisting inputs and owner backups remain. The six-task holdout
+is sealed and unused. Preserve both clean and pre-b9 backups; external credential
+rotation/copies remain separately unverified. No owner decision blocks these
+reversible research steps.
 
 The following dated checkpoints are historical.
 
@@ -164,7 +168,7 @@ ADR-0028 items 4, 5, 7–10. Review 83 then blocked on a single-Fact privacy pur
 is APPROVE_WITH_NON_BLOCKING_NOTES (notes in BACKLOG). Checkpoint `e8d72a9` is local; not released, and the
 live private Vault was not mutated.
 
-Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent-led-setup=APPROVE_WITH_NON_BLOCKING_NOTES; beta-attach-consent=APPROVE_WITH_NON_BLOCKING_NOTES; beta-b9-autosave-diversify=APPROVE_WITH_NON_BLOCKING_NOTES; beta-concept-queries=APPROVE_WITH_NON_BLOCKING_NOTES; beta-credential-guard=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day0-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day1-activation-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-e2e-research-harness=APPROVE_WITH_NON_BLOCKING_NOTES; beta-evidence-profile=APPROVE_WITH_NON_BLOCKING_NOTES; beta-knowledge-model=APPROVE_WITH_NON_BLOCKING_NOTES; beta-orchestration-guidance=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stable-readiness-gate=APPROVE_WITH_NON_BLOCKING_NOTES; beta-synthetic-discovery-research=APPROVE_WITH_NON_BLOCKING_NOTES; beta-top-down-flagship=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-beta-top-down-agent-plugin=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE_WITH_NON_BLOCKING_NOTES; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
+Review status manifest: architecture=APPROVE_WITH_NON_BLOCKING_NOTES; beta-agent-led-setup=APPROVE_WITH_NON_BLOCKING_NOTES; beta-attach-consent=APPROVE_WITH_NON_BLOCKING_NOTES; beta-b9-autosave-diversify=APPROVE_WITH_NON_BLOCKING_NOTES; beta-concept-queries=APPROVE_WITH_NON_BLOCKING_NOTES; beta-credential-guard=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day0-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-day1-activation-fixes=APPROVE_WITH_NON_BLOCKING_NOTES; beta-discovery-feasibility=APPROVE_WITH_NON_BLOCKING_NOTES; beta-e2e-research-harness=APPROVE_WITH_NON_BLOCKING_NOTES; beta-evidence-profile=APPROVE_WITH_NON_BLOCKING_NOTES; beta-knowledge-model=APPROVE_WITH_NON_BLOCKING_NOTES; beta-orchestration-guidance=APPROVE_WITH_NON_BLOCKING_NOTES; beta-stable-readiness-gate=APPROVE_WITH_NON_BLOCKING_NOTES; beta-synthetic-discovery-research=APPROVE_WITH_NON_BLOCKING_NOTES; beta-top-down-flagship=APPROVE_WITH_NON_BLOCKING_NOTES; execution=APPROVE_WITH_NON_BLOCKING_NOTES; gate0-exit=APPROVE_WITH_NON_BLOCKING_NOTES; m1-advisor-catalog=APPROVE_WITH_NON_BLOCKING_NOTES; m1-ci-supply-chain=APPROVE_WITH_NON_BLOCKING_NOTES; m1-evaluation-harness=APPROVE; m1-github-source=APPROVE; m1-guided-setup=APPROVE; m1-marginnote4-source=APPROVE_WITH_NON_BLOCKING_NOTES; m1-memory-lifecycle=APPROVE_WITH_NON_BLOCKING_NOTES; m1-owner-backup-restore=APPROVE; m1-post-contract-skills=APPROVE; m1-privacy-purge=APPROVE_WITH_NON_BLOCKING_NOTES; m1-profile-export=APPROVE_WITH_NON_BLOCKING_NOTES; m1-real-host-s12=APPROVE; m1-slice1=APPROVE_WITH_NON_BLOCKING_NOTES; m2-automatic-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m2-github-deep=APPROVE_WITH_NON_BLOCKING_NOTES; m2-hybrid-retrieval=APPROVE_WITH_NON_BLOCKING_NOTES; m2-longitudinal-dogfooding=APPROVE; m2-mem0-admission=APPROVE_WITH_NON_BLOCKING_NOTES; m2-mem0-projection-adapter=APPROVE_WITH_NON_BLOCKING_NOTES; m2-notion-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-obsidian-interface=APPROVE; m2-obsidian-source=APPROVE_WITH_NON_BLOCKING_NOTES; m2-profile-promotion=APPROVE_WITH_NON_BLOCKING_NOTES; m3-beta-agent-activation=APPROVE; m3-beta-plugin-context=APPROVE; m3-beta-top-down-agent-plugin=APPROVE; m3-context-evidence-rank=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-activation-delta=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-credential-hardening=APPROVE_WITH_NON_BLOCKING_NOTES; m3-notion-token-expiry=APPROVE_WITH_NON_BLOCKING_NOTES; m3-owner-labelled-evaluation=APPROVE_WITH_NON_BLOCKING_NOTES; m3-public-api-plugin-platform=APPROVE; m3-real-activation=APPROVE; relay-claude-code=PASS; relay-codex=PASS; release=APPROVE_WITH_NON_BLOCKING_NOTES; s05b-marginnote-reconciler=APPROVE_WITH_NON_BLOCKING_NOTES; security=APPROVE_WITH_NON_BLOCKING_NOTES
 
 ## Product identity
 

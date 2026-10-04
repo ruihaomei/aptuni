@@ -27,7 +27,9 @@ All notable changes to this project are documented here. The format follows
   trials outside Git, and report content-free calls, token components and latency.
   Seven post-fix ordinary-prompt trials have now been measured per host; b10 remains
   unreleased because material answer grounding/project discovery failures remain.
-
+- Disposable research controls compare discovery contracts and fixed-evidence
+  planner/worker handoffs, preserving failed variants and independent grading.
+  These tools do not change installed guidance or production MCP behavior.
 
 - Agents can pass `concepts` with Profile, Memory and Full activation (and `aptuni context
   --concept`): short terms the task is about, in English and Chinese. Each concept must match
