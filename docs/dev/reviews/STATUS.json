@@ -434,6 +434,14 @@
    "current": "108-b10-selection-mini-scope-review.md",
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
+  },
+  "beta-selection-mini-offline-grading": {
+   "kind": "review",
+   "current": "110-b10-offline-grading-rereview.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": [
+    "109-b10-offline-grading-review.md"
+   ]
   }
  }
 }
