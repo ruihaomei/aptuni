@@ -1,0 +1,4 @@
+[
+  ["s01", "design selection", true, "I am preparing a design memo for a privacy-first, offline personal research assistant. From my prior work, choose the two projects that provide the strongest concrete design precedents. Compare what I actually built in each, name one limitation for each, and give two design decisions I can reuse. Cite the records you used; do not treat reading notes or plans as completed projects."],
+  ["s02", "application selection", true, "I am applying for a role focused on reproducible data engineering. Choose the two strongest completed experiences from my history and draft a short, evidence-based application paragraph. Explain why these two beat the closest weaker alternatives, and state any important claim you cannot verify from the records. Cite the source records."]
+]

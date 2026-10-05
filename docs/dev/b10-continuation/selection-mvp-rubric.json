@@ -1,0 +1,12 @@
+{
+  "primary_metric": "complete original-task success per case",
+  "grading_order": ["complete answer", "candidate chain", "evidence support", "resource use"],
+  "tasks": [
+    {"id": "s01", "gold_supported_candidates": ["project-a", "project-b"], "requirements": ["select exactly two supported prior projects", "correctly describe owner-built contributions", "compare the two for the proposed design", "state one real limit of each", "give two usable design decisions", "cite supporting Evidence IDs"], "disallowed": ["promote project-c reading to owner implementation", "claim an external audit or measured user gain"]},
+    {"id": "s02", "gold_supported_candidates": ["project-d", "project-e"], "requirements": ["select exactly two completed experiences", "write a usable short application paragraph", "explain why a plan and coursework are weaker", "bound scale or public impact claims", "cite supporting Evidence IDs"], "disallowed": ["promote project-f plan to completed work", "claim public benchmark or deployment scale"]}
+  ],
+  "candidate_recall": "gold IDs among returned canonical Evidence groups, before final answer",
+  "selected_candidate_correctness": "both gold IDs selected and no substitute",
+  "evidence_support_correctness": "each consequential experience or project claim supported by a returned canonical Evidence ID",
+  "stop_rule": "run each case once in each arm, with no interim grading or retuning; operational failures remain attempted and do not become quality passes"
+}

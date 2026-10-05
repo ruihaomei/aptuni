@@ -1,0 +1,33 @@
+{
+  "format": "aptuni-research-synthetic-discovery-probe-v1",
+  "shared_evidence": [
+    {"id": "ev-a1", "repository_id": "project-a", "module": "knowledge", "expose_enabled": true, "text": "Owner project: local permission gate. The owner implemented per-module context grants, explicit session activation, and denial tests for requests outside the grant. The notes report working tests, but no external security audit."},
+    {"id": "ev-a2", "repository_id": "project-a", "module": "knowledge", "expose_enabled": true, "text": "Local permission gate design record: source text is untrusted; activation cannot widen a persisted grant. The owner wrote a bounded response-unit path and recorded provenance IDs in returned context."},
+    {"id": "ev-b1", "repository_id": "project-b", "module": "knowledge", "expose_enabled": true, "text": "Owner project: offline source navigator. The owner implemented SQLite full-text search over rebuildable source projections and kept original notes as canonical files. Tests cover deleted-source filtering and citation identity."},
+    {"id": "ev-b2", "repository_id": "project-b", "module": "knowledge", "expose_enabled": true, "text": "Offline source navigator evaluation note: bounded candidate lists improved discovery in local fixtures. The note does not establish a measured user-study gain or production adoption."},
+    {"id": "ev-c1", "repository_id": "project-c", "module": "knowledge", "expose_enabled": true, "text": "Reading note on a third-party graph memory tutorial. The owner studied the tutorial; the record contains no owner-built graph system or evaluation."},
+    {"id": "ev-d1", "repository_id": "project-d", "module": "knowledge", "expose_enabled": true, "text": "Owner project: reproducible sensor data pipeline. The owner wrote ingestion and validation scripts, pinned dependencies, and automated a clean rebuild from source files. The repository includes passing validation tests; deployment scale is not reported."},
+    {"id": "ev-d2", "repository_id": "project-d", "module": "knowledge", "expose_enabled": true, "text": "Pipeline experiment log: input snapshot hashes and run configuration were recorded before execution. A failed run remains in the log alongside the successful rerun."},
+    {"id": "ev-e1", "repository_id": "project-e", "module": "knowledge", "expose_enabled": true, "text": "Owner project: experiment lineage tracker. The owner linked task definitions, dataset hashes, metrics, and final reports; a script checks that an evaluation result belongs to the frozen input. This was used on two internal studies, with no public benchmark claim."},
+    {"id": "ev-e2", "repository_id": "project-e", "module": "knowledge", "expose_enabled": true, "text": "Experiment lineage tracker test note: the checker rejects an edited rubric and reports incomplete attempts separately from quality scores."},
+    {"id": "ev-f1", "repository_id": "project-f", "module": "knowledge", "expose_enabled": true, "text": "Application planning document proposing a future cloud data platform. It is a plan, not an implemented owner project."},
+    {"id": "ev-g1", "repository_id": "project-g", "module": "knowledge", "expose_enabled": true, "text": "Owner-made icon exploration and color palette for a personal app; no retrieval, privacy, or data engineering implementation is described."},
+    {"id": "ev-h1", "repository_id": "project-h", "module": "knowledge", "expose_enabled": true, "text": "Coursework notes on regression and statistical tests. They establish study of these methods, not a completed data pipeline or owner-led study."},
+    {"id": "ev-hidden", "repository_id": "project-hidden", "module": "knowledge", "expose_enabled": false, "text": "Hidden owner project that must never enter the candidate list or an answer."}
+  ],
+  "fixed_catalog": {"entries": [
+    {"anchor_id": "project-a", "label": "local permission gate", "provenance_ref": "ev-a1"},
+    {"anchor_id": "project-b", "label": "offline source navigator", "provenance_ref": "ev-b1"},
+    {"anchor_id": "project-c", "label": "graph memory reading notes", "provenance_ref": "ev-c1"},
+    {"anchor_id": "project-d", "label": "sensor data pipeline", "provenance_ref": "ev-d1"},
+    {"anchor_id": "project-e", "label": "experiment lineage tracker", "provenance_ref": "ev-e1"},
+    {"anchor_id": "project-f", "label": "cloud data platform plan", "provenance_ref": "ev-f1"},
+    {"anchor_id": "project-g", "label": "personal app icon", "provenance_ref": "ev-g1"},
+    {"anchor_id": "project-h", "label": "statistics coursework", "provenance_ref": "ev-h1"},
+    {"anchor_id": "project-hidden", "label": "hidden project", "provenance_ref": "ev-hidden"}
+  ]},
+  "cases": [
+    {"id": "s01", "variable_evidence": []},
+    {"id": "s02", "variable_evidence": []}
+  ]
+}
