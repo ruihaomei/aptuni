@@ -40,7 +40,16 @@ application-task development retry passes the complete rubric and scope/budget
 checks (3555/4000 units); a preceding zero-model configuration failure remains
 counted, one acceptable completion in two attempts. Coverage remains partial
 and generalization unproven. No production
-contract adopted, no release and no sealed-six use. C/D remain unmeasured.
+contract adopted or release. C/D remain unmeasured.
+
+**KI-018 research update (2026-10-05):** fresh locked six independently grade
+A6/6 and F6/6; context-use agreement6/6 each, no unsafe/observed boundary failure.
+F discovery ran on two tasks; no material paired gain, and A has better historical
+support on three. A uses fewer task tokens/calls/journey time; prefer A on this
+covered set. Conservative/recovery branches do not resolve original m05 actual
+project selection or Sonnet grounding failures. Final assessments/accounting were
+locked before evaluator quota exhaustion; lead rendered the sanitized report
+without rerun or regrading. No production policy change or b10 release.
 
 ## Resolved history
 

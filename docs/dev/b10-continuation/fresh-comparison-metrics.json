@@ -1,0 +1,906 @@
+{
+  "schema_version": 1,
+  "dataset_sha256": "6b6dda4fb23f35b7b6c2a89be4fee7e7e11b05b248e2a0eaade873d2ddf16e26",
+  "rubric_sha256": "70e0b2293a065037716f4b9156f81d75547ad898d6856040fcfdd88e559759fa",
+  "driver_sha256": "3749e5a4bf48aac27aaffed7f4cd4d10f0ca05de58e2e68d288281d72d2f6a67",
+  "comparison_receipt_sha256": "309fe0f1658d8a098f6783f5ae375f78a0b3c4e7885656e3276e8f14d7f0c5ed",
+  "initial_receipt_sha256": "c72637fcf8701eee5c3ce7982dda7830ef101fa4e07560f421c95f706a7c61b0",
+  "support_receipt_sha256": "87d86330ee018d4063941add07f3ecc402c5f2149dc7a71aedee97aef2fc613c",
+  "attempted": 12,
+  "unattempted": 0,
+  "stop_reason": null,
+  "aggregate_by_arm": {
+    "A": {
+      "boundary_failures": 0,
+      "context_use_matches": 6,
+      "counted_retrieval_calls": 5,
+      "full_task_passes": 6,
+      "journey_latency_s": 635.9499772909912,
+      "operational_completions": 6,
+      "setup_input_plus_output_tokens": 404256,
+      "setup_latency_s": 137.41333658294752,
+      "task_input_plus_output_tokens": 374550,
+      "task_latency_s": 487.17381304106675,
+      "task_units": 18707,
+      "tasks": 6,
+      "unsafe_claim_failures": 0
+    },
+    "F": {
+      "boundary_failures": 0,
+      "context_use_matches": 6,
+      "counted_retrieval_calls": 6,
+      "full_task_passes": 6,
+      "journey_latency_s": 660.0611372090643,
+      "operational_completions": 6,
+      "setup_input_plus_output_tokens": 405658,
+      "setup_latency_s": 164.52044095797464,
+      "task_input_plus_output_tokens": 385493,
+      "task_latency_s": 486.43859762494685,
+      "task_units": 13567,
+      "tasks": 6,
+      "unsafe_claim_failures": 0
+    }
+  },
+  "paired_full_task_regressions": 0,
+  "frozen_gate_pass": true,
+  "judge_tokens": null,
+  "provider_cost_usd": null,
+  "evaluator_final_grades_sha256": "32989753e0fe08ffb6b1b35824e037da7e73c54ec2da038c8e93e4bada57b2b9",
+  "rows": [
+    {
+      "arm": "A",
+      "task_id": "r01",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 14,
+        "navigation_or_routing": 4,
+        "noise_or_task_match_unestablished": 1,
+        "qualitative_judgment": true,
+        "relevant_background": 0
+      },
+      "task": {
+        "retrieval_calls": 2,
+        "retrieval_retries": 0,
+        "planned_stages": 0,
+        "additional_targeted_search_calls": 1,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 7670,
+        "latency_s": 164.50614220800344,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 93312,
+          "input_total": 102515,
+          "output": 4494,
+          "reasoning_output": 1822
+        },
+        "input_plus_output_tokens": 107009,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [
+        {
+          "actual_used_units": 3914,
+          "anchor_present": false,
+          "concept_count": 6,
+          "concept_language": {
+            "cjk": true,
+            "latin": false
+          },
+          "concepts_bilingual_syntax": false,
+          "error": null,
+          "failed_or_denied": false,
+          "mode": "search",
+          "position": 1,
+          "query_language": {
+            "cjk": true,
+            "latin": false
+          },
+          "requested_max_units": 4000,
+          "requested_modules": [
+            "knowledge",
+            "projects",
+            "skills",
+            "goals",
+            "preferences"
+          ],
+          "returned_duration_ms": 1133,
+          "returned_items": 10,
+          "status": "completed",
+          "tool": "aptuni_search_context",
+          "truncated": true
+        },
+        {
+          "actual_used_units": 3756,
+          "anchor_present": false,
+          "concept_count": 1,
+          "concept_language": {
+            "cjk": true,
+            "latin": false
+          },
+          "concepts_bilingual_syntax": false,
+          "error": null,
+          "failed_or_denied": false,
+          "mode": "search",
+          "position": 2,
+          "query_language": {
+            "cjk": true,
+            "latin": false
+          },
+          "requested_max_units": 4000,
+          "requested_modules": [
+            "knowledge",
+            "projects",
+            "skills",
+            "goals",
+            "preferences"
+          ],
+          "returned_duration_ms": 748,
+          "returned_items": 9,
+          "status": "completed",
+          "tool": "aptuni_search_context",
+          "truncated": true
+        }
+      ],
+      "setup_latency_s": 22.222601458022837,
+      "journey_elapsed_s": 190.13541241601342
+    },
+    {
+      "arm": "A",
+      "task_id": "r02",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 3,
+        "navigation_or_routing": 2,
+        "noise_or_task_match_unestablished": 0,
+        "qualitative_judgment": true,
+        "relevant_background": 4
+      },
+      "task": {
+        "retrieval_calls": 1,
+        "retrieval_retries": 0,
+        "planned_stages": 0,
+        "additional_targeted_search_calls": 0,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 3943,
+        "latency_s": 87.27297108300263,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 69760,
+          "input_total": 72979,
+          "output": 1878,
+          "reasoning_output": 1038
+        },
+        "input_plus_output_tokens": 74857,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [
+        {
+          "actual_used_units": 3943,
+          "anchor_present": false,
+          "concept_count": 3,
+          "concept_language": {
+            "cjk": true,
+            "latin": true
+          },
+          "concepts_bilingual_syntax": true,
+          "error": null,
+          "failed_or_denied": false,
+          "mode": "search",
+          "position": 1,
+          "query_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "requested_max_units": 4000,
+          "requested_modules": [
+            "knowledge",
+            "projects"
+          ],
+          "returned_duration_ms": 741,
+          "returned_items": 9,
+          "status": "completed",
+          "tool": "aptuni_search_context",
+          "truncated": true
+        }
+      ],
+      "setup_latency_s": 25.13389466702938,
+      "journey_elapsed_s": 114.03619299997808
+    },
+    {
+      "arm": "A",
+      "task_id": "r03",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 3,
+        "navigation_or_routing": 2,
+        "noise_or_task_match_unestablished": 0,
+        "qualitative_judgment": true,
+        "relevant_background": 5
+      },
+      "task": {
+        "retrieval_calls": 1,
+        "retrieval_retries": 0,
+        "planned_stages": 0,
+        "additional_targeted_search_calls": 0,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 3393,
+        "latency_s": 134.02495883300435,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 70656,
+          "input_total": 75323,
+          "output": 3908,
+          "reasoning_output": 2040
+        },
+        "input_plus_output_tokens": 79231,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [
+        {
+          "actual_used_units": 3393,
+          "anchor_present": false,
+          "concept_count": 5,
+          "concept_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "concepts_bilingual_syntax": false,
+          "error": null,
+          "failed_or_denied": false,
+          "mode": "search",
+          "position": 1,
+          "query_language": {
+            "cjk": true,
+            "latin": true
+          },
+          "requested_max_units": 4000,
+          "requested_modules": [
+            "knowledge",
+            "skills"
+          ],
+          "returned_duration_ms": 724,
+          "returned_items": 10,
+          "status": "completed",
+          "tool": "aptuni_search_context",
+          "truncated": true
+        }
+      ],
+      "setup_latency_s": 19.934101499966346,
+      "journey_elapsed_s": 155.30627754202578
+    },
+    {
+      "arm": "A",
+      "task_id": "r04",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 3,
+        "navigation_or_routing": 2,
+        "noise_or_task_match_unestablished": 2,
+        "qualitative_judgment": true,
+        "relevant_background": 3
+      },
+      "task": {
+        "retrieval_calls": 1,
+        "retrieval_retries": 0,
+        "planned_stages": 0,
+        "additional_targeted_search_calls": 0,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 3701,
+        "latency_s": 86.14356125000631,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 52864,
+          "input_total": 75755,
+          "output": 2441,
+          "reasoning_output": 1085
+        },
+        "input_plus_output_tokens": 78196,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [
+        {
+          "actual_used_units": 3701,
+          "anchor_present": false,
+          "concept_count": 4,
+          "concept_language": {
+            "cjk": true,
+            "latin": true
+          },
+          "concepts_bilingual_syntax": true,
+          "error": null,
+          "failed_or_denied": false,
+          "mode": "search",
+          "position": 1,
+          "query_language": {
+            "cjk": true,
+            "latin": true
+          },
+          "requested_max_units": 4000,
+          "requested_modules": [
+            "knowledge"
+          ],
+          "returned_duration_ms": 797,
+          "returned_items": 10,
+          "status": "completed",
+          "tool": "aptuni_search_context",
+          "truncated": true
+        }
+      ],
+      "setup_latency_s": 23.6155639589997,
+      "journey_elapsed_s": 112.36761399998795
+    },
+    {
+      "arm": "A",
+      "task_id": "r05",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 0,
+        "navigation_or_routing": 0,
+        "noise_or_task_match_unestablished": 0,
+        "qualitative_judgment": true,
+        "relevant_background": 0
+      },
+      "task": {
+        "retrieval_calls": 0,
+        "retrieval_retries": 0,
+        "planned_stages": 0,
+        "additional_targeted_search_calls": 0,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 0,
+        "latency_s": 6.091488042031415,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 17152,
+          "input_total": 17440,
+          "output": 142,
+          "reasoning_output": 51
+        },
+        "input_plus_output_tokens": 17582,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [],
+      "setup_latency_s": 22.542331082979217,
+      "journey_elapsed_s": 29.87471912498586
+    },
+    {
+      "arm": "A",
+      "task_id": "r06",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 0,
+        "navigation_or_routing": 0,
+        "noise_or_task_match_unestablished": 0,
+        "qualitative_judgment": true,
+        "relevant_background": 0
+      },
+      "task": {
+        "retrieval_calls": 0,
+        "retrieval_retries": 0,
+        "planned_stages": 0,
+        "additional_targeted_search_calls": 0,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 0,
+        "latency_s": 9.134691625018604,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 17152,
+          "input_total": 17411,
+          "output": 264,
+          "reasoning_output": 239
+        },
+        "input_plus_output_tokens": 17675,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [],
+      "setup_latency_s": 23.96484391595004,
+      "journey_elapsed_s": 34.22976120800013
+    },
+    {
+      "arm": "F",
+      "task_id": "r01",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 3,
+        "navigation_or_routing": 1,
+        "noise_or_task_match_unestablished": 1,
+        "qualitative_judgment": true,
+        "relevant_background": 1
+      },
+      "task": {
+        "retrieval_calls": 2,
+        "retrieval_retries": 0,
+        "planned_stages": 2,
+        "additional_targeted_search_calls": 0,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 3288,
+        "latency_s": 178.61352424998768,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 90112,
+          "input_total": 94143,
+          "output": 4520,
+          "reasoning_output": 1663
+        },
+        "input_plus_output_tokens": 98663,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [
+        {
+          "actual_used_units": 546,
+          "anchor_present": false,
+          "concept_count": 0,
+          "concept_language": {
+            "cjk": false,
+            "latin": false
+          },
+          "concepts_bilingual_syntax": false,
+          "error": null,
+          "failed_or_denied": false,
+          "mode": "anchors",
+          "position": 1,
+          "query_language": {
+            "cjk": true,
+            "latin": false
+          },
+          "requested_max_units": 800,
+          "requested_modules": [
+            "knowledge"
+          ],
+          "returned_duration_ms": 1727,
+          "returned_items": 1,
+          "status": "completed",
+          "tool": "aptuni_search_context",
+          "truncated": true
+        },
+        {
+          "actual_used_units": 2742,
+          "anchor_present": true,
+          "concept_count": 0,
+          "concept_language": {
+            "cjk": false,
+            "latin": false
+          },
+          "concepts_bilingual_syntax": false,
+          "error": null,
+          "failed_or_denied": false,
+          "mode": "evidence",
+          "position": 2,
+          "query_language": {
+            "cjk": true,
+            "latin": false
+          },
+          "requested_max_units": 3200,
+          "requested_modules": [
+            "knowledge"
+          ],
+          "returned_duration_ms": 3208,
+          "returned_items": 5,
+          "status": "completed",
+          "tool": "aptuni_search_context",
+          "truncated": true
+        }
+      ],
+      "setup_latency_s": 25.277314290986396,
+      "journey_elapsed_s": 205.36010504100705
+    },
+    {
+      "arm": "F",
+      "task_id": "r02",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 0,
+        "navigation_or_routing": 1,
+        "noise_or_task_match_unestablished": 5,
+        "qualitative_judgment": true,
+        "relevant_background": 0
+      },
+      "task": {
+        "retrieval_calls": 2,
+        "retrieval_retries": 0,
+        "planned_stages": 2,
+        "additional_targeted_search_calls": 0,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 3288,
+        "latency_s": 71.13284087495413,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 89984,
+          "input_total": 95170,
+          "output": 1811,
+          "reasoning_output": 944
+        },
+        "input_plus_output_tokens": 96981,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [
+        {
+          "actual_used_units": 546,
+          "anchor_present": false,
+          "concept_count": 2,
+          "concept_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "concepts_bilingual_syntax": false,
+          "error": null,
+          "failed_or_denied": false,
+          "mode": "anchors",
+          "position": 1,
+          "query_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "requested_max_units": 800,
+          "requested_modules": [
+            "knowledge"
+          ],
+          "returned_duration_ms": 1786,
+          "returned_items": 1,
+          "status": "completed",
+          "tool": "aptuni_search_context",
+          "truncated": true
+        },
+        {
+          "actual_used_units": 2742,
+          "anchor_present": true,
+          "concept_count": 0,
+          "concept_language": {
+            "cjk": false,
+            "latin": false
+          },
+          "concepts_bilingual_syntax": false,
+          "error": null,
+          "failed_or_denied": false,
+          "mode": "evidence",
+          "position": 2,
+          "query_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "requested_max_units": 3200,
+          "requested_modules": [
+            "knowledge"
+          ],
+          "returned_duration_ms": 1713,
+          "returned_items": 5,
+          "status": "completed",
+          "tool": "aptuni_search_context",
+          "truncated": true
+        }
+      ],
+      "setup_latency_s": 24.329277708020527,
+      "journey_elapsed_s": 98.4384649170097
+    },
+    {
+      "arm": "F",
+      "task_id": "r03",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 2,
+        "navigation_or_routing": 2,
+        "noise_or_task_match_unestablished": 4,
+        "qualitative_judgment": true,
+        "relevant_background": 2
+      },
+      "task": {
+        "retrieval_calls": 1,
+        "retrieval_retries": 0,
+        "planned_stages": 0,
+        "additional_targeted_search_calls": 0,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 3219,
+        "latency_s": 120.6854116669856,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 70656,
+          "input_total": 75285,
+          "output": 3619,
+          "reasoning_output": 1708
+        },
+        "input_plus_output_tokens": 78904,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [
+        {
+          "actual_used_units": 3219,
+          "anchor_present": false,
+          "concept_count": 4,
+          "concept_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "concepts_bilingual_syntax": false,
+          "error": null,
+          "failed_or_denied": false,
+          "mode": "search",
+          "position": 1,
+          "query_language": {
+            "cjk": true,
+            "latin": true
+          },
+          "requested_max_units": 4000,
+          "requested_modules": [
+            "knowledge"
+          ],
+          "returned_duration_ms": 803,
+          "returned_items": 10,
+          "status": "completed",
+          "tool": "aptuni_search_context",
+          "truncated": true
+        }
+      ],
+      "setup_latency_s": 29.577562291000504,
+      "journey_elapsed_s": 151.4896327080205
+    },
+    {
+      "arm": "F",
+      "task_id": "r04",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 4,
+        "navigation_or_routing": 2,
+        "noise_or_task_match_unestablished": 1,
+        "qualitative_judgment": true,
+        "relevant_background": 3
+      },
+      "task": {
+        "retrieval_calls": 1,
+        "retrieval_retries": 0,
+        "planned_stages": 0,
+        "additional_targeted_search_calls": 0,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 3772,
+        "latency_s": 99.97215099999448,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 70016,
+          "input_total": 73496,
+          "output": 2377,
+          "reasoning_output": 1086
+        },
+        "input_plus_output_tokens": 75873,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [
+        {
+          "actual_used_units": 3772,
+          "anchor_present": false,
+          "concept_count": 4,
+          "concept_language": {
+            "cjk": true,
+            "latin": true
+          },
+          "concepts_bilingual_syntax": true,
+          "error": null,
+          "failed_or_denied": false,
+          "mode": "search",
+          "position": 1,
+          "query_language": {
+            "cjk": true,
+            "latin": true
+          },
+          "requested_max_units": 4000,
+          "requested_modules": [
+            "knowledge"
+          ],
+          "returned_duration_ms": 801,
+          "returned_items": 10,
+          "status": "completed",
+          "tool": "aptuni_search_context",
+          "truncated": true
+        }
+      ],
+      "setup_latency_s": 43.76028512499761,
+      "journey_elapsed_s": 144.94212704198435
+    },
+    {
+      "arm": "F",
+      "task_id": "r05",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 0,
+        "navigation_or_routing": 0,
+        "noise_or_task_match_unestablished": 0,
+        "qualitative_judgment": true,
+        "relevant_background": 0
+      },
+      "task": {
+        "retrieval_calls": 0,
+        "retrieval_retries": 0,
+        "planned_stages": 0,
+        "additional_targeted_search_calls": 0,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 0,
+        "latency_s": 6.0490982080227695,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 17152,
+          "input_total": 17427,
+          "output": 138,
+          "reasoning_output": 55
+        },
+        "input_plus_output_tokens": 17565,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [],
+      "setup_latency_s": 21.44183345901547,
+      "journey_elapsed_s": 28.580950292001944
+    },
+    {
+      "arm": "F",
+      "task_id": "r06",
+      "full_task_verdict": "PASS",
+      "answer_quality_score": 2,
+      "operational_completion": true,
+      "execution_attempts": 1,
+      "operational_retries": 0,
+      "claim_support_pass": true,
+      "boundary_pass": true,
+      "retrieval_unit_judgments": {
+        "corpus_precision_or_recall": null,
+        "direct_useful": 0,
+        "navigation_or_routing": 0,
+        "noise_or_task_match_unestablished": 0,
+        "qualitative_judgment": true,
+        "relevant_background": 0
+      },
+      "task": {
+        "retrieval_calls": 0,
+        "retrieval_retries": 0,
+        "planned_stages": 0,
+        "additional_targeted_search_calls": 0,
+        "extraneous_calls": 0,
+        "denied_failed_calls": 0,
+        "used_units": 0,
+        "latency_s": 9.985571625002194,
+        "tokens": {
+          "cache_creation": 0,
+          "input_cached": 17024,
+          "input_total": 17273,
+          "output": 234,
+          "reasoning_output": 210
+        },
+        "input_plus_output_tokens": 17507,
+        "sequence_values": [
+          66
+        ],
+        "unit_recomputations_exact": true,
+        "within_declared_resource_treatment": true
+      },
+      "call_metadata": [],
+      "setup_latency_s": 20.134168083954137,
+      "journey_elapsed_s": 31.249857209040783
+    }
+  ]
+}

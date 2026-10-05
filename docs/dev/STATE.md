@@ -1,6 +1,6 @@
 # Project State
 
-**Updated:** 2026-10-04
+**Updated:** 2026-10-05
 **Current gate:** Beta productization — canonical activation, plugin-declared context and the
 Top-Down Learning flagship are independently approved and the machine-readable Stable readiness
 gate is runnable (Review 73), and Top-Down Learning is Flagship Plugin #1 with a portable verified
@@ -17,7 +17,7 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 ## Current fix — Day 1 dogfooding P1s
 
 **Current b10 research checkpoint (2026-10-04, local/not released; preceding
-checkpoint `91bbbdb`).** ADR-0025 explicit OFF/Profile/Memory/Full is locked;
+checkpoint `483f8d3`).** ADR-0025 explicit OFF/Profile/Memory/Full is locked;
 ordinary prompts retrieve autonomously only inside explicitly enabled Full. Both
 runners and generated skills recovered. Global Codex model line uses the verified
 GPT-6 Astra route, with a private prechange copy. No grant or credential expansion.
@@ -64,17 +64,31 @@ production baseline remains 1,263 passed, three skips, 62 subtests. Production c
 policy, canonical schema/ranking and public MCP remain unchanged in this phase.
 Private raw scratch is retained only while grading/review continue, then must be
 removed; frozen/preexisting inputs and owner backups remain. The six-task holdout
-is sealed and unused. Preserve both clean and pre-b9 backups; external credential
+is frozen; all12 paired sessions completed without an operational failure.
+Independent grading is locked: A6/6,F6/6; no material F gain. Preserve both clean and pre-b9 backups; external credential
 rotation/copies remain separately unverified. No owner decision blocks these
 reversible research steps.
 
-The fresh six-task A/F protocol and evaluator rubric are frozen; no attempt has
-started. Review106 blocked two private-driver correctness defects. Test-first
+The fresh six-task A/F protocol and evaluator rubric are frozen. All12 sessions
+completed after Review107 at checkpoint `483f8d3`:12 attempted,0 unattempted,
+no operational failure/drift refusal; all observed sequences66. Independent
+masked initial answers and subsequent evidence grades are locked: A6/6,F6/6.
+Context-use agreement6/6 each, no unsafe claims or observed boundary failure.
+F used discovery on two tasks, but A has stronger historical support on three.
+Task tokens374550/385493; journey635.950/660.061s. Prefer A on this covered
+set under the frozen tie rule. Original m05 and Sonnet failures remain open.
+The evaluator hit quota after saving final grades/accounting; lead rendered the
+sanitized report without regrading. The strong-manager CLI decision proposes one new two-case A/F selection
+mini-holdout, at most four sessions, unchanged policies and zero-model structural
+coverage preflight. Lock tasks/rubrics and independently review before execution.
+Prefer A on tie; no C/D runtime is justified. b10 stays closed. Review106 blocked two
+private-driver correctness defects. Test-first
 repairs now stop on bare snapshot-drift tool errors and finalize denominator
 receipts on asset-digest mismatch; three reproductions failed before repair and
 all seven invented scenarios pass afterwards. Candidate policy/backend, sealed
 tasks/rubrics and grants are unchanged. Independent Review107 approves one
-frozen paired comparison with no reruns, retuning or state rebinding. Source/backend regression
+frozen paired comparison with no reruns, retuning or state rebinding.
+Source/backend regression
 checks:24 passed, scoped Ruff and relay pass.
 
 The following dated checkpoints are historical.

@@ -15,7 +15,7 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
-**2026-10-04 current b10 research checkpoint (preceding local commit `91bbbdb`).**
+**2026-10-04 current b10 research checkpoint (preceding local commit `483f8d3`).**
 Explicit activation remains locked. Original frozen seven unchanged, independent
 E2E: Sonnet **2/7**, Astra xhigh **6/7**, inside-Full relevance **7/7 each**.
 The old 1/10 is pre-fix. No b10 release and no production guidance/code change.
@@ -28,13 +28,30 @@ benefit. On one matched planning packet A/B finals both pass; A **18,250 tokens,
 component; no B E2E or savings claim. C/D are deliberately deferred, not measured.
 Reports and exact limits are under `b10-continuation/`.
 
-**Exact next slice:** Review107 approved the repaired frozen comparator; now
-run the one paired six-task A/F comparison without interim grading/tuning.
+**Exact next slice:** independently create/lock two genuinely distinct fresh
+project-selection decisions and goal-derived rubrics, without favorable-catalog
+selection, then freeze/review one four-session A/F mini-holdout with unchanged
+policies. Run zero-model structural coverage preflight first; if exclusion is
+provable, retain unattempted sessions and stop with no E2E score. Otherwise run
+all four once and independently grade. Strong-manager decision is saved in
+`fresh-mini-decision.md`; no C/D runtime or production change is justified. The locked fresh-six grades are
+A6/6,F6/6, with context-use agreement6/6 each and no unsafe/boundary failure.
+F's discovery ran on two cases but shows no material paired gain; A has stronger
+historical support on three. A374550 task tokens/635.950s journey versus
+F385493/660.061s. Prefer A on the covered set under the frozen tie rule; do not
+claim the original m05 requirement or Sonnet failures are resolved. Evaluator
+quota ended after final locked grades/metrics; lead recovered the public report
+without rerun/regrading. Verified CLI capacity remains available for the manager.
+All12 sessions completed:0 unattempted, no stop, observed sequence66. Initial
+masked assessments and evidence support grades were frozen before arm/resources.
+No interim grading, retuning or rerun. See `fresh-comparison-results.md`.
 Review106 blocked native drift-error handling and missing denominator receipts on
 asset mismatch. Three invented regressions fail before repair; all seven pass
-afterwards, with zero host/Vault calls. No held-out attempt has started. The private
-driver digest is3749e5a4bf48…; original code/specs/receipts remain retained. No
-candidate policy/backend/task/rubric/grant change. See the public frozen protocol. The independently frozen original m05 development probe passes
+afterwards, with zero host/Vault calls. Paired execution completed from
+checkpoint `483f8d3` without interim grading. The private driver digest
+is `3749e5a4bf48…`; original code/specs/receipts remain retained. No
+candidate policy/backend/task/rubric/grant change. See the public frozen protocol.
+The independently frozen original m05 development probe passes
 the complete task and observed boundaries, using3555/4000 units. Existing grant,
 explicit Full, sequence66, first-five/first-twenty selection, two attempts and
 shared4000 units remain fixed. Backend digest `5c14990e1ee5…`, general conditional

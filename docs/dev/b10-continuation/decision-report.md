@@ -1,19 +1,34 @@
 # B10 E2E architecture decision report
 
-2026-10-04. Local research; b10 is not released. This report separates unchanged
+2026-10-05. Local research; b10 is not released. This report separates unchanged
 acceptance results, reused development controls and component experiments.
 
 **Current recommendation:** keep one strong Agent as the quality reference. No
 multi-Agent runtime has demonstrated a quality/resource advantage. A bounded,
 deterministic discovery seam is the remaining research candidate; it is not
 installed. Its one reused real-task retry passes, with a preceding zero-model
-launch failure retained. Near-best production
-performance has not yet been established.
+launch failure retained. Fresh independent six: A6/6,F6/6 with no unsafe/boundary failure. F has no
+material paired gain and costs more task tokens/calls/journey time; prefer A for
+these measured cases. Near-best production performance remains unestablished.
+One strong-manager-justified two-case selection mini-holdout is the next bounded
+experiment, with unchanged policies and at most four sessions.
 
 The seven frozen tasks ran unchanged before tuning. Actual post-fix acceptable
 E2E is **Sonnet 4.6 / Claude: 2/7 (28.6%)** and **GPT-6 Astra xhigh / Codex:
 6/7 (85.7%)**, separately. The old 1/10 is the pre-fix baseline. Never substitute
 a development repair for m05 and claim a new 7/7 acceptance result.
+
+The separately locked fresh six were run once per arm, all12 completions retained.
+Both arms pass6/6; context-use agreement6/6 each. F exercised discovery on two
+cases but these task-allowed recovery/conservative branches do not establish
+original m05 selection success. A has better historical support on three cases;
+F has a modest source-fit difference on one. A uses5 retrieval calls,374550 task
+tokens and635.950s total journey; F6 calls,385493 and660.061s. F returns fewer
+units but establishes no monetary saving. The independent evaluator locked initial
+masked grades before evidence, then support grades before arm/resource analysis.
+Its quota ended after final grades/metrics; lead rendered the sanitized report
+without regrading. [Fresh paired results](fresh-comparison-results.md) and
+[content-free metrics](fresh-comparison-metrics.json) preserve all twelve rows.
 
 ## Original seven and current quality
 
@@ -68,6 +83,8 @@ real task requires actual project selection.
 | E cheap guidance distillation | Sonnet 4.6; two fixed packets, baseline/E | Four full-rubric failures; no planning grounding improvement | No accepted cheap finalist; methods drafts grounded but technically incomplete |
 | Single strong + original synthetic discovery | Astra xhigh; four known worlds/arms | All four full-rubric failures, including lookup/citation identity confusion | Rejected original contract; retain failures |
 | Single strong + named discovery | Astra xhigh then Sonnet transfer | Strong 2/2 known controls pass; Sonnet 0/2 fails scope/sequence | Combined identity/guidance effect, not field-only causality |
+| A current strong single, fresh six | Astra xhigh/Codex | 6/6 complete passes, context-use6/6, no unsafe/boundary failure | 374,550 task tokens;635.950s total journey;5 retrieval calls |
+| F unchanged single strong + discovery, same fresh six | Astra xhigh/Codex | 6/6 complete passes, context-use6/6; discovery exercised twice; no material gain | 385,493 task tokens;660.061s journey;6 calls; prefer A on tie |
 | Single strong + compact discovery | Astra xhigh | 2/2 reused synthetic controls and completed real-task retry pass | Two staged calls, no retries; one acceptable real completion in two retained launch attempts |
 
 Roles remain abstract: strongest practical planner/integrator, bounded worker
@@ -94,7 +111,8 @@ worker-only reported USD0.047094 is not B's cost.
 | A worker reduces strong reasoning cost without reducing quality | Matched A/B fixed-evidence journey | Both pass; B costs more tokens/time; prefer A on this component |
 | Guidance alone fixes cheap integration | Two fixed packets under baseline/E | No demonstrated full-task gain; do not install E |
 | Compact anchors fit without erasing selection information | Label boundary/collision tests, guarded aggregate audit, two strong controls | 532 real packing units; both known controls pass; packing is not real E2E |
-| The bounded seam solves the actual unknown-project task | One independently frozen original m05 development probe | Completed retry fully passes; one prior zero-model operational failure retained; fresh generalization pending |
+| The bounded seam solves the actual unknown-project task | One independently frozen original m05 development probe | Completed retry fully passes; one prior zero-model failure retained; actual fresh selection remains unproved |
+| The unchanged seam preserves ordinary-task quality and earns a paired gain | Fresh locked six,12 native sessions | Both6/6, no material gain; A richer/cleaner on three. Prefer A on covered set; keep original selection gap open |
 
 No blind parameter grid, embedding research, bigger budgets, new permissions or
 all-specialist workflow was used. Original failed variants remain separate.
@@ -108,6 +126,8 @@ all-specialist workflow was used. Original failed variants remain separate.
 | Matched A component | 18,250 | 84.269s journey | One model call; startup/close included |
 | Full B component | 46,563 | 186.636s journey | Three model calls/handoffs; startup/close included |
 | Compact positive / study-only controls | 92,450 / 92,366 | 64.476s / 56.115s | 22.243s / 21.657s setup; two retrieval stages each |
+| Fresh A six | 374,550 | 487.174s /86.708s | 137.413s setup;635.950s full journey;5 retrieval calls |
+| Fresh F six | 385,493 | 486.439s /85.552s | 164.520s setup;660.061s full journey;6 calls |
 | Real m05 development retry | 95,084 | 60.868s task | 20.980s setup; two successful staged calls |
 
 Original Sonnet: 56 uncached input, 17,062 cache creation, 324,773 cache read,
@@ -117,6 +137,11 @@ including 4,902 reasoning. B: 41,764 input, 4,799 output; known strong reasoning
 again. Grader tokens and separate final-answer-versus-planner billing are
 unavailable. Claude original reported task cost is USD0.3544674 after cumulative
 setup subtraction; Codex costs are unavailable.
+
+Static independent Reviews106/107 used89,393 input and11,294 output tokens
+(including9,741 reasoning, already a subset). These are research review overhead,
+not task-runtime or judge tokens. Both configured MCP/provider-off traces contain
+no observed tool calls; this does not establish the complete possible host inventory.
 
 Real retry: 93,507 input including 88,704 cached and 1,577 output including 1,101
 reasoning. No supplied concept list is needed for its explicit anchors/evidence
@@ -137,12 +162,14 @@ coordination. Neither has justified that footprint yet.
 
 ## Product decision and remaining gates
 
-**Highest measured quality:** Astra single on original seven (6/7), among the
-actual E2E paths. No tested multi-Agent architecture has a complete E2E success
+**Highest measured paired quality:** A and F tie6/6 on the fresh six.
+Astra single is6/7 on the separate original seven; Sonnet2/7. Never rank or pool
+these different task sets as one success rate. No tested multi-Agent architecture has a complete E2E success
 rate; B's component pass cannot compete numerically with the seven-task rate.
 **Best observed quality/resource tradeoff:** A over B on the matched component,
-and one strong single Agent as the research reference. No near-best general
-production winner or cheap-model threshold has been proved.
+and A over F on the fresh-six quality tie. One strong single Agent remains the
+research reference. No near-best general production winner or cheap-model
+threshold has been proved.
 
 Distill the successful research into clear lookup identity, minimized labels,
 evidence-backed claims, study/contribution separation, a bounded two-stage
@@ -159,10 +186,22 @@ answer to missing information. **Research recommendation:** strong single A as
 comparator, reusable bounded harness and independent fixed-rubric evaluation.
 Run C or selected D only for a new falsifiable reason, not to fill a table.
 
-The six fresh tasks remain sealed and unused. They were locked before candidate
-changes and have never supplied tuning information. A development pass must first
-survive a credibility/scope review before one finalist is frozen and independently
-evaluated. Any held-out-informed general fix then needs a fresh mini-holdout.
+The six were frozen before candidate outputs and provided no interim tuning.
+Review106 blocked two scheduling/accounting defects; three reproductions failed
+before repair and all seven invented checks then passed. Review107 approved one
+12-attempt comparison, completed from483f8d3 with0 unattempted, no stop and all
+observed sequences66. Final grading is A6/6,F6/6; no repeated task or silent repair.
+The original project-selection requirement and Sonnet failures remain consequential.
+The strong research manager proposes exactly one new, independently locked two-case
+paired selection mini-holdout, at most four sessions, unchanged A/F policies and
+a zero-model structural coverage preflight. Selection must be intrinsic to the
+new task goals, without m05 rephrases, source hints or favorable-catalog selection.
+If exclusion is provable, stop before model calls with unattempted cases; otherwise
+run all four once. Prefer A on another tie; promote F only as a research candidate
+for paired gain without regression, not automatic b10 release. C/D are not justified.
+[Manager decision](fresh-mini-decision.md). Any held-out-informed fix needs a new
+mini-holdout; production adoption requires tests/ADR/independent review.
+
 The completed development answer and actual Evidence support a concrete
 provisional candidate and useful application material; ownership and attributable
 results remain unconfirmed. Two stages used546+3009=3555 units. Its catalog and
@@ -177,8 +216,9 @@ A normal disposable index rebuild corrected owner-induced sequence62→66 drift;
 original acceptance remains tied to sequence62. The new backend refuses drift.
 
 Local checkpoints: `7b7919c` (frozen measurement/harness), `2ed671e` (confined
-bridge/synthetic controls), `64a459c` (bounded worker and compact controls).
-Reviews98–105 cover the respective research/confined/private-data boundaries;
+bridge/synthetic controls), `64a459c` (bounded worker and compact controls),
+`91bbbdb` (bounded real development task), `483f8d3` (reviewed frozen comparison).
+Reviews98–107 cover the respective research/confined/private-data boundaries;
 none approves production adoption or release. Current developer suite102 passes,
 Ruff/source and research mypy, relay and secret scan pass. Prior production full
 baseline:1263 pass,3 skips,62 subtests; no production behavior change required
