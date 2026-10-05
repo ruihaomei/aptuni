@@ -442,6 +442,12 @@
    "supersedes": [
     "109-b10-offline-grading-review.md"
    ]
+  },
+  "beta-real-selection-research": {
+   "kind": "review",
+   "current": "111-b10-real-selection-research-review.md",
+   "verdict": "APPROVE",
+   "supersedes": []
   }
  }
 }
