@@ -23,6 +23,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Locked paired architecture research is complete: strong single A and bounded
+  discovery F each pass6/6 ordinary tasks, then1/2 fresh selection tasks. F shows
+  no paired quality gain; the research phase closes with b10 unreleased. Independent
+  grading preserves all attempts and separates runtime, judge and review overhead.
+  No production runtime, activation, permission or policy change follows.
 - Local research tools freeze Agent evaluation policies and task hashes, keep raw
   trials outside Git, and report content-free calls, token components and latency.
   Seven post-fix ordinary-prompt trials have now been measured per host; b10 remains

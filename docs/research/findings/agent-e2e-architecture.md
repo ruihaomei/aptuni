@@ -47,5 +47,33 @@ Updated 2026-10-05. Local development research; no new production policy.
 - Do not turn repeated development controls into unseen success rates. C/D are deferred, not empirically rejected.
   Preserve explicit OFF→Full consent, grants and exposure on every research path.
 
-The current evidence favors testing a light single-Agent discovery seam before
-runtime role proliferation. No near-best production architecture has been proven.
+The bounded single-Agent discovery comparison is now complete without a promotion
+result. Runtime role proliferation remains unjustified. No near-best production
+architecture has been proven.
+
+- Fresh focused selection mini under unchanged policies: A1/2,F1/2, same two-
+  reference completeness failure; every source-support judgment passes. Honest
+  insufficiency is safe but does not complete a required actual-selection task.
+  F supplies no paired quality gain, adds tokens/calls and does not meet its
+  promotion bar. Smaller measured latency does not make failed goals acceptable.
+  [Focused results](../../dev/b10-continuation/selection-mini-results.md).
+- Offline grading must verify the frozen arm-map digest and *current* answer
+  capsule/record hashes before forwarding, preserving the original answer-source
+  association. Observe tool items in started/updated/completed events, not only
+  completed ones. Review109 found these defects before grading; test-first repairs
+  and Review110 preceded both batches. Current grant/egress/module/snapshot gates
+  are separate from source packet extraction; already-returned data is not a grant
+  expansion. No complete blinding, inventory proof or numerical recall follows.
+
+- Final strong-manager decision closes the bounded comparison with b10 frozen.
+  A is the simplest supported *measured* reference, not a proven near-best product.
+  No specialist has demonstrated unique useful information; C/D stay unmeasured.
+  Reopening needs a genuinely new falsifiable bottleneck, separate bounded
+  development evidence, then fresh independent evaluation. Do not enlarge a
+  benchmark simply to chase positive promotion.
+  [Final decision](../../dev/b10-continuation/final-research-decision.md).
+
+- After final decisions, scoped cleanup removed phase-derived raw native traces,
+  source packets, answers and private grading transcripts, retaining frozen tasks/
+  rubrics, original inputs and model-config recovery. Public content-free hashes/
+  metrics preserve the audit; both owner backups stay untouched.

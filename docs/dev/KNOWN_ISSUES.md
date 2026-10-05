@@ -51,6 +51,15 @@ project selection or Sonnet grounding failures. Final assessments/accounting wer
 locked before evaluator quota exhaustion; lead rendered the sanitized report
 without rerun or regrading. No production policy change or b10 release.
 
+**KI-018 focused selection update (2026-10-05):** fresh two-case A/F mini
+independently grades1/2 each, same required-two-reference failure. All four
+claim-support judgments pass, but safe limitations do not complete a missing
+selection. F does not earn promotion; A remains measured reference, not a
+near-best/population-quality proof. Original2/7 and6/7 unchanged, no production
+retune or b10 release. Actual catalog/Evidence coverage is partial; whether the
+required source material exists elsewhere is not established by returned packets.
+See `b10-continuation/selection-mini-results.md`.
+
 ## Resolved history
 
 - **KI-008 (2026-09-22):** S10 isolated Mem0 2.0.20 and conditionally admitted only a disposable

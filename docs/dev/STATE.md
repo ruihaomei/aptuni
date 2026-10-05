@@ -16,8 +16,8 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
-**Current b10 research checkpoint (2026-10-04, local/not released; preceding
-checkpoint `e18cfe3`).** ADR-0025 explicit OFF/Profile/Memory/Full is locked;
+**Current b10 research checkpoint (2026-10-05, local/not released; preceding
+checkpoint `d3743a7`).** ADR-0025 explicit OFF/Profile/Memory/Full is locked;
 ordinary prompts retrieve autonomously only inside explicitly enabled Full. Both
 runners and generated skills recovered. Global Codex model line uses the verified
 GPT-6 Astra route, with a private prechange copy. No grant or credential expansion.
@@ -62,9 +62,9 @@ fixture's scanner false positive was repaired without changing runtime bytes.
 Prior
 production baseline remains 1,263 passed, three skips, 62 subtests. Production code,
 policy, canonical schema/ranking and public MCP remain unchanged in this phase.
-Private raw scratch is retained only while grading/review continue, then must be
-removed; frozen/preexisting inputs and owner backups remain. The six-task holdout
-is frozen; all12 paired sessions completed without an operational failure.
+Phase-derived private raw scratch was removed after grading/audit; frozen/
+preexisting inputs, configuration recovery and owner backups remain. The six-task holdout
+remains frozen; all12 paired sessions completed without an operational failure.
 Independent grading is locked: A6/6,F6/6; no material F gain. Preserve both clean and pre-b9 backups; external credential
 rotation/copies remain separately unverified. No owner decision blocks these
 reversible research steps.
@@ -84,7 +84,21 @@ coverage preflight. Two new tasks/rubrics are locked and Review108 approves exac
 The zero-model preflight verified66/current grant; no universal exclusion is
 proven because normal search remains permitted. All four candidate sessions completed once with no operational/drift stop.
 Review109 blocked two private grading-integrity defects; five regressions fail
-before repair and all17 pass after repair. Review110 approves exactly two offline batches. No mini quality grade yet.
+before repair and all17 pass afterwards. Review110 approved two offline batches,
+both completed after current-grant/modules/egress/66 checks. Initial masked grades
+locked before evidence, support locked before arm/resources. Focused mini **A1/2,
+F1/2**, same required-two-selection failure, all four source-support judgments
+pass. No paired gain; unchanged F fails the promotion bar. A170588 task tokens/
+3 calls/188.114s journey versus F187366/4/153.553s. Mini judge43921 processed
+tokens measured separately; no billing or corpus precision/recall claim. Final
+strong manager closes this bounded comparison with release frozen. No new
+experiment commissioned; near-best quality remains unestablished. Decision report
+covers all24 requested outputs. Scoped cleanup removed1647 phase artifacts/
+31685494 bytes; only9 frozen task/rubric files plus configuration recovery remain
+within phase scratch. Original/preexisting inputs and both backups unchanged.
+Public content-free counts/hashes/results preserve the audit; no raw trace remains
+in these phase roots. Final repository checks pass; the local checkpoint records
+this bounded task endpoint.
 Prefer A on tie; no C/D runtime is justified. b10 stays closed. Review106 blocked two
 private-driver correctness defects. Test-first
 repairs now stop on bare snapshot-drift tool errors and finalize denominator

@@ -15,7 +15,7 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
-**2026-10-04 current b10 research checkpoint (preceding local commit `e18cfe3`).**
+**2026-10-05 current b10 research checkpoint (preceding local commit `d3743a7`).**
 Explicit activation remains locked. Original frozen seven unchanged, independent
 E2E: Sonnet **2/7**, Astra xhigh **6/7**, inside-Full relevance **7/7 each**.
 The old 1/10 is pre-fix. No b10 release and no production guidance/code change.
@@ -28,22 +28,27 @@ benefit. On one matched planning packet A/B finals both pass; A **18,250 tokens,
 component; no B E2E or savings claim. C/D are deliberately deferred, not measured.
 Reports and exact limits are under `b10-continuation/`.
 
-**Exact next slice:** execute the Review110-approved repaired two-stage offline CLI
-grader, then lock all four masked answer-only assessments, actual returned-evidence
-support grades and resource audit before any policy change. Review108's four-session
-mini completed once:4 attempted,0 unattempted, no stop, all observed sequences66.
-No mini quality score yet. App evaluator quota is unavailable; the same existing
-Codex CLI/model-egress route is verified. New private grader checks current grant/
-module/informed-egress and66 before both calls, uses only already returned packets,
-no broader Source data/service, and rejects observed tool items. Seventeen synthetic
-extraction/case-integrity/event-observation checks pass with no model/owner-source calls. Grading
-raw data remains local; no Source content is supplied to static reviewer109. New dataset77edfb82097e…/rubric15d16cdbafaa… are locked; root/manager/
-candidate planners have not read prompts. The zero-model guarded preflight
-verified66/current Knowledge grant and did not prove universal exclusion; normal
-search can return multiple source groups. New driver changes only case/attempt
-counts; all seven invented stop/receipt scenarios pass, no host/Vault calls.
-Backend/policy/grant/Full/budgets unchanged; private F scratch destination only
-changes. At most four native sessions, no retuning/replacement/rerun/rebinding.
+**Task endpoint:** bounded architecture comparison, grading, resource audit,
+strong-manager decision and scoped private-raw cleanup complete. Final report:
+`b10-continuation/decision-report.md`. b10 remains closed; unchanged F not promoted.
+No new experiment is commissioned. Reopen KI-018 only for a genuinely new
+falsifiable bottleneck, separate bounded development evidence, then a fresh locked
+selection evaluation. Runtime specialists/permission/model swaps are not justified
+by this endpoint. Final record checks pass; local checkpoint records this endpoint.
+Original seven remain2/7 and6/7; focused mini is **A1/2,F1/2**,
+same case failure requiring two concrete supported selections. Both pass the
+bounded workflow/claim task. All source-support judgments pass, no paired gain
+or unsafe/boundary failure. F fails its frozen promotion bar. Four native attempts,
+zero unattempted/stops, observed66; no runtime reruns or tuning. A170588 task tokens/
+3 calls/188.114s journey; F187366/4/153.553s. Judge43921 processed tokens separately.
+Review109 blocked mutable mapping/capsule bindings and incomplete item-event
+observation; five synthetic regressions fail before repair, all17 pass afterwards.
+Review110 approves exactly two offline batches; both current-grant/module/egress/
+66 gates pass. Initial masked assessments locked before actual returned-context
+support, all support assessments locked before arm/resources. No broader Source
+access, new provider/service/permission or production policy/code change. Native
+notifications/unit costs/cumulative usage corroborated. All102 developer checks
+remain passing. See `selection-mini-results.md` and content-free metrics.
 The locked fresh-six grades are
 A6/6,F6/6, with context-use agreement6/6 each and no unsafe/boundary failure.
 F's discovery ran on two cases but shows no material paired gain; A has stronger

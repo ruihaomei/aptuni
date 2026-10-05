@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-05",
+  "scope": "phase1 and research exact scratch roots plus named phase canaries; no shared/user/source/backup store",
+  "phase_comparison_closed": true,
+  "graded_and_audited_before_cleanup": true,
+  "removed_entries": 1647,
+  "removed_regular_file_bytes": 31685494,
+  "opaque_deleted_inventory_sha256": "fd30c5102be5a3f6ed5522d5451af01c091d088a1cb261acb635c123096747c1",
+  "phase_derived_raw_remaining": 0,
+  "retained_frozen_task_rubric_files": 9,
+  "retained_frozen_sha256": [
+    "15d16cdbafaa30d529bb09590f7e9a0fcab1e6c3590cdd4b8e60c94acc677883",
+    "2e0ebc7490ff2fbad4f7530af453d49431cd141da1e6b006950b4f62e5ec4504",
+    "378ae2c24f2ed47c1c48a6b0c4d1ad4612b078aaf67f873e51ec5e2cae315b41",
+    "70e0b2293a065037716f4b9156f81d75547ad898d6856040fcfdd88e559759fa",
+    "766cc7dd266c560bde99027a81eb124fb740641c4b3d7b57da49cb2e0857cecb",
+    "77edfb82097ec270f3f19ec7e4a5fa93b31d6b913b14be1a86b7c5a0f5fb10f3",
+    "d1f4d7b64b00bd2d05550dbca47b2d0d5258c91ea2d6ef0e9d631a9d4d1b3ccf",
+    "e6a98d56718de08c2d7a4b1f7bb1694324a952d0836d1365a6af5e162e48e03f",
+    "f6b846011d712e684a3eb33677d79f6c0ee4cafeed5ed6e00d80f7aec5ecd010"
+  ],
+  "original_preexisting_frozen_inputs_and_records_unchanged": true,
+  "configuration_recovery_copy_unchanged": true,
+  "owner_backups_not_touched": true,
+  "outside_phase_roots_not_touched": true,
+  "ephemeral_host_sessions_used": true,
+  "forensic_erasure_or_all_system_cache_scan_claimed": false
+}

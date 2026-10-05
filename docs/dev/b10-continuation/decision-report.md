@@ -5,13 +5,15 @@ acceptance results, reused development controls and component experiments.
 
 **Current recommendation:** keep one strong Agent as the quality reference. No
 multi-Agent runtime has demonstrated a quality/resource advantage. A bounded,
-deterministic discovery seam is the remaining research candidate; it is not
-installed. Its one reused real-task retry passes, with a preceding zero-model
+deterministic discovery seam was tested without installation; it failed the
+fresh selection promotion condition. Its one reused real-task retry passes, with a preceding zero-model
 launch failure retained. Fresh independent six: A6/6,F6/6 with no unsafe/boundary failure. F has no
 material paired gain and costs more task tokens/calls/journey time; prefer A for
 these measured cases. Near-best production performance remains unestablished.
-One strong-manager-justified two-case selection mini-holdout is the next bounded
-experiment, with unchanged policies and at most four sessions.
+The strong-manager-justified fresh selection mini is complete: **A1/2,F1/2**,
+with the same required-two-selection failure and no paired gain. Unchanged F
+fails its promotion bar. Safe answers are necessary; they are insufficient when
+required supported selections are absent.
 
 The seven frozen tasks ran unchanged before tuning. Actual post-fix acceptable
 E2E is **Sonnet 4.6 / Claude: 2/7 (28.6%)** and **GPT-6 Astra xhigh / Codex:
@@ -29,6 +31,15 @@ masked grades before evidence, then support grades before arm/resource analysis.
 Its quota ended after final grades/metrics; lead rendered the sanitized report
 without regrading. [Fresh paired results](fresh-comparison-results.md) and
 [content-free metrics](fresh-comparison-metrics.json) preserve all twelve rows.
+
+The focused mini used exactly four native sessions once and two staged offline
+judge batches after Reviews109–110. Both arms use context correctly2/2, all four
+source-support judgments pass, but both fail s01's two-supported-reference goal.
+Both complete s02's bounded workflow/claim decision. A170588 task tokens/3 calls/
+188.114s journey versus F187366/4/153.553s. F is faster on these two observations
+but uses9.84% more tokens and another call, with no quality gain. Judge43921
+processed tokens are separate research cost. [Focused results](selection-mini-results.md)
+and [metrics](selection-mini-metrics.json) preserve all four records, hashes and limits.
 
 ## Original seven and current quality
 
@@ -85,6 +96,7 @@ real task requires actual project selection.
 | Single strong + named discovery | Astra xhigh then Sonnet transfer | Strong 2/2 known controls pass; Sonnet 0/2 fails scope/sequence | Combined identity/guidance effect, not field-only causality |
 | A current strong single, fresh six | Astra xhigh/Codex | 6/6 complete passes, context-use6/6, no unsafe/boundary failure | 374,550 task tokens;635.950s total journey;5 retrieval calls |
 | F unchanged single strong + discovery, same fresh six | Astra xhigh/Codex | 6/6 complete passes, context-use6/6; discovery exercised twice; no material gain | 385,493 task tokens;660.061s journey;6 calls; prefer A on tie |
+| A/F focused fresh selection mini | Astra xhigh/Codex; two masked offline evaluator batches | A1/2,F1/2, same-case goal failure; source support4/4; no paired gain | A170588 tokens/188.114s/3 calls; F187366/153.553s/4 calls; unchanged F not promoted |
 | Single strong + compact discovery | Astra xhigh | 2/2 reused synthetic controls and completed real-task retry pass | Two staged calls, no retries; one acceptable real completion in two retained launch attempts |
 
 Roles remain abstract: strongest practical planner/integrator, bounded worker
@@ -111,8 +123,9 @@ worker-only reported USD0.047094 is not B's cost.
 | A worker reduces strong reasoning cost without reducing quality | Matched A/B fixed-evidence journey | Both pass; B costs more tokens/time; prefer A on this component |
 | Guidance alone fixes cheap integration | Two fixed packets under baseline/E | No demonstrated full-task gain; do not install E |
 | Compact anchors fit without erasing selection information | Label boundary/collision tests, guarded aggregate audit, two strong controls | 532 real packing units; both known controls pass; packing is not real E2E |
-| The bounded seam solves the actual unknown-project task | One independently frozen original m05 development probe | Completed retry fully passes; one prior zero-model failure retained; actual fresh selection remains unproved |
+| The bounded seam solves the actual unknown-project task | One frozen reused m05 development probe, then separate fresh selection mini | Development retry passes; preceding zero-model failure retained. Fresh A/F1/2 each falsifies unchanged F promotion. |
 | The unchanged seam preserves ordinary-task quality and earns a paired gain | Fresh locked six,12 native sessions | Both6/6, no material gain; A richer/cleaner on three. Prefer A on covered set; keep original selection gap open |
+| F earns a gain when actual supported selection is intrinsic | Independently frozen focused two-case A/F mini,4 sessions | Both1/2, same required-two-reference failure; no paired gain. Do not promote F; close comparison, release frozen. |
 
 No blind parameter grid, embedding research, bigger budgets, new permissions or
 all-specialist workflow was used. Original failed variants remain separate.
@@ -128,14 +141,18 @@ all-specialist workflow was used. Original failed variants remain separate.
 | Compact positive / study-only controls | 92,450 / 92,366 | 64.476s / 56.115s | 22.243s / 21.657s setup; two retrieval stages each |
 | Fresh A six | 374,550 | 487.174s /86.708s | 137.413s setup;635.950s full journey;5 retrieval calls |
 | Fresh F six | 385,493 | 486.439s /85.552s | 164.520s setup;660.061s full journey;6 calls |
+| Focused A mini | 170,588 | 135.644s /67.822s | 46.814s setup;188.114s journey;3 calls |
+| Focused F mini | 187,366 | 111.150s /55.575s | 38.704s setup;153.553s journey;4 calls |
 | Real m05 development retry | 95,084 | 60.868s task | 20.980s setup; two successful staged calls |
 
 Original Sonnet: 56 uncached input, 17,062 cache creation, 324,773 cache read,
 12,859 output. Astra: 822,806 input including 751,872 cached, 10,589 output
 including 4,902 reasoning. B: 41,764 input, 4,799 output; known strong reasoning
 1,789 is already a subset and worker reasoning is unavailable. Do not add subsets
-again. Grader tokens and separate final-answer-versus-planner billing are
-unavailable. Claude original reported task cost is USD0.3544674 after cumulative
+again. Earlier grader tokens and separate final-answer-versus-planner billing are
+unavailable. The mini offline judge is measured separately:39117 input/4804
+output=43921 processed;2631 reasoning already included, zero cache input.
+Judge latency/provider billing remain unavailable. Claude original reported task cost is USD0.3544674 after cumulative
 setup subtraction; Codex costs are unavailable.
 
 Static independent Reviews106/107 used89,393 input and11,294 output tokens
@@ -162,7 +179,8 @@ coordination. Neither has justified that footprint yet.
 
 ## Product decision and remaining gates
 
-**Highest measured paired quality:** A and F tie6/6 on the fresh six.
+**Highest measured paired quality:** A and F tie6/6 on the fresh six and1/2 on the focused mini; the latter
+rate fails the selection bar.
 Astra single is6/7 on the separate original seven; Sonnet2/7. Never rank or pool
 these different task sets as one success rate. No tested multi-Agent architecture has a complete E2E success
 rate; B's component pass cannot compete numerically with the seven-task rate.
@@ -180,9 +198,9 @@ permission to install the research representation.
 
 **Production recommendation:** retain the existing explicit-activation single
 runtime while its material E2E gap remains tracked. Do not release b10 yet.
-The next production candidate is a single strong host with the smallest reviewed
-discovery seam that passes independent E2E; do not treat a heavy runtime as the
-answer to missing information. **Research recommendation:** strong single A as
+A future production candidate must show task-relevant selection coverage on
+separate development material, then fresh independent E2E. Unchanged F is not
+that candidate; a heavy runtime has no demonstrated remedy for missing support. **Research recommendation:** strong single A as
 comparator, reusable bounded harness and independent fixed-rubric evaluation.
 Run C or selected D only for a new falsifiable reason, not to fill a table.
 
@@ -192,15 +210,18 @@ before repair and all seven invented checks then passed. Review107 approved one
 12-attempt comparison, completed from483f8d3 with0 unattempted, no stop and all
 observed sequences66. Final grading is A6/6,F6/6; no repeated task or silent repair.
 The original project-selection requirement and Sonnet failures remain consequential.
-The strong research manager proposes exactly one new, independently locked two-case
-paired selection mini-holdout, at most four sessions, unchanged A/F policies and
-a zero-model structural coverage preflight. Selection must be intrinsic to the
-new task goals, without m05 rephrases, source hints or favorable-catalog selection.
-If exclusion is provable, stop before model calls with unattempted cases; otherwise
-run all four once. Prefer A on another tie; promote F only as a research candidate
-for paired gain without regression, not automatic b10 release. C/D are not justified.
-[Manager decision](fresh-mini-decision.md). Any held-out-informed fix needs a new
-mini-holdout; production adoption requires tests/ADR/independent review.
+The strong research manager's one new two-case selection mini was independently
+locked and completed unchanged after Review108: four native attempts, no stop,
+all66. Reviews109–110 repaired/reviewed only private offline grading integrity;
+no candidate/task/rubric change or runtime rerun. Both offline permission gates
+passed, initial answers locked before evidence, support before resources. A1/2,
+F1/2 fails F's frozen promotion rule. [Focused results](selection-mini-results.md).
+The final strong-manager decision **closes this bounded comparison with release
+frozen**, no further experiment commissioned. Evidence establishes negative
+promotion/release decisions, not a near-best-quality product. Reopening requires
+a new falsifiable bottleneck, a bounded development result, then a fresh holdout;
+C/D remain optional/unmeasured. [Final manager decision](final-research-decision.md).
+No new production/permission/privacy action follows from the advisory result.
 
 The completed development answer and actual Evidence support a concrete
 provisional candidate and useful application material; ownership and attributable
@@ -217,8 +238,10 @@ original acceptance remains tied to sequence62. The new backend refuses drift.
 
 Local checkpoints: `7b7919c` (frozen measurement/harness), `2ed671e` (confined
 bridge/synthetic controls), `64a459c` (bounded worker and compact controls),
-`91bbbdb` (bounded real development task), `483f8d3` (reviewed frozen comparison).
-Reviews98–107 cover the respective research/confined/private-data boundaries;
+`91bbbdb` (bounded real development task), `483f8d3` (reviewed frozen comparison),
+`8a59778` (fresh-six results), `e18cfe3` (focused-mini freeze), `d3743a7`
+(reviewed two-stage offline grading).
+Reviews98–110 cover the respective research/confined/private-data boundaries;
 none approves production adoption or release. Current developer suite102 passes,
 Ruff/source and research mypy, relay and secret scan pass. Prior production full
 baseline:1263 pass,3 skips,62 subtests; no production behavior change required
@@ -227,7 +250,7 @@ repeating it.
 Remaining issues: KI-018 grounding/discovery quality; unmeasured numerical context
 recall and population generalization; incomplete deterministic discovery coverage
 (first5 of11/first20 Evidence); host/model and caching confounds; unavailable
-full billing/judge usage; research configuration table serialization limitation;
+full billing/earlier judge usage; research configuration table serialization limitation;
 separate KI-024 exact-memory-id purge wedge. External credential rotation and
 copies remain owner-only/unverified. Both credential-clean and old pre-b9 backups
 are preserved; retirement waits for stable released/verified architecture and
@@ -235,6 +258,53 @@ understood downgrade requirements.
 
 No owner privacy, permission or product-philosophy decision blocks these
 reversible research steps. Publishing b10 is not authorized by test green status.
-Private raw scratch remains only while grading/review continue; remove it after
-phase completion while preserving frozen inputs, prior evidence, recovery copy
-and owner backups. The owner’s unrelated working-tree changes remain intact.
+Scoped cleanup after grading/audit removed1647 phase artifacts (31,685,494 bytes).
+Nine frozen task/rubric files and the configuration recovery copy remain private;
+original/preexisting inputs and both owner backups are unchanged. No phase-derived
+raw trace, answer, Evidence packet or grading transcript remains in those roots.
+[Cleanup receipt](private-scratch-cleanup.json) binds an opaque inventory digest.
+Ephemeral native sessions were used; forensic erasure/all-system cache scanning
+is not claimed. Public content-free counters/hashes preserve the completed audit. The owner’s unrelated working-tree changes remain intact.
+
+## Required decision outputs
+
+1–2. Seven unchanged results and current host-specific rates: table above,
+Sonnet2/7 and Astra6/7. Old1/10 is pre-fix; later datasets are separate.
+3–4. Failure taxonomy above; single strong handles covered tasks but is
+insufficient for the demonstrated actual-selection goal, cheap single worse.
+5–9. Architecture/role/hypothesis tables above; A/F fresh6/6 then mini1/2;
+B is component-only; C/D unmeasured; relevance/use accuracy7/7,6/6,2/2.
+10–14. Qualitative returned-context precision/coverage, calls, cache/role tokens,
+task/setup/journey latency and runtime-component footprint above and linked metrics.
+15–16. Raw measured quality ties A/F on paired sets; no multi-Agent E2E winner.
+A wins measured simplicity and matched B resource tradeoff. Mini timing favors F,
+while tokens/calls/complexity favor A; neither clears the selection quality bar.
+17. Identity, bilingual replacement, bounded plans and source/owner-claim separation
+are distillation candidates. No successful runtime D result exists to distill.
+18–20. Retain single strong reference and current explicit-activation production;
+research harness/independent evaluator only. No acceptable near-best general
+production architecture is demonstrated and **b10 must not be released**.
+21–22. No research-phase production change. Runner/mock/guarded seam and local
+records are research-only; config model repair/index rebuild are described above.
+Local commits/reviews listed; no push. Privacy/public/runtime changes would need
+new test-first implementation, accepted contract and independent review.
+23–24. KI-018 selection/coverage/cheap-host quality, KI-024 purge wedge, billing,
+corpus truth and generalization limits remain. External credential rotation/copy
+remediation requires the owner if pursued; it is separately unverified. No new
+owner privacy/permission/product-philosophy decision is needed for the completed
+bounded comparison. Preserve both backups and configuration recovery copy.
+
+**Product answer:** the lightest design supported by these experiments is one
+strong host Agent using autonomous, bounded retrieval inside explicit Full.
+Workers/specialists have shown no advantage worth their runtime footprint. The
+unchanged deterministic catalog does not repair the hard selection workload.
+A near-best architecture that satisfies that workload has **not been established**;
+do not trade the quality requirement for a pleasingly light design or claim
+release readiness from covered-task passes.
+
+The final independent strong manager closes this bounded candidate comparison;
+no new experiment is commissioned. The overall near-best-quality objective is
+partly unmet, openly recorded rather than claimed from a small passing subset.
+Negative promotion and b10-release decisions are resolved. Final advisory overhead:
+34808 input/3092 output,2070 reasoning already included; independent static
+review/advisory/judge calls are research overhead, not runtime Architecture D.

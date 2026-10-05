@@ -1,0 +1,406 @@
+{
+  "aggregate_by_arm": {
+    "A": {
+      "activation_matches": 2,
+      "full_task_passes": 1,
+      "journey_elapsed_s": 188.1143860000302,
+      "retrieval_calls": 3,
+      "setup_input_plus_output_tokens": 134766,
+      "setup_latency_s": 46.813631625962444,
+      "task_input_plus_output_tokens": 170588,
+      "task_latency_s": 135.64372683304828,
+      "task_used_units": 5128,
+      "tasks": 2
+    },
+    "F": {
+      "activation_matches": 2,
+      "full_task_passes": 1,
+      "journey_elapsed_s": 153.5528243749868,
+      "retrieval_calls": 4,
+      "setup_input_plus_output_tokens": 135183,
+      "setup_latency_s": 38.70361095905537,
+      "task_input_plus_output_tokens": 187366,
+      "task_latency_s": 111.14954833203228,
+      "task_used_units": 6214,
+      "tasks": 2
+    }
+  },
+  "attempted": 4,
+  "comparison_receipt_sha256": "889851c00097ba3002930ecb829b6cd6903269722645bd5ce63ae1ae39359e02",
+  "corpus_precision_recall": null,
+  "dataset_sha256": "77edfb82097ec270f3f19ec7e4a5fa93b31d6b913b14be1a86b7c5a0f5fb10f3",
+  "initial_receipt_sha256": "60a7c6e3949e02dd4f0c562ce7e9126bdeda186daadaf4339eaeeecd1e722013",
+  "judge_usage": {
+    "evidence": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 0,
+      "input_tokens": 22006,
+      "output_tokens": 2220,
+      "reasoning_output_tokens": 1034
+    },
+    "initial": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 0,
+      "input_tokens": 17111,
+      "output_tokens": 2584,
+      "reasoning_output_tokens": 1597
+    }
+  },
+  "provider_cost": null,
+  "rows": [
+    {
+      "activation_should_use": true,
+      "actually_used": true,
+      "arm": "A",
+      "call_metadata": [
+        {
+          "concept_count": 2,
+          "concept_language": {
+            "cjk": true,
+            "latin": true
+          },
+          "failed_or_denied": false,
+          "mode": "search",
+          "query_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "requested_max_units": 4000,
+          "requested_modules": [
+            "knowledge",
+            "projects"
+          ],
+          "returned": true,
+          "returned_items": 2,
+          "sequence": 66,
+          "truncated": false,
+          "unit_recomputation_exact": true,
+          "used_units": 483
+        },
+        {
+          "concept_count": 2,
+          "concept_language": {
+            "cjk": true,
+            "latin": true
+          },
+          "failed_or_denied": false,
+          "mode": "search",
+          "query_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "requested_max_units": 4000,
+          "requested_modules": [
+            "knowledge",
+            "projects"
+          ],
+          "returned": true,
+          "returned_items": 10,
+          "sequence": 66,
+          "truncated": true,
+          "unit_recomputation_exact": true,
+          "used_units": 3616
+        }
+      ],
+      "full_task_verdict": "FAIL",
+      "initial_goal_verdict": "FAIL",
+      "journey_elapsed_s": 104.56254854198778,
+      "observed_sequences": [
+        66
+      ],
+      "operational_failure": false,
+      "quality_score": 1,
+      "record_sha256": "dccdd09fa462727a9b1abaab3fdfb6d6996fbc6d1f72f8e0b33687bcb5f6f0ee",
+      "retrieval_calls": 2,
+      "setup_latency_s": 24.098543791973498,
+      "setup_tokens": {
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 49280,
+        "inputTokens": 67203,
+        "outputTokens": 177,
+        "reasoningOutputTokens": 0,
+        "totalTokens": 67380
+      },
+      "support_goal_verdict": "FAIL",
+      "support_verdict": "PASS",
+      "task_id": "s01",
+      "task_input_plus_output_tokens": 96539,
+      "task_latency_s": 76.062405417033,
+      "task_tokens": {
+        "cache_creation": 0,
+        "input_cached": 88832,
+        "input_total": 94682,
+        "output": 1857,
+        "reasoning_output": 1081
+      },
+      "task_used_units": 4099,
+      "retrieval_retries": 0,
+      "planned_stages": 0,
+      "additional_targeted_search_calls": 1,
+      "guidance_compliance_exception": true,
+      "source_claim_failures": 0,
+      "observed_boundary_failures": 0
+    },
+    {
+      "activation_should_use": true,
+      "actually_used": true,
+      "arm": "A",
+      "call_metadata": [
+        {
+          "concept_count": 2,
+          "concept_language": {
+            "cjk": true,
+            "latin": true
+          },
+          "failed_or_denied": false,
+          "mode": "search",
+          "query_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "requested_max_units": 4000,
+          "requested_modules": [
+            "knowledge",
+            "projects"
+          ],
+          "returned": true,
+          "returned_items": 3,
+          "sequence": 66,
+          "truncated": false,
+          "unit_recomputation_exact": true,
+          "used_units": 1029
+        }
+      ],
+      "full_task_verdict": "PASS",
+      "initial_goal_verdict": "PASS",
+      "journey_elapsed_s": 83.55183745804243,
+      "observed_sequences": [
+        66
+      ],
+      "operational_failure": false,
+      "quality_score": 2,
+      "record_sha256": "6164e0fc088d9de0aa138ad97692be93c0abbfe0d6375528f94cdc269639b9dd",
+      "retrieval_calls": 1,
+      "setup_latency_s": 22.715087833988946,
+      "setup_tokens": {
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 49280,
+        "inputTokens": 67208,
+        "outputTokens": 178,
+        "reasoningOutputTokens": 0,
+        "totalTokens": 67386
+      },
+      "support_goal_verdict": "PASS",
+      "support_verdict": "PASS",
+      "task_id": "s02",
+      "task_input_plus_output_tokens": 74049,
+      "task_latency_s": 59.58132141601527,
+      "task_tokens": {
+        "cache_creation": 0,
+        "input_cached": 70144,
+        "input_total": 72641,
+        "output": 1408,
+        "reasoning_output": 949
+      },
+      "task_used_units": 1029,
+      "retrieval_retries": 0,
+      "planned_stages": 0,
+      "additional_targeted_search_calls": 0,
+      "guidance_compliance_exception": false,
+      "source_claim_failures": 0,
+      "observed_boundary_failures": 0
+    },
+    {
+      "activation_should_use": true,
+      "actually_used": true,
+      "arm": "F",
+      "call_metadata": [
+        {
+          "concept_count": 0,
+          "concept_language": {
+            "cjk": false,
+            "latin": false
+          },
+          "failed_or_denied": false,
+          "mode": "anchors",
+          "query_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "requested_max_units": 800,
+          "requested_modules": [
+            "knowledge"
+          ],
+          "returned": true,
+          "returned_items": 1,
+          "sequence": 66,
+          "truncated": true,
+          "unit_recomputation_exact": true,
+          "used_units": 546
+        },
+        {
+          "concept_count": 0,
+          "concept_language": {
+            "cjk": false,
+            "latin": false
+          },
+          "failed_or_denied": false,
+          "mode": "evidence",
+          "query_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "requested_max_units": 3200,
+          "requested_modules": [
+            "knowledge"
+          ],
+          "returned": true,
+          "returned_items": 5,
+          "sequence": 66,
+          "truncated": true,
+          "unit_recomputation_exact": true,
+          "used_units": 2561
+        }
+      ],
+      "full_task_verdict": "FAIL",
+      "initial_goal_verdict": "FAIL",
+      "journey_elapsed_s": 73.80613074998837,
+      "observed_sequences": [
+        66
+      ],
+      "operational_failure": false,
+      "quality_score": 1,
+      "record_sha256": "e05425ae5488fa9db49255f923ef66cb985a6f0719c829d05a43fd0b3279381a",
+      "retrieval_calls": 2,
+      "setup_latency_s": 19.47192320902832,
+      "setup_tokens": {
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 49664,
+        "inputTokens": 67295,
+        "outputTokens": 222,
+        "reasoningOutputTokens": 0,
+        "totalTokens": 67517
+      },
+      "support_goal_verdict": "FAIL",
+      "support_verdict": "PASS",
+      "task_id": "s01",
+      "task_input_plus_output_tokens": 92530,
+      "task_latency_s": 51.838445290981326,
+      "task_tokens": {
+        "cache_creation": 0,
+        "input_cached": 87680,
+        "input_total": 91051,
+        "output": 1479,
+        "reasoning_output": 705
+      },
+      "task_used_units": 3107,
+      "retrieval_retries": 0,
+      "planned_stages": 2,
+      "additional_targeted_search_calls": 0,
+      "guidance_compliance_exception": false,
+      "source_claim_failures": 0,
+      "observed_boundary_failures": 0
+    },
+    {
+      "activation_should_use": true,
+      "actually_used": true,
+      "arm": "F",
+      "call_metadata": [
+        {
+          "concept_count": 0,
+          "concept_language": {
+            "cjk": false,
+            "latin": false
+          },
+          "failed_or_denied": false,
+          "mode": "anchors",
+          "query_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "requested_max_units": 800,
+          "requested_modules": [
+            "knowledge"
+          ],
+          "returned": true,
+          "returned_items": 1,
+          "sequence": 66,
+          "truncated": true,
+          "unit_recomputation_exact": true,
+          "used_units": 546
+        },
+        {
+          "concept_count": 0,
+          "concept_language": {
+            "cjk": false,
+            "latin": false
+          },
+          "failed_or_denied": false,
+          "mode": "evidence",
+          "query_language": {
+            "cjk": false,
+            "latin": true
+          },
+          "requested_max_units": 3200,
+          "requested_modules": [
+            "knowledge"
+          ],
+          "returned": true,
+          "returned_items": 5,
+          "sequence": 66,
+          "truncated": true,
+          "unit_recomputation_exact": true,
+          "used_units": 2561
+        }
+      ],
+      "full_task_verdict": "PASS",
+      "initial_goal_verdict": "PASS",
+      "journey_elapsed_s": 79.74669362499844,
+      "observed_sequences": [
+        66
+      ],
+      "operational_failure": false,
+      "quality_score": 2,
+      "record_sha256": "7cdf548fc6728c323db6e48f5aadc3dc7654fdf66769010562bf95818b04c4af",
+      "retrieval_calls": 2,
+      "setup_latency_s": 19.23168775002705,
+      "setup_tokens": {
+        "cacheWriteInputTokens": 0,
+        "cachedInputTokens": 49664,
+        "inputTokens": 67484,
+        "outputTokens": 182,
+        "reasoningOutputTokens": 0,
+        "totalTokens": 67666
+      },
+      "support_goal_verdict": "PASS",
+      "support_verdict": "PASS",
+      "task_id": "s02",
+      "task_input_plus_output_tokens": 94836,
+      "task_latency_s": 59.311103041050956,
+      "task_tokens": {
+        "cache_creation": 0,
+        "input_cached": 88832,
+        "input_total": 93422,
+        "output": 1414,
+        "reasoning_output": 784
+      },
+      "task_used_units": 3107,
+      "retrieval_retries": 0,
+      "planned_stages": 2,
+      "additional_targeted_search_calls": 0,
+      "guidance_compliance_exception": false,
+      "source_claim_failures": 0,
+      "observed_boundary_failures": 0
+    }
+  ],
+  "rubric_sha256": "15d16cdbafaa30d529bb09590f7e9a0fcab1e6c3590cdd4b8e60c94acc677883",
+  "stop_reason": null,
+  "support_receipt_sha256": "bfd768344ffefc309852a7d986fcde670921df5c302aafa73c272f24041eb176",
+  "unattempted": 0,
+  "native_notifications_corroborated": true,
+  "quality_denominator_per_arm": 2,
+  "paired_regressions": 0,
+  "paired_improvements": 0,
+  "judge_processed_input_plus_output_tokens": 43921,
+  "judge_latency_s": null
+}
