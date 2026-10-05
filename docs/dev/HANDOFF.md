@@ -21,9 +21,13 @@ audit at sequence 66 admitted two realistic selection goals; one role/outcome
 goal is ambiguous and excluded. Review 111 approved the disposable bounded
 retrieval wrapper after two test-first corrections. Exact tasks, acceptable
 pairs, rubric, snapshot, grant, policy and four one-task specs are frozen in
-owner-only `/private/tmp/aptuni-b10-real-selection/`; all four runner `--check`
-calls passed and no model task has run. Run s01 A, s01 B, s02 B, s02 A once,
-without interim grading or changes. Then classify R0–R4 and costs, decide
+owner-only `/private/tmp/aptuni-b10-real-selection/`. The first freeze is
+closed: s01 A completed, while s01 B failed before its task because the
+research policy blocked Full setup; no answer was graded. A test-first
+policy/runner repair and zero-task Full setup preflight passed Review 112.
+The second freeze retains never-run s02 and adds new s03. Run v2 s02 B,
+s02 A, s03 A, s03 B once without interim grading or changes. Then classify
+R0–R4 and costs, decide
 whether a light selection policy has real E2E support, and keep b10 closed
 unless the appropriate release gate passes. No Vault, grant, activation,
 production MCP, credential, backup or VPN change.

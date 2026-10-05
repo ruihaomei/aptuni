@@ -102,6 +102,11 @@ def prepare(spec: dict[str, Any]) -> tuple[list, dict[str, Any]]:
     private_directory(Path(spec["output_dir"]))
     bundle = Path(spec["bundle"])
     policy = Path(spec["policy"]) if spec.get("policy") else None
+    if policy is not None and re.search(
+        r"\b(?:do not (?:alter|change) activation|never (?:enable|activate) (?:aptuni )?full)\b",
+        policy.read_text(), flags=re.IGNORECASE,
+    ):
+        raise ValueError("research policy conflicts with explicit Full setup")
     hashes = {str(path.relative_to(bundle)): digest(path) for path in sorted(bundle.rglob("*"))
               if path.is_file() and path.suffix in {".md", ".json", ".toml"}}
     manifest = {"schema_version": 1, "host": spec["host"], "model": spec["model"],

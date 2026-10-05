@@ -24,7 +24,12 @@ establish the owner's individual contribution. Review 111 approved the
 disposable bounded retrieval wrapper after test-first fixes for truncation
 reporting and task-neutral README-first Evidence ordering. The two-task A/B
 mini-holdout is frozen in private owner-only scratch before any model run;
-four single-task sessions are next, with no interim quality inspection. See
+The first freeze closed after s01 A completed and s01 B failed before its
+task: an unqualified research-policy activation prohibition conflicted with
+explicit Full setup. No answer was graded. A test-first runner/policy repair,
+zero-task successful Full setup preflight, and Review 112 permit a second
+freeze using never-run s02 plus new s03. Four v2 sessions are next, with no
+interim quality inspection. See
 `b10-continuation/real-selection-protocol.md`. Existing grants, production
 code, ADR-0025, and b10 release state are unchanged.
 

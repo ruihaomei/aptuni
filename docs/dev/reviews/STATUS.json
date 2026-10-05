@@ -445,9 +445,11 @@
   },
   "beta-real-selection-research": {
    "kind": "review",
-   "current": "111-b10-real-selection-research-review.md",
+   "current": "112-b10-real-selection-setup-repair-review.md",
    "verdict": "APPROVE",
-   "supersedes": []
+   "supersedes": [
+    "111-b10-real-selection-research-review.md"
+   ]
   }
  }
 }

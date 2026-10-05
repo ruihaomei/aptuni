@@ -134,6 +134,23 @@ class RunBoundaryTests(unittest.TestCase):
             self.assertEqual(manifest["policy_sha256"], hashlib.sha256(policy.read_bytes()).hexdigest())
             self.assertEqual(manifest["task_count"], 1)
 
+    def test_policy_cannot_forbid_explicit_full_setup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dataset = root / "tasks.json"
+            dataset.write_text(json.dumps([["s01", "selection", True, "PRIVATE_TASK"]]))
+            bundle = root / "bundle"
+            bundle.mkdir()
+            policy = root / "policy.txt"
+            policy.write_text("Do not alter activation or grants.")
+            spec = {"host": "codex", "model": "test-model", "dataset": str(dataset),
+                    "dataset_sha256": self.tool.digest(dataset), "bundle": str(bundle),
+                    "policy": str(policy), "output_dir": str(root / "out")}
+            with self.assertRaisesRegex(ValueError, "explicit Full setup"):
+                self.tool.prepare(spec)
+            policy.write_text("After explicit Full setup, keep the active session and do not change grants.")
+            self.assertEqual(self.tool.prepare(spec)[1]["task_count"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()
