@@ -15,7 +15,7 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
-**2026-10-05 current b10 research checkpoint (preceding local commit `d3743a7`).**
+**2026-10-05 current b10 research checkpoint (results checkpoint `4ee10fe`).**
 Explicit activation remains locked. Original frozen seven unchanged, independent
 E2E: Sonnet **2/7**, Astra xhigh **6/7**, inside-Full relevance **7/7 each**.
 The old 1/10 is pre-fix. No b10 release and no production guidance/code change.

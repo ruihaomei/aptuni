@@ -240,7 +240,8 @@ Local checkpoints: `7b7919c` (frozen measurement/harness), `2ed671e` (confined
 bridge/synthetic controls), `64a459c` (bounded worker and compact controls),
 `91bbbdb` (bounded real development task), `483f8d3` (reviewed frozen comparison),
 `8a59778` (fresh-six results), `e18cfe3` (focused-mini freeze), `d3743a7`
-(reviewed two-stage offline grading).
+(reviewed two-stage offline grading), `4ee10fe` (final focused results,
+manager decision and scoped cleanup).
 Reviews98–110 cover the respective research/confined/private-data boundaries;
 none approves production adoption or release. Current developer suite102 passes,
 Ruff/source and research mypy, relay and secret scan pass. Prior production full
@@ -308,3 +309,9 @@ partly unmet, openly recorded rather than claimed from a small passing subset.
 Negative promotion and b10-release decisions are resolved. Final advisory overhead:
 34808 input/3092 output,2070 reasoning already included; independent static
 review/advisory/judge calls are research overhead, not runtime Architecture D.
+
+Final verification after this closeout: all102 developer checks, global Ruff,
+source mypy122 files/research-backend strict mypy, relay, tracked-secret and
+whitespace checks pass. Review110 approves the repaired two-batch grading path;
+Review109's blockers and their regressions remain recorded. All research changes
+are local, with unrelated owner working-tree material preserved; no push/release.

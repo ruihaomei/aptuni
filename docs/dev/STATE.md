@@ -17,7 +17,7 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 ## Current fix — Day 1 dogfooding P1s
 
 **Current b10 research checkpoint (2026-10-05, local/not released; preceding
-checkpoint `d3743a7`).** ADR-0025 explicit OFF/Profile/Memory/Full is locked;
+checkpoint `4ee10fe`).** ADR-0025 explicit OFF/Profile/Memory/Full is locked;
 ordinary prompts retrieve autonomously only inside explicitly enabled Full. Both
 runners and generated skills recovered. Global Codex model line uses the verified
 GPT-6 Astra route, with a private prechange copy. No grant or credential expansion.
