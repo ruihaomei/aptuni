@@ -428,6 +428,12 @@
    "supersedes": [
     "106-b10-fresh-comparison-review.md"
    ]
+  },
+  "beta-selection-mini-e2e": {
+   "kind": "review",
+   "current": "108-b10-selection-mini-scope-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
   }
  }
 }
