@@ -15,7 +15,8 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
-**Selection MVP continuation, 2026-10-05 (frozen checkpoint `8820880`, local).**
+**Selection MVP continuation, 2026-10-05 (frozen checkpoint `8820880`,
+results checkpoint `3112ccb`, local).**
 Read `b10-continuation/selection-mvp-results.md`, protocol and metrics before
 further selection work. The old live failure establishes insufficient task
 support in returned packets, not numerical corpus recall. Six once-only runs
@@ -33,6 +34,9 @@ Evidence audit; if yes, freeze the task/rubric and independently compare the
 single-Agent automatic path. Do not rerun/tune the old failed case or reopen
 generic A/F. Another runtime architecture experiment is unwarranted. b10
 remains closed on reliable supported selection and complete comparison.
+Private phase raw traces were removed after audit (88 files, 2,541,474 bytes);
+the synthetic fixture/rubric/protocol, content-free metrics and cleanup receipt
+remain. The older b10 scratch and both owner backups were untouched.
 
 **2026-10-05 current b10 research checkpoint (results checkpoint `4ee10fe`).**
 Explicit activation remains locked. Original frozen seven unchanged, independent

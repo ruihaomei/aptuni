@@ -17,7 +17,7 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 ## Current fix — Day 1 dogfooding P1s
 
 **Selection mechanism MVP (2026-10-05, local/research-only; frozen checkpoint
-`8820880`).** The retained focused-selection failure is insufficient two-candidate
+`8820880`, results checkpoint `3112ccb`).** The retained focused-selection failure is insufficient two-candidate
 support in returned packets; full-corpus recall and exact old considered/selected
 IDs are unavailable after approved scratch cleanup. A separately frozen,
 invented-record two-task mini tested one strong Agent with ordinary search,
@@ -33,7 +33,9 @@ closed** on reliable supported selection and complete comparison in fresh real
 tasks. Next bounded slice: authorization-preserving real-data coverage audit,
 then independently frozen selection validation only if two supported candidates
 can be established. No production, grant, activation, credential, backup or VPN
-change. Details: `b10-continuation/selection-mvp-results.md` and metrics.
+change. Phase-derived private raw traces were removed after audit; the
+content-free cleanup receipt is retained. Details:
+`b10-continuation/selection-mvp-results.md` and metrics.
 
 **Current b10 research checkpoint (2026-10-05, local/not released; preceding
 checkpoint `4ee10fe`).** ADR-0025 explicit OFF/Profile/Memory/Full is locked;

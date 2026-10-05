@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "phase": "selection-mvp",
+  "removed_private_scratch_root": "/private/tmp/aptuni-selection-mvp-20261005",
+  "removed_files": 88,
+  "removed_bytes": 2541474,
+  "frozen_inputs_in_repository": true,
+  "owner_backups_touched": false,
+  "preexisting_b10_scratch_touched": false
+}

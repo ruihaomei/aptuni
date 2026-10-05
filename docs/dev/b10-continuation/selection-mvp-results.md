@@ -6,6 +6,10 @@ operational stop or interim grading. The source snapshot is an **invented,
 eight-group corpus**, not the owner Vault. [Content-free metrics](selection-mvp-metrics.json)
 bind the six records and measured resources. The previous live selection mini
 and original frozen seven retain their separate denominators.
+After the result audit, 88 phase-derived private files (2,541,474 bytes) were
+removed. The committed fixture, rubric, protocol, metrics and
+[cleanup receipt](selection-mvp-cleanup.json) remain; native raw traces cannot
+be independently regraded from this checkout.
 
 ## 1. Where the existing selection path fails
 
