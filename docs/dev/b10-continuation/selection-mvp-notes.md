@@ -24,3 +24,9 @@
 - A research-only mock keeps explicit Full, knowledge-only grant, exposure filtering, 4000 response units, at most three task calls, and identical fixture across arms. The strong Agent and the original task remain unchanged.
 - Baseline gets ordinary context search. Automatic MVP gets a fixed coverage-then-get policy. Agent-directed gets the same bounded search/coverage/get primitives but controls the plan and query. No production interface is installed.
 - Two invented but realistic selection tasks keep corpus truth measurable. This is mechanism evidence, not live-Vault acceptance or a b10 release test.
+
+## Frozen result and decision
+- Checkpoint `8820880` freezes all fixture, task, rubric, policy and tool inputs. A setup-only canary returned no context; all six native tasks completed once without interim quality inspection or operational failure.
+- Strict E2E baseline0/2, auto1/2, directed1/2. Automatic pair correctness2/2, but one final answer omitted a required comparison. Directed filtered out one gold candidate at the roster stage, then had two refused search calls.
+- Returned Evidence gold recall baseline1/4, auto4/4, directed3/4. All six answers' consequential claims were supported by returned citations.
+- Directed offers no paired E2E gain, uses more calls/tokens/journey time than automatic coverage. Keep explicit path research-only, no b10 release, no new runtime roles.

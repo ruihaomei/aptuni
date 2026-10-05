@@ -15,6 +15,25 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
+**Selection MVP continuation, 2026-10-05 (frozen checkpoint `8820880`, local).**
+Read `b10-continuation/selection-mvp-results.md`, protocol and metrics before
+further selection work. The old live failure establishes insufficient task
+support in returned packets, not numerical corpus recall. Six once-only runs
+on two newly frozen invented selection tasks completed: ordinary search0/2,
+automatic bounded roster1/2, Agent-directed1/2 strict E2E. Automatic coverage
+found both gold source groups on both tasks but omitted one required coursework
+comparison; directed query filtering missed a source group and two calls were
+refused. Same invented corpus, strong host, explicit Full and knowledge-only
+mock boundary; self-grading and synthetic records prevent live release claims.
+No production interface/policy/grant/credential/backup change. Keep one strong
+Agent; directed retrieval is research-only, not a b10 feature. **Exact next
+slice:** under the existing real grant, establish whether two supporting
+candidates exist for a fresh real selection goal using a bounded metadata and
+Evidence audit; if yes, freeze the task/rubric and independently compare the
+single-Agent automatic path. Do not rerun/tune the old failed case or reopen
+generic A/F. Another runtime architecture experiment is unwarranted. b10
+remains closed on reliable supported selection and complete comparison.
+
 **2026-10-05 current b10 research checkpoint (results checkpoint `4ee10fe`).**
 Explicit activation remains locked. Original frozen seven unchanged, independent
 E2E: Sonnet **2/7**, Astra xhigh **6/7**, inside-Full relevance **7/7 each**.

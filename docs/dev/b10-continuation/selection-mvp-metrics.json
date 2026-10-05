@@ -1,0 +1,367 @@
+{
+  "schema_version": 1,
+  "frozen_checkpoint": "8820880",
+  "research_scope": "invented-record mechanism test; not live-Vault acceptance",
+  "dataset_sha256": "ec4d5ac01f9475199a9ba8bc7678dcb8936d887f9441410b0f146c034f26902f",
+  "rubric_sha256": "7d05eca59a6c5db4bc4ff66363ae00ed8b0c5a2ff424dffce409845d9fb15686",
+  "fixture_sha256": "1317daeb646c91f34fda56d55074c4991e71527d103c9913e9f3b58ef9ec45ec",
+  "attempted": 6,
+  "unattempted": 0,
+  "operational_failures": 0,
+  "grader": "post-run lead grading against pre-frozen explicit rubric; not independent or blinded",
+  "rows": [
+    {
+      "case": "s01",
+      "arm": "baseline",
+      "record_sha256": "7fa7d70add42cc492b21350a1016e35a4b52951e8d1eb6ba76e7ab9a11ffb725",
+      "experiment_sha256": "8fc24ce912fdbb581359b732d8925cd88a78d550269e41853f8425f6277ea07f",
+      "operational_failure": false,
+      "full_task_pass": false,
+      "grade_reason": "Only one qualifying precedent selected.",
+      "gold_candidate_count": 2,
+      "roster_gold_count": 0,
+      "evidence_gold_count": 1,
+      "selected_candidate_correct": false,
+      "selected_ids": [
+        "project-b"
+      ],
+      "evidence_support_correct": true,
+      "citation_ids_returned": true,
+      "retrieval_calls": 2,
+      "refused_calls": 0,
+      "retrieval_retries": 1,
+      "used_units": 1257,
+      "task_tokens": 70986,
+      "task_input_total": 69881,
+      "task_output": 1105,
+      "task_latency_s": 56.12837966601364,
+      "setup_latency_s": 22.233624791027978,
+      "journey_latency_s": 78.36200445704162,
+      "calls": [
+        {
+          "mode": "search",
+          "status": "completed",
+          "used_units": 32,
+          "requested_ids": []
+        },
+        {
+          "mode": "search",
+          "status": "completed",
+          "used_units": 1225,
+          "requested_ids": []
+        }
+      ]
+    },
+    {
+      "case": "s01",
+      "arm": "auto",
+      "record_sha256": "5e56eeb5bc6e1a2b79e693ea7964124160e9dd34c9743db7f23a5a20ae352e6a",
+      "experiment_sha256": "f5aefdff144d39951d60286250b2176837e603b6366856d8439f326363a18a7f",
+      "operational_failure": false,
+      "full_task_pass": true,
+      "grade_reason": "Complete supported comparison and two design decisions.",
+      "gold_candidate_count": 2,
+      "roster_gold_count": 2,
+      "evidence_gold_count": 2,
+      "selected_candidate_correct": true,
+      "selected_ids": [
+        "project-a",
+        "project-b"
+      ],
+      "evidence_support_correct": true,
+      "citation_ids_returned": true,
+      "retrieval_calls": 3,
+      "refused_calls": 0,
+      "retrieval_retries": 0,
+      "used_units": 3767,
+      "task_tokens": 89736,
+      "task_input_total": 88432,
+      "task_output": 1304,
+      "task_latency_s": 55.908775124989916,
+      "setup_latency_s": 19.02631616697181,
+      "journey_latency_s": 74.93509129196173,
+      "calls": [
+        {
+          "mode": "coverage",
+          "status": "completed",
+          "used_units": 729,
+          "requested_ids": []
+        },
+        {
+          "mode": "get",
+          "status": "completed",
+          "used_units": 1333,
+          "requested_ids": [
+            "project-a",
+            "project-b",
+            "project-e"
+          ]
+        },
+        {
+          "mode": "get",
+          "status": "completed",
+          "used_units": 1705,
+          "requested_ids": [
+            "project-b",
+            "project-e"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "s01",
+      "arm": "directed",
+      "record_sha256": "f9dae6fcf8741a7872f15ea81d22644dca2ec69abc7fcb62e3227d5b33fc51a9",
+      "experiment_sha256": "96df8888969f69c01d702b91b074741ce7f61519729e265848a108a31402274b",
+      "operational_failure": false,
+      "full_task_pass": true,
+      "grade_reason": "Complete supported comparison and two design decisions.",
+      "gold_candidate_count": 2,
+      "roster_gold_count": 2,
+      "evidence_gold_count": 2,
+      "selected_candidate_correct": true,
+      "selected_ids": [
+        "project-a",
+        "project-b"
+      ],
+      "evidence_support_correct": true,
+      "citation_ids_returned": true,
+      "retrieval_calls": 3,
+      "refused_calls": 0,
+      "retrieval_retries": 0,
+      "used_units": 3702,
+      "task_tokens": 91525,
+      "task_input_total": 90389,
+      "task_output": 1136,
+      "task_latency_s": 69.05893291701796,
+      "setup_latency_s": 27.701945500040893,
+      "journey_latency_s": 96.76087841705885,
+      "calls": [
+        {
+          "mode": "coverage",
+          "status": "completed",
+          "used_units": 665,
+          "requested_ids": []
+        },
+        {
+          "mode": "get",
+          "status": "completed",
+          "used_units": 1333,
+          "requested_ids": [
+            "project-a",
+            "project-b",
+            "project-d"
+          ]
+        },
+        {
+          "mode": "get",
+          "status": "completed",
+          "used_units": 1704,
+          "requested_ids": [
+            "project-b",
+            "project-d",
+            "project-c"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "s02",
+      "arm": "directed",
+      "record_sha256": "b5d94de183c117901d7b8bca3b45326b50faf389c60af8bd67704e2e531388e9",
+      "experiment_sha256": "176b4da6aefafd43513c5959e86f118d3cf55d26362c37247aa45d44bb571a43",
+      "operational_failure": false,
+      "full_task_pass": false,
+      "grade_reason": "Only one completed experience selected; no two-experience pitch.",
+      "gold_candidate_count": 2,
+      "roster_gold_count": 1,
+      "evidence_gold_count": 1,
+      "selected_candidate_correct": false,
+      "selected_ids": [
+        "project-d"
+      ],
+      "evidence_support_correct": true,
+      "citation_ids_returned": true,
+      "retrieval_calls": 4,
+      "refused_calls": 2,
+      "retrieval_retries": 1,
+      "used_units": 1639,
+      "task_tokens": 110430,
+      "task_input_total": 108634,
+      "task_output": 1796,
+      "task_latency_s": 70.50131683296058,
+      "setup_latency_s": 18.124882208008785,
+      "journey_latency_s": 88.62619904096937,
+      "calls": [
+        {
+          "mode": "coverage",
+          "status": "completed",
+          "used_units": 425,
+          "requested_ids": []
+        },
+        {
+          "mode": "get",
+          "status": "completed",
+          "used_units": 1214,
+          "requested_ids": [
+            "project-d",
+            "project-f",
+            "project-h"
+          ]
+        },
+        {
+          "mode": "search",
+          "status": "failed",
+          "used_units": 0,
+          "requested_ids": []
+        },
+        {
+          "mode": "search",
+          "status": "failed",
+          "used_units": 0,
+          "requested_ids": []
+        }
+      ]
+    },
+    {
+      "case": "s02",
+      "arm": "auto",
+      "record_sha256": "819f9b3bf6d4f66e505dce5bea460f4627163596ca626d7162ab02b26924777b",
+      "experiment_sha256": "60c4fefa3afbb47f88cb3ca902fb2d50962e89d1aa07c8b7f3328632dd101165",
+      "operational_failure": false,
+      "full_task_pass": false,
+      "grade_reason": "Correct pair and usable paragraph, but required coursework comparison omitted.",
+      "gold_candidate_count": 2,
+      "roster_gold_count": 2,
+      "evidence_gold_count": 2,
+      "selected_candidate_correct": true,
+      "selected_ids": [
+        "project-d",
+        "project-e"
+      ],
+      "evidence_support_correct": true,
+      "citation_ids_returned": true,
+      "retrieval_calls": 3,
+      "refused_calls": 0,
+      "retrieval_retries": 0,
+      "used_units": 3675,
+      "task_tokens": 93461,
+      "task_input_total": 91948,
+      "task_output": 1513,
+      "task_latency_s": 62.689341208024416,
+      "setup_latency_s": 20.165214666048996,
+      "journey_latency_s": 82.85455587407341,
+      "calls": [
+        {
+          "mode": "coverage",
+          "status": "completed",
+          "used_units": 729,
+          "requested_ids": []
+        },
+        {
+          "mode": "get",
+          "status": "completed",
+          "used_units": 1360,
+          "requested_ids": [
+            "project-d",
+            "project-e",
+            "project-f"
+          ]
+        },
+        {
+          "mode": "search",
+          "status": "completed",
+          "used_units": 1586,
+          "requested_ids": []
+        }
+      ]
+    },
+    {
+      "case": "s02",
+      "arm": "baseline",
+      "record_sha256": "53ea05f0c1cc810d63db7592134f3b5cd11efe83090f8bea1768dd365ae3d50b",
+      "experiment_sha256": "d4528c908670c6f4f556ad4f1fccad8398516246b5ef1ac9c31245fbbaaffaaf",
+      "operational_failure": false,
+      "full_task_pass": false,
+      "grade_reason": "No two experiences or application paragraph.",
+      "gold_candidate_count": 2,
+      "roster_gold_count": 0,
+      "evidence_gold_count": 0,
+      "selected_candidate_correct": false,
+      "selected_ids": [],
+      "evidence_support_correct": true,
+      "citation_ids_returned": true,
+      "retrieval_calls": 2,
+      "refused_calls": 0,
+      "retrieval_retries": 1,
+      "used_units": 64,
+      "task_tokens": 68499,
+      "task_input_total": 67524,
+      "task_output": 975,
+      "task_latency_s": 51.817308333993424,
+      "setup_latency_s": 23.920315916999243,
+      "journey_latency_s": 75.73762425099267,
+      "calls": [
+        {
+          "mode": "search",
+          "status": "completed",
+          "used_units": 32,
+          "requested_ids": []
+        },
+        {
+          "mode": "search",
+          "status": "completed",
+          "used_units": 32,
+          "requested_ids": []
+        }
+      ]
+    }
+  ],
+  "aggregate_by_arm": {
+    "baseline": {
+      "tasks": 2,
+      "e2e_passes": 0,
+      "candidate_recall_numerator": 1,
+      "candidate_recall_denominator": 4,
+      "selected_candidate_correct": 0,
+      "evidence_support_correct": 2,
+      "retrieval_calls": 4,
+      "refused_calls": 0,
+      "retrieval_retries": 2,
+      "task_tokens": 139485,
+      "used_units": 1321,
+      "task_latency_s": 107.94568800000707,
+      "journey_latency_s": 154.0996287080343
+    },
+    "auto": {
+      "tasks": 2,
+      "e2e_passes": 1,
+      "candidate_recall_numerator": 4,
+      "candidate_recall_denominator": 4,
+      "selected_candidate_correct": 2,
+      "evidence_support_correct": 2,
+      "retrieval_calls": 6,
+      "refused_calls": 0,
+      "retrieval_retries": 0,
+      "task_tokens": 183197,
+      "used_units": 7442,
+      "task_latency_s": 118.59811633301433,
+      "journey_latency_s": 157.78964716603514
+    },
+    "directed": {
+      "tasks": 2,
+      "e2e_passes": 1,
+      "candidate_recall_numerator": 3,
+      "candidate_recall_denominator": 4,
+      "selected_candidate_correct": 1,
+      "evidence_support_correct": 2,
+      "retrieval_calls": 7,
+      "refused_calls": 2,
+      "retrieval_retries": 1,
+      "task_tokens": 201955,
+      "used_units": 5341,
+      "task_latency_s": 139.56024974997854,
+      "journey_latency_s": 185.38707745802822
+    }
+  }
+}

@@ -60,6 +60,17 @@ retune or b10 release. Actual catalog/Evidence coverage is partial; whether the
 required source material exists elsewhere is not established by returned packets.
 See `b10-continuation/selection-mini-results.md`.
 
+**KI-018 selection mechanism update (2026-10-05):** a two-task, frozen
+invented-record mechanism mini measured ordinary search0/2, automatic bounded
+source-group coverage1/2 and Agent-directed planning1/2 strict E2E. Automatic
+coverage raised candidate Evidence recall1/4→4/4 but still missed one required
+comparison. Agent-directed query filtering omitted a gold group and had two
+refused calls; no paired E2E gain. The fixture and lead grading do not prove
+real-Vault quality or production privacy. Keep the single strong Agent as the
+measured production candidate and the explicit interface research-only. The
+release blocker remains supported multi-candidate selection with a complete
+answer on fresh real tasks. See `b10-continuation/selection-mvp-results.md`.
+
 ## Resolved history
 
 - **KI-008 (2026-09-22):** S10 isolated Mem0 2.0.20 and conditionally admitted only a disposable

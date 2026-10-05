@@ -7,8 +7,8 @@ Locate the selection failure, test one small automatic intervention on a locked 
 - [x] Recover repository handoff, contracts, artifacts, and baseline checks.
 - [x] Diagnose the retained failed selection case and limits of its evidence.
 - [x] Fix a single generalizable hypothesis and disposable research treatment.
-- [ ] Freeze two or three fresh tasks, rubrics, snapshot, and procedure before runs.
-- [ ] Run and grade automatic and Agent-directed paths once.
+- [x] Freeze two or three fresh tasks, rubrics, snapshot, and procedure before runs.
+- [x] Run and grade automatic and Agent-directed paths once.
 - [ ] Record decision, limitations, research memory, state, and handoff; verify and commit local checkpoint.
 
 ## Guardrails
@@ -18,4 +18,4 @@ Locate the selection failure, test one small automatic intervention on a locked 
 - Preserve unrelated work, frozen inputs, and both owner backups.
 
 ## Status
-The bounded candidate-set hypothesis is fixed; freezing tasks, rubric, fixture and arm policies. Baseline dev E2E tests pass (39 tests); new privacy/contract tests pass (3 tests).
+Frozen at checkpoint `8820880`; a setup-only canary activated Full with no returned context. Six fixed sessions completed without operational failure or interim quality inspection. Strict E2E baseline0/2, auto1/2, directed1/2; report and content-free metrics recorded. Final verification and checkpoint remain.

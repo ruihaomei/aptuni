@@ -51,6 +51,17 @@ The bounded single-Agent discovery comparison is now complete without a promotio
 result. Runtime role proliferation remains unjustified. No near-best production
 architecture has been proven.
 
+- A later, separately frozen two-task invented-record selection mechanism test
+  found strict E2E ordinary search0/2, bounded automatic source-group coverage1/2,
+  explicit Agent-directed planning1/2. Coverage raised known-corpus Evidence
+  recall1/4→4/4 and correct-pair selection0/2→2/2, but one automatic final
+  answer omitted a required comparison. Directed query filtering omitted a
+  relevant group and added refused calls; it provided no E2E advantage and
+  higher task tokens/journey time. A shallow logical group→Evidence topology
+  sufficed for the successful synthetic case; no storage migration was used.
+  Synthetic data, descriptive labels and lead grading preclude live-Vault or
+  release claims. [Mechanism report](../../dev/b10-continuation/selection-mvp-results.md).
+
 - Fresh focused selection mini under unchanged policies: A1/2,F1/2, same two-
   reference completeness failure; every source-support judgment passes. Honest
   insufficiency is safe but does not complete a required actual-selection task.
