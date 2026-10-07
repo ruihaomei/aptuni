@@ -15,7 +15,7 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
-**2026-10-07 real selection decision:** two authorized real-context tasks had
+**2026-10-07 real selection decision (checkpoint `de55dec`):** two authorized real-context tasks had
 adequate multi-candidate support; one proposed personal role/outcome task was
 ambiguous and excluded. The first freeze is closed after a B pre-task Full
 setup policy conflict (Review 112, test-first repair); its completed s01 A
@@ -30,8 +30,11 @@ resource unmasking; no independent second grader. Keep production strong
 single, roster wrapper research-only, `/aptuni retrieve` frozen, b10
 unreleased. The single blocker is reliable evidence-attached selection of
 two supported real candidates. See `b10-continuation/real-selection-results.md`
-and metrics. Next work requires a new narrow hypothesis and fresh validation;
-do not retune on these tasks. Preserve existing grant, backups and unrelated
+and metrics. **Exact next slice:** formulate a task-neutral project-identity
+and Evidence-attachment rule for the existing strong Agent, pre-audit a fresh
+real candidate pool, and compare the smallest research-only intervention on
+new tasks. Do not retune on these tasks or add a runtime role. Preserve the
+existing grant, backups and unrelated
 workspace edits.
 
 **Selection MVP continuation, 2026-10-05 (frozen checkpoint `8820880`,

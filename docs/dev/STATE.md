@@ -17,7 +17,7 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 ## Current fix — Day 1 dogfooding P1s
 
 **Real authorized selection decision (2026-10-07, local/research-only; results
-checkpoint pending).** Two of three proposed real-context goals had adequate
+checkpoint `de55dec`).** Two of three proposed real-context goals had adequate
 multi-candidate support; one role/outcome goal was ambiguous and excluded.
 The original first freeze closed on a pre-task B Full-setup policy conflict,
 repaired test-first and approved in Review 112; its s01 A answer is diagnostic,
