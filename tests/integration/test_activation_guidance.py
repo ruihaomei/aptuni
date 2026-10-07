@@ -135,6 +135,20 @@ def test_skills_ask_for_a_few_specific_concepts_not_a_full_budget(claude: bool) 
         assert "1-8 short terms" not in text
 
 
+@pytest.mark.parametrize("claude", [True, False])
+def test_skills_let_unnamed_candidate_selection_use_concrete_artifact_concepts(claude: bool) -> None:
+    """R1 trace (2026-10-08): choosing among unnamed own items with quality words matched no candidate."""
+    for intent in ("aptuni.profile", "aptuni.memory", "aptuni.full"):
+        text = AdapterManager._skill("aptuni-x", intent, claude=claude)
+        exception = next(line for line in text.splitlines() if line.startswith("- Exception"))
+        assert "without naming them" in exception and "cannot name the candidates yet" in exception
+        assert "concrete artifacts, methods or tools" in exception
+        assert "only from the returned Evidence" in exception
+        assert "one retry" in exception and "8" not in exception
+        # The ordinary no-syllabus rule stays in force for every other task.
+        assert "not writing a syllabus" in text
+
+
 def test_activation_tool_description_matches_the_concept_guidance(tmp_path) -> None:
     server = create_server(_service(tmp_path), _access(), activation_required=True)
 
