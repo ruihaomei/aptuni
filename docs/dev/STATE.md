@@ -1,6 +1,6 @@
 # Project State
 
-**Updated:** 2026-10-06
+**Updated:** 2026-10-07
 **Current gate:** Beta productization — canonical activation, plugin-declared context and the
 Top-Down Learning flagship are independently approved and the machine-readable Stable readiness
 gate is runnable (Review 73), and Top-Down Learning is Flagship Plugin #1 with a portable verified
@@ -16,22 +16,24 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
-**Real selection freeze (2026-10-06, local/research-only).** An explicit-Full, current-grant
-audit at canonical sequence 66 identified two realistic tasks with adequate
-multi-candidate project evidence. A third proposed role/outcome application
-task is ambiguous and excluded from strict scoring. Source artifacts do not
-establish the owner's individual contribution. Review 111 approved the
-disposable bounded retrieval wrapper after test-first fixes for truncation
-reporting and task-neutral README-first Evidence ordering. The two-task A/B
-mini-holdout is frozen in private owner-only scratch before any model run;
-The first freeze closed after s01 A completed and s01 B failed before its
-task: an unqualified research-policy activation prohibition conflicted with
-explicit Full setup. No answer was graded. A test-first runner/policy repair,
-zero-task successful Full setup preflight, and Review 112 permit a second
-freeze using never-run s02 plus new s03. Four v2 sessions are next, with no
-interim quality inspection. See
-`b10-continuation/real-selection-protocol.md`. Existing grants, production
-code, ADR-0025, and b10 release state are unchanged.
+**Real authorized selection decision (2026-10-07, local/research-only; results
+checkpoint pending).** Two of three proposed real-context goals had adequate
+multi-candidate support; one role/outcome goal was ambiguous and excluded.
+The original first freeze closed on a pre-task B Full-setup policy conflict,
+repaired test-first and approved in Review 112; its s01 A answer is diagnostic,
+not paired or graded. A second, fresh two-task freeze completed four sessions
+once at current grant/sequence 66. Strong single A versus strong single plus
+bounded roster B: strict E2E **0/2 versus 1/2**, accepted pairs **1/2 each**,
+audited minimum candidate Evidence recall **1/6 versus 2/6**. All four
+comparisons were complete; B's remaining failure selected a single artifact
+as a project, while A omitted canonical Evidence IDs. B added 20,123 task
+tokens and 117.485 s journey time with the same four retrieval calls.
+Minimum-pool recall is not exhaustive corpus recall; the lead grading is not
+independently replicated. No R4 pattern warrants a completion checker. Keep
+one strong Agent, do not promote the roster policy, do not productize
+`/aptuni retrieve`, and keep b10 closed on reliable evidence-attached
+two-candidate selection. No production/grant/storage/index/activation change.
+See `b10-continuation/real-selection-results.md` and metrics.
 
 **Selection mechanism MVP (2026-10-05, local/research-only; frozen checkpoint
 `8820880`, results checkpoint `3112ccb`).** The retained focused-selection failure is insufficient two-candidate
@@ -47,9 +49,8 @@ Synthetic data and lead grading limit transfer. The logical group roster
 needs no physical Vault migration for the tested source type. Keep strong
 single-Agent production candidate and explicit path research-only. **b10 remains
 closed** on reliable supported selection and complete comparison in fresh real
-tasks. Next bounded slice: authorization-preserving real-data coverage audit,
-then independently frozen selection validation only if two supported candidates
-can be established. No production, grant, activation, credential, backup or VPN
+tasks. The then-next real-data coverage audit and frozen validation are now
+reported above. No production, grant, activation, credential, backup or VPN
 change. Phase-derived private raw traces were removed after audit; the
 content-free cleanup receipt is retained. Details:
 `b10-continuation/selection-mvp-results.md` and metrics.

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-07",
+  "operation": "phase-derived private raw scratch cleanup only",
+  "removed_raw_files": 163,
+  "removed_raw_bytes": 3735844,
+  "aborted_first_freeze": "one A diagnostic completion plus one B pre-task Full-setup abort; neither scored in v2",
+  "fresh_v2_sessions": 4,
+  "frozen_input_sha256": {
+    "audit_v2": "f8a9d5e15436dfb67d17e83ab1a79736988faaff0ce6a09a98399ce27a0f2792",
+    "rubric_v2": "16cf43a1fe3b096797964620a187420bfa5b12707aca4d2804628f194619d7a5",
+    "policy_v2": "029df9715b4594bb59cb3abf9f4ee40fadc42aa94934734cf2d32cb7faae5c7e",
+    "runner_v2": "3f27119ee4c51594e4090c20b7accbdb1ee833fd92199aa8c01c08022bea9339"
+  },
+  "locked_grade_sha256": {
+    "answer_only": "09bc8a7ad627ccd8148129bb42cd309e0329b7e5c587dd2140410671878ee629",
+    "returned_support": "12d8f7d47ea1d31a82c56a5c50f4608a18a7f24b22f8edec2553ff5474da361e"
+  },
+  "record_sha256": {
+    "v2-s02-a": "7b7604657750d8a0a4f4c4ac129fe17758e576fe96d943c15f8966fd0f638abc",
+    "v2-s02-b": "bbf0d78aedc11c94c99e075df0e9c1586c40c99d204577501330d7f47418a307",
+    "v2-s03-a": "37067581ed967d0638b3ceb4c1c57dcbd5e778eb0c83fbcc9147e2658c51d7e4",
+    "v2-s03-b": "19a755f3995aa2d570ed04e70a6728e83e0f01d1a8a4246c4fdd945e6cf6dfbc"
+  },
+  "preserved": "owner-only frozen audit/rubric/datasets/specs, bundle, freeze receipts; existing adapter grants and backups untouched"
+}

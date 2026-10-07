@@ -15,25 +15,28 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
-**2026-10-06 real selection continuation:** explicit session Full is active in
-the calling Aptuni connection. A private, current-grant candidate-support
-audit at sequence 66 admitted two realistic selection goals; one role/outcome
-goal is ambiguous and excluded. Review 111 approved the disposable bounded
-retrieval wrapper after two test-first corrections. Exact tasks, acceptable
-pairs, rubric, snapshot, grant, policy and four one-task specs are frozen in
-owner-only `/private/tmp/aptuni-b10-real-selection/`. The first freeze is
-closed: s01 A completed, while s01 B failed before its task because the
-research policy blocked Full setup; no answer was graded. A test-first
-policy/runner repair and zero-task Full setup preflight passed Review 112.
-The second freeze retains never-run s02 and adds new s03. Run v2 s02 B,
-s02 A, s03 A, s03 B once without interim grading or changes. Then classify
-R0–R4 and costs, decide
-whether a light selection policy has real E2E support, and keep b10 closed
-unless the appropriate release gate passes. No Vault, grant, activation,
-production MCP, credential, backup or VPN change.
+**2026-10-07 real selection decision:** two authorized real-context tasks had
+adequate multi-candidate support; one proposed personal role/outcome task was
+ambiguous and excluded. The first freeze is closed after a B pre-task Full
+setup policy conflict (Review 112, test-first repair); its completed s01 A
+is diagnostic only. The fresh v2 s02/s03 A/B comparison finished four
+unchanged sessions at current grant/sequence 66. Strict E2E A0/2, B1/2;
+accepted pairs1/2 each; audited minimum candidate Evidence recall A1/6,
+B2/6. Every comparison was complete. A omitted canonical Evidence IDs and
+B once chose a runner artifact instead of a distinct supported project.
+B cost 20,123 more task tokens and 117.485 s more journey time with equal
+retrieval calls. The lead locked answer-only and support grades before
+resource unmasking; no independent second grader. Keep production strong
+single, roster wrapper research-only, `/aptuni retrieve` frozen, b10
+unreleased. The single blocker is reliable evidence-attached selection of
+two supported real candidates. See `b10-continuation/real-selection-results.md`
+and metrics. Next work requires a new narrow hypothesis and fresh validation;
+do not retune on these tasks. Preserve existing grant, backups and unrelated
+workspace edits.
 
 **Selection MVP continuation, 2026-10-05 (frozen checkpoint `8820880`,
 results checkpoint `3112ccb`, local).**
+Historical handoff; superseded by the 2026-10-07 real selection decision above.
 Read `b10-continuation/selection-mvp-results.md`, protocol and metrics before
 further selection work. The old live failure establishes insufficient task
 support in returned packets, not numerical corpus recall. Six once-only runs

@@ -71,6 +71,20 @@ measured production candidate and the explicit interface research-only. The
 release blocker remains supported multi-candidate selection with a complete
 answer on fresh real tasks. See `b10-continuation/selection-mvp-results.md`.
 
+**KI-018 real selection update (2026-10-07):** explicit-Full, current-grant
+audit found two candidate-adequate real tasks and excluded one ambiguous
+role/outcome task. The first freeze stopped before B's task after a research
+policy contradicted Full setup; s01 A is diagnostic only. Review 112 approved
+the test-first repair, and four fresh v2 sessions completed once at sequence
+66. A strict E2E0/2, bounded B1/2; accepted pairs1/2 each; audited minimum
+Evidence recall1/6 and2/6. All comparisons complete, so no R4 completion
+intervention is justified. B still selected an artifact as a project on one
+task and used more tokens/latency. A omitted Evidence IDs. Candidate precision
+and corpus-wide recall cannot be inferred from the non-exhaustive audit.
+Keep strong single, B research-only, and b10 closed on reliable,
+evidence-attached multi-candidate selection. See
+`b10-continuation/real-selection-results.md`.
+
 ## Resolved history
 
 - **KI-008 (2026-09-22):** S10 isolated Mem0 2.0.20 and conditionally admitted only a disposable

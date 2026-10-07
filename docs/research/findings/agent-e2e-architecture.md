@@ -1,6 +1,6 @@
 # Agent E2E findings — b10 research
 
-Updated 2026-10-05. Local development research; no new production policy.
+Updated 2026-10-07. Local development research; no new production policy.
 
 - Current post-fix frozen acceptance is host/model-specific: Sonnet 4.6 **2/7**,
   Codex Astra xhigh **6/7**. Inside-Full relevance is 7/7 each. Old 1/10 is pre-fix.
@@ -88,3 +88,18 @@ architecture has been proven.
   source packets, answers and private grading transcripts, retaining frozen tasks/
   rubrics, original inputs and model-config recovery. Public content-free hashes/
   metrics preserve the audit; both owner backups stay untouched.
+
+- A separate real authorized candidate-support audit found two adequate
+  multi-candidate goals and excluded a role/outcome goal lacking owner-specific
+  proof. The first frozen run stopped on a B setup-policy contradiction before
+  its task; a test-first repair and setup-only preflight preceded a new freeze.
+  Fresh two-task A/B strict E2E was0/2 versus1/2, accepted pairs1/2 each,
+  audited minimum Evidence recall1/6 versus2/6. The roster listed all11
+  eligible GitHub source groups, but choosing three anchors still missed
+  audited candidates and once promoted a script to project status. All four
+  requested comparisons were complete; no R4 policy is warranted. B spent
+  more task tokens and latency despite fewer returned context units. The
+  non-exhaustive audit and lead grading limit quality claims. Do not promote
+  this policy, add a runtime role or migrate storage. The remaining product
+  blocker is evidence-attached selection of two real projects.
+  [Real results](../../dev/b10-continuation/real-selection-results.md).

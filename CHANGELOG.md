@@ -23,6 +23,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Real authorized selection research audited candidate support before a fresh
+  two-task strong-single comparison. The disposable bounded roster improved
+  strict success from 0/2 to 1/2 but did not improve accepted-pair selection,
+  and used more model tokens and time. It remains research-only; b10 is
+  unreleased. No production retrieval, grant, activation or storage change.
+
 - Locked paired architecture research is complete: strong single A and bounded
   discovery F each pass6/6 ordinary tasks, then1/2 fresh selection tasks. F shows
   no paired quality gain; the research phase closes with b10 unreleased. Independent
