@@ -15,6 +15,27 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
+**2026-10-07 grounded selection continuation (this checkpoint):** canonical
+Vault/index sequence66, existing Codex grant and explicit Full boundary were
+unchanged. Prior real and synthetic selection results were recovered. H1/H2
+one-mechanism development replays each improved their targeted observed
+behavior, then a separately frozen three-task real-context A/C comparison
+completed six sessions once with no operational stops. Strict E2E A0/3,
+minimal-policy C1/3; eligible pairs A2/3, C1/3; audited-minimum Evidence
+recall0/9 each. Primary failures R1=3, R2=0, R3=2, R4=0; one pass.
+All six observed explicit Full, sequence66/epoch1, current grant and bounded
+context. The prompt-only policy carried IDs when C selected a supported pair,
+but did not make two-candidate retrieval reliable; do not promote it.
+**Exact next slice:** isolate why ordinary bounded searches on eligible
+selection goals fail to surface a second project group, using new development
+cases and one mechanism at a time. Do not retune or revalidate on these
+three tasks, broaden grants, or adopt the bounded roster or `/aptuni retrieve`.
+b10 stays unreleased. See `b10-continuation/grounded-selection-results.md`,
+metrics, cleanup receipt and the private frozen audit. Phase-derived raw traces
+were removed after audit; owner backups and earlier scratch were untouched.
+The checkpoint hash is the local commit
+that records these docs; unrelated workspace edits remain untouched.
+
 **2026-10-07 real selection decision (checkpoint `de55dec`):** two authorized real-context tasks had
 adequate multi-candidate support; one proposed personal role/outcome task was
 ambiguous and excluded. The first freeze is closed after a B pre-task Full

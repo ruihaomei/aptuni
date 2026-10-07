@@ -103,3 +103,16 @@ architecture has been proven.
   this policy, add a runtime role or migrate storage. The remaining product
   blocker is evidence-attached selection of two real projects.
   [Real results](../../dev/b10-continuation/real-selection-results.md).
+
+- A follow-on diagnosis found canonical locator path/repository metadata
+  already present, while ordinary host Context drops that locator and the
+  bounded roster returns only repository anchors plus file-level Evidence.
+  A generic entity-eligibility instruction avoided the previous artifact
+  mistake once in a development replay; a separate support-ledger instruction
+  retained returned canonical IDs once. A new three-task real holdout on the
+  ordinary strong path found strict0/3 versus1/3 for the combined policy,
+  with eligible pairs2/3 versus1/3 and audited-minimum candidate Evidence
+  recall0/9 each. C's single pass attached returned IDs; three of six primary
+  failures were R1 coverage. This is too weak for production and does not
+  justify migration, a roster, extra Agent role, or explicit retrieve surface.
+  [Grounded selection result](../../dev/b10-continuation/grounded-selection-results.md).

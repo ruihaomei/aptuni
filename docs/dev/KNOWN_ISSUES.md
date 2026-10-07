@@ -85,6 +85,18 @@ Keep strong single, B research-only, and b10 closed on reliable,
 evidence-attached multi-candidate selection. See
 `b10-continuation/real-selection-results.md`.
 
+**KI-018 grounded selection continuation (2026-10-07):** a prompt-only
+candidate eligibility/Evidence ledger on the same strong single-Agent path
+strictly passed1/3 fresh real tasks versus ordinary0/3. Eligible pairs fell
+from2/3 to1/3; audited-minimum Evidence recall was0/9 in both arms, while
+supported alternatives outside that minimum did appear. Three primary R1
+failures show the immediate coverage issue; ordinary had two R3 omissions,
+and neither arm had an R2 or independent R4 pattern. The single C pass carried
+actual returned IDs. The tiny lead-graded set does not prove a reliable fix.
+No product policy or privacy boundary changed; b10 remains closed on reliable
+evidence-attached two-candidate selection. See
+`b10-continuation/grounded-selection-results.md`.
+
 ## Resolved history
 
 - **KI-008 (2026-09-22):** S10 isolated Mem0 2.0.20 and conditionally admitted only a disposable

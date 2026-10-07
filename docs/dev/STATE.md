@@ -16,6 +16,23 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
+**Grounded selection continuation (2026-10-07, local/research-only).** Separate
+development replays showed a general candidate-eligibility instruction can
+avoid the prior runner-as-project error and a compact candidate/Evidence ledger
+can carry returned IDs into an answer. A new frozen three-task real-context
+comparison of ordinary A against both small instructions on the same strong
+single-Agent path gave strict E2E **0/3 versus 1/3**; eligible pairs **2/3
+versus 1/3**; audited-minimum candidate Evidence recall **0/9 in both**.
+Primary failures across six answers: R1=3, R2=0, R3=2, R4=0, one pass.
+The intervention used the same five retrieval calls, 27,593 fewer observed
+task tokens and 12.559 fewer journey seconds, but the small set does not prove
+cost savings or reliability. Corpus support was audited before execution;
+actual returned alternatives show the minimum pool was not exhaustive. No
+production/grant/activation/storage/schema/index change. Keep b10 frozen on
+reliable evidence-attached two-candidate selection; the immediate fresh
+bottleneck is R1 coverage at bounded cost. See
+`b10-continuation/grounded-selection-results.md` and metrics.
+
 **Real authorized selection decision (2026-10-07, local/research-only; results
 checkpoint `de55dec`).** Two of three proposed real-context goals had adequate
 multi-candidate support; one role/outcome goal was ambiguous and excluded.

@@ -77,6 +77,7 @@ preserved: `docs/dev/releases/0.2.0b1.md` is never rewritten, and fixes ship in 
 
 ## Observations inbox (any session; triaged by the next development session)
 
+- 2026-10-07 · Codex · multi-candidate selection · P1 proposed · A bounded personalized selection task still returned too little eligible project context for a complete grounded answer · interrupted? no
 - 2026-10-05 · Codex · candidate navigation · P2 proposed · An explicit retrieval plan narrowed a bounded candidate list and missed a supported option in a research fixture · interrupted? no
 - 2026-10-03 · Claude/Codex · Full-session task quality · P1 proposed · Relevance decisions work, but evidence grounding and discovery can still miss the user goal · interrupted? no
 

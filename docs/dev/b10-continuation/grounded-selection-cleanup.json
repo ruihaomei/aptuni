@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-07",
+  "scope": "phase-derived private dev and fresh host traces, copied bundles, masked answer text and mapping only",
+  "files_removed": 191,
+  "bytes_removed": 4423942,
+  "aggregate_sha256": "26f80f400245339d20f6a08d44f4f522da51eac2a2a6d465f7f891180f0554ba",
+  "preserved": "private frozen audit/tasks/rubric/policies/specs and content-free grades/metrics; previous scratch, owner backups, current Vault and grants untouched"
+}
