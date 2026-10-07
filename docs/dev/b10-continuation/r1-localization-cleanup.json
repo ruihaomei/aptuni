@@ -1,0 +1,9 @@
+{
+ "schema_version": 1,
+ "date": "2026-10-08",
+ "scope": "phase-derived private dev/fresh/regression host traces, final answers, grading packets, arm map, private bundle copies and corpus inventory views",
+ "files_removed": 323,
+ "bytes_removed": 10654936,
+ "aggregate_sha256": "0f49e64c3d32cfbaef17ecbed83f02f69ad5f1fbdee94cd4ab36833188c48463",
+ "preserved": "owner-only frozen tasks, rubric, support audit, independent adequacy audit, freeze manifest and retry addendum, locked grades, content-free resource rows and research scripts; earlier scratch roots, owner backups, current Vault, index, grants and installed bundles untouched"
+}

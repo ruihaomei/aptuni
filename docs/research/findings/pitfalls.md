@@ -51,3 +51,20 @@
 - Only ~14% of User #1's 26,415 blanket-`studied` cards were isolated one-line cards; most cards in a
   real study library do organise, collect or annotate. Expect reclassification to narrow, not gut,
   a Profile.
+
+## Unnamed-candidate selection on lexical concept retrieval (b10 R1 trace, 2026-10-08)
+
+- Infer the failing stage from replayed tool calls, never from the final answer. Recording the
+  real `concepts`/`limit`/`max_units` and replaying them offline through the product projection,
+  concept, diversify and pack code reproduced the returned sets exactly and localized the loss
+  in minutes at zero model cost.
+- "Choose two of my X that show Y" has no nameable concept. Quality words (Y) rarely occur in the
+  records; artifact words match broadly and lose candidates to the Agent's small `limit`. Either
+  way roughly a quarter to a third of eligible entities reach the packet. Guidance can move the
+  loss between R1b (no match) and R1c (cutoff) but not remove it.
+- A development fix found on the very cases a lead has inspected can over-fit one corpus
+  region (here software repositories). Freeze fresh tasks across unlike shapes (study subjects,
+  extracurriculars, cross-category) before believing it.
+- Codex accounts can return `usageLimitExceeded` mid-batch; it arrives during the setup turn with
+  zero model output. Predeclare a retry-once rule for zero-model upstream refusals and run
+  concurrent arms so a quota cut does not hit one arm only.

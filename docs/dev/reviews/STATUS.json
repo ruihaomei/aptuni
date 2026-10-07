@@ -450,6 +450,12 @@
    "supersedes": [
     "111-b10-real-selection-research-review.md"
    ]
+  },
+  "beta-selection-concept-exception": {
+   "kind": "review",
+   "current": "113-b10-selection-concept-exception-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
   }
  }
 }

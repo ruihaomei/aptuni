@@ -5,6 +5,7 @@ Pick an item up when its owning slice starts; do not open a review round for the
 
 | Item | Source | Owning slice |
 |---|---|---|
+| If a selection concept rule is ever revisited: phrase eligibility as "returned context" (Memory/Profile modes have no Evidence), state that an artifact proves existence not quality, update the `aptuni_activate_context` description and amend ADR-0030 in the same change; use `next(..., None)` with a message in the guidance test | Review 113 N1–N5 (bullet reverted) | b10 candidate-discovery slice |
 | Out-of-band-edit path: quarantine and diff a hash mismatch instead of a read refusal | S01 F2; ADR-0013 item 5 | M1 Vault hardening |
 | Segment compaction (chain-preserving rewrite) | S01 F1 | M1 Vault hardening |
 | ADR-0001 untested items: same-valid-time conflict, out-of-order observation, export/import round-trip | Review 15 F4 | M1 ingestion + export slices |

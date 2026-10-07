@@ -23,6 +23,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Selection retrieval research localized the missing second candidate to the
+  Agent's concept choice (R1b) and a rank cutoff (R1c), not to indexing or
+  packaging. A one-line concept exception fixed the development cases. On a
+  fresh, independently graded six-task real set it was no better (strict 1/6
+  each) and was reverted. b10 remains unreleased; no production change remains.
+
 - Real authorized selection research audited candidate support before a fresh
   two-task strong-single comparison. The disposable bounded roster improved
   strict success from 0/2 to 1/2 but did not improve accepted-pair selection,

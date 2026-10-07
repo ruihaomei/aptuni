@@ -97,6 +97,20 @@ No product policy or privacy boundary changed; b10 remains closed on reliable
 evidence-attached two-candidate selection. See
 `b10-continuation/grounded-selection-results.md`.
 
+**KI-018 R1 localization (2026-10-08):** offline replay of recorded production
+calls localized the missing second candidate to concept coverage (R1b, 4/5
+calls matched no candidate) plus one rank/limit cutoff (R1c). Candidates were
+exposable, indexed and packaged intact when matched. A one-bullet concept
+exception fixed the development cases. On a fresh, independently audited,
+independently and blindly graded six-task real set it did not generalize:
+strict 1/6 versus ordinary 1/6, candidate entity recall 5/21 versus 7/21, and
+nine R1 primary failures across both arms. It moved R1b to R1c and was reverted.
+Offline widening (round-robin, deep over-fetch, doubled budget) reaches only
+17/42. No unsupported personal claim or boundary failure. Unnamed-candidate
+discovery is not solvable by guidance or cutoff tuning in the current design;
+next steps are owner-level (candidate-discovery surface or semantic recall).
+See `b10-continuation/r1-localization-results.md`.
+
 ## Resolved history
 
 - **KI-008 (2026-09-22):** S10 isolated Mem0 2.0.20 and conditionally admitted only a disposable

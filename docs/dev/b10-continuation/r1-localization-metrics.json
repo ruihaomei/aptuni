@@ -1,0 +1,681 @@
+{
+ "schema_version": 1,
+ "date": "2026-10-08",
+ "status": "r1_localization_and_fresh_validation_research_only",
+ "snapshot_seq": 66,
+ "policy_epoch": 1,
+ "frozen_manifest_sha256": "93edcccc968cf26450b91826ebe3d3ca93690270df5122ea050da66ae220c087",
+ "grades_locked_sha256": "58cd583160c0df47a3bf07f90a78b37b8d1811a5b6a729c7e364ea4ab1f6fa0a",
+ "candidate_change": {
+  "checkpoint": "ba92faf",
+  "reverted_by": "5b1e33d",
+  "review": "113 APPROVE_WITH_NON_BLOCKING_NOTES"
+ },
+ "development": {
+  "runs": [
+   {
+    "task": "d01",
+    "arm": "A_ordinary",
+    "operational_error": null,
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     2,
+     2
+    ],
+    "returned_evidence": 2,
+    "returned_repository_groups": 1,
+    "audited_pool_groups_returned": 0,
+    "task_tokens": 99631,
+    "journey_latency_s": 142.865
+   },
+   {
+    "task": "d02",
+    "arm": "A_ordinary",
+    "operational_error": null,
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     4,
+     4
+    ],
+    "returned_evidence": 5,
+    "returned_repository_groups": 0,
+    "audited_pool_groups_returned": 0,
+    "task_tokens": 98475,
+    "journey_latency_s": 154.877
+   },
+   {
+    "task": "d03",
+    "arm": "A_ordinary",
+    "operational_error": null,
+    "retrieval_calls": 1,
+    "refused_calls": 0,
+    "concept_counts": [
+     4
+    ],
+    "returned_evidence": 8,
+    "returned_repository_groups": 1,
+    "audited_pool_groups_returned": 0,
+    "task_tokens": 76149,
+    "journey_latency_s": 120.989
+   },
+   {
+    "task": "d01",
+    "arm": "D_policy_draft",
+    "operational_error": null,
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     8,
+     4
+    ],
+    "returned_evidence": 15,
+    "returned_repository_groups": 4,
+    "audited_pool_groups_returned": 2,
+    "task_tokens": 103976,
+    "journey_latency_s": 164.79
+   },
+   {
+    "task": "d02",
+    "arm": "D_policy_draft",
+    "operational_error": null,
+    "retrieval_calls": 1,
+    "refused_calls": 0,
+    "concept_counts": [
+     7
+    ],
+    "returned_evidence": 7,
+    "returned_repository_groups": 2,
+    "audited_pool_groups_returned": 1,
+    "task_tokens": 77191,
+    "journey_latency_s": 93.484
+   },
+   {
+    "task": "d03",
+    "arm": "D_policy_draft",
+    "operational_error": null,
+    "retrieval_calls": 1,
+    "refused_calls": 0,
+    "concept_counts": [
+     4
+    ],
+    "returned_evidence": 7,
+    "returned_repository_groups": 5,
+    "audited_pool_groups_returned": 1,
+    "task_tokens": 75036,
+    "journey_latency_s": 117.066
+   },
+   {
+    "task": "d01",
+    "arm": "D_final_wording",
+    "operational_error": null,
+    "retrieval_calls": 1,
+    "refused_calls": 0,
+    "concept_counts": [
+     4
+    ],
+    "returned_evidence": 7,
+    "returned_repository_groups": 4,
+    "audited_pool_groups_returned": 2,
+    "task_tokens": 77343,
+    "journey_latency_s": 161.961
+   },
+   {
+    "task": "d02",
+    "arm": "D_final_wording",
+    "operational_error": "upstream_capacity_zero_model_output",
+    "retrieval_calls": 0,
+    "refused_calls": 0,
+    "concept_counts": [],
+    "returned_evidence": 0,
+    "returned_repository_groups": 0,
+    "audited_pool_groups_returned": 0,
+    "task_tokens": 0,
+    "journey_latency_s": 5.602
+   },
+   {
+    "task": "d03",
+    "arm": "D_final_wording",
+    "operational_error": null,
+    "retrieval_calls": 1,
+    "refused_calls": 0,
+    "concept_counts": [
+     4
+    ],
+    "returned_evidence": 8,
+    "returned_repository_groups": 1,
+    "audited_pool_groups_returned": 0,
+    "task_tokens": 58444,
+    "journey_latency_s": 127.999
+   },
+   {
+    "task": "d02",
+    "arm": "D_final_wording_retry",
+    "operational_error": null,
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     4,
+     2
+    ],
+    "returned_evidence": 13,
+    "returned_repository_groups": 4,
+    "audited_pool_groups_returned": 2,
+    "task_tokens": 102448,
+    "journey_latency_s": 184.97
+   }
+  ],
+  "stage_trace": [
+   {
+    "arm": "A_ordinary",
+    "task": "d01",
+    "call": 1,
+    "concepts": 2,
+    "zero_hit_concepts": 1,
+    "limit": 8,
+    "max_units": 4000,
+    "pool_groups_matched_any_concept": 0,
+    "pool_groups_in_overfetch": 0,
+    "pool_groups_after_limit": 0,
+    "pool_groups_packed": 0,
+    "pool_groups_returned": 0
+   },
+   {
+    "arm": "A_ordinary",
+    "task": "d01",
+    "call": 2,
+    "concepts": 2,
+    "zero_hit_concepts": 2,
+    "limit": 8,
+    "max_units": 4000,
+    "pool_groups_matched_any_concept": 0,
+    "pool_groups_in_overfetch": 0,
+    "pool_groups_after_limit": 0,
+    "pool_groups_packed": 0,
+    "pool_groups_returned": 0
+   },
+   {
+    "arm": "A_ordinary",
+    "task": "d02",
+    "call": 1,
+    "concepts": 4,
+    "zero_hit_concepts": 3,
+    "limit": 8,
+    "max_units": 4000,
+    "pool_groups_matched_any_concept": 0,
+    "pool_groups_in_overfetch": 0,
+    "pool_groups_after_limit": 0,
+    "pool_groups_packed": 0,
+    "pool_groups_returned": 0
+   },
+   {
+    "arm": "A_ordinary",
+    "task": "d02",
+    "call": 2,
+    "concepts": 4,
+    "zero_hit_concepts": 4,
+    "limit": 8,
+    "max_units": 4000,
+    "pool_groups_matched_any_concept": 0,
+    "pool_groups_in_overfetch": 0,
+    "pool_groups_after_limit": 0,
+    "pool_groups_packed": 0,
+    "pool_groups_returned": 0
+   },
+   {
+    "arm": "A_ordinary",
+    "task": "d03",
+    "call": 1,
+    "concepts": 4,
+    "zero_hit_concepts": 1,
+    "limit": 8,
+    "max_units": 4000,
+    "pool_groups_matched_any_concept": 2,
+    "pool_groups_in_overfetch": 0,
+    "pool_groups_after_limit": 0,
+    "pool_groups_packed": 0,
+    "pool_groups_returned": 0
+   },
+   {
+    "arm": "D_final_wording",
+    "task": "d01",
+    "call": 1,
+    "concepts": 4,
+    "zero_hit_concepts": 0,
+    "limit": 8,
+    "max_units": 4000,
+    "pool_groups_matched_any_concept": 2,
+    "pool_groups_in_overfetch": 2,
+    "pool_groups_after_limit": 2,
+    "pool_groups_packed": 2,
+    "pool_groups_returned": 2
+   },
+   {
+    "arm": "D_final_wording",
+    "task": "d03",
+    "call": 1,
+    "concepts": 4,
+    "zero_hit_concepts": 1,
+    "limit": 8,
+    "max_units": 4000,
+    "pool_groups_matched_any_concept": 2,
+    "pool_groups_in_overfetch": 0,
+    "pool_groups_after_limit": 0,
+    "pool_groups_packed": 0,
+    "pool_groups_returned": 0
+   },
+   {
+    "arm": "D_final_wording_retry",
+    "task": "d02",
+    "call": 1,
+    "concepts": 4,
+    "zero_hit_concepts": 1,
+    "limit": 8,
+    "max_units": 4000,
+    "pool_groups_matched_any_concept": 0,
+    "pool_groups_in_overfetch": 0,
+    "pool_groups_after_limit": 0,
+    "pool_groups_packed": 0,
+    "pool_groups_returned": 0
+   },
+   {
+    "arm": "D_final_wording_retry",
+    "task": "d02",
+    "call": 2,
+    "concepts": 2,
+    "zero_hit_concepts": 0,
+    "limit": 8,
+    "max_units": 4000,
+    "pool_groups_matched_any_concept": 2,
+    "pool_groups_in_overfetch": 2,
+    "pool_groups_after_limit": 2,
+    "pool_groups_packed": 2,
+    "pool_groups_returned": 2
+   }
+  ]
+ },
+ "fresh": {
+  "operational": {
+   "sessions": 12,
+   "zero_model_upstream_refusals_first_attempt": 10,
+   "cause": "usageLimitExceeded",
+   "retried_once_after_reset": 10,
+   "retry_failures": 0
+  },
+  "grading": "independent arm-masked subagent grader; rubric, pools and independent adequacy audit frozen before execution; grades locked before unmasking",
+  "runs": [
+   {
+    "task": "v01",
+    "arm": "A",
+    "strict_e2e": false,
+    "primary_failure": "R1",
+    "secondary_failures": [
+     "R4"
+    ],
+    "eligible_selection": false,
+    "selected_candidates_supported": false,
+    "deliverable_complete": false,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 1,
+     "pool": 2
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     2,
+     2
+    ],
+    "returned_items": 2,
+    "returned_source_groups": 2,
+    "task_tokens": 72208,
+    "journey_latency_s": 139.105
+   },
+   {
+    "task": "v01",
+    "arm": "D",
+    "strict_e2e": false,
+    "primary_failure": "R1",
+    "secondary_failures": [
+     "R4"
+    ],
+    "eligible_selection": false,
+    "selected_candidates_supported": false,
+    "deliverable_complete": false,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 1,
+     "pool": 2
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     4,
+     4
+    ],
+    "returned_items": 17,
+    "returned_source_groups": 2,
+    "task_tokens": 103625,
+    "journey_latency_s": 174.243
+   },
+   {
+    "task": "v02",
+    "arm": "A",
+    "strict_e2e": false,
+    "primary_failure": "R1",
+    "secondary_failures": [
+     "R2"
+    ],
+    "eligible_selection": false,
+    "selected_candidates_supported": true,
+    "deliverable_complete": true,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 1,
+     "pool": 2
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     4,
+     2
+    ],
+    "returned_items": 10,
+    "returned_source_groups": 3,
+    "task_tokens": 95999,
+    "journey_latency_s": 135.269
+   },
+   {
+    "task": "v02",
+    "arm": "D",
+    "strict_e2e": false,
+    "primary_failure": "R1",
+    "secondary_failures": [
+     "R2"
+    ],
+    "eligible_selection": false,
+    "selected_candidates_supported": true,
+    "deliverable_complete": true,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 1,
+     "pool": 2
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     4,
+     2
+    ],
+    "returned_items": 10,
+    "returned_source_groups": 3,
+    "task_tokens": 101443,
+    "journey_latency_s": 80.125
+   },
+   {
+    "task": "v03",
+    "arm": "A",
+    "strict_e2e": false,
+    "primary_failure": "R1",
+    "secondary_failures": [
+     "R4"
+    ],
+    "eligible_selection": false,
+    "selected_candidates_supported": false,
+    "deliverable_complete": false,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 0,
+     "pool": 5
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     2,
+     2
+    ],
+    "returned_items": 7,
+    "returned_source_groups": 2,
+    "task_tokens": 98680,
+    "journey_latency_s": 103.009
+   },
+   {
+    "task": "v03",
+    "arm": "D",
+    "strict_e2e": false,
+    "primary_failure": "R1",
+    "secondary_failures": [
+     "R2"
+    ],
+    "eligible_selection": false,
+    "selected_candidates_supported": true,
+    "deliverable_complete": true,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 1,
+     "pool": 5
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     4,
+     3
+    ],
+    "returned_items": 12,
+    "returned_source_groups": 1,
+    "task_tokens": 101514,
+    "journey_latency_s": 85.76
+   },
+   {
+    "task": "v04",
+    "arm": "A",
+    "strict_e2e": false,
+    "primary_failure": "R2",
+    "secondary_failures": [],
+    "eligible_selection": false,
+    "selected_candidates_supported": true,
+    "deliverable_complete": true,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 2,
+     "pool": 2
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     2,
+     2
+    ],
+    "returned_items": 6,
+    "returned_source_groups": 3,
+    "task_tokens": 94985,
+    "journey_latency_s": 44.869
+   },
+   {
+    "task": "v04",
+    "arm": "D",
+    "strict_e2e": false,
+    "primary_failure": "R1",
+    "secondary_failures": [
+     "R4"
+    ],
+    "eligible_selection": false,
+    "selected_candidates_supported": false,
+    "deliverable_complete": false,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 1,
+     "pool": 2
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     3,
+     3
+    ],
+    "returned_items": 4,
+    "returned_source_groups": 2,
+    "task_tokens": 76200,
+    "journey_latency_s": 56.611
+   },
+   {
+    "task": "v05",
+    "arm": "A",
+    "strict_e2e": true,
+    "primary_failure": null,
+    "secondary_failures": [],
+    "eligible_selection": true,
+    "selected_candidates_supported": true,
+    "deliverable_complete": true,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 2,
+     "pool": 2
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     4,
+     2
+    ],
+    "returned_items": 4,
+    "returned_source_groups": 1,
+    "task_tokens": 97960,
+    "journey_latency_s": 97.422
+   },
+   {
+    "task": "v05",
+    "arm": "D",
+    "strict_e2e": false,
+    "primary_failure": "R1",
+    "secondary_failures": [
+     "R4"
+    ],
+    "eligible_selection": false,
+    "selected_candidates_supported": false,
+    "deliverable_complete": false,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 0,
+     "pool": 2
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     3,
+     4
+    ],
+    "returned_items": 6,
+    "returned_source_groups": 1,
+    "task_tokens": 95086,
+    "journey_latency_s": 55.908
+   },
+   {
+    "task": "v06",
+    "arm": "A",
+    "strict_e2e": false,
+    "primary_failure": "R1",
+    "secondary_failures": [
+     "R4"
+    ],
+    "eligible_selection": false,
+    "selected_candidates_supported": false,
+    "deliverable_complete": false,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 1,
+     "pool": 8
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     2,
+     2
+    ],
+    "returned_items": 8,
+    "returned_source_groups": 1,
+    "task_tokens": 97960,
+    "journey_latency_s": 119.477
+   },
+   {
+    "task": "v06",
+    "arm": "D",
+    "strict_e2e": true,
+    "primary_failure": null,
+    "secondary_failures": [],
+    "eligible_selection": true,
+    "selected_candidates_supported": true,
+    "deliverable_complete": true,
+    "unsupported_personal_claims": 0,
+    "candidate_entity_recall": {
+     "returned": 1,
+     "pool": 8
+    },
+    "retrieval_calls": 2,
+    "refused_calls": 0,
+    "concept_counts": [
+     4,
+     3
+    ],
+    "returned_items": 15,
+    "returned_source_groups": 2,
+    "task_tokens": 101768,
+    "journey_latency_s": 81.475
+   }
+  ],
+  "summary": {
+   "A_ordinary": {
+    "tasks": 6,
+    "strict_e2e": 1,
+    "eligible_selection": 1,
+    "selected_candidates_supported": 3,
+    "deliverable_complete": 3,
+    "candidate_entity_recall": {
+     "returned": 7,
+     "pool": 21
+    },
+    "unsupported_personal_claims": 0,
+    "retrieval_calls": 12,
+    "refused_calls": 0,
+    "task_tokens": 557792,
+    "journey_latency_s": 639.151,
+    "primary_failures": {
+     "R1": 4,
+     "R2": 1,
+     "pass": 1
+    }
+   },
+   "D_concept_exception": {
+    "tasks": 6,
+    "strict_e2e": 1,
+    "eligible_selection": 1,
+    "selected_candidates_supported": 3,
+    "deliverable_complete": 3,
+    "candidate_entity_recall": {
+     "returned": 5,
+     "pool": 21
+    },
+    "unsupported_personal_claims": 0,
+    "retrieval_calls": 12,
+    "refused_calls": 0,
+    "task_tokens": 579636,
+    "journey_latency_s": 534.122,
+    "primary_failures": {
+     "R1": 5,
+     "pass": 1
+    }
+   }
+  }
+ },
+ "offline_cutoff_simulation": {
+  "pool_entities_returned_over_12_sessions": {
+   "recorded_order": 12,
+   "source_group_round_robin": 14,
+   "round_robin_deep_overfetch": 15,
+   "round_robin_deep_limit20_8000_units": 17
+  },
+  "possible": 42
+ },
+ "limitations": "Three dev tasks were the prior failures; the lead inspected the corpus while localizing. Fresh set is six tasks on one owner's corpus, several pools have exactly two eligible entities. One independent model grader, no human replication. Entity recall counts entities with substantive returned support, not exhaustive corpus recall."
+}
