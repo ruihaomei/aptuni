@@ -106,15 +106,6 @@ CONCEPT_GUIDANCE = (
     "or expand the target into parent fields like mathematics or statistics.",
     "- Do not add subtopics, methods or neighbouring topics the request does not name or clearly need. You "
     "are looking up the user's existing context, not writing a syllabus.",
-    # R1 trace 2026-10-08: quality words for unnamed candidates matched no candidate record at all.
-    "- Exception: when the user asks you to choose among their own projects, experiences or other items "
-    "without naming them, you cannot name the candidates yet, and the qualities you will judge them by "
-    "(\"careful\", \"research software\", \"leadership\") rarely appear in the records. Then use concepts for "
-    "concrete artifacts, methods or tools that such work leaves in the user's own files or notes, chosen "
-    "from the request's domain (e.g. \"pipeline\" or \"unit test\" for computational work, \"draft\" or "
-    "\"revision\" for writing, \"agenda\" or \"checklist\" for organizing). Judge each candidate's "
-    "eligibility and fit only from the returned Evidence. If fewer than two eligible candidates return, "
-    "the one retry may use different concrete artifact or method terms.",
     "- Add the other language's form only when the notes may well use it (a mixed-language request, a "
     "subject studied in Chinese, a technical term with a common Chinese/English pair). A translation is "
     "the same concept, not a new topic.",
