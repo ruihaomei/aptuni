@@ -8,7 +8,7 @@ Determine the smallest evidence-grounded two-candidate selection improvement ins
 - [x] Diagnose candidate eligibility and Evidence carry-through separately on existing dev cases.
 - [x] Choose the smallest intervention and measure dev-case cost and behavior.
 - [x] Freeze and execute a fresh authorized real-context three-task mini-holdout.
-- [ ] Verify final records, update state and handoff, decide b10, commit local checkpoint.
+- [x] Verify final records, update state and handoff, decide b10, commit local checkpoint.
 
 ## Constraints
 - One strong Agent; no new runtime roles, ontology, storage migration, or retrieve product surface.
@@ -17,7 +17,7 @@ Determine the smallest evidence-grounded two-candidate selection improvement ins
 - Preserve unrelated workspace edits and private corpus content.
 
 ## Status
-Three-task paired holdout, masked grading, source support audit and scoped checks are complete. b10 remains frozen; final self-review and local checkpoint are underway.
+Three-task paired holdout, masked grading, source support audit and scoped checks are complete. b10 remains frozen; results checkpoint `01b079a` records the decision, and this final handoff update references it.
 
 ## Errors Encountered
 - The first combined research policy draft matched the runner's explicit-Full setup conflict guard. Reworded it to respect the existing activation boundary and regenerated the private freeze before any holdout task ran.

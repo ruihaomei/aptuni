@@ -16,7 +16,8 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
-**Grounded selection continuation (2026-10-07, local/research-only).** Separate
+**Grounded selection continuation (2026-10-07, local/research-only; results
+checkpoint `01b079a`).** Separate
 development replays showed a general candidate-eligibility instruction can
 avoid the prior runner-as-project error and a compact candidate/Evidence ledger
 can carry returned IDs into an answer. A new frozen three-task real-context

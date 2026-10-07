@@ -15,7 +15,7 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
-**2026-10-07 grounded selection continuation (this checkpoint):** canonical
+**2026-10-07 grounded selection continuation (results checkpoint `01b079a`):** canonical
 Vault/index sequence66, existing Codex grant and explicit Full boundary were
 unchanged. Prior real and synthetic selection results were recovered. H1/H2
 one-mechanism development replays each improved their targeted observed
@@ -33,8 +33,7 @@ three tasks, broaden grants, or adopt the bounded roster or `/aptuni retrieve`.
 b10 stays unreleased. See `b10-continuation/grounded-selection-results.md`,
 metrics, cleanup receipt and the private frozen audit. Phase-derived raw traces
 were removed after audit; owner backups and earlier scratch were untouched.
-The checkpoint hash is the local commit
-that records these docs; unrelated workspace edits remain untouched.
+Unrelated workspace edits remain untouched.
 
 **2026-10-07 real selection decision (checkpoint `de55dec`):** two authorized real-context tasks had
 adequate multi-candidate support; one proposed personal role/outcome task was
