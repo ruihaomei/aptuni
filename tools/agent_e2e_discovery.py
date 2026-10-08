@@ -253,15 +253,17 @@ def install_guard(  # noqa: PLR0915 - one audited effect guard and exact authori
         raise ValueError("private scratch must be outside canonical, shared state and repository")
     locks = {state / "writer.lock", state / "source-operations.lock"}
     wire = os.fstat(1)
-    if not stat.S_ISFIFO(wire.st_mode):
-        raise ValueError("research MCP requires piped stdout")
-    wire_identity = (wire.st_dev, wire.st_ino)
+    # Codex passes stdio as a pipe; Node hosts (Claude Code, via libuv) pass a UNIX socketpair.
+    # Internet sockets all report inode 0 on macOS, so only pipes and UNIX socketpairs qualify.
+    if not (stat.S_ISFIFO(wire.st_mode) or (stat.S_ISSOCK(wire.st_mode) and wire.st_ino != 0)):
+        raise ValueError("research MCP requires pipe or UNIX socketpair stdout")
+    wire_identity = (stat.S_IFMT(wire.st_mode), wire.st_dev, wire.st_ino)
 
     def wire_descriptor(descriptor: int) -> bool:
-        # MCP SDK claims a duplicate of the existing stdout pipe with fdopen.
-        # No ordinary file descriptor, other pipe or arbitrary integer is allowed.
+        # MCP SDK claims a duplicate of the existing stdout stream with fdopen.
+        # No ordinary file descriptor, other pipe/socket or arbitrary integer is allowed.
         value = os.fstat(descriptor)
-        return stat.S_ISFIFO(value.st_mode) and (value.st_dev, value.st_ino) == wire_identity
+        return (stat.S_IFMT(value.st_mode), value.st_dev, value.st_ino) == wire_identity
 
     def private(path: Any) -> bool:
         target = Path(path).resolve()

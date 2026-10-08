@@ -230,3 +230,44 @@ def test_actual_stdio_guard_and_empty_full_setup_do_not_change_fixture(tmp_path)
                 assert denied.is_error
     anyio.run(run)
     assert service.snapshot()[0] == sequence
+
+
+def test_guard_accepts_socketpair_stdout_from_node_hosts(tmp_path):
+    """Claude Code (Node/libuv) passes stdio as a UNIX socketpair, Codex as a pipe; both are the wire."""
+    import socket
+    service, scratch, _ = ready_fixture(tmp_path)
+    script = f"""
+import sys, os
+from pathlib import Path
+sys.path.insert(0, {str(ROOT / 'tools')!r})
+from agent_e2e_discovery import install_guard
+from aptuni.application.workspace import Workspace
+install_guard(Workspace(Path({str(service.workspace.state_dir)!r})), Path({str(scratch)!r}))
+import socket
+other, _peer = socket.socketpair()
+try:
+    os.fdopen(os.dup(other.fileno()), 'w')
+except PermissionError:
+    pass
+else:
+    raise RuntimeError('unrelated socket accepted')
+wire = os.fdopen(os.dup(1), 'w')
+wire.write('wire-ok')
+wire.flush()
+try:
+    Path({str(tmp_path / 'forbidden')!r}).write_text('denied')
+except PermissionError:
+    pass
+else:
+    raise RuntimeError('guard failed')
+"""
+    host, child = socket.socketpair()
+    try:
+        result = subprocess.run([sys.executable, "-c", script], stdout=child.fileno(), stderr=subprocess.PIPE,
+                                env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}, timeout=15, check=False)
+        child.close()
+        assert result.returncode == 0, result.stderr.decode()
+        assert host.recv(64) == b"wire-ok"
+    finally:
+        host.close()
+    assert not (tmp_path / "forbidden").exists()
