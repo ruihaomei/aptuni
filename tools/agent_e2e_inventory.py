@@ -56,6 +56,14 @@ def _fields(record: Any) -> tuple[str | None, dict[str, Any]]:
     return locator.extension.schema_name, locator.extension.fields
 
 
+def _plain(text: str) -> str:
+    """Drop HTML tags, Markdown images/badges and link targets so a descriptor carries words only."""
+    text = re.sub(r"<[^>]*(>|$)", " ", text)  # excerpts may end inside a tag
+    text = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", text)
+    text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)
+    return " ".join(text.replace("#", " ").split())
+
+
 def _clip(text: str, limit: int) -> str:
     raw = " ".join(text.split()).encode("utf-8")
     return text if len(raw) <= limit else raw[:limit - 3].decode("utf-8", errors="ignore") + "…"
@@ -103,7 +111,9 @@ def build_inventory(eligible: Sequence[Any]) -> dict[str, list[tuple[str, dict[s
         row: dict[str, object] = {"id": f"r{index:03d}", "label": group["label"], "evidence": len(records)}
         about = getattr(records[0], "excerpt", "") or ""
         if _readme_rank(records[0])[0] == 0 and about:
-            row["about"] = _clip(about.lstrip("# "), DESCRIPTOR_BYTES)
+            about = _plain(about)
+            if about:
+                row["about"] = _clip(about, DESCRIPTOR_BYTES)
         inventory["repositories"].append((row["id"], row, records))
     for index, path in enumerate(sorted(documents), 1):
         label = path.rsplit(".", 1)[0] if "." in path.rsplit("/", 1)[-1] else path

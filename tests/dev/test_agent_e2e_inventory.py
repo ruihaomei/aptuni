@@ -98,6 +98,12 @@ def test_inventory_lists_authorized_entities_without_query_terms_then_fetches_ev
     anyio.run(run)
 
 
+def test_descriptor_drops_markup() -> None:
+    from agent_e2e_inventory import _plain
+    assert _plain('<p align="center"><img src="x.png"></p> # Tool ![badge](b.svg) see [docs](d.md)') == "Tool see docs"
+    assert _plain("Tool <p align=") == "Tool"
+
+
 def test_inventory_requires_full_and_refuses_unlisted_candidates_and_extra_calls() -> None:
     async def run() -> None:
         server = create_server(Service(list(ROWS)), access, nullcontext, expected_seq=66)
