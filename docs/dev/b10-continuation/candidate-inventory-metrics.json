@@ -1,0 +1,695 @@
+{
+ "schema_version": 1,
+ "date": "2026-10-09",
+ "status": "candidate_inventory_mvp_research_only",
+ "snapshot_seq": 66,
+ "policy_epoch": 1,
+ "implementation": {
+  "seam": "tools/agent_e2e_inventory.py",
+  "checkpoints": [
+   "f1a9e1e",
+   "16edfce",
+   "1a24b3d"
+  ]
+ },
+ "frozen_manifest_sha256": "f96dc28dfa33f3224de34ba52943a9bc1f7a0229369627e641087baa8f7ed46c",
+ "addenda": {
+  "codex_quota_retry": true,
+  "claude_arms_preregistered": "968d6f46c82f4025ada1174aaae4dbcef327db23c92e1b153cf79a460c4e33fc",
+  "harness_socketpair_fix": true
+ },
+ "grades_locked_sha256": "d1a367a81619f020ee45f224a5a2e3a0dff7cf5369519a99c9cf492fd71b65c7",
+ "models": {
+  "codex": "gpt-6-astra xhigh (Codex CLI 0.155.1)",
+  "claude": "claude-sonnet-5-5 (Claude Code 2.1.87)"
+ },
+ "development": {
+  "host": "codex",
+  "tasks": 9,
+  "pool_entities_exposed_by_inventory": "30/30",
+  "pool_entities_with_returned_evidence": "18/30",
+  "tasks_with_two_or_more_pool_entities_evidenced": "7/9",
+  "v_tasks_tokens_I_vs_A": [
+   592041,
+   557792
+  ],
+  "v_tasks_journey_s_I_vs_A": [
+   661.4,
+   639.2
+  ]
+ },
+ "fresh": {
+  "tasks": 6,
+  "independent_adequacy_audit": "6/6 adequate",
+  "grading": "independent blind model grader, host- and arm-masked, 24 packets in one batch, locked before unmasking",
+  "summary": {
+   "codex-A": {
+    "tasks": 6,
+    "strict_e2e": 3,
+    "eligible_selection": 3,
+    "candidate_recall": {
+     "returned": 9,
+     "pool": 16
+    },
+    "primary_failures": {
+     "R2": 1,
+     "R1": 2
+    },
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issues": 0,
+    "retrieval_calls": 11,
+    "used_units": 25601,
+    "task_tokens": 517034,
+    "journey_s": 531.269
+   },
+   "codex-I": {
+    "tasks": 6,
+    "strict_e2e": 6,
+    "eligible_selection": 6,
+    "candidate_recall": {
+     "returned": 16,
+     "pool": 16
+    },
+    "primary_failures": {},
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issues": 0,
+    "retrieval_calls": 15,
+    "used_units": 135970,
+    "task_tokens": 650874,
+    "journey_s": 785.021
+   },
+   "claude-A": {
+    "tasks": 6,
+    "strict_e2e": 0,
+    "eligible_selection": 1,
+    "candidate_recall": {
+     "returned": 3,
+     "pool": 16
+    },
+    "primary_failures": {
+     "R1": 5,
+     "R2": 1
+    },
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issues": 0,
+    "retrieval_calls": 9,
+    "used_units": 10352,
+    "task_tokens": 294268,
+    "journey_s": 268.931
+   },
+   "claude-I": {
+    "tasks": 6,
+    "strict_e2e": 3,
+    "eligible_selection": 6,
+    "candidate_recall": {
+     "returned": 15,
+     "pool": 16
+    },
+    "primary_failures": {
+     "R4": 2,
+     "R3": 1
+    },
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 2,
+    "boundary_or_privacy_issues": 0,
+    "retrieval_calls": 12,
+    "used_units": 115095,
+    "task_tokens": 464004,
+    "journey_s": 338.355
+   }
+  },
+  "runs": [
+   {
+    "arm": "claude-A",
+    "task": "f01",
+    "retried_after_quota": false,
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 0,
+     "pool": 5
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 960,
+    "task_tokens": 46037,
+    "journey_s": 53.035
+   },
+   {
+    "arm": "claude-A",
+    "task": "f02",
+    "retried_after_quota": false,
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 0,
+     "pool": 3
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 1,
+    "modes": [
+     "search"
+    ],
+    "used_units": 1641,
+    "task_tokens": 30689,
+    "journey_s": 40.102
+   },
+   {
+    "arm": "claude-A",
+    "task": "f03",
+    "retried_after_quota": true,
+    "strict_e2e": false,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 2
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 1,
+    "modes": [
+     "search"
+    ],
+    "used_units": 2286,
+    "task_tokens": 46051,
+    "journey_s": 44.905
+   },
+   {
+    "arm": "claude-A",
+    "task": "f04",
+    "retried_after_quota": true,
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 2,
+     "pool": 2
+    },
+    "primary_failure": "R2",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 4032,
+    "task_tokens": 64461,
+    "journey_s": 50.574
+   },
+   {
+    "arm": "claude-A",
+    "task": "f05",
+    "retried_after_quota": true,
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 0,
+     "pool": 3
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 946,
+    "task_tokens": 62448,
+    "journey_s": 40.446
+   },
+   {
+    "arm": "claude-A",
+    "task": "f06",
+    "retried_after_quota": true,
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 0,
+     "pool": 1
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 1,
+    "modes": [
+     "search"
+    ],
+    "used_units": 487,
+    "task_tokens": 44582,
+    "journey_s": 39.869
+   },
+   {
+    "arm": "claude-I",
+    "task": "f01",
+    "retried_after_quota": false,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 4,
+     "pool": 5
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 21504,
+    "task_tokens": 78688,
+    "journey_s": 71.518
+   },
+   {
+    "arm": "claude-I",
+    "task": "f02",
+    "retried_after_quota": false,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 3,
+     "pool": 3
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 20374,
+    "task_tokens": 79043,
+    "journey_s": 65.141
+   },
+   {
+    "arm": "claude-I",
+    "task": "f03",
+    "retried_after_quota": false,
+    "strict_e2e": false,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 2,
+     "pool": 2
+    },
+    "primary_failure": "R4",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 16453,
+    "task_tokens": 73097,
+    "journey_s": 50.275
+   },
+   {
+    "arm": "claude-I",
+    "task": "f04",
+    "retried_after_quota": false,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 2,
+     "pool": 2
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 18385,
+    "task_tokens": 74945,
+    "journey_s": 42.524
+   },
+   {
+    "arm": "claude-I",
+    "task": "f05",
+    "retried_after_quota": false,
+    "strict_e2e": false,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 3,
+     "pool": 3
+    },
+    "primary_failure": "R3",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 2,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 24097,
+    "task_tokens": 83962,
+    "journey_s": 60.603
+   },
+   {
+    "arm": "claude-I",
+    "task": "f06",
+    "retried_after_quota": false,
+    "strict_e2e": false,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 1
+    },
+    "primary_failure": "R4",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 14282,
+    "task_tokens": 74269,
+    "journey_s": 48.294
+   },
+   {
+    "arm": "codex-A",
+    "task": "f01",
+    "retried_after_quota": false,
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 3,
+     "pool": 5
+    },
+    "primary_failure": "R2",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 7627,
+    "task_tokens": 82846,
+    "journey_s": 110.305
+   },
+   {
+    "arm": "codex-A",
+    "task": "f02",
+    "retried_after_quota": false,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 2,
+     "pool": 3
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 5569,
+    "task_tokens": 79339,
+    "journey_s": 87.78
+   },
+   {
+    "arm": "codex-A",
+    "task": "f03",
+    "retried_after_quota": false,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 2,
+     "pool": 2
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 1,
+    "modes": [
+     "search"
+    ],
+    "used_units": 3841,
+    "task_tokens": 75219,
+    "journey_s": 72.175
+   },
+   {
+    "arm": "codex-A",
+    "task": "f04",
+    "retried_after_quota": false,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 2,
+     "pool": 2
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 6674,
+    "task_tokens": 95133,
+    "journey_s": 104.98
+   },
+   {
+    "arm": "codex-A",
+    "task": "f05",
+    "retried_after_quota": false,
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 0,
+     "pool": 3
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 946,
+    "task_tokens": 92183,
+    "journey_s": 65.942
+   },
+   {
+    "arm": "codex-A",
+    "task": "f06",
+    "retried_after_quota": true,
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 0,
+     "pool": 1
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 944,
+    "task_tokens": 92314,
+    "journey_s": 90.087
+   },
+   {
+    "arm": "codex-I",
+    "task": "f01",
+    "retried_after_quota": false,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 5,
+     "pool": 5
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 3,
+    "modes": [
+     "inventory",
+     "evidence",
+     "evidence"
+    ],
+    "used_units": 28262,
+    "task_tokens": 124686,
+    "journey_s": 137.355
+   },
+   {
+    "arm": "codex-I",
+    "task": "f02",
+    "retried_after_quota": false,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 3,
+     "pool": 3
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 3,
+    "modes": [
+     "inventory",
+     "evidence",
+     "evidence"
+    ],
+    "used_units": 24496,
+    "task_tokens": 121655,
+    "journey_s": 117.158
+   },
+   {
+    "arm": "codex-I",
+    "task": "f03",
+    "retried_after_quota": false,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 2,
+     "pool": 2
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 16503,
+    "task_tokens": 89217,
+    "journey_s": 71.671
+   },
+   {
+    "arm": "codex-I",
+    "task": "f04",
+    "retried_after_quota": false,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 2,
+     "pool": 2
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 3,
+    "modes": [
+     "inventory",
+     "evidence",
+     "evidence"
+    ],
+    "used_units": 31001,
+    "task_tokens": 135661,
+    "journey_s": 117.474
+   },
+   {
+    "arm": "codex-I",
+    "task": "f05",
+    "retried_after_quota": true,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 3,
+     "pool": 3
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 16486,
+    "task_tokens": 89504,
+    "journey_s": 96.989
+   },
+   {
+    "arm": "codex-I",
+    "task": "f06",
+    "retried_after_quota": true,
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 1
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 19222,
+    "task_tokens": 90151,
+    "journey_s": 244.374
+   }
+  ]
+ },
+ "regression_claude_ordinary_six": {
+  "claude-A": {
+   "tasks": 6,
+   "pass": 5,
+   "context_use_appropriate": 6,
+   "unsupported_personal_claims": 0,
+   "boundary_or_privacy_issues": 0
+  },
+  "claude-I": {
+   "tasks": 6,
+   "pass": 5,
+   "context_use_appropriate": 6,
+   "unsupported_personal_claims": 2,
+   "boundary_or_privacy_issues": 0
+  }
+ },
+ "limitations": "One owner's corpus; six fresh tasks; one model grader, no human replication; inventory listings were masked from grader packets, so mentions of unfetched inventory labels count against S5; Claude Opus 5.5 not tested (CLI too old); Codex A/I and Claude A sessions partly retried or continued after operational refusals (disclosed); research seam, not production code."
+}

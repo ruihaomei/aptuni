@@ -15,6 +15,21 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
+**2026-10-09 Candidate Inventory MVP (decision: production candidate; b10 still
+frozen).** Owner-locked order step ① succeeded; semantic recall (②) not started.
+Fresh blind results (six tasks, independent adequacy audit, 24 masked packets):
+Codex A3/6 → I6/6, Claude Sonnet 5.5 A0/6 → I3/6; R1 7 → 0; recall 12/32 → 31/32;
+no unsupported substantive claim or boundary failure. Remaining gaps are guidance-
+level: naming unfetched inventory labels, respecting length limits. Harness now
+supports Claude's socketpair stdio (`1a24b3d`). Private traces and packets stay in
+owner-only scratch `/private/tmp/aptuni-b10-inventory/` until the production
+confirmation completes. **Exact next slice:** production design + ADR-0032 (privacy
+review) for inventory/evidence on the real MCP; generated-skill guidance for both
+hosts (policy + fetched-only naming + length limits); tests; independent review;
+then a small fresh confirmation on Codex and Claude plus ordinary/silent
+regression before the b10 release decision. Claude Opus 5.5 needs `claude update`
+(owner) before it can be tested. See `b10-continuation/candidate-inventory-results.md`.
+
 **2026-10-08 R1 stage follow-up (decision: b10 stays frozen).** Offline,
 zero model calls, no production change. New stage evidence: every exposable
 record (49,734) and every audited pool Evidence record is module `knowledge`;

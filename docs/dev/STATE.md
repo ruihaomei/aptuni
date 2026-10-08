@@ -16,6 +16,19 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
+**Candidate Inventory MVP (2026-10-09, research seam `tools/agent_e2e_inventory.py`;
+checkpoints `f1a9e1e`, `16edfce`, harness fix `1a24b3d`).** A category-scoped,
+provenance-derived entity inventory (repositories, folder documents, MarginNote
+root topics) followed by Evidence by candidate ID solved unnamed-candidate
+discovery on a fresh, independently audited six-task real set graded blind across
+two hosts: strict E2E Codex **A3/6 → I6/6**, Claude Sonnet 5.5 **A0/6 → I3/6**;
+eligible selection 4/12 → 12/12; pool recall 12/32 → 31/32; R1 7 → 0, R2 2 → 0; no
+privacy/boundary failure. Claude-I's three misses are two word-limit overruns and
+naming unfetched inventory labels. Cost +26% (Codex) / +58% (Claude) task tokens.
+Claude ordinary-six regression A5/6, I5/6, silent where expected. Semantic recall
+not started. **b10 stays frozen** until production + ADR + review + confirmation.
+See `b10-continuation/candidate-inventory-results.md`.
+
 **R1 stage follow-up (2026-10-08, offline, zero model calls).** All 49,734
 exposable records are module `knowledge` (98.7% MarginNote); the granted
 `projects` module is empty, so the candidate class has no usable metadata.

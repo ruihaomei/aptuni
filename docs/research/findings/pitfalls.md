@@ -74,3 +74,10 @@
   (≈555 bytes per Evidence, 6–9 records per 4,000 units) and vocabulary gaps still bind.
 - Units are UTF-8 bytes, not tokens. A 4,000-unit packet is a small share of a ~90k-token
   Agent session, so judge widening by recall ceiling, not by unit multiples.
+- Tell the Agent what exists instead of making it guess: a query-free, category-scoped entity
+  inventory derived from provenance turned unnamed selection from a recall problem into a choice
+  problem (fresh R1 7 → 0 across Codex and Claude). Labels must stay clues: Agents will otherwise
+  name unfetched inventory items as facts.
+- Research MCP guards must accept every host's stdio: Codex uses pipes, Claude Code (Node/libuv)
+  uses UNIX socketpairs. A FIFO-only check silently disabled the server under Claude.
+- Editing a hashed research asset mid-run makes later sessions refuse; finish or stop runs first.

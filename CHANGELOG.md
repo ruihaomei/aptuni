@@ -23,6 +23,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Selection research: a grant-scoped candidate inventory (what projects, documents
+  and study topics exist) followed by Evidence for chosen candidates fixed unnamed
+  "choose two from my history" tasks on fresh real data for both Codex (3/6 → 6/6)
+  and Claude Sonnet (0/6 → 3/6). Research seam only; not yet in the product.
+
 - A zero-model follow-up found that every exposable record is filed under the
   `knowledge` module, so selection cannot target projects or experiences.
   Scoping to the candidate class did not help at the current packet size, and

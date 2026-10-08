@@ -111,6 +111,13 @@ discovery is not solvable by guidance or cutoff tuning in the current design;
 next steps are owner-level (candidate-discovery surface or semantic recall).
 See `b10-continuation/r1-localization-results.md`.
 
+**KI-018 Candidate Inventory (2026-10-09):** research seam only. Inventory → Evidence
+removed R1 on a fresh real six-task set for both Codex (3/6 → 6/6 strict) and Claude
+Sonnet 5.5 (0/6 → 3/6); remaining Claude misses are length limits and naming unfetched
+labels. Not yet in production. New known corpus limit: Folder/GitHub file Evidence keeps
+only the first 280 characters, so entities described deep inside multi-topic documents
+are unreachable by any path. See `b10-continuation/candidate-inventory-results.md`.
+
 **KI-018 R1 stage follow-up (2026-10-08):** offline, zero-model. All exposable
 records and audited candidates sit in module `knowledge` (98.7% study notes);
 `projects` is granted but empty, so the candidate class is not addressable.
