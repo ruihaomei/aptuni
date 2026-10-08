@@ -1,0 +1,150 @@
+{
+ "schema_version": 1,
+ "date": "2026-10-08",
+ "status": "r1_stage_followup_offline_research_only",
+ "snapshot_seq": 66,
+ "policy_epoch": 1,
+ "model_calls": 0,
+ "production_change": null,
+ "corpus_census": {
+  "exposable_records": 49734,
+  "by_module": {
+   "knowledge": 49728,
+   "preferences": 4,
+   "goals": 1,
+   "memory": 1
+  },
+  "knowledge_by_source_kind": {
+   "marginnote4": 49095,
+   "github": 507,
+   "folder": 125,
+   "notion": 1
+  },
+  "source_configs": {
+   "github": 14,
+   "folder": 1,
+   "marginnote4": 1,
+   "notion": 1
+  },
+  "source_configs_module_mapping": {
+   "knowledge_only": 17
+  },
+  "source_groups_with_exposable_records": {
+   "github_repositories": 11,
+   "folder_files": 125,
+   "marginnote_sources": 1
+  },
+  "codex_grant_modules": [
+   "identity",
+   "knowledge",
+   "skills",
+   "projects",
+   "goals",
+   "preferences"
+  ],
+  "granted_but_empty_modules": [
+   "skills",
+   "projects"
+  ],
+  "fresh_pool_evidence": {
+   "references": 65, "unique_records": 64,
+   "module_knowledge": 65,
+   "github": 30,
+   "folder": 15,
+   "marginnote4": 20
+  }
+ },
+ "unit_cost_bytes": {
+  "marginnote4_evidence_median": 463,
+  "marginnote4_fact_median": 333,
+  "github_evidence_median": 555,
+  "folder_evidence_median": 554,
+  "pool_evidence_median": 555,
+  "pool_evidence_p90": 870,
+  "records_per_4000_unit_packet_observed": "6-9"
+ },
+ "offline_simulation": {
+  "method": "zero-model, oracle-free: each frozen v01-v06 task wording as a plain query (all-terms then any-term fallback, 25% floor), production diversify, first N records; 'class' restricts to project/experience source kinds (github+folder) or to study notes for the study-subject task; v06 unrestricted",
+  "tasks": 6,
+  "pool_entities": 21,
+  "pair_definition": ">=2 audited pool entities present (v06: >=1 project and >=1 subject)",
+  "results": {
+   "full_depth7": {
+    "pool_entities": 5,
+    "pool": 21,
+    "tasks_with_pool_pair": 1,
+    "tasks": 6,
+    "mean_packet_units": 3364
+   },
+   "full_depth12": {
+    "pool_entities": 8,
+    "pool": 21,
+    "tasks_with_pool_pair": 2,
+    "tasks": 6,
+    "mean_packet_units": 5550
+   },
+   "full_depth20": {
+    "pool_entities": 10,
+    "pool": 21,
+    "tasks_with_pool_pair": 2,
+    "tasks": 6,
+    "mean_packet_units": 9290
+   },
+   "full_depth30": {
+    "pool_entities": 11,
+    "pool": 21,
+    "tasks_with_pool_pair": 3,
+    "tasks": 6,
+    "mean_packet_units": 13382
+   },
+   "full_depth40": {
+    "pool_entities": 13,
+    "pool": 21,
+    "tasks_with_pool_pair": 4,
+    "tasks": 6,
+    "mean_packet_units": 17615
+   },
+   "class_depth7": {
+    "pool_entities": 6,
+    "pool": 21,
+    "tasks_with_pool_pair": 1,
+    "tasks": 6,
+    "mean_packet_units": 3527
+   },
+   "class_depth12": {
+    "pool_entities": 8,
+    "pool": 21,
+    "tasks_with_pool_pair": 2,
+    "tasks": 6,
+    "mean_packet_units": 6097
+   },
+   "class_depth20": {
+    "pool_entities": 11,
+    "pool": 21,
+    "tasks_with_pool_pair": 3,
+    "tasks": 6,
+    "mean_packet_units": 10146
+   },
+   "class_depth30": {
+    "pool_entities": 12,
+    "pool": 21,
+    "tasks_with_pool_pair": 4,
+    "tasks": 6,
+    "mean_packet_units": 15114
+   },
+   "class_depth40": {
+    "pool_entities": 13,
+    "pool": 21,
+    "tasks_with_pool_pair": 4,
+    "tasks": 6,
+    "mean_packet_units": 20090
+   }
+  }
+ },
+ "hypotheses": {
+  "H_class_scoping": "rejected as standalone lever: 5/21 full vs 5/21 class at the observed packet; +0-1 task with a pair at depth 20-30",
+  "H_packet_depth": "monotonic but capped: 5/21 at 7 records to 13/21 at 40 records (about 5x units); at most 4/6 tasks with a pool pair before any selection or grounding loss; one task never reached lexically at any depth",
+  "H_inventory": "not retested: the 2026-10-07 real B roster already listed all 11 repositories; Evidence-stage recall stayed 2/6 and correct pairs did not improve"
+ },
+ "limitations": "Burned v01-v06 tasks used as development cases only; plain task wording is a mechanical proxy for an Agent query; pool is a minimum audited set, not exhaustive; no live session, no grader; presence in a packet is necessary, not sufficient, for an eligible supported selection."
+}

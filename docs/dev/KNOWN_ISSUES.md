@@ -111,6 +111,14 @@ discovery is not solvable by guidance or cutoff tuning in the current design;
 next steps are owner-level (candidate-discovery surface or semantic recall).
 See `b10-continuation/r1-localization-results.md`.
 
+**KI-018 R1 stage follow-up (2026-10-08):** offline, zero-model. All exposable
+records and audited candidates sit in module `knowledge` (98.7% study notes);
+`projects` is granted but empty, so the candidate class is not addressable.
+Class scoping is null at the current packet; depth widening saturates at 4/6
+tasks with a pool pair at ≈5× units, with one task unreachable lexically. The
+remaining gap is vocabulary, not cutoff. Owner-level options only. See
+`b10-continuation/r1-stage-followup.md`.
+
 ## Resolved history
 
 - **KI-008 (2026-09-22):** S10 isolated Mem0 2.0.20 and conditionally admitted only a disposable

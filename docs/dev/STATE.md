@@ -16,6 +16,16 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
+**R1 stage follow-up (2026-10-08, offline, zero model calls).** All 49,734
+exposable records are module `knowledge` (98.7% MarginNote); the granted
+`projects` module is empty, so the candidate class has no usable metadata.
+Class scoping alone is null at today's 6–9-record packet (5 vs 6 of 21 pool
+entities); depth widening saturates at 13/21 entities and 4/6 tasks with a
+pool pair at 40 records (≈5× units), one task never reached lexically. Five
+single-stage levers are now measured below the bar. **b10 stays frozen**;
+owner choice between accepting the limitation, class-scoped semantic recall
+or derived candidate summaries. See `b10-continuation/r1-stage-followup.md`.
+
 **R1 localization and fresh validation (2026-10-08, local/research-only;
 candidate `ba92faf` reverted by `5b1e33d`).** Offline replay of recorded calls
 localized the missing second candidate to concept coverage (R1b) with one

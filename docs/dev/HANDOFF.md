@@ -15,6 +15,24 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
+**2026-10-08 R1 stage follow-up (decision: b10 stays frozen).** Offline,
+zero model calls, no production change. New stage evidence: every exposable
+record (49,734) and every audited pool Evidence record is module `knowledge`;
+`projects` is granted but empty and all 17 sources map to `knowledge`, so
+retrieval cannot target the candidate class. An oracle-free mechanical replay
+(frozen v01–v06 wording as plain queries, now development-only) shows class
+scoping is null at today's packet (5 vs 6 of 21 entities, 1/6 pairs each) and
+packet depth saturates (13/21 entities, 4/6 tasks with a pool pair at 40
+records, ≈17.6k units; one task never reached). The ceiling precedes R2/R3
+loss, so no live run was spent. The earlier complete 11-repo roster (B) is
+the inventory evidence. **Single blocker:** a vocabulary gap for unnamed
+candidates. **Owner research order (2026-10-08):** ① a grant-scoped,
+entity-oriented Candidate Inventory MVP (development on burned cases, then a
+fresh frozen A vs I comparison); ② only if it fails materially, local semantic
+recall; ③ only after both, owner decision on a documented limitation. Do not
+re-module sources, expand grants or retune on v01–v06/d01–d03 as held-out. See
+`b10-continuation/r1-stage-followup.md` and metrics.
+
 **2026-10-08 R1 localization and fresh validation (decision: b10 stays
 frozen).** Recorded production calls replayed offline localized the missing
 second candidate to concept coverage (R1b, 4/5 calls never matched a

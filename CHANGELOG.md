@@ -23,6 +23,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- A zero-model follow-up found that every exposable record is filed under the
+  `knowledge` module, so selection cannot target projects or experiences.
+  Scoping to the candidate class did not help at the current packet size, and
+  deeper packets saturate below release quality. b10 stays unreleased; no
+  production change.
+
 - Selection retrieval research localized the missing second candidate to the
   Agent's concept choice (R1b) and a rank cutoff (R1c), not to indexing or
   packaging. A one-line concept exception fixed the development cases. On a

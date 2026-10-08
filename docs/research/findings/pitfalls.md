@@ -68,3 +68,9 @@
 - Codex accounts can return `usageLimitExceeded` mid-batch; it arrives during the setup turn with
   zero model output. Predeclare a retry-once rule for zero-model upstream refusals and run
   concurrent arms so a quota cut does not hit one arm only.
+- Check the module/source-kind census before blaming query or cutoff. On User #1's Vault every
+  record (and every candidate) is `knowledge`; `projects` is granted but empty, so a selection
+  request cannot scope to its candidate class. Scoping alone did not help, though: the packet
+  (≈555 bytes per Evidence, 6–9 records per 4,000 units) and vocabulary gaps still bind.
+- Units are UTF-8 bytes, not tokens. A 4,000-unit packet is a small share of a ~90k-token
+  Agent session, so judge widening by recall ceiling, not by unit multiples.
