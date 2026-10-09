@@ -27,7 +27,7 @@ format limits and unfetched-label mentions. Version 0.2.0b10 prepared; local gat
 Ruff, mypy, relay, supply chain, frozen evaluation, reproducible build, clean-wheel smoke) passes.
 See `b10-continuation/candidate-inventory-confirmation.md`.
 
-**Candidate inventory in production code (2026-10-09, ADR-0032 Proposed; Review 114 approve
+**Candidate inventory in production code (2026-10-09, ADR-0032 Accepted; Review 114 approve
 with notes, all addressed).** `aptuni_search_context` gains `mode="inventory"` / `"evidence"`
 (Full-only, grant scopes and modules, exposure and credential guards, stable opaque IDs, no
 storage/index/schema change); the generated Full skill routes unnamed selection through it.

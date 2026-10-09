@@ -29,7 +29,7 @@ All notable changes to this project are documented here. The format follows
   documents and studied subjects exist (`aptuni_search_context` `mode="inventory"`) and fetch
   Evidence for the ones they choose (`mode="evidence"`), so "choose two from my history" no
   longer depends on guessing search words. Same grants, exposure and credential guards; no
-  storage change (ADR-0032, Proposed).
+  storage change (ADR-0032).
 
 - Selection research: a grant-scoped candidate inventory (what projects, documents
   and study topics exist) followed by Evidence for chosen candidates fixed unnamed

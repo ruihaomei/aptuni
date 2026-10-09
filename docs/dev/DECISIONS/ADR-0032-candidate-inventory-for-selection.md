@@ -1,15 +1,16 @@
 # ADR-0032: Tell the Agent which candidates exist before it chooses among them
 
-- **Status:** Proposed — owner approved the privacy surface in principle in chat on 2026-10-09
-  ("同意，开始产品化"); independent review required before acceptance
+- **Status:** Accepted — maintainer accepted in chat on 2026-10-09 ("接受 ADR-0032，打 tag 发布
+  0.2.0b10") after the owner approved the privacy surface in principle ("同意，开始产品化"),
+  Review 114 and the production-path confirmation
 - **Date:** 2026-10-09
 - **Deciders:** maintainer (final say) · implementing agent · independent reviewer
 - **Builds on:** ADR-0005 (Context API, MCP tools, progressive disclosure), ADR-0025 (explicit
   activation), ADR-0030 (host concepts), ADR-0031 (credentials out of context)
 - **Research refs:** `docs/dev/b10-continuation/candidate-inventory-results.md` and metrics;
   `r1-localization-results.md`; `r1-stage-followup.md`
-- **Needs maintainer confirmation:** yes — the shipped default for whether owners can hide
-  individual sources from the inventory (item 9, follow-up)
+- **Needs maintainer confirmation:** no for this decision; the per-source "hide from inventory"
+  switch (item 9) remains a separate follow-up
 
 ## Context
 

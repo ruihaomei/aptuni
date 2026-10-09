@@ -52,5 +52,5 @@ community contributors' agents) must read the ADRs relevant to its task before e
 | [ADR-0029](ADR-0029-general-knowledge-evidence-model.md) | General Knowledge Evidence Model: authority as ceiling, item-level classification, derived Knowledge State | Accepted |
 | [ADR-0030](ADR-0030-host-structured-concept-queries.md) | Host-structured concept queries: each concept matched whole, no single-word fallback | Accepted |
 | [ADR-0031](ADR-0031-keep-credentials-out-of-context.md) | Keep obvious credentials out of Evidence and Context: ingest withholding, legacy sweep, last-line Context guard | Accepted |
-| [ADR-0032](ADR-0032-candidate-inventory-for-selection.md) | Tell the Agent which candidates exist before it chooses among them | Proposed |
+| [ADR-0032](ADR-0032-candidate-inventory-for-selection.md) | Tell the Agent which candidates exist before it chooses among them | Accepted |
 <!-- ADR-INDEX:END -->
