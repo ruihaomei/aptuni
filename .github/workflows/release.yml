@@ -49,7 +49,7 @@ jobs:
           uv run --no-sync ruff check .
           uv run --no-sync mypy src
           python tools/check_relay.py
-          python -m unittest discover -s tests/dev -v
+          uv run --no-sync python -m unittest discover -s tests/dev -v
           python tools/check_supply_chain.py notices
           python tools/check_supply_chain.py secrets
           python tools/check_supply_chain.py workflow

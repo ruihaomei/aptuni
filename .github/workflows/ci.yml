@@ -47,7 +47,7 @@ jobs:
       - name: Repository contract checks
         run: |
           python tools/check_relay.py
-          python -m unittest discover -s tests/dev -v
+          uv run --no-sync python -m unittest discover -s tests/dev -v
       - name: Ubuntu ext4 Vault durability gate
         if: runner.os == 'Linux'
         run: |
