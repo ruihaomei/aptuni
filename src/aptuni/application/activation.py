@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from threading import Lock
 from typing import Literal
 
+from aptuni.application.candidates import candidate_evidence_context, inventory_context
 from aptuni.application.context import ContextResponse
 from aptuni.application.errors import AptuniError
 from aptuni.application.service import AptuniService, HostContextAccess
@@ -99,6 +100,29 @@ class AgentActivation:
                 )
             return self._retrieve("aptuni.full", query, modules=modules, budget=budget, limit=limit,
                                   concepts=concepts)
+
+    def session_candidates(
+        self,
+        mode: str,
+        *,
+        modules: tuple[Module, ...],
+        budget: int,
+        limit: int,
+        categories: tuple[str, ...] = (),
+        candidates: tuple[str, ...] = (),
+    ) -> ContextResponse:
+        """ADR-0032 inventory → Evidence: only inside an explicitly enabled Full session."""
+        with self._lock:
+            if not self._session_full:
+                raise AptuniError(
+                    "aptuni_activation_required",
+                    "Aptuni is OFF. Activate Profile, Memory, or Full for this task.",
+                )
+            if mode == "inventory":
+                return inventory_context(self.service, categories, modules=modules, budget=budget,
+                                         access=self.access())
+            return candidate_evidence_context(self.service, candidates, modules=modules, budget=budget,
+                                              limit=limit, access=self.access())
 
     def require_proposal_session(self) -> None:
         """Explain, in order, why a memory proposal cannot be made yet (ADR-0025: OFF captures nothing)."""

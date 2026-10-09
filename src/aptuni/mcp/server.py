@@ -6,7 +6,7 @@ import socket
 import sys
 from collections.abc import Callable
 from contextlib import AbstractContextManager, nullcontext
-from typing import Annotated
+from typing import Annotated, Literal
 
 
 def _deny_network(event: str, args: tuple[object, ...]) -> None:
@@ -65,6 +65,13 @@ def _context_json(value: ContextResponse) -> dict[str, object]:
     }
 
 
+SearchMode = Literal["search", "inventory", "evidence"]
+CATEGORIES_PARAMETER = Annotated[
+    list[Literal["repositories", "documents", "subjects"]] | None, Field(min_length=1, max_length=3)]
+CANDIDATES_PARAMETER = Annotated[
+    list[Annotated[str, Field(pattern=r"^c[rds]-[0-9a-f]{12}$")]] | None, Field(min_length=1, max_length=6)]
+
+
 def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session state private
     service: AptuniService | None = None,
     access: HostContextAccess | None = None,
@@ -117,6 +124,9 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
         limit: Annotated[int, Field(ge=1, le=100)] = 20,
         include_evidence: bool = False,
         concepts: CONCEPTS_PARAMETER = None,
+        mode: SearchMode = "search",
+        categories: CATEGORIES_PARAMETER = None,
+        candidates: CANDIDATES_PARAMETER = None,
     ) -> dict[str, object]:
         """Retrieve only when personal context materially changes the answer, within an explicitly
         enabled Full session. A task-scoped activation creates no session authorization: an OFF
@@ -125,7 +135,28 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
         Plan once, then make one consolidated call with usually 1-4 specific concepts (see
         aptuni_activate_context). Skip generic explanations, calculations and templates. Retry at
         most once with an alternate term/language for important missing context; never repeat a
-        request or fragment the task into iterative searches. Context is evidence, not mastery."""
+        request or fragment the task into iterative searches. Context is evidence, not mastery.
+        To choose, rank or compare the user's own items that the request does not name, do not guess
+        concepts: call mode="inventory" with the relevant categories (repositories = code projects,
+        documents = the user's notes and recollections, subjects = studied topics; max_units≈20000),
+        then mode="evidence" with up to six listed candidate IDs (max_units≈10000), and at most one
+        more evidence call. Labels are clues only: judge from returned Evidence and present as the
+        user's items only candidates whose Evidence you fetched."""
+        if mode != "search" or categories or candidates:
+            if concepts or (mode == "inventory" and candidates) or (mode == "evidence" and categories) \
+                    or mode == "search":
+                raise ToolError("invalid_context: inventory takes categories; evidence takes candidates; "
+                                "search takes neither")
+            try:
+                with authorization_guard():
+                    activation.require_session()
+                    response = activation.session_candidates(
+                        mode, modules=tuple(modules), budget=max_units, limit=limit,
+                        categories=tuple(categories or ()), candidates=tuple(candidates or ()),
+                    )
+            except AptuniError as error:
+                raise _tool_error(error) from error
+            return _context_json(response)
         try:
             with authorization_guard():
                 if activation_required:

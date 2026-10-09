@@ -171,3 +171,25 @@ def test_task_activation_preserves_previously_enabled_full_session(tmp_path) -> 
             await server.call_tool("aptuni_search_context", {"query": "Python", "modules": ["skills"]})
 
     anyio.run(exercise)
+
+
+@pytest.mark.parametrize("claude", [True, False])
+def test_full_skill_routes_unnamed_selection_through_inventory(claude: bool) -> None:
+    """ADR-0032 item 7: only Full sessions can list candidates; guidance says when and how."""
+    full = AdapterManager._skill("aptuni-full", "aptuni.full", claude=claude)
+    assert 'mode="inventory"' in full and 'mode="evidence"' in full
+    assert "whose Evidence you fetched" in full
+    assert "length" in full
+    for intent in ("aptuni.profile", "aptuni.memory"):
+        assert "inventory" not in AdapterManager._skill("aptuni-x", intent, claude=claude)
+
+
+def test_search_tool_description_documents_inventory_modes(tmp_path) -> None:
+    server = create_server(_service(tmp_path), _access(), activation_required=True)
+
+    async def exercise() -> str:
+        tools = {tool.name: tool for tool in await server.list_tools()}
+        return tools["aptuni_search_context"].description or ""
+
+    description = anyio.run(exercise)
+    assert 'mode="inventory"' in description and "whose Evidence you fetched" in description
