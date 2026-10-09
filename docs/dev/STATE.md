@@ -16,6 +16,8 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
+**Aptuni 0.2.0b10 published (2026-10-09; PyPI + GitHub pre-release, tag at `be77274`).**
+
 **b10 decision: RELEASE (2026-10-09; release-ready local checkpoint, owner publishes).** The
 production-path confirmation (five new, independently audited tasks; baseline = pre-feature
 worktree; blind grading) reproduced the research result: Codex A3/5 → P4/5, Claude Sonnet 5.5

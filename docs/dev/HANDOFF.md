@@ -15,6 +15,13 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
+**2026-10-09 Aptuni 0.2.0b10 released.** ADR-0032 accepted; tag `v0.2.0b10` at `be77274`; PyPI and
+GitHub pre-release published, artifacts byte-identical to a local build (`docs/dev/releases/0.2.0b10.md`).
+The first tag failed the release gate on dev-test CI setup (fixed in `960b761`, `be77274`) before
+anything was published. `claude update` → 2.1.295; Opus intentionally not tested. **Next (owner):**
+verified backup → `uv tool install aptuni==0.2.0b10` → regenerate adapter bundles. Private evaluation
+scratch `/private/tmp/aptuni-b10-inventory/` may be cleaned once no longer needed.
+
 **2026-10-09 b10 decision: RELEASE — release-ready local checkpoint.** Confirmation and
 regression results are in `b10-continuation/candidate-inventory-confirmation.md` and metrics.
 0.2.0b10 is prepared locally (version, CHANGELOG, READMEs, CITATION, COMPATIBILITY, lock); the
