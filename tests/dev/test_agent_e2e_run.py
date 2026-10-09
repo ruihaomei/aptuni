@@ -18,6 +18,12 @@ class RunBoundaryTests(unittest.TestCase):
         cls.tool = importlib.util.module_from_spec(SPEC)
         SPEC.loader.exec_module(cls.tool)
 
+    def setUp(self):
+        # Hermetic: CI runners have no Codex/Claude CLI, so stub only the host version probe.
+        probe = patch.object(self.tool.subprocess, "check_output", return_value="host-cli 0.0.0-test\n")
+        probe.start()
+        self.addCleanup(probe.stop)
+
     def test_digest_mismatch_fails_before_host_execution(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
