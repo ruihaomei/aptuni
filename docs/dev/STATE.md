@@ -16,6 +16,17 @@ evaluation, the Obsidian owner interface and the versioned public developer SDK 
 
 ## Current fix — Day 1 dogfooding P1s
 
+**b10 decision: RELEASE (2026-10-09; release-ready local checkpoint, owner publishes).** The
+production-path confirmation (five new, independently audited tasks; baseline = pre-feature
+worktree; blind grading) reproduced the research result: Codex A3/5 → P4/5, Claude Sonnet 5.5
+A0/5 → P1/5 strict; eligible selection 3/10 → 9/10; R1 6 → 0; no unsupported substantive claim
+or boundary failure. Across both evaluations R1 13/22 → 0/22 and eligible selection 7/22 →
+21/22; strict E2E on the strong production model 10/11. Ordinary regression: Codex P 6/6, Claude
+P 4/6 (misses unrelated to the new code), silent where expected. Remaining: Claude Sonnet strict
+format limits and unfetched-label mentions. Version 0.2.0b10 prepared; local gate (tests 1,290,
+Ruff, mypy, relay, supply chain, frozen evaluation, reproducible build, clean-wheel smoke) passes.
+See `b10-continuation/candidate-inventory-confirmation.md`.
+
 **Candidate inventory in production code (2026-10-09, ADR-0032 Proposed; Review 114 approve
 with notes, all addressed).** `aptuni_search_context` gains `mode="inventory"` / `"evidence"`
 (Full-only, grant scopes and modules, exposure and credential guards, stable opaque IDs, no

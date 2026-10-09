@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0b10] — 2026-10-09
+
 ### Security
 
 - Notes that contain obvious credentials are no longer taken into Aptuni from any source:

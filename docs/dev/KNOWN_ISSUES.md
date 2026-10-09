@@ -111,6 +111,13 @@ discovery is not solvable by guidance or cutoff tuning in the current design;
 next steps are owner-level (candidate-discovery surface or semantic recall).
 See `b10-continuation/r1-localization-results.md`.
 
+**KI-018 grounded selection resolved for b10 (2026-10-09):** production ADR-0032 confirmed on
+new tasks across Codex and Claude Sonnet 5.5 (R1 13/22 → 0/22 over both evaluations; eligible
+selection 7/22 → 21/22; strict E2E on the strong production model 10/11). Remaining, non-blocking:
+Claude Sonnet often exceeds tight output limits (also without Aptuni) and sometimes names
+unfetched inventory items as existing; Folder/GitHub file Evidence depth (280 characters).
+KI-018's broader retrieval-noise history stays open for plain-query callers.
+
 **KI-018 Candidate Inventory (2026-10-09):** research seam only. Inventory → Evidence
 removed R1 on a fresh real six-task set for both Codex (3/6 → 6/6 strict) and Claude
 Sonnet 5.5 (0/6 → 3/6); remaining Claude misses are length limits and naming unfetched

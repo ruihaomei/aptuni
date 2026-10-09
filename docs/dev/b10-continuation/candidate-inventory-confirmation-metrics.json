@@ -1,0 +1,570 @@
+{
+ "schema_version": 1,
+ "date": "2026-10-09",
+ "status": "production_path_confirmation",
+ "snapshot_seq": 66,
+ "policy_epoch": 1,
+ "implementation_revision": "232a9c6",
+ "baseline": "pre-feature worktree 4b7ec9e with installed b10 skills",
+ "frozen_manifest_sha256": "e1fb6a52a1ad406106911ce94b203251c55f0dad2fb3e853e1a0f5ed90cdfc9e",
+ "grades_locked_sha256": "11c9112b3682d10cc443c8db1c14107eacc00d73d5980dbf02ecfcdd31960cdb",
+ "regression_grades_sha256": "145562ed4a78c8f4db0328e07f0dc8aaccb0ff2c63ae8f99d79f7ce14f92a974",
+ "models": {
+  "codex": "gpt-6-astra xhigh (Codex CLI 0.155.1)",
+  "claude": "claude-sonnet-5-5 (Claude Code 2.1.87)"
+ },
+ "operational": {
+  "sessions": 32,
+  "operational_failures": 0,
+  "retries": 0
+ },
+ "confirmation": {
+  "tasks": 5,
+  "independent_adequacy_audit": "5/5 adequate",
+  "summary": {
+   "codex-A": {
+    "tasks": 5,
+    "strict_e2e": 3,
+    "eligible_selection": 3,
+    "candidate_recall": {
+     "returned": 5,
+     "pool": 13
+    },
+    "primary_failures": {
+     "R1": 2
+    },
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issues": 0,
+    "retrieval_calls": 8,
+    "used_units": 19684,
+    "task_tokens": 442517,
+    "journey_s": 349.375
+   },
+   "codex-P": {
+    "tasks": 5,
+    "strict_e2e": 4,
+    "eligible_selection": 4,
+    "candidate_recall": {
+     "returned": 12,
+     "pool": 13
+    },
+    "primary_failures": {
+     "R2": 1
+    },
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issues": 0,
+    "retrieval_calls": 11,
+    "used_units": 95586,
+    "task_tokens": 516228,
+    "journey_s": 316.178
+   },
+   "claude-A": {
+    "tasks": 5,
+    "strict_e2e": 0,
+    "eligible_selection": 0,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 13
+    },
+    "primary_failures": {
+     "R1": 4,
+     "R2": 1
+    },
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issues": 0,
+    "retrieval_calls": 8,
+    "used_units": 7255,
+    "task_tokens": 260607,
+    "journey_s": 167.772
+   },
+   "claude-P": {
+    "tasks": 5,
+    "strict_e2e": 1,
+    "eligible_selection": 5,
+    "candidate_recall": {
+     "returned": 11,
+     "pool": 13
+    },
+    "primary_failures": {
+     "R4": 3,
+     "R3": 1
+    },
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 1,
+    "boundary_or_privacy_issues": 0,
+    "retrieval_calls": 11,
+    "used_units": 102094,
+    "task_tokens": 430870,
+    "journey_s": 199.581
+   }
+  },
+  "runs": [
+   {
+    "arm": "claude-A",
+    "task": "g01",
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 0,
+     "pool": 2
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 960,
+    "task_tokens": 61337,
+    "journey_s": 41.98
+   },
+   {
+    "arm": "claude-A",
+    "task": "g02",
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 0,
+     "pool": 4
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 1,
+    "modes": [
+     "search"
+    ],
+    "used_units": 1849,
+    "task_tokens": 46844,
+    "journey_s": 32.156
+   },
+   {
+    "arm": "claude-A",
+    "task": "g03",
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 0,
+     "pool": 4
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 944,
+    "task_tokens": 60946,
+    "journey_s": 28.797
+   },
+   {
+    "arm": "claude-A",
+    "task": "g04",
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 1
+    },
+    "primary_failure": "R2",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 1,
+    "modes": [
+     "search"
+    ],
+    "used_units": 1207,
+    "task_tokens": 29815,
+    "journey_s": 27.967
+   },
+   {
+    "arm": "claude-A",
+    "task": "g05",
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 0,
+     "pool": 2
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 2295,
+    "task_tokens": 61665,
+    "journey_s": 36.872
+   },
+   {
+    "arm": "claude-P",
+    "task": "g01",
+    "strict_e2e": false,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 2,
+     "pool": 2
+    },
+    "primary_failure": "R4",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 3,
+    "modes": [
+     "inventory",
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 20106,
+    "task_tokens": 99433,
+    "journey_s": 48.208
+   },
+   {
+    "arm": "claude-P",
+    "task": "g02",
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 3,
+     "pool": 4
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 25563,
+    "task_tokens": 90826,
+    "journey_s": 41.585
+   },
+   {
+    "arm": "claude-P",
+    "task": "g03",
+    "strict_e2e": false,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 4,
+     "pool": 4
+    },
+    "primary_failure": "R4",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 22999,
+    "task_tokens": 84051,
+    "journey_s": 39.493
+   },
+   {
+    "arm": "claude-P",
+    "task": "g04",
+    "strict_e2e": false,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 1
+    },
+    "primary_failure": "R4",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 17041,
+    "task_tokens": 76952,
+    "journey_s": 32.088
+   },
+   {
+    "arm": "claude-P",
+    "task": "g05",
+    "strict_e2e": false,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 2
+    },
+    "primary_failure": "R3",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 1,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 16385,
+    "task_tokens": 79608,
+    "journey_s": 38.207
+   },
+   {
+    "arm": "codex-A",
+    "task": "g01",
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 0,
+     "pool": 2
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 944,
+    "task_tokens": 112451,
+    "journey_s": 68.094
+   },
+   {
+    "arm": "codex-A",
+    "task": "g02",
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 4
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 1,
+    "modes": [
+     "search"
+    ],
+    "used_units": 3941,
+    "task_tokens": 57721,
+    "journey_s": 66.164
+   },
+   {
+    "arm": "codex-A",
+    "task": "g03",
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 2,
+     "pool": 4
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 7859,
+    "task_tokens": 100233,
+    "journey_s": 70.388
+   },
+   {
+    "arm": "codex-A",
+    "task": "g04",
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 1
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 1,
+    "modes": [
+     "search"
+    ],
+    "used_units": 1259,
+    "task_tokens": 73547,
+    "journey_s": 86.86
+   },
+   {
+    "arm": "codex-A",
+    "task": "g05",
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 2
+    },
+    "primary_failure": "R1",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "search",
+     "search"
+    ],
+    "used_units": 5681,
+    "task_tokens": 98565,
+    "journey_s": 57.869
+   },
+   {
+    "arm": "codex-P",
+    "task": "g01",
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 2,
+     "pool": 2
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 20074,
+    "task_tokens": 96429,
+    "journey_s": 55.223
+   },
+   {
+    "arm": "codex-P",
+    "task": "g02",
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 4,
+     "pool": 4
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 27884,
+    "task_tokens": 108577,
+    "journey_s": 67.117
+   },
+   {
+    "arm": "codex-P",
+    "task": "g03",
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 4,
+     "pool": 4
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 11944,
+    "task_tokens": 98597,
+    "journey_s": 91.313
+   },
+   {
+    "arm": "codex-P",
+    "task": "g04",
+    "strict_e2e": true,
+    "eligible_selection": true,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 1
+    },
+    "primary_failure": null,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 2,
+    "modes": [
+     "inventory",
+     "evidence"
+    ],
+    "used_units": 16837,
+    "task_tokens": 89036,
+    "journey_s": 38.446
+   },
+   {
+    "arm": "codex-P",
+    "task": "g05",
+    "strict_e2e": false,
+    "eligible_selection": false,
+    "candidate_recall": {
+     "returned": 1,
+     "pool": 2
+    },
+    "primary_failure": "R2",
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issue": false,
+    "retrieval_calls": 3,
+    "modes": [
+     "inventory",
+     "evidence",
+     "evidence"
+    ],
+    "used_units": 18847,
+    "task_tokens": 123589,
+    "journey_s": 64.079
+   }
+  ]
+ },
+ "regression_ordinary_six": {
+  "production": {
+   "codex-P": {
+    "tasks": 6,
+    "pass": 6,
+    "context_use_appropriate": 6,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 0,
+    "boundary_or_privacy_issues": 0
+   },
+   "claude-P": {
+    "tasks": 6,
+    "pass": 4,
+    "context_use_appropriate": 6,
+    "unsupported_personal_claims": 0,
+    "existence_only_mentions": 8,
+    "boundary_or_privacy_issues": 0
+   }
+  },
+  "prior_baselines": {
+   "codex-A_2026-10-05": "6/6",
+   "claude-A_2026-10-08": "5/6"
+  }
+ },
+ "limitations": "One owner's corpus; five confirmation tasks; one blind model grader; inventory listings masked from graders; Claude Opus 5.5 untested (CLI too old)."
+}

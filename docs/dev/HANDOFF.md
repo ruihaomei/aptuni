@@ -15,6 +15,18 @@ Development sessions triage the inbox into the defect table / daily log / BACKLO
 
 ## Current position
 
+**2026-10-09 b10 decision: RELEASE — release-ready local checkpoint.** Confirmation and
+regression results are in `b10-continuation/candidate-inventory-confirmation.md` and metrics.
+0.2.0b10 is prepared locally (version, CHANGELOG, READMEs, CITATION, COMPATIBILITY, lock); the
+local gate passes and the build is byte-reproducible (wheel `52e21f11…`, sdist `42a0095f…`).
+pip-audit runs in CI. **Owner actions that remain:** (1) accept ADR-0032 (status → Accepted);
+(2) tag `v0.2.0b10`, push and publish to PyPI/GitHub under the release policy, then write
+`docs/dev/releases/0.2.0b10.md`; (3) take a verified backup, `uv tool install aptuni==0.2.0b10`,
+then regenerate the adapter bundles so installed Full skills carry the selection guidance;
+(4) optionally `claude update` to allow a Claude Opus 5.5 check. Private evaluation traces under
+`/private/tmp/aptuni-b10-inventory/` can be cleaned after the owner reviews the decision (frozen
+tasks, audits, manifests and locked grades to keep).
+
 **2026-10-09 Candidate inventory productionized (ADR-0032 Proposed; Review 114).** Owner
 approved the privacy surface in principle in chat. Production code: `application/candidates.py`,
 `AgentActivation.session_candidates`, `aptuni_search_context` modes, Full-skill
