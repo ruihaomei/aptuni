@@ -116,7 +116,7 @@ def _label_safe(row: dict[str, object]) -> bool:
 class _Groups:
     repos: dict[tuple[str, str], dict[str, Any]]
     documents: dict[tuple[str, str], dict[str, Any]]
-    roots: dict[tuple[str, str, str], dict[str, Any]]
+    roots: dict[str, dict[str, Any]]  # one study subject per root title, across notebooks and sources
 
 
 def _collect(evidence: Iterable[Any]) -> _Groups:
@@ -145,8 +145,7 @@ def _collect(evidence: Iterable[Any]) -> _Groups:
         elif schema == "marginnote.locator" and fields.get("notebook_id") is not None:
             title = str(record.subject).split(PATH_SEPARATOR)[0].strip()
             if title:
-                root = groups.roots.setdefault((source, str(fields["notebook_id"]), title.casefold()),
-                                               {"label": title, "size": 0, "records": []})
+                root = groups.roots.setdefault(title.casefold(), {"label": title, "size": 0, "records": []})
                 root["records"].append(record)
                 if fields.get("depth") == 0:
                     root["size"] = max(root["size"], _descendants(fields.get("subtree_concepts")))
@@ -177,17 +176,14 @@ def _document_candidates(documents: dict[tuple[str, str], dict[str, Any]]) -> li
     return candidates
 
 
-def _subject_candidates(roots: dict[tuple[str, str, str], dict[str, Any]]) -> list[Candidate]:
+def _subject_candidates(roots: dict[str, dict[str, Any]]) -> list[Candidate]:
+    """Large root topics; the same title in several notebooks is one subject with all its Evidence."""
     candidates: list[Candidate] = []
-    seen: set[str] = set()
     ranked = sorted((item for item in roots.items() if item[1]["size"] >= SUBJECT_MIN_DESCENDANTS),
                     key=lambda item: (-item[1]["size"], item[1]["label"].casefold(), item[0]))
-    for (source, notebook, title), root in ranked:
-        if title in seen or len(candidates) >= SUBJECT_LIMIT:
-            continue
-        seen.add(title)
-        row: dict[str, object] = {"id": candidate_id(source, "subjects", f"{notebook}\u241f{title}"),
-                                  "label": root["label"], "notes": root["size"]}
+    for title, root in ranked[:SUBJECT_LIMIT]:
+        row: dict[str, object] = {"id": candidate_id("", "subjects", title), "label": root["label"],
+                                  "notes": root["size"]}
         candidates.append(Candidate(str(row["id"]), "subjects", row, tuple(sorted(root["records"], key=_subject_rank))))
     return candidates
 
@@ -244,7 +240,7 @@ def _inventory_unit(category: Category, rows: list[dict[str, object]]) -> Contex
 
 def inventory_context(service: Any, categories: Sequence[str], *, modules: tuple[str, ...], budget: int,
                       access: Any) -> ContextResponse:
-    """List authorized candidate entities per category (ADR-0032 item 3); rows truncate, never categories."""
+    """List authorized candidate entities per category (ADR-0032 item 3); omission sets ``truncated``."""
     if not categories or len(set(categories)) != len(categories) or any(c not in CATEGORIES for c in categories):
         raise AptuniError("invalid_context", "Pass 1-3 distinct categories: repositories, documents, subjects.")
     selected, access = _authorized_evidence(service, modules, budget, 20, access)
@@ -255,7 +251,13 @@ def inventory_context(service: Any, categories: Sequence[str], *, modules: tuple
         for category in categories:
             kept: list[dict[str, object]] = []
             for candidate in inventory[cast_category(category)]:
-                if used + unit_cost(_inventory_unit(cast_category(category), [*kept, candidate.row])) > budget:
+                trial = _inventory_unit(cast_category(category), [*kept, candidate.row])
+                if contains_credential(trial.text):
+                    # Rows can look like a credential only together (e.g. a Markdown-table rule across
+                    # rows); skip the row so the last-line guard never drops the whole category.
+                    truncated = True
+                    continue
+                if used + unit_cost(trial) > budget:
                     truncated = True
                     break
                 kept.append(candidate.row)

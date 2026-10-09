@@ -95,3 +95,11 @@ def test_select_evidence_round_robins_caps_and_ignores_unknown_ids() -> None:
     chosen, omitted = select_evidence(inventory, (first, second, "cr-000000000000"), per_candidate=3)
     assert [record.id for record in chosen] == ["a-readme", "b-readme", "a1", "a2"]
     assert omitted is True
+
+
+def test_same_subject_in_several_notebooks_is_one_candidate_with_all_evidence() -> None:
+    inventory = build_inventory([card("calc", "Calculus", 0, 90),
+                                 card("calc-again", "Calculus", 0, 25, notebook="other")])
+    (subject,) = inventory["subjects"]
+    assert subject.row["notes"] == 90
+    assert {record.id for record in subject.records} == {"calc", "calc-again"}

@@ -6,6 +6,8 @@ Pick an item up when its owning slice starts; do not open a review round for the
 | Item | Source | Owning slice |
 |---|---|---|
 | Candidate-class metadata: all 17 sources (and guided setup's `FOLDER_INGEST_MODULES`) map to `knowledge`, leaving the granted `projects` module empty; any future re-mapping must reconcile ADR-0029 `knowledge.applied` authority and needs owner confirmation | R1 stage follow-up 2026-10-08 | b10 candidate-discovery slice |
+| Candidate inventory: per-Vault salt for candidate IDs if cross-host linkability matters; owner "hide from inventory" switch (source-config field, owner decision); compact document rows to cut the +26–58% selection token overhead | Review 114 N4, ADR-0032 item 9 | post-b10 selection slice |
+| Folder/GitHub file Evidence keeps only the first 280 characters, so entities deep inside multi-topic documents are unreachable by any path; consider chunked Evidence (ADR) if real tasks need it | Candidate Inventory dev v05 | corpus-depth slice |
 | If a selection concept rule is ever revisited: phrase eligibility as "returned context" (Memory/Profile modes have no Evidence), state that an artifact proves existence not quality, update the `aptuni_activate_context` description and amend ADR-0030 in the same change; use `next(..., None)` with a message in the guidance test | Review 113 N1–N5 (bullet reverted) | b10 candidate-discovery slice |
 | Out-of-band-edit path: quarantine and diff a hash mismatch instead of a read refusal | S01 F2; ADR-0013 item 5 | M1 Vault hardening |
 | Segment compaction (chain-preserving rewrite) | S01 F1 | M1 Vault hardening |

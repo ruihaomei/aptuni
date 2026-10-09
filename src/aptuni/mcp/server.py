@@ -140,8 +140,10 @@ def create_server(  # noqa: PLR0915 - one closure keeps the MCP server's session
         concepts: call mode="inventory" with the relevant categories (repositories = code projects,
         documents = the user's notes and recollections, subjects = studied topics; max_units≈20000),
         then mode="evidence" with up to six listed candidate IDs (max_units≈10000), and at most one
-        more evidence call. Labels are clues only: judge from returned Evidence and present as the
-        user's items only candidates whose Evidence you fetched."""
+        more evidence call. In these two modes `query` states the task; `concepts` and
+        `include_evidence` are not used, and `limit` caps Evidence records. Labels are clues only:
+        judge from returned Evidence and present as the user's items only candidates
+        whose Evidence you fetched."""
         if mode != "search" or categories or candidates:
             if concepts or (mode == "inventory" and candidates) or (mode == "evidence" and categories) \
                     or mode == "search":

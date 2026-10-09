@@ -23,6 +23,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Agents in an explicitly enabled Full session can now list which of your projects,
+  documents and studied subjects exist (`aptuni_search_context` `mode="inventory"`) and fetch
+  Evidence for the ones they choose (`mode="evidence"`), so "choose two from my history" no
+  longer depends on guessing search words. Same grants, exposure and credential guards; no
+  storage change (ADR-0032, Proposed).
+
 - Selection research: a grant-scoped candidate inventory (what projects, documents
   and study topics exist) followed by Evidence for chosen candidates fixed unnamed
   "choose two from my history" tasks on fresh real data for both Codex (3/6 → 6/6)

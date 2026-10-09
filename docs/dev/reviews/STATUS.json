@@ -456,6 +456,18 @@
    "current": "113-b10-selection-concept-exception-review.md",
    "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
    "supersedes": []
+  },
+  "beta-candidate-inventory": {
+   "kind": "review",
+   "current": "114-b10-candidate-inventory-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
+  },
+  "beta-research-guard-socketpair": {
+   "kind": "review",
+   "current": "115-research-guard-socketpair-review.md",
+   "verdict": "APPROVE_WITH_NON_BLOCKING_NOTES",
+   "supersedes": []
   }
  }
 }

@@ -175,3 +175,83 @@ def test_default_search_is_unchanged(tmp_path) -> None:
         assert any("robotics club" in item["text"] for item in result["items"])
 
     anyio.run(exercise)
+
+
+def test_rows_that_only_look_like_a_credential_together_do_not_empty_the_category(tmp_path) -> None:
+    """Review N1: the last-line guard checks a whole unit, so rows are guarded as they accumulate."""
+    service, access = _ready(tmp_path)
+    notes = tmp_path / "odd"
+    notes.mkdir()
+    for name in ("x|password|y.md", "z| |Abc123xyz9.md", "real project.md"):
+        (notes / name).write_text("Plain notes.", "utf-8")
+    source = service.add_folder_source(notes, modules=("knowledge",), role="odd")
+    service.sync(source.id)
+    server = create_server(service, access, activation_required=True)
+
+    async def exercise() -> None:
+        await _call(server, "aptuni_activate_context", FULL)
+        listed = await _call(server, "aptuni_search_context", {
+            "query": "q", "modules": ["knowledge"], "mode": "inventory", "categories": ["documents"],
+            "max_units": 20000})
+        labels = {row["label"] for row in _inventory_rows(listed)}
+        assert "real project" in labels and "recollections/robotics club" in labels
+        assert listed["truncated"] is True
+
+    anyio.run(exercise)
+
+
+def test_server_without_required_activation_and_task_full_cannot_list(tmp_path) -> None:
+    service, access = _ready(tmp_path)
+
+    async def exercise() -> None:
+        legacy = create_server(service, access, activation_required=False)
+        with pytest.raises(ToolError, match="aptuni_activation_required"):
+            await legacy.call_tool("aptuni_search_context", {
+                "query": "q", "modules": ["knowledge"], "mode": "inventory", "categories": ["documents"]})
+        server = create_server(service, access, activation_required=True)
+        await _call(server, "aptuni_activate_context", {**FULL, "scope": "task"})
+        with pytest.raises(ToolError, match="aptuni_activation_required"):
+            await server.call_tool("aptuni_search_context", {
+                "query": "q", "modules": ["knowledge"], "mode": "inventory", "categories": ["documents"]})
+
+    anyio.run(exercise)
+
+
+def test_stale_and_unknown_ids_are_indistinguishable_and_credentials_never_return(tmp_path) -> None:
+    service, access = _ready(tmp_path)
+    server = create_server(service, access, activation_required=True)
+
+    async def exercise() -> None:
+        await _call(server, "aptuni_activate_context", FULL)
+        rows = _inventory_rows(await _call(server, "aptuni_search_context", {
+            "query": "q", "modules": ["knowledge"], "mode": "inventory", "categories": ["documents"],
+            "max_units": 20000}))
+        (tmp_path / "notes" / "recollections" / "volunteering.md").unlink()
+        service.sync(next(s.id for s in service.sources()))
+        stale_id = next(row["id"] for row in rows if row["label"].endswith("volunteering"))
+        stale = await _call(server, "aptuni_search_context", {
+            "query": "q", "modules": ["knowledge"], "mode": "evidence", "candidates": [stale_id]})
+        unknown = await _call(server, "aptuni_search_context", {
+            "query": "q", "modules": ["knowledge"], "mode": "evidence", "candidates": ["cd-000000000000"]})
+        assert {k: v for k, v in stale.items() if k != "vault_seq"} == \
+            {k: v for k, v in unknown.items() if k != "vault_seq"}
+        everything = await _call(server, "aptuni_search_context", {
+            "query": "q", "modules": ["knowledge"], "mode": "evidence", "candidates": [r["id"] for r in rows]})
+        assert all("sk-test" not in item["text"] for item in everything["items"])
+
+    anyio.run(exercise)
+
+
+def test_budget_spent_on_an_earlier_category_reports_truncation(tmp_path) -> None:
+    service, access = _ready(tmp_path)
+    server = create_server(service, access, activation_required=True)
+
+    async def exercise() -> None:
+        await _call(server, "aptuni_activate_context", FULL)
+        both = await _call(server, "aptuni_search_context", {
+            "query": "q", "modules": ["knowledge"], "mode": "inventory",
+            "categories": ["documents", "subjects"], "max_units": 400})
+        assert both["truncated"] is True
+        assert [json.loads(item["text"])["category"] for item in both["items"]] in (["documents"], [])
+
+    anyio.run(exercise)

@@ -74,19 +74,27 @@ staleness without measured benefit.
      Optional `about`: at most 90 UTF-8 bytes of the shallowest README Evidence, with markup removed.
    - `documents`: `folder.locator` / `obsidian.locator` grouped by (source, `relative_path`), label
      = path without extension; `notion.locator` grouped by (source, `entity_id`), label = `title`.
-   - `subjects`: `marginnote.locator` v2 root topics (depth 0) grouped by (source, notebook, root
-     title), with at least 20 descendant concepts. Label = the root title. Ranked by descendant
-     count, top 100.
+   - `subjects`: `marginnote.locator` v2 root topics grouped by root title (case-folded) across
+     notebooks and sources, so one subject studied in several notebooks is one candidate with all
+     its Evidence. Size = the largest depth-0 descendant count; at least 20; top 100 by size.
+     Label = the root title.
    A candidate is an entity cue, not proof of the user's work. The Agent merges entities that
    several repositories or notebooks document.
 2. **Candidate IDs** are `c` + category letter (`r`/`d`/`s`) + `-` + the first 12 hex digits of
-   SHA-256 over (source ID, category, grouping key). They are stable across calls and snapshots
-   while the entity exists, reveal nothing by themselves, and need no session state.
+   SHA-256 over (source ID, category, grouping key); subjects use an empty source. They are stable
+   across calls and snapshots while the entity exists and need no session state. They are
+   unsalted: an ID discloses nothing beyond its inventory row, but the same entity has the same ID
+   for every host of one owner, and a low-entropy key (a repository number, a common path) can be
+   confirmed offline by someone who already guesses it. A per-Vault salt is a follow-up if
+   cross-host linkability ever matters.
 3. **`mode="inventory"`** requires an explicitly enabled Full session (ADR-0025), the grant's
    `context.read` and `evidence.read` scopes and the requested modules. It requires 1–3 distinct
    `categories` and no `concepts`/`candidates`. Each category is one or more L4 units
    (`kind="candidate_inventory"`, `tainted=true`) holding JSON rows `{id, label, about?|evidence|notes}`.
-   Rows are packed in order until the budget is reached; `truncated` reports omission.
+   Rows are packed in order until the budget is reached; a row that would make the accumulated
+   unit look like a credential is skipped rather than letting the last-line guard drop the whole
+   category. Any omission, including a later category that no longer fits, sets `truncated`. In
+   these modes `query` states the task; `concepts` must be absent and `include_evidence` is unused.
 4. **`mode="evidence"`** has the same authorization and takes 1–6 distinct candidate IDs. It
    recomputes the inventory from the current snapshot, so a stale, hidden, withdrawn or unknown ID
    returns nothing for that ID and never errors in a way that reveals existence. It returns at
@@ -101,7 +109,8 @@ staleness without measured benefit.
    grouping, every row is credential-checked before disclosure, and `pack_units` keeps the ADR-0031
    last-line guard. A final snapshot check discards the response if the Vault changed. Nothing is
    logged or stored.
-7. **Guidance** (generated Full/Profile/Memory skills, both hosts, and the tool description):
+7. **Guidance** (the generated Full skill for both hosts, because only an explicitly enabled Full
+   session can list candidates, and the `aptuni_search_context` description):
    use inventory → Evidence only to choose, rank, shortlist or compare the user's own prior items
    that the request does not name. Labels are clues. Judge eligibility only from returned Evidence.
    Name as the user's items only candidates whose Evidence was fetched. Keep the requested length.
@@ -132,6 +141,10 @@ staleness without measured benefit.
   credential-bearing Evidence never contributes a row or label; credential-like labels dropped;
   stable IDs across calls; unknown or stale IDs return nothing; per-candidate cap and round-robin;
   budget truncation; snapshot change discards; default search unchanged; MCP schema validation.
-- Independent review (privacy, MCP contract).
+- Independent review (privacy, MCP contract): Review 114, approve with non-blocking notes; N1
+  (category emptied by a joined-unit credential match), N2 (ADR/docstring wording, subject
+  merge), N3 (tool description), N4 (unsalted IDs, documented) and N5 (adversarial tests: server
+  without required activation, task-scoped Full, stale vs unknown IDs, credentials in evidence
+  mode, multi-category budget) were addressed before the confirmation; N6 is in HANDOFF.
 - Fresh confirmation on the production path (Codex and Claude) plus ordinary/silent regression
   before any b10 release decision.
